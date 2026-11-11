@@ -72,12 +72,33 @@ words as a form, so a homograph can pick up a sentence meant for its twin.
 
 Within each step, more common words come first.
 
+## VESUM form lookup (separate database)
+
+    pip install pymorphy3 pymorphy3-dicts-uk
+    python3 data/import_vesum.py vesum.db                           # about 80 seconds, 211 MB
+    python3 data/search.py nebokrai.db --vesum vesum.db соловейком
+
+VESUM lists 393,095 Ukrainian words with 3.7 million forms, but no meanings.
+Search uses it only as a fallback: when a Cyrillic query matches nothing in
+Wiktionary, VESUM tells us which dictionary word the form belongs to. If
+Wiktionary has that word, its entry is shown (`нездійсненними` finds
+`нездійсненний`). If not, search returns a bare result marked `vesum_only`
+(`соловейком` finds `соловейко`, with no definition).
+
+**VESUM must stay in its own file.** Its licence is CC BY-NC-SA 4.0
+(non-commercial), Wiktionary's is CC BY-SA 4.0, and the two cannot be merged
+into one dataset. Nothing from `vesum.db` is copied into `nebokrai.db`, and
+deleting `vesum.db` removes VESUM from the site completely. While it is in
+use, the site has to stay non-commercial.
+
+The data comes from the `pymorphy3-dicts-uk` package, a 2022 snapshot of VESUM.
+
 ## Known gaps
 
 - 1,030 nouns, verbs and adjectives have no inflection table.
 - 17,622 entries have audio.
-- Missing words exist (for example `соловейко`). VESUM would fill these, but
-  its licence is non-commercial.
+- Words missing from Wiktionary (for example `соловейко`) are found through
+  VESUM but have no definition.
 
 ## Licence
 
@@ -86,3 +107,4 @@ Within each step, more common words come first.
 | English Wiktionary (via kaikki.org) | CC BY-SA 4.0 | credit, and share derived data under the same licence |
 | FrequencyWords (OpenSubtitles 2018) | CC BY-SA 4.0 | same |
 | Tatoeba | CC BY 2.0 FR | credit Tatoeba, link to the sentence |
+| VESUM (separate `vesum.db`) | CC BY-NC-SA 4.0 | credit, non-commercial use only, keep apart from the rows above |

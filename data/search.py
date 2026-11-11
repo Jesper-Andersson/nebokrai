@@ -5,6 +5,7 @@ Usage:
     python3 search.py nebokrai.db kalyna
     python3 search.py nebokrai.db книги
     python3 search.py nebokrai.db "to read"
+    python3 search.py nebokrai.db --vesum vesum.db соловейком
 
 How a query is matched, best first:
     1. exact dictionary word          калина  -> калина
@@ -16,6 +17,13 @@ How a query is matched, best first:
     7. prefix of a word (Cyrillic or Latin), for search-as-you-type
 
 Within each step, more common words come first.
+
+VESUM fallback: if vesum.db is given (--vesum) and a Cyrillic query matches
+nothing in steps 1 and 2, the form is looked up in VESUM to find its dictionary
+word. When Wiktionary has that word, its entry is returned; when it does not,
+a bare result is returned with `"vesum_only": True` and no meanings, so the
+site can at least say "this is a form of X". VESUM is only ever read from its
+own file (see import_vesum.py for the licence reason).
 """
 import json
 import re
@@ -27,7 +35,7 @@ from import_wiktionary import loose_latin, national_translit, plain
 RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_loose": 4, "english_mention": 5, "prefix": 6}
 
 
-def search(db, query, limit=20):
+def search(db, query, limit=20, vesum=None):
     q = query.strip()
     if not q:
         return []
@@ -40,9 +48,20 @@ def search(db, query, limit=20):
             if eid not in hits or r < hits[eid]:
                 hits[eid] = r
 
+    stubs = []  # words only VESUM knows
     if cyrillic:
         key = plain(q)
         add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
+        if not hits and vesum is not None:
+            for lemma, pos in vesum.execute(
+                    "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=?", (key,)):
+                found = db.execute("SELECT entry_id, 'form' FROM search_keys WHERE key=? AND kind='word'",
+                                   (lemma,)).fetchall()
+                if found:
+                    add(found)
+                else:
+                    stubs.append(dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[],
+                                      head_forms=[], glosses=[], freq_rank=None, vesum_only=True))
         if len(hits) < limit:
             add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? LIMIT ?",
                            (key, key + "￿", limit * 3)), RANK["prefix"])
@@ -83,14 +102,26 @@ def search(db, query, limit=20):
                                         tags=json.loads(tags), head_forms=json.loads(head_forms),
                                         glosses=glosses, freq_rank=freq_rank)))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"]))
-    return [r[2] for r in results[:limit]]
+    exact = [r[2] for r in results if r[0] <= RANK["form"]]
+    rest = [r[2] for r in results if r[0] > RANK["form"]]
+    return (exact + stubs + rest)[:limit]
 
 
 if __name__ == "__main__":
-    db = sqlite3.connect(sys.argv[1])
+    import argparse
     import signal
     signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # allow piping into head
-    for r in search(db, " ".join(sys.argv[2:]), limit=8):
+    ap = argparse.ArgumentParser(description="Search the Nebokrai dictionary.")
+    ap.add_argument("database")
+    ap.add_argument("--vesum", help="path to vesum.db for the form-lookup fallback")
+    ap.add_argument("query", nargs="+")
+    args = ap.parse_args()
+    db = sqlite3.connect(args.database)
+    vesum = sqlite3.connect(args.vesum) if args.vesum else None
+    for r in search(db, " ".join(args.query), limit=8, vesum=vesum):
+        if r.get("vesum_only"):
+            print(f"{r['headword']}  [{r['pos']}]  known to VESUM only, no definition yet")
+            continue
         extra = ", ".join(f"{'/'.join(f['tags'])} {f['form']}" for f in r["head_forms"][:2])
         rank = f"#{r['freq_rank']}" if r["freq_rank"] else "unranked"
         print(f"{r['headword']}  [{r['pos']}; {' '.join(r['tags'])}]  {rank}  {extra}")

@@ -1,5 +1,6 @@
 // Interface text in English and Ukrainian. Dictionary data (meanings, grammar
 // tags such as "feminine") stays in English: it comes from English Wiktionary.
+import type { Cost, Kind, LevelSpan } from './resources.ts';
 import type { Lang } from './settings.ts';
 
 /** What a word's page has to show, for its title and description (see seo.ts). */
@@ -16,6 +17,19 @@ export interface WordFacts {
 function listOf(items: (string | false | null)[], and: string): string {
 	const have = items.filter((item): item is string => Boolean(item));
 	return have.length > 1 ? `${have.slice(0, -1).join(', ')} ${and} ${have.at(-1)}` : (have[0] ?? '');
+}
+
+/**
+ * A counted Ukrainian noun: 1 ресурс, 2 ресурси, 5 ресурсів. The first form
+ * is for a number ending in 1 but not 11, the second for one ending in 2 to 4
+ * but not 12 to 14, the third for the rest.
+ */
+function counted(n: number, one: string, few: string, many: string): string {
+	const tens = n % 100;
+	const units = n % 10;
+	if (units === 1 && tens !== 11) return `${n} ${one}`;
+	if (units >= 2 && units <= 4 && (tens < 12 || tens > 14)) return `${n} ${few}`;
+	return `${n} ${many}`;
 }
 
 const en = {
@@ -145,7 +159,7 @@ const en = {
 		homeTitle: 'Nebokrai: Ukrainian–English dictionary with stress and declension',
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
-		resources: 'Courses, dictionaries and practice sites for learning Ukrainian, chosen by hand.',
+		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** книга: meaning in English, stress and declension */
@@ -159,6 +173,43 @@ const en = {
 			], 'and');
 			return shown && `With ${shown}.`;
 		}
+	},
+	/** The Resources page: the list itself is in resources.ts. */
+	resources: {
+		intro: 'Other good places to learn Ukrainian: courses, podcasts, dictionaries and tools.',
+		filterLabel: 'Narrow the list',
+		filterPlaceholder: 'Type to narrow the list…',
+		kindLegend: 'Kind of resource',
+		all: 'All',
+		/** On the chips that choose a kind */
+		kinds: {
+			course: 'Courses', podcast: 'Podcasts', reading: 'Reading', dictionary: 'Dictionaries',
+			tool: 'Tools', tutor: 'Tutors', book: 'Books'
+		} as Record<Kind, string>,
+		/** On a resource's own line */
+		kind: {
+			course: 'Course', podcast: 'Podcast or video', reading: 'Reading and listening',
+			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors and community', book: 'Book'
+		} as Record<Kind, string>,
+		cost: { free: 'Free', freemium: 'Free + paid', paid: 'Paid' } as Record<Cost, string>,
+		ukOnly: 'UK',
+		ukOnlyHint: 'In Ukrainian only',
+		levels: {
+			beginner: 'Beginner',
+			intermediate: 'Intermediate',
+			advanced: 'Advanced',
+			'beginner-intermediate': 'Beginner to intermediate',
+			'intermediate-advanced': 'Intermediate and up',
+			'beginner-intermediate-advanced': 'Every level'
+		} as Record<LevelSpan, string>,
+		count: (shown: number, total: number) =>
+			shown === total ? `${total} ${total === 1 ? 'resource' : 'resources'}` : `${shown} of ${total}`,
+		none: 'Nothing here matches.',
+		reviewed: (date: string) => `Last reviewed ${date}`,
+		howTitle: 'How we choose',
+		how: 'Every link here is one we have opened and looked through ourselves. Each is useful without paying, or is plainly marked as paid. Nothing here is made in Russia, and nobody pays to be listed: there are no adverts and no affiliate links.',
+		suggestLead: 'Know a good one we missed?',
+		suggest: 'Suggest a resource'
 	},
 	keyboard: {
 		toggle: 'Ukrainian keyboard',
@@ -181,6 +232,7 @@ const en = {
 			missing: 'Missing word',
 			example: 'Bad example sentence',
 			site: 'Something on the site doesn’t work',
+			resource: 'Suggest a learning resource',
 			other: 'Something else'
 		},
 		messageLabel: 'What should it be?',
@@ -191,6 +243,7 @@ const en = {
 			missing: 'The word, and what it means if you know',
 			example: 'Which sentence, and what’s wrong with it',
 			site: 'What you did, what you expected, and what happened instead',
+			resource: 'The link, and who it’s good for',
 			other: 'Your message'
 		},
 		emailLabel: 'Email (optional)',
@@ -342,7 +395,7 @@ const uk: Messages = {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
-		resources: 'Курси, словники та сайти для практики української мови, дібрані вручну.',
+		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		wordTitle: (word, has) =>
@@ -358,6 +411,40 @@ const uk: Messages = {
 			], 'та');
 			return shown && `На сторінці: ${shown}.`;
 		}
+	},
+	resources: {
+		intro: 'Інші добрі місця, де можна вчити українську: курси, подкасти, словники й інструменти.',
+		filterLabel: 'Звузити список',
+		filterPlaceholder: 'Введіть, щоб звузити список…',
+		kindLegend: 'Вид ресурсу',
+		all: 'Усі',
+		kinds: {
+			course: 'Курси', podcast: 'Подкасти', reading: 'Читання', dictionary: 'Словники',
+			tool: 'Інструменти', tutor: 'Репетитори', book: 'Книжки'
+		},
+		kind: {
+			course: 'Курс', podcast: 'Подкаст або відео', reading: 'Читання й слухання',
+			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори та спільнота', book: 'Книжка'
+		},
+		cost: { free: 'Безкоштовно', freemium: 'Безкоштовно + платне', paid: 'Платно' },
+		ukOnly: 'УКР',
+		ukOnlyHint: 'Лише українською',
+		levels: {
+			beginner: 'Початковий рівень',
+			intermediate: 'Середній рівень',
+			advanced: 'Високий рівень',
+			'beginner-intermediate': 'Початковий і середній рівні',
+			'intermediate-advanced': 'Середній рівень і вище',
+			'beginner-intermediate-advanced': 'Будь-який рівень'
+		},
+		count: (shown: number, total: number) =>
+			shown === total ? counted(total, 'ресурс', 'ресурси', 'ресурсів') : `${shown} з ${total}`,
+		none: 'Нічого не знайдено.',
+		reviewed: (date: string) => `Востаннє перевірено ${date}`,
+		howTitle: 'Як ми добираємо',
+		how: 'Кожне посилання тут ми самі відкрили й переглянули. Усе в списку корисне й без оплати або чітко позначене як платне. Тут немає російських ресурсів, і ніхто не платить за місце в списку: жодної реклами й жодних партнерських посилань.',
+		suggestLead: 'Знаєте добрий ресурс, якого тут бракує?',
+		suggest: 'Запропонуйте його'
 	},
 	keyboard: {
 		toggle: 'Українська клавіатура',
@@ -380,6 +467,7 @@ const uk: Messages = {
 			missing: 'Бракує слова',
 			example: 'Невдалий приклад речення',
 			site: 'Щось на сайті не працює',
+			resource: 'Запропонувати ресурс для навчання',
 			other: 'Інше'
 		},
 		messageLabel: 'Як має бути?',
@@ -390,6 +478,7 @@ const uk: Messages = {
 			missing: 'Слово і, якщо знаєте, що воно означає',
 			example: 'Яке речення і що з ним не так',
 			site: 'Що ви робили, чого очікували і що сталося натомість',
+			resource: 'Посилання і кому цей ресурс стане в пригоді',
 			other: 'Ваше повідомлення'
 		},
 		emailLabel: 'Електронна пошта (необов’язково)',

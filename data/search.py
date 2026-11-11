@@ -12,9 +12,10 @@ How a query is matched, best first:
     2. an inflected form              книги   -> книга
     3. Latin letters, spelled the standard way      kalyna -> калина
     4. English meaning that is exactly the query    good   -> добрий
-    5. Latin letters, loosely spelled               kalina -> калина
-    6. English meaning that mentions the query      good   -> добро ("good deed")
-    7. prefix of a word (Cyrillic or Latin), for search-as-you-type
+    5. an inflected form in Latin letters           knyhy  -> книга
+    6. Latin letters, loosely spelled               kalina -> калина
+    7. English meaning that mentions the query      good   -> добро ("good deed")
+    8. prefix of a word (Cyrillic or Latin), for search-as-you-type
 
 Within each step, more common words come first.
 
@@ -33,7 +34,8 @@ import sys
 from import_wiktionary import (KEYBOARD, TYPO_MIN, deletes, edits_apart, from_russian_letters,
                                loose_latin, national_translit, plain, sound_key)
 
-RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_loose": 4, "english_mention": 5, "prefix": 6}
+RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_form": 4, "latin_loose": 5,
+        "english_mention": 6, "prefix": 7}
 KIND = {v: k for k, v in RANK.items()}
 
 
@@ -72,7 +74,8 @@ def search(db, query, limit=20, vesum=None):
         words = re.findall(r"[a-z]+(?:[-'][a-z]+)*", q.lower())
         key = loose_latin(q)
         if key and " " not in q:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='latin'", (key,)))
+            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('latin','latin_form')",
+                           (key,)))
         # English: every word of the query must appear in the entry's meanings.
         content = [w for w in words if w not in ("to", "a", "an", "the")] or words
         sets = [set(r[0] for r in db.execute(
@@ -122,8 +125,8 @@ def suggest(db, query, limit=5, exclude=(), typos=True):
                    (also spaces: "dobra nich", and Russian letters: книгы)
         sound      letters that sound alike             превіт  -> привіт
         typo       one letter wrong, missing or extra   привфт  -> привіт
-    Within one kind, more common words come first. Only dictionary words are
-    guessed, not their inflected forms (except through layout and Russian letters).
+    Within one kind, more common words come first. Typo guesses cover dictionary
+    words only; the other kinds also recognise inflected forms (кнегу -> книга).
     """
     q = query.strip()
     if not q:
@@ -152,9 +155,9 @@ def suggest(db, query, limit=5, exclude=(), typos=True):
         add(exact(plain(q.lower().translate(KEYBOARD))), 0)
         latin = loose_latin(q)
     if latin:
-        add(keyed(latin, "latin"), 1)
+        add(keyed(latin, "latin") + keyed(latin, "latin_form"), 1)
         sk = sound_key(latin)
-        add(keyed(sk, "sound"), 2)
+        add(keyed(sk, "sound") + keyed(sk, "sound_form"), 2)
         if typos and len(sk) >= TYPO_MIN:
             variants = json.dumps(sorted(deletes(sk) | {sk}), ensure_ascii=False)
             near = {r[0] for r in db.execute(
@@ -187,7 +190,7 @@ def lookup(db, query, limit=20, vesum=None, suggestions=5):
     result is a sure match."""
     results = search(db, query, limit=limit, vesum=vesum)
     kinds = {r["match"] for r in results}
-    if kinds & {"word", "form", "latin", "english", "latin_loose"}:
+    if kinds & {"word", "form", "latin", "english", "latin_form", "latin_loose"}:
         guesses = []  # a sure match: no second-guessing
     else:
         # Nothing, or only loose matches ("kiev" is mentioned in a few meanings

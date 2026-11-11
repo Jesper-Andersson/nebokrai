@@ -71,7 +71,7 @@ CREATE TABLE examples (
 CREATE TABLE search_keys (
     key       TEXT NOT NULL,
     entry_id  INTEGER NOT NULL REFERENCES entries(id),
-    kind      TEXT NOT NULL         -- word | form | latin | english | sound | typo
+    kind      TEXT NOT NULL         -- word | form | latin | latin_form | english | sound | sound_form | typo
 );
 """
 
@@ -423,6 +423,12 @@ def build(src, dst, freq=None, tatoeba=None):
             stats["forms"] += 1
             if " " not in p:
                 keys.add((p, "form"))
+                # The same form as typed in Latin letters (knyhy), and by sound.
+                lk = loose_latin(national_translit(p))
+                if lk and (lk, "latin") not in keys:
+                    keys.add((lk, "latin_form"))
+                    if (sound_key(lk), "sound") not in keys:
+                        keys.add((sound_key(lk), "sound_form"))
 
         db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
                        [(k, eid, kind) for k, kind in keys if k])

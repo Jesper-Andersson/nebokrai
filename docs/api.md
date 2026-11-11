@@ -64,6 +64,7 @@ Results arrive already sorted; show them in the order given.
 | `form` | `книги` → книга | The query is an inflected form. Worth showing as "form of книга". |
 | `latin` | `kalyna` → калина | Latin letters in the official romanisation. |
 | `english` | `good` → добрий | One of the meanings is exactly the query. |
+| `latin_form` | `knyhy` → книга | An inflected form in Latin letters. |
 | `latin_loose` | `kalina` → калина | Latin letters, spelled approximately. |
 | `english_mention` | `good` → добро | A meaning contains the query words. |
 | `prefix` | `кал` → календар | The word starts with the query. For search-as-you-type. |
@@ -128,8 +129,8 @@ At most five, most certain first. Example for `/api/search?q=превіт`:
 }
 ```
 
-(`head_forms` is shortened here.) Guesses cover dictionary words only: a typo
-in an inflected form (`книгаю`) is not corrected.
+(`head_forms` is shortened here.) `respelled` and `sound` also recognise
+inflected forms (`кнегу` → книга). `typo` covers dictionary words only.
 
 ### Nothing found
 

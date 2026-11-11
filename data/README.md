@@ -30,7 +30,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 47,567 |
 | `forms` | inflected form (declension / conjugation cell) | 529,270 |
 | `examples` | Tatoeba sentence with English translation | 28,670 |
-| `search_keys` | normalised lookup key pointing at an entry | 916,359 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
 
 Pages that only say "genitive singular of X" are skipped (29,315), because the
 same forms are already in X's own table.
@@ -84,19 +84,21 @@ cd .. && npm install && npm test
 ## Lenient search ("did you mean")
 
 When a query has no sure match, `lookup()` in `search.py` adds guesses. Two
-extra kinds of key in `search_keys` make this possible with plain index
+Four extra kinds of key in `search_keys` make this possible with plain index
 lookups:
 
 | Kind | What it is | Rows |
 |---|---|---|
+| `latin_form` | an inflected form in Latin letters (`knyhy`) | 301,740 |
 | `sound` | the Latin key with sound-alike letters merged (е/и/і, щ/ш) | 31,089 |
+| `sound_form` | the same for inflected forms | 271,568 |
 | `typo` | every `sound` key with one letter removed | 256,503 |
 
 A Cyrillic query is first written in Latin letters, so both scripts share the
 same keys. Guesses are tried in order: wrong keyboard layout (`ghbdsn`),
 another spelling (`привит`, `dobra nich`, Russian letters), sound-alike
-(`превіт`, `kiev`), one typo (`привфт`). Only dictionary words are guessed,
-not inflected forms.
+(`превіт`, `kiev`), one typo (`привфт`). Typo guesses cover dictionary words
+only; storing them for every inflected form would double the database.
 
 `export_wordlist.py` writes the word list the browser uses for suggestions
 while typing:

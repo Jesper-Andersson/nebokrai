@@ -7,8 +7,8 @@
 //              (also spaces: "dobra nich", and Russian letters: книгы)
 //   sound      letters that sound alike             превіт  -> привіт
 //   typo       one letter wrong, missing or extra   привфт  -> привіт
-// Within one kind, more common words come first. Only dictionary words are
-// guessed, not their inflected forms (except through layout and Russian letters).
+// Within one kind, more common words come first. Typo guesses cover dictionary
+// words only; the other kinds also recognise inflected forms (кнегу -> книга).
 
 import type { Db } from './db.ts';
 import {
@@ -67,9 +67,9 @@ export async function suggest(db: Db, query: string, options: SuggestOptions = {
 	}
 
 	if (latin) {
-		add(await keyed(latin, 'latin'), 1);
+		add([...(await keyed(latin, 'latin')), ...(await keyed(latin, 'latin_form'))], 1);
 		const sk = soundKey(latin);
-		add(await keyed(sk, 'sound'), 2);
+		add([...(await keyed(sk, 'sound')), ...(await keyed(sk, 'sound_form'))], 2);
 		if (options.typos !== false && sk.length >= TYPO_MIN) {
 			const variants = JSON.stringify([...deletes(sk), sk]);
 			const near = new Set<number>([
@@ -127,7 +127,7 @@ export interface LookupResult {
 	suggestions: Suggestion[];
 }
 
-const SURE = new Set(['word', 'form', 'latin', 'english', 'latin_loose']);
+const SURE = new Set(['word', 'form', 'latin', 'english', 'latin_form', 'latin_loose']);
 
 /** What the search endpoint returns: results, plus guesses when no result is a sure match. */
 export async function lookup(

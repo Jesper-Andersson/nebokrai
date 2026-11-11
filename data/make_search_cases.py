@@ -27,6 +27,9 @@ QUERIES = [
     "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
     "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",
     "небокрий", "на добранич", "good deed", "viburnam", "lf", "здравствуйте",
+    # inflected forms in Latin letters, and by sound
+    "knyhy", "knigi", "chytaiu", "chitayu", "dobroho", "male", "more", "son", "кнегу", "книгі",
+    "читайу", "добрава", "nebokraiu",
     # nothing, or nearly
     "", "   ", "qqqqzz", "ъъъ", "123", "don't",
 ]

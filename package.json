@@ -1,0 +1,13 @@
+{
+	"name": "nebokrai",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node --test \"tests/*.test.ts\"",
+		"check": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"typescript": "^5.6.0"
+	}
+}

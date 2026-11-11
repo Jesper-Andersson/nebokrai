@@ -28,8 +28,8 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 |---|---|---|
 | `entries` | dictionary word + part of speech | 30,982 |
 | `senses` | English meaning of an entry | 47,567 |
-| `forms` | inflected form (declension / conjugation cell) | 564,299 |
-| `examples` | Tatoeba sentence with English translation | 28,649 |
+| `forms` | inflected form (declension / conjugation cell) | 529,270 |
+| `examples` | Tatoeba sentence with English translation | 28,670 |
 | `search_keys` | normalised lookup key pointing at an entry | 626,107 |
 
 Pages that only say "genitive singular of X" are skipped (29,315), because the
@@ -37,7 +37,7 @@ same forms are already in X's own table.
 
 ## Frequency ranking
 
-`entries.freq_rank` is 1 for the most common word. 19,920 entries are ranked.
+`entries.freq_rank` is 1 for the most common word. 19,928 entries are ranked.
 
 The counts come from FrequencyWords, which counts spellings in film subtitles.
 Each count is credited to the entry the spelling belongs to (читаю counts for
@@ -55,7 +55,7 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (11,850 entries), preferring sentences
+Up to three Tatoeba sentences per entry (11,857 entries), preferring sentences
 of about five words. A sentence is attached to every entry that has one of its
 words as a form, so a homograph can pick up a sentence meant for its twin.
 `tatoeba_id` links back to the sentence for attribution.
@@ -71,6 +71,15 @@ words as a form, so a homograph can pick up a sentence meant for its twin.
 7. Prefix match, for search-as-you-type
 
 Within each step, more common words come first.
+
+The site runs a TypeScript version of the same search (`src/lib/search/`).
+`search.py` stays the reference. After changing it or rebuilding the database,
+record its answers again and run the TypeScript tests against them:
+
+```
+cd data && python3 make_search_cases.py ../nebokrai.db ../vesum.db > ../tests/search-cases.json
+cd .. && npm install && npm test
+```
 
 ## VESUM form lookup (separate database)
 

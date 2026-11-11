@@ -129,7 +129,7 @@ def national_translit(word):
 def loose_latin(text):
     """Collapse Latin spelling variants so that different romanisation habits meet.
 
-    kalyna, kalina and kalýna all become "kalina"; khata, chata, xata -> "hata".
+    kalyna, kalina and kalýna all become "kalina"; khata, xata -> "hata".
     The same function is applied to the stored key and to what the user types.
     """
     text = unicodedata.normalize("NFD", text.lower())
@@ -150,7 +150,11 @@ def is_form_of(entry):
     return bool(senses) and all("form_of" in s or "alt_of" in s for s in senses)
 
 
-SKIP_FORM_TAGS = {"table-tags", "inflection-template", "class", "romanization"}
+SKIP_FORM_TAGS = {"table-tags", "inflection-template", "class", "romanization",
+                  # Rows wiktextract could not parse: table notes such as
+                  # "Future conjugation of бути + infinitive", not real forms.
+                  "error-unrecognized-form"}
+NOISE_TAGS = {"error-unknown-tag"}
 
 
 TOKEN = re.compile(r"[\u0400-\u04FF]+(?:['’ʼ-][\u0400-\u04FF]+)*")
@@ -291,7 +295,8 @@ def build(src, dst, freq=None, tatoeba=None):
 
         # Key forms from the headword line (genitive, aspect partner, ...).
         head_forms = [
-            {"form": unicodedata.normalize("NFC", f["form"]), "tags": f.get("tags", [])}
+            {"form": unicodedata.normalize("NFC", f["form"]),
+             "tags": [t for t in f.get("tags", []) if t not in NOISE_TAGS]}
             for f in forms
             if f.get("source") != "declension" and f.get("source") != "conjugation"
             and f is not canonical
@@ -346,9 +351,13 @@ def build(src, dst, freq=None, tatoeba=None):
             form = unicodedata.normalize("NFC", f["form"])
             if not form or form == "-":
                 continue
+            ftags = [t for t in f.get("tags") or [] if t not in NOISE_TAGS]
+            if form.startswith("impersonal: "):  # "impersonal: чи́тано"
+                form = form[len("impersonal: "):]
+                ftags = sorted(ftags + ["impersonal"])
             p = plain(form)
             db.execute("INSERT INTO forms(entry_id, form, plain, tags) VALUES (?,?,?,?)",
-                       (eid, form, p, json.dumps(f.get("tags") or [], ensure_ascii=False)))
+                       (eid, form, p, json.dumps(ftags, ensure_ascii=False)))
             stats["forms"] += 1
             if " " not in p:
                 keys.add((p, "form"))

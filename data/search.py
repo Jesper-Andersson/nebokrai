@@ -9,18 +9,22 @@ Usage:
 How a query is matched, best first:
     1. exact dictionary word          калина  -> калина
     2. an inflected form              книги   -> книга
-    3. Latin letters                  kalyna  -> калина
-    4. English meaning                viburnum -> калина
-    5. prefix of a word (Cyrillic or Latin), for search-as-you-type
+    3. Latin letters, spelled the standard way      kalyna -> калина
+    4. English meaning that is exactly the query    good   -> добрий
+    5. Latin letters, loosely spelled               kalina -> калина
+    6. English meaning that mentions the query      good   -> добро ("good deed")
+    7. prefix of a word (Cyrillic or Latin), for search-as-you-type
+
+Within each step, more common words come first.
 """
 import json
 import re
 import sqlite3
 import sys
 
-from import_wiktionary import loose_latin, plain
+from import_wiktionary import loose_latin, national_translit, plain
 
-RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "prefix": 4}
+RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_loose": 4, "english_mention": 5, "prefix": 6}
 
 
 def search(db, query, limit=20):
@@ -59,22 +63,38 @@ def search(db, query, limit=20):
 
     results = []
     for eid, rank in hits.items():
-        word, headword, pos, tags, head_forms = db.execute(
-            "SELECT word, headword, pos, tags, head_forms FROM entries WHERE id=?", (eid,)).fetchone()
+        word, headword, pos, tags, head_forms, freq_rank = db.execute(
+            "SELECT word, headword, pos, tags, head_forms, freq_rank FROM entries WHERE id=?", (eid,)).fetchone()
         glosses = [g for (g,) in db.execute("SELECT gloss FROM senses WHERE entry_id=? ORDER BY n", (eid,))]
-        # Within English matches, prefer entries whose meaning is short and to the point.
-        tie = min((len(g) for g in glosses), default=999) if rank == RANK["english"] else len(word)
+        # Within one kind of match, common words come first. For English queries,
+        # a word whose meaning *is* the query ("mother") beats one that merely
+        # mentions it ("mother-in-law").
+        common = freq_rank if freq_rank is not None else 10**9
+        if rank == RANK["english"]:
+            exact = any(q.lower() in [p.strip() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]
+                        for g in glosses)
+            if not exact:
+                rank = RANK["english_mention"]
+        elif rank == RANK["latin"] and national_translit(word) != q.lower():
+            # "good" loosely matches год ("hod"), but the user most likely means English.
+            rank = RANK["latin_loose"]
+        tie = common
         results.append((rank, tie, dict(id=eid, word=word, headword=headword, pos=pos,
                                         tags=json.loads(tags), head_forms=json.loads(head_forms),
-                                        glosses=glosses)))
+                                        glosses=glosses, freq_rank=freq_rank)))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"]))
     return [r[2] for r in results[:limit]]
 
 
 if __name__ == "__main__":
     db = sqlite3.connect(sys.argv[1])
+    import signal
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # allow piping into head
     for r in search(db, " ".join(sys.argv[2:]), limit=8):
         extra = ", ".join(f"{'/'.join(f['tags'])} {f['form']}" for f in r["head_forms"][:2])
-        print(f"{r['headword']}  [{r['pos']}; {' '.join(r['tags'])}]  {extra}")
+        rank = f"#{r['freq_rank']}" if r["freq_rank"] else "unranked"
+        print(f"{r['headword']}  [{r['pos']}; {' '.join(r['tags'])}]  {rank}  {extra}")
         for g in r["glosses"][:3]:
             print(f"    - {g}")
+        for uk, en in db.execute("SELECT uk, en FROM examples WHERE entry_id=? LIMIT 1", (r["id"],)):
+            print(f"    e.g. {uk} / {en}")

@@ -12,9 +12,10 @@ How a query is matched, best first:
     2. an inflected form              книги   -> книга
     3. Latin letters, spelled the standard way      kalyna -> калина
     4. English meaning that is exactly the query    good   -> добрий
-    5. Latin letters, loosely spelled               kalina -> калина
-    6. English meaning that mentions the query      good   -> добро ("good deed")
-    7. prefix of a word (Cyrillic or Latin), for search-as-you-type
+    5. an inflected form in Latin letters           knyhy  -> книга
+    6. Latin letters, loosely spelled               kalina -> калина
+    7. English meaning that mentions the query      good   -> добро ("good deed")
+    8. prefix of a word (Cyrillic or Latin), for search-as-you-type
 
 Within each step, more common words come first.
 
@@ -30,9 +31,11 @@ import re
 import sqlite3
 import sys
 
-from import_wiktionary import loose_latin, national_translit, plain
+from import_wiktionary import (KEYBOARD, TYPO_MIN, deletes, edits_apart, from_russian_letters,
+                               loose_latin, national_translit, plain, sound_key)
 
-RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_loose": 4, "english_mention": 5, "prefix": 6}
+RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_form": 4, "latin_loose": 5,
+        "english_mention": 6, "prefix": 7}
 KIND = {v: k for k, v in RANK.items()}
 
 
@@ -71,7 +74,8 @@ def search(db, query, limit=20, vesum=None):
         words = re.findall(r"[a-z]+(?:[-'][a-z]+)*", q.lower())
         key = loose_latin(q)
         if key and " " not in q:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='latin'", (key,)))
+            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('latin','latin_form')",
+                           (key,)))
         # English: every word of the query must appear in the entry's meanings.
         content = [w for w in words if w not in ("to", "a", "an", "the")] or words
         sets = [set(r[0] for r in db.execute(
@@ -109,6 +113,95 @@ def search(db, query, limit=20, vesum=None):
     return (exact + stubs + rest)[:limit]
 
 
+GUESS = ["layout", "respelled", "sound", "typo"]
+
+
+def suggest(db, query, limit=5, exclude=(), typos=True):
+    """Guesses for a query that found nothing: "did you mean ...?".
+
+    Tried in this order, most certain first:
+        layout     typed on the wrong keyboard layout   ghbdsn  -> привіт
+        respelled  same word, another spelling habit    привит  -> привіт
+                   (also spaces: "dobra nich", and Russian letters: книгы)
+        sound      letters that sound alike             превіт  -> привіт
+        typo       one letter wrong, missing or extra   привфт  -> привіт
+    Within one kind, more common words come first. Typo guesses cover dictionary
+    words only; the other kinds also recognise inflected forms (кнегу -> книга).
+    """
+    q = query.strip()
+    if not q:
+        return []
+    found = {}  # entry_id -> index into GUESS
+
+    def add(ids, kind):
+        for eid in ids:
+            if eid not in exclude and eid not in found:
+                found[eid] = kind
+
+    def keyed(key, kind):
+        return [r[0] for r in db.execute("SELECT entry_id FROM search_keys WHERE key=? AND kind=?", (key, kind))]
+
+    def exact(key):
+        return [r[0] for r in db.execute(
+            "SELECT entry_id FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,))]
+
+    if re.search(r"[Ѐ-ӿ]", q):
+        key = plain(q)
+        fixed = from_russian_letters(key)
+        if fixed != key:
+            add(exact(fixed), 1)
+        latin = loose_latin(national_translit(fixed))
+    else:
+        add(exact(plain(q.lower().translate(KEYBOARD))), 0)
+        latin = loose_latin(q)
+    if latin:
+        add(keyed(latin, "latin") + keyed(latin, "latin_form"), 1)
+        sk = sound_key(latin)
+        add(keyed(sk, "sound") + keyed(sk, "sound_form"), 2)
+        if typos and len(sk) >= TYPO_MIN:
+            variants = json.dumps(sorted(deletes(sk) | {sk}), ensure_ascii=False)
+            near = {r[0] for r in db.execute(
+                "SELECT entry_id FROM search_keys WHERE kind IN ('sound','typo')"
+                " AND key IN (SELECT value FROM json_each(?))", (variants,))}
+            near |= set(keyed(sk, "typo"))
+            near -= set(found)
+            if near:
+                ids = json.dumps(sorted(near))
+                close = {eid for eid, k in db.execute(
+                    "SELECT entry_id, key FROM search_keys WHERE kind='sound'"
+                    " AND entry_id IN (SELECT value FROM json_each(?))", (ids,)) if edits_apart(sk, k)}
+                add(sorted(close), 3)
+
+    results = []
+    for eid, kind in found.items():
+        word, headword, pos, tags, head_forms, freq_rank = db.execute(
+            "SELECT word, headword, pos, tags, head_forms, freq_rank FROM entries WHERE id=?", (eid,)).fetchone()
+        glosses = [g for (g,) in db.execute("SELECT gloss FROM senses WHERE entry_id=? ORDER BY n", (eid,))]
+        results.append((kind, freq_rank if freq_rank is not None else 10**9, word, eid,
+                        dict(id=eid, word=word, headword=headword, pos=pos, tags=json.loads(tags),
+                             head_forms=json.loads(head_forms), glosses=glosses, freq_rank=freq_rank,
+                             match=GUESS[kind])))
+    results.sort(key=lambda r: r[:4])
+    return [r[4] for r in results[:limit]]
+
+
+def lookup(db, query, limit=20, vesum=None, suggestions=5):
+    """What the site's search endpoint returns: results, plus guesses when no
+    result is a sure match."""
+    results = search(db, query, limit=limit, vesum=vesum)
+    kinds = {r["match"] for r in results}
+    if kinds & {"word", "form", "latin", "english", "latin_form", "latin_loose"}:
+        guesses = []  # a sure match: no second-guessing
+    else:
+        # Nothing, or only loose matches ("kiev" is mentioned in a few meanings
+        # but the user wants Київ). Typo guesses are the least certain, so they
+        # are offered only when there is nothing better to show.
+        # A typo guess for several Latin words would mostly be noise for English.
+        typos = not (kinds - {"prefix"}) and (" " not in query.strip() or bool(re.search(r"[Ѐ-ӿ]", query)))
+        guesses = suggest(db, query, limit=suggestions, exclude={r["id"] for r in results}, typos=typos)
+    return {"query": query, "results": results, "suggestions": guesses}
+
+
 if __name__ == "__main__":
     import argparse
     import signal
@@ -120,7 +213,10 @@ if __name__ == "__main__":
     args = ap.parse_args()
     db = sqlite3.connect(args.database)
     vesum = sqlite3.connect(args.vesum) if args.vesum else None
-    for r in search(db, " ".join(args.query), limit=8, vesum=vesum):
+    answer = lookup(db, " ".join(args.query), limit=8, vesum=vesum)
+    for r in answer["suggestions"]:
+        print(f"did you mean {r['headword']}?  [{r['pos']}; {r['match']}]  {'; '.join(r['glosses'][:2])[:60]}")
+    for r in answer["results"]:
         if r.get("vesum_only"):
             print(f"{r['headword']}  [{r['pos']}]  known to VESUM only, no definition yet")
             continue

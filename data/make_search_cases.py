@@ -10,7 +10,7 @@ import json
 import sqlite3
 import sys
 
-from search import search
+from search import lookup
 
 QUERIES = [
     # exact words and inflected forms
@@ -23,6 +23,13 @@ QUERIES = [
     "кал", "неб", "чит", "kal", "neb", "pry",
     # only VESUM knows these
     "соловейком", "книжечку", "нездійсненними",
+    # guesses: other spellings, sound-alikes, typos, wrong keyboard layout
+    "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
+    "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",
+    "небокрий", "на добранич", "good deed", "viburnam", "lf", "здравствуйте",
+    # inflected forms in Latin letters, and by sound
+    "knyhy", "knigi", "chytaiu", "chitayu", "dobroho", "male", "more", "son", "кнегу", "книгі",
+    "читайу", "добрава", "nebokraiu",
     # nothing, or nearly
     "", "   ", "qqqqzz", "ъъъ", "123", "don't",
 ]
@@ -33,7 +40,8 @@ if __name__ == "__main__":
     cases = []
     for q in QUERIES:
         for use_vesum in (False, True):
-            got = search(db, q, limit=20, vesum=vesum if use_vesum else None)
-            cases.append({"query": q, "vesum": use_vesum,
-                          "expect": [[r["id"], r["word"], r["pos"], r["match"]] for r in got]})
+            got = lookup(db, q, limit=20, vesum=vesum if use_vesum else None)
+            brief = lambda rows: [[r["id"], r["word"], r["pos"], r["match"]] for r in rows]
+            cases.append({"query": q, "vesum": use_vesum, "expect": brief(got["results"]),
+                          "suggest": brief(got["suggestions"])})
     json.dump(cases, sys.stdout, ensure_ascii=False, indent=1)

@@ -9,7 +9,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "калина",
@@ -21,7 +22,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "книги",
@@ -33,7 +35,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "книги",
@@ -45,7 +48,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "читаю",
@@ -57,7 +61,8 @@
     "verb",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "читаю",
@@ -69,7 +74,8 @@
     "verb",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "КАЛИНА",
@@ -81,7 +87,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "КАЛИНА",
@@ -93,7 +100,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "кали́на",
@@ -105,7 +113,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "кали́на",
@@ -117,7 +126,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "стан",
@@ -243,7 +253,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "стан",
@@ -369,7 +380,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "за",
@@ -495,7 +507,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "за",
@@ -621,7 +634,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "читано",
@@ -633,7 +647,8 @@
     "verb",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "читано",
@@ -645,7 +660,8 @@
     "verb",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м'яти",
@@ -663,7 +679,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м'яти",
@@ -681,7 +698,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м’яти",
@@ -699,7 +717,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м’яти",
@@ -717,7 +736,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "мʼяти",
@@ -735,7 +755,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "мʼяти",
@@ -753,7 +774,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м`яти",
@@ -771,7 +793,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м`яти",
@@ -789,7 +812,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м´яти",
@@ -807,7 +831,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м´яти",
@@ -825,7 +850,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м‘яти",
@@ -843,7 +869,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "м‘яти",
@@ -861,7 +888,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "п`ять",
@@ -873,7 +901,8 @@
     "num",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "п`ять",
@@ -885,7 +914,8 @@
     "num",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "об`єднання",
@@ -897,7 +927,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "об`єднання",
@@ -909,7 +940,8 @@
     "noun",
     "word"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "kalyna",
@@ -921,7 +953,8 @@
     "noun",
     "latin"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "kalyna",
@@ -933,7 +966,8 @@
     "noun",
     "latin"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "kalina",
@@ -945,7 +979,8 @@
     "noun",
     "latin_loose"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "kalina",
@@ -957,7 +992,8 @@
     "noun",
     "latin_loose"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "khata",
@@ -975,7 +1011,8 @@
     "name",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "khata",
@@ -993,7 +1030,8 @@
     "name",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "xata",
@@ -1011,7 +1049,8 @@
     "name",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "xata",
@@ -1029,7 +1068,8 @@
     "name",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "pryvit",
@@ -1071,7 +1111,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "pryvit",
@@ -1113,7 +1154,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "Kyiv",
@@ -1124,6 +1166,24 @@
     "Київ",
     "name",
     "latin"
+   ],
+   [
+    2575,
+    "кий",
+    "noun",
+    "latin_form"
+   ],
+   [
+    4694,
+    "-ко",
+    "suffix",
+    "latin_form"
+   ],
+   [
+    4335,
+    "-ок",
+    "suffix",
+    "latin_form"
    ],
    [
     7275,
@@ -1220,26 +1280,9 @@
     "Васильків",
     "name",
     "english_mention"
-   ],
-   [
-    21685,
-    "Поділ",
-    "name",
-    "english_mention"
-   ],
-   [
-    29188,
-    "Пшеничне",
-    "name",
-    "english_mention"
-   ],
-   [
-    17116,
-    "Богуслав",
-    "name",
-    "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "Kyiv",
@@ -1250,6 +1293,24 @@
     "Київ",
     "name",
     "latin"
+   ],
+   [
+    2575,
+    "кий",
+    "noun",
+    "latin_form"
+   ],
+   [
+    4694,
+    "-ко",
+    "suffix",
+    "latin_form"
+   ],
+   [
+    4335,
+    "-ок",
+    "suffix",
+    "latin_form"
    ],
    [
     7275,
@@ -1346,26 +1407,9 @@
     "Васильків",
     "name",
     "english_mention"
-   ],
-   [
-    21685,
-    "Поділ",
-    "name",
-    "english_mention"
-   ],
-   [
-    29188,
-    "Пшеничне",
-    "name",
-    "english_mention"
-   ],
-   [
-    17116,
-    "Богуслав",
-    "name",
-    "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "shchastia",
@@ -1395,7 +1439,8 @@
     "adj",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "shchastia",
@@ -1425,7 +1470,8 @@
     "adj",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "dobryi",
@@ -1436,6 +1482,18 @@
     "добрий",
     "adj",
     "latin"
+   ],
+   [
+    1432,
+    "добро",
+    "noun",
+    "latin_form"
+   ],
+   [
+    15121,
+    "добріти",
+    "verb",
+    "latin_form"
    ],
    [
     5033,
@@ -1465,12 +1523,6 @@
     18229,
     "добриво",
     "noun",
-    "prefix"
-   ],
-   [
-    15121,
-    "добріти",
-    "verb",
     "prefix"
    ],
    [
@@ -1509,7 +1561,8 @@
     "verb",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "dobryi",
@@ -1520,6 +1573,18 @@
     "добрий",
     "adj",
     "latin"
+   ],
+   [
+    1432,
+    "добро",
+    "noun",
+    "latin_form"
+   ],
+   [
+    15121,
+    "добріти",
+    "verb",
+    "latin_form"
    ],
    [
     5033,
@@ -1549,12 +1614,6 @@
     18229,
     "добриво",
     "noun",
-    "prefix"
-   ],
-   [
-    15121,
-    "добріти",
-    "verb",
     "prefix"
    ],
    [
@@ -1593,31 +1652,46 @@
     "verb",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "čytáty",
   "vesum": false,
   "expect": [
    [
-    949,
-    "читати",
-    "verb",
-    "latin_loose"
-   ]
-  ]
- },
- {
-  "query": "čytáty",
-  "vesum": true,
-  "expect": [
+    3294,
+    "цитата",
+    "noun",
+    "latin_form"
+   ],
    [
     949,
     "читати",
     "verb",
     "latin_loose"
    ]
-  ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "čytáty",
+  "vesum": true,
+  "expect": [
+   [
+    3294,
+    "цитата",
+    "noun",
+    "latin_form"
+   ],
+   [
+    949,
+    "читати",
+    "verb",
+    "latin_loose"
+   ]
+  ],
+  "suggest": []
  },
  {
   "query": "good",
@@ -1702,6 +1776,12 @@
     "english"
    ],
    [
+    6665,
+    "хода",
+    "noun",
+    "latin_form"
+   ],
+   [
     372,
     "год",
     "noun",
@@ -1736,14 +1816,9 @@
     "добридень",
     "intj",
     "english_mention"
-   ],
-   [
-    11065,
-    "непоганий",
-    "adj",
-    "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "good",
@@ -1828,6 +1903,12 @@
     "english"
    ],
    [
+    6665,
+    "хода",
+    "noun",
+    "latin_form"
+   ],
+   [
     372,
     "год",
     "noun",
@@ -1862,14 +1943,9 @@
     "добридень",
     "intj",
     "english_mention"
-   ],
-   [
-    11065,
-    "непоганий",
-    "adj",
-    "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "dog",
@@ -1995,7 +2071,8 @@
     "noun",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "dog",
@@ -2121,7 +2198,8 @@
     "noun",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "to go",
@@ -2247,7 +2325,8 @@
     "verb",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "to go",
@@ -2373,7 +2452,8 @@
     "verb",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "mother",
@@ -2493,7 +2573,8 @@
     "noun",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "mother",
@@ -2613,7 +2694,8 @@
     "noun",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "to read",
@@ -2703,7 +2785,8 @@
     "adj",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "to read",
@@ -2793,7 +2876,8 @@
     "adj",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "the horizon",
@@ -2907,7 +2991,8 @@
     "verb",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "the horizon",
@@ -3021,7 +3106,8 @@
     "verb",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "viburnum",
@@ -3033,7 +3119,8 @@
     "noun",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "viburnum",
@@ -3045,7 +3132,8 @@
     "noun",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "guelder rose",
@@ -3057,7 +3145,8 @@
     "noun",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "guelder rose",
@@ -3069,7 +3158,8 @@
     "noun",
     "english"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "in",
@@ -3172,30 +3262,31 @@
     "english"
    ],
    [
-    27191,
-    "їнь",
-    "noun",
-    "latin_loose"
+    7100,
+    "Інна",
+    "name",
+    "latin_form"
    ],
    [
-    4732,
-    "-ин",
+    4333,
+    "-ина",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ],
    [
-    27807,
-    "-інь",
+    4334,
+    "-ина",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ],
    [
-    27808,
-    "-інь",
+    30487,
+    "-ини",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "in",
@@ -3298,30 +3389,31 @@
     "english"
    ],
    [
-    27191,
-    "їнь",
-    "noun",
-    "latin_loose"
+    7100,
+    "Інна",
+    "name",
+    "latin_form"
    ],
    [
-    4732,
-    "-ин",
+    4333,
+    "-ина",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ],
    [
-    27807,
-    "-інь",
+    4334,
+    "-ина",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ],
    [
-    27808,
-    "-інь",
+    30487,
+    "-ини",
     "suffix",
-    "latin_loose"
+    "latin_form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "water",
@@ -3447,7 +3539,8 @@
     "verb",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "water",
@@ -3573,7 +3666,8 @@
     "verb",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "кал",
@@ -3699,7 +3793,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "кал",
@@ -3825,7 +3920,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "неб",
@@ -3951,7 +4047,8 @@
     "adj",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "неб",
@@ -4077,7 +4174,8 @@
     "adj",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "чит",
@@ -4118,6 +4216,14 @@
     "читанка",
     "noun",
     "prefix"
+   ]
+  ],
+  "suggest": [
+   [
+    22492,
+    "цить",
+    "intj",
+    "respelled"
    ]
   ]
  },
@@ -4160,6 +4266,14 @@
     "читанка",
     "noun",
     "prefix"
+   ]
+  ],
+  "suggest": [
+   [
+    22492,
+    "цить",
+    "intj",
+    "respelled"
    ]
   ]
  },
@@ -4287,7 +4401,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "kal",
@@ -4413,7 +4528,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "neb",
@@ -4539,7 +4655,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "neb",
@@ -4665,7 +4782,8 @@
     "noun",
     "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "pry",
@@ -4678,6 +4796,24 @@
     "latin"
    ],
    [
+    7264,
+    "перти",
+    "verb",
+    "latin_form"
+   ],
+   [
+    6163,
+    "пря",
+    "noun",
+    "latin_form"
+   ],
+   [
+    20883,
+    "пріти",
+    "verb",
+    "latin_form"
+   ],
+   [
     362,
     "при-",
     "prefix",
@@ -4772,26 +4908,9 @@
     "прибувати",
     "verb",
     "prefix"
-   ],
-   [
-    13158,
-    "причетний",
-    "adj",
-    "prefix"
-   ],
-   [
-    3199,
-    "прибити",
-    "verb",
-    "prefix"
-   ],
-   [
-    25753,
-    "прибиральник",
-    "noun",
-    "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "pry",
@@ -4804,6 +4923,24 @@
     "latin"
    ],
    [
+    7264,
+    "перти",
+    "verb",
+    "latin_form"
+   ],
+   [
+    6163,
+    "пря",
+    "noun",
+    "latin_form"
+   ],
+   [
+    20883,
+    "пріти",
+    "verb",
+    "latin_form"
+   ],
+   [
     362,
     "при-",
     "prefix",
@@ -4898,31 +5035,15 @@
     "прибувати",
     "verb",
     "prefix"
-   ],
-   [
-    13158,
-    "причетний",
-    "adj",
-    "prefix"
-   ],
-   [
-    3199,
-    "прибити",
-    "verb",
-    "prefix"
-   ],
-   [
-    25753,
-    "прибиральник",
-    "noun",
-    "prefix"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "соловейком",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "соловейком",
@@ -4934,12 +5055,14 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "книжечку",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "книжечку",
@@ -4951,7 +5074,8 @@
     "noun",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "нездійсненними",
@@ -4963,7 +5087,8 @@
     "adj",
     "form"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "нездійсненними",
@@ -4975,57 +5100,2078 @@
     "adj",
     "form"
    ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "dobra nich",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    5037,
+    "добраніч",
+    "intj",
+    "respelled"
+   ]
   ]
  },
  {
+  "query": "dobra nich",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    5037,
+    "добраніч",
+    "intj",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "bud laska",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    4800,
+    "будь ласка",
+    "phrase",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "bud laska",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    4800,
+    "будь ласка",
+    "phrase",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "будьласка",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    4800,
+    "будь ласка",
+    "phrase",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "будьласка",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    4800,
+    "будь ласка",
+    "phrase",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "shastya",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    15755,
+    "Щастя",
+    "name",
+    "sound"
+   ],
+   [
+    4262,
+    "щастя",
+    "noun",
+    "sound"
+   ],
+   [
+    6888,
+    "Настя",
+    "name",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "shastya",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    15755,
+    "Щастя",
+    "name",
+    "sound"
+   ],
+   [
+    4262,
+    "щастя",
+    "noun",
+    "sound"
+   ],
+   [
+    6888,
+    "Настя",
+    "name",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "kiev",
+  "vesum": false,
+  "expect": [
+   [
+    7908,
+    "київський",
+    "adj",
+    "english_mention"
+   ],
+   [
+    13166,
+    "котлета по-київськи",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": [
+   [
+    810,
+    "Київ",
+    "name",
+    "sound"
+   ],
+   [
+    2575,
+    "кий",
+    "noun",
+    "sound"
+   ],
+   [
+    4694,
+    "-ко",
+    "suffix",
+    "sound"
+   ],
+   [
+    4335,
+    "-ок",
+    "suffix",
+    "sound"
+   ]
+  ]
+ },
+ {
+  "query": "kiev",
+  "vesum": true,
+  "expect": [
+   [
+    7908,
+    "київський",
+    "adj",
+    "english_mention"
+   ],
+   [
+    13166,
+    "котлета по-київськи",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": [
+   [
+    810,
+    "Київ",
+    "name",
+    "sound"
+   ],
+   [
+    2575,
+    "кий",
+    "noun",
+    "sound"
+   ],
+   [
+    4694,
+    "-ко",
+    "suffix",
+    "sound"
+   ],
+   [
+    4335,
+    "-ок",
+    "suffix",
+    "sound"
+   ]
+  ]
+ },
+ {
+  "query": "привит",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "respelled"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "respelled"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "привит",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "respelled"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "respelled"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "превіт",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "sound"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "sound"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "превіт",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "sound"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "sound"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "дякуйу",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    6160,
+    "дякую",
+    "intj",
+    "respelled"
+   ],
+   [
+    4803,
+    "дякувати",
+    "verb",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "дякуйу",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    6160,
+    "дякую",
+    "intj",
+    "respelled"
+   ],
+   [
+    4803,
+    "дякувати",
+    "verb",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "ghbdsn",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "layout"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "layout"
+   ]
+  ]
+ },
+ {
+  "query": "ghbdsn",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "layout"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "layout"
+   ]
+  ]
+ },
+ {
+  "query": "книгы",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "книгы",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "привфт",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "привфт",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "пирвіт",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "пирвіт",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "привт",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ],
+   [
+    7700,
+    "причт",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "привт",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "typo"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "typo"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "typo"
+   ],
+   [
+    7700,
+    "причт",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "приввіт",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "respelled"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "respelled"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "приввіт",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    3258,
+    "привіт",
+    "noun",
+    "respelled"
+   ],
+   [
+    3259,
+    "привіт",
+    "intj",
+    "respelled"
+   ],
+   [
+    27749,
+    "привіет",
+    "intj",
+    "sound"
+   ],
+   [
+    3619,
+    "привид",
+    "noun",
+    "typo"
+   ],
+   [
+    5642,
+    "привід",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "kalnya",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    6348,
+    "кельня",
+    "noun",
+    "typo"
+   ],
+   [
+    1132,
+    "калина",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "kalnya",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    6348,
+    "кельня",
+    "noun",
+    "typo"
+   ],
+   [
+    1132,
+    "калина",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "молако",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    133,
+    "молоко",
+    "noun",
+    "typo"
+   ],
+   [
+    540,
+    "Монако",
+    "name",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "молако",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    133,
+    "молоко",
+    "noun",
+    "typo"
+   ],
+   [
+    540,
+    "Монако",
+    "name",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "спосибі",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    11517,
+    "спасибі",
+    "intj",
+    "typo"
+   ],
+   [
+    4975,
+    "спосіб",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "спосибі",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    11517,
+    "спасибі",
+    "intj",
+    "typo"
+   ],
+   [
+    4975,
+    "спосіб",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "небокрий",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    13512,
+    "небокрай",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "небокрий",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    13512,
+    "небокрай",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "на добранич",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    8784,
+    "на добраніч",
+    "intj",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "на добранич",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    8784,
+    "на добраніч",
+    "intj",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "good deed",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "good deed",
+  "vesum": true,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "viburnam",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "viburnam",
+  "vesum": true,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "lf",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    67,
+    "да",
+    "conj",
+    "layout"
+   ],
+   [
+    68,
+    "да",
+    "intj",
+    "layout"
+   ],
+   [
+    69,
+    "да",
+    "particle",
+    "layout"
+   ]
+  ]
+ },
+ {
+  "query": "lf",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    67,
+    "да",
+    "conj",
+    "layout"
+   ],
+   [
+    68,
+    "да",
+    "intj",
+    "layout"
+   ],
+   [
+    69,
+    "да",
+    "particle",
+    "layout"
+   ]
+  ]
+ },
+ {
+  "query": "здравствуйте",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "здравствуйте",
+  "vesum": true,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "knyhy",
+  "vesum": false,
+  "expect": [
+   [
+    130,
+    "книга",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "knyhy",
+  "vesum": true,
+  "expect": [
+   [
+    130,
+    "книга",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "knigi",
+  "vesum": false,
+  "expect": [
+   [
+    130,
+    "книга",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "knigi",
+  "vesum": true,
+  "expect": [
+   [
+    130,
+    "книга",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "chytaiu",
+  "vesum": false,
+  "expect": [
+   [
+    949,
+    "читати",
+    "verb",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "chytaiu",
+  "vesum": true,
+  "expect": [
+   [
+    949,
+    "читати",
+    "verb",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "chitayu",
+  "vesum": false,
+  "expect": [
+   [
+    949,
+    "читати",
+    "verb",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "chitayu",
+  "vesum": true,
+  "expect": [
+   [
+    949,
+    "читати",
+    "verb",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "dobroho",
+  "vesum": false,
+  "expect": [
+   [
+    6093,
+    "добрий",
+    "adj",
+    "latin_form"
+   ],
+   [
+    4798,
+    "доброго ранку",
+    "intj",
+    "prefix"
+   ],
+   [
+    26110,
+    "доброго раночку",
+    "intj",
+    "prefix"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "dobroho",
+  "vesum": true,
+  "expect": [
+   [
+    6093,
+    "добрий",
+    "adj",
+    "latin_form"
+   ],
+   [
+    4798,
+    "доброго ранку",
+    "intj",
+    "prefix"
+   ],
+   [
+    26110,
+    "доброго раночку",
+    "intj",
+    "prefix"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "male",
+  "vesum": false,
+  "expect": [
+   [
+    3694,
+    "Мале",
+    "name",
+    "latin"
+   ],
+   [
+    7813,
+    "чоловічий",
+    "adj",
+    "english"
+   ],
+   [
+    19188,
+    "самець",
+    "noun",
+    "english"
+   ],
+   [
+    7106,
+    "малий",
+    "adj",
+    "latin_form"
+   ],
+   [
+    1430,
+    "батько",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1918,
+    "чоловік",
+    "noun",
+    "english_mention"
+   ],
+   [
+    2898,
+    "дитина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    162,
+    "гей",
+    "noun",
+    "english_mention"
+   ],
+   [
+    143,
+    "пес",
+    "noun",
+    "english_mention"
+   ],
+   [
+    268,
+    "солдат",
+    "noun",
+    "english_mention"
+   ],
+   [
+    17459,
+    "Макс",
+    "name",
+    "english_mention"
+   ],
+   [
+    7053,
+    "Карл",
+    "name",
+    "english_mention"
+   ],
+   [
+    451,
+    "мужчина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22723,
+    "Боб",
+    "name",
+    "english_mention"
+   ],
+   [
+    7903,
+    "росіянин",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1956,
+    "Адам",
+    "name",
+    "english_mention"
+   ],
+   [
+    2620,
+    "кіт",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7060,
+    "Ян",
+    "name",
+    "english_mention"
+   ],
+   [
+    1714,
+    "Артур",
+    "name",
+    "english_mention"
+   ],
+   [
+    713,
+    "студент",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "male",
+  "vesum": true,
+  "expect": [
+   [
+    3694,
+    "Мале",
+    "name",
+    "latin"
+   ],
+   [
+    7813,
+    "чоловічий",
+    "adj",
+    "english"
+   ],
+   [
+    19188,
+    "самець",
+    "noun",
+    "english"
+   ],
+   [
+    7106,
+    "малий",
+    "adj",
+    "latin_form"
+   ],
+   [
+    1430,
+    "батько",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1918,
+    "чоловік",
+    "noun",
+    "english_mention"
+   ],
+   [
+    2898,
+    "дитина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    162,
+    "гей",
+    "noun",
+    "english_mention"
+   ],
+   [
+    143,
+    "пес",
+    "noun",
+    "english_mention"
+   ],
+   [
+    268,
+    "солдат",
+    "noun",
+    "english_mention"
+   ],
+   [
+    17459,
+    "Макс",
+    "name",
+    "english_mention"
+   ],
+   [
+    7053,
+    "Карл",
+    "name",
+    "english_mention"
+   ],
+   [
+    451,
+    "мужчина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22723,
+    "Боб",
+    "name",
+    "english_mention"
+   ],
+   [
+    7903,
+    "росіянин",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1956,
+    "Адам",
+    "name",
+    "english_mention"
+   ],
+   [
+    2620,
+    "кіт",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7060,
+    "Ян",
+    "name",
+    "english_mention"
+   ],
+   [
+    1714,
+    "Артур",
+    "name",
+    "english_mention"
+   ],
+   [
+    713,
+    "студент",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "more",
+  "vesum": false,
+  "expect": [
+   [
+    252,
+    "море",
+    "noun",
+    "latin"
+   ],
+   [
+    4063,
+    "ще",
+    "adv",
+    "english"
+   ],
+   [
+    8657,
+    "більше",
+    "det",
+    "english"
+   ],
+   [
+    15612,
+    "черговий",
+    "adj",
+    "english"
+   ],
+   [
+    28013,
+    "šče",
+    "adv",
+    "english"
+   ],
+   [
+    2061,
+    "мор",
+    "noun",
+    "latin_form"
+   ],
+   [
+    903,
+    "над",
+    "prep",
+    "english_mention"
+   ],
+   [
+    3575,
+    "давайте",
+    "intj",
+    "english_mention"
+   ],
+   [
+    64,
+    "камера",
+    "noun",
+    "english_mention"
+   ],
+   [
+    10982,
+    "дістати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    2245,
+    "старший",
+    "adj",
+    "english_mention"
+   ],
+   [
+    8942,
+    "решта",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3902,
+    "лінія",
+    "noun",
+    "english_mention"
+   ],
+   [
+    2028,
+    "концерт",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20495,
+    "піднятися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    16670,
+    "скоріше",
+    "adv",
+    "english_mention"
+   ],
+   [
+    19632,
+    "поділитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    20494,
+    "підніматися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    23888,
+    "розійтися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    4065,
+    "наверх",
+    "adv",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "more",
+  "vesum": true,
+  "expect": [
+   [
+    252,
+    "море",
+    "noun",
+    "latin"
+   ],
+   [
+    4063,
+    "ще",
+    "adv",
+    "english"
+   ],
+   [
+    8657,
+    "більше",
+    "det",
+    "english"
+   ],
+   [
+    15612,
+    "черговий",
+    "adj",
+    "english"
+   ],
+   [
+    28013,
+    "šče",
+    "adv",
+    "english"
+   ],
+   [
+    2061,
+    "мор",
+    "noun",
+    "latin_form"
+   ],
+   [
+    903,
+    "над",
+    "prep",
+    "english_mention"
+   ],
+   [
+    3575,
+    "давайте",
+    "intj",
+    "english_mention"
+   ],
+   [
+    64,
+    "камера",
+    "noun",
+    "english_mention"
+   ],
+   [
+    10982,
+    "дістати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    2245,
+    "старший",
+    "adj",
+    "english_mention"
+   ],
+   [
+    8942,
+    "решта",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3902,
+    "лінія",
+    "noun",
+    "english_mention"
+   ],
+   [
+    2028,
+    "концерт",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20495,
+    "піднятися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    16670,
+    "скоріше",
+    "adv",
+    "english_mention"
+   ],
+   [
+    19632,
+    "поділитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    20494,
+    "підніматися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    23888,
+    "розійтися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    4065,
+    "наверх",
+    "adv",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "son",
+  "vesum": false,
+  "expect": [
+   [
+    939,
+    "сон",
+    "noun",
+    "latin"
+   ],
+   [
+    940,
+    "сон",
+    "noun",
+    "latin"
+   ],
+   [
+    431,
+    "син",
+    "noun",
+    "english"
+   ],
+   [
+    9153,
+    "Соня",
+    "name",
+    "latin_form"
+   ],
+   [
+    4612,
+    "соня",
+    "noun",
+    "latin_form"
+   ],
+   [
+    4613,
+    "соня",
+    "noun",
+    "latin_form"
+   ],
+   [
+    2898,
+    "дитина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    19231,
+    "нащадок",
+    "noun",
+    "english_mention"
+   ],
+   [
+    25137,
+    "стерво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    28175,
+    "байстрюк",
+    "noun",
+    "english_mention"
+   ],
+   [
+    30078,
+    "одинак",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22865,
+    "мізинець",
+    "noun",
+    "english_mention"
+   ],
+   [
+    27496,
+    "ковальчук",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7227,
+    "-евич",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    14222,
+    "-енко",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    4699,
+    "-ич",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    27469,
+    "-йов",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    7225,
+    "-ович",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    27476,
+    "-ово",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    7769,
+    "-ук",
+    "suffix",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "son",
+  "vesum": true,
+  "expect": [
+   [
+    939,
+    "сон",
+    "noun",
+    "latin"
+   ],
+   [
+    940,
+    "сон",
+    "noun",
+    "latin"
+   ],
+   [
+    431,
+    "син",
+    "noun",
+    "english"
+   ],
+   [
+    9153,
+    "Соня",
+    "name",
+    "latin_form"
+   ],
+   [
+    4612,
+    "соня",
+    "noun",
+    "latin_form"
+   ],
+   [
+    4613,
+    "соня",
+    "noun",
+    "latin_form"
+   ],
+   [
+    2898,
+    "дитина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    19231,
+    "нащадок",
+    "noun",
+    "english_mention"
+   ],
+   [
+    25137,
+    "стерво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    28175,
+    "байстрюк",
+    "noun",
+    "english_mention"
+   ],
+   [
+    30078,
+    "одинак",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22865,
+    "мізинець",
+    "noun",
+    "english_mention"
+   ],
+   [
+    27496,
+    "ковальчук",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7227,
+    "-евич",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    14222,
+    "-енко",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    4699,
+    "-ич",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    27469,
+    "-йов",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    7225,
+    "-ович",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    27476,
+    "-ово",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    7769,
+    "-ук",
+    "suffix",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "кнегу",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "sound"
+   ]
+  ]
+ },
+ {
+  "query": "кнегу",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "sound"
+   ]
+  ]
+ },
+ {
+  "query": "книгі",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "книгі",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    130,
+    "книга",
+    "noun",
+    "respelled"
+   ]
+  ]
+ },
+ {
+  "query": "читайу",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    949,
+    "читати",
+    "verb",
+    "respelled"
+   ],
+   [
+    16841,
+    "вітаю",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "читайу",
+  "vesum": true,
+  "expect": [],
+  "suggest": [
+   [
+    949,
+    "читати",
+    "verb",
+    "respelled"
+   ],
+   [
+    16841,
+    "вітаю",
+    "intj",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "добрава",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "добрава",
+  "vesum": true,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "nebokraiu",
+  "vesum": false,
+  "expect": [
+   [
+    22808,
+    "небокраю",
+    "noun",
+    "latin"
+   ],
+   [
+    13512,
+    "небокрай",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "nebokraiu",
+  "vesum": true,
+  "expect": [
+   [
+    22808,
+    "небокраю",
+    "noun",
+    "latin"
+   ],
+   [
+    13512,
+    "небокрай",
+    "noun",
+    "latin_form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
   "query": "",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "",
   "vesum": true,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "   ",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "   ",
   "vesum": true,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "qqqqzz",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "qqqqzz",
   "vesum": true,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "ъъъ",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "ъъъ",
   "vesum": true,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "123",
   "vesum": false,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "123",
   "vesum": true,
-  "expect": []
+  "expect": [],
+  "suggest": []
  },
  {
   "query": "don't",
@@ -5049,7 +7195,8 @@
     "phrase",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  },
  {
   "query": "don't",
@@ -5073,6 +7220,7 @@
     "phrase",
     "english_mention"
    ]
-  ]
+  ],
+  "suggest": []
  }
 ]

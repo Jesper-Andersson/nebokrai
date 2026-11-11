@@ -6,8 +6,10 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { looseLatin, nationalTranslit, plain } from '../src/lib/search/normalize.ts';
-import { search } from '../src/lib/search/search.ts';
+import {
+	deletes, editsApart, fromRussianLetters, fromWrongLayout, looseLatin, nationalTranslit, plain, soundKey
+} from '../src/lib/search/normalize.ts';
+import { lookup } from '../src/lib/search/suggest.ts';
 import { wordDetails } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
 
@@ -27,6 +29,22 @@ test('normalisation', () => {
 	for (const spelling of ['khata', 'xata', 'hata']) assert.equal(looseLatin(spelling), 'hata');
 });
 
+test('lenient keys', () => {
+	const sound = (cyrillic: string) => soundKey(looseLatin(nationalTranslit(cyrillic)));
+	assert.equal(sound('превіт'), sound('привіт'));
+	assert.equal(soundKey(looseLatin('shastya')), sound('щастя'));
+	assert.equal(soundKey(looseLatin('kiev')), sound('Київ'));
+	assert.equal(fromWrongLayout('ghbdsn'), 'привіт');
+	assert.equal(fromRussianLetters('книгы'), 'книги');
+	assert.deepEqual(deletes('abca').sort(), ['aba', 'abc', 'aca', 'bca']);
+	for (const [a, b] of [['abcd', 'abxd'], ['abcd', 'acbd'], ['abcd', 'abd'], ['abd', 'abcd'], ['abcd', 'abcde']]) {
+		assert.ok(editsApart(a, b), `${a} ~ ${b}`);
+	}
+	for (const [a, b] of [['abcd', 'axyd'], ['abcd', 'badc'], ['abcd', 'ab']]) {
+		assert.ok(!editsApart(a, b), `${a} !~ ${b}`);
+	}
+});
+
 const haveData = existsSync('nebokrai.db') && existsSync('vesum.db');
 const skip = haveData ? false : 'nebokrai.db or vesum.db is missing';
 
@@ -35,12 +53,12 @@ test('search matches the Python reference', { skip }, async () => {
 	const vesum = openLocal('vesum.db');
 	const cases = JSON.parse(readFileSync('tests/search-cases.json', 'utf8'));
 	for (const c of cases) {
-		const got = await search(db, c.query, { limit: 20, vesum: c.vesum ? vesum : undefined });
-		assert.deepEqual(
-			got.map((r) => [r.id, r.word, r.pos, r.match]),
-			c.expect,
-			`query "${c.query}"${c.vesum ? ' with VESUM' : ''}`
-		);
+		const got = await lookup(db, c.query, { limit: 20, vesum: c.vesum ? vesum : undefined });
+		const label = `query "${c.query}"${c.vesum ? ' with VESUM' : ''}`;
+		const brief = (rows: { id: number | null; word: string; pos: string; match: string }[]) =>
+			rows.map((r) => [r.id, r.word, r.pos, r.match]);
+		assert.deepEqual(brief(got.results), c.expect, `results for ${label}`);
+		assert.deepEqual(brief(got.suggestions), c.suggest, `suggestions for ${label}`);
 	}
 });
 

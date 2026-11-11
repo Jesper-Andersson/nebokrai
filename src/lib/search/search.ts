@@ -6,19 +6,20 @@
 //   2. an inflected form                          книги  -> книга
 //   3. Latin letters, spelled the standard way    kalyna -> калина
 //   4. English meaning that is exactly the query  good   -> добрий
-//   5. Latin letters, loosely spelled             kalina -> калина
-//   6. English meaning that mentions the query    good   -> добро ("good deed")
-//   7. prefix of a word, for search-as-you-type
+//   5. an inflected form in Latin letters         knyhy  -> книга
+//   6. Latin letters, loosely spelled             kalina -> калина
+//   7. English meaning that mentions the query    good   -> добро ("good deed")
+//   8. prefix of a word, for search-as-you-type
 // Within each step, more common words come first.
 
 import type { Db } from './db.ts';
 import { isCyrillic, looseLatin, nationalTranslit, plain } from './normalize.ts';
 
 export type MatchKind =
-	| 'word' | 'form' | 'latin' | 'english' | 'latin_loose' | 'english_mention' | 'prefix';
+	| 'word' | 'form' | 'latin' | 'english' | 'latin_form' | 'latin_loose' | 'english_mention' | 'prefix';
 
 const RANK: Record<MatchKind, number> = {
-	word: 0, form: 1, latin: 2, english: 3, latin_loose: 4, english_mention: 5, prefix: 6
+	word: 0, form: 1, latin: 2, english: 3, latin_form: 4, latin_loose: 5, english_mention: 6, prefix: 7
 };
 const KIND = Object.keys(RANK) as MatchKind[];
 
@@ -105,7 +106,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		const oneWord = !q.includes(' ');
 		if (key && oneWord) {
 			add(await db.all<KeyRow>(
-				"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='latin'", [key]));
+				"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('latin','latin_form')", [key]));
 		}
 		// English: every word of the query must appear in the entry's meanings.
 		const meaningful = words.filter((w) => !ENGLISH_FILLER.has(w));
@@ -172,7 +173,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 }
 
 /** Order strings the way Python does, so both searches break ties identically. */
-function compareCodePoints(a: string, b: string): number {
+export function compareCodePoints(a: string, b: string): number {
 	const x = [...a], y = [...b];
 	for (let i = 0; i < Math.min(x.length, y.length); i++) {
 		const d = x[i].codePointAt(0)! - y[i].codePointAt(0)!;

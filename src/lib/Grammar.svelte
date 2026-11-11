@@ -72,6 +72,8 @@
 	   or starts with one, however the parts wrap. */
 	p {
 		overflow: hidden;
+		/* Room for the last slanted letter, which leans past its own box */
+		padding-right: 0.2em;
 	}
 
 	.row {

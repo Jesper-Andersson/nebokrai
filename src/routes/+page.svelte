@@ -242,8 +242,7 @@
 	h1 {
 		display: grid;
 		justify-items: center;
-		gap: 0.15rem;
-		margin: 0 0 1.4rem;
+		margin: 0 0 0.9rem;
 	}
 
 	.pair {
@@ -258,7 +257,7 @@
 	   less than Dictionary). The outline in the letter's own colour thickens
 	   it, as it does the logo. */
 	.word {
-		--hand: clamp(3.4rem, 11vw, 5.2rem);
+		--hand: clamp(2.9rem, 9vw, 4.1rem);
 		display: block;
 		width: auto;
 		max-width: 100%;

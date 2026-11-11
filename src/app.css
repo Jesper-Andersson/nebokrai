@@ -5,6 +5,12 @@
    goes to no third party, and the Content-Security-Policy can refuse every
    font and stylesheet that is not ours.
 
+   The Fixel files are not quite as MacPaw publishes them: Fixel has no
+   stress mark (U+0301), and a browser then draws the whole stressed vowel of
+   анана́с in a system font, a smaller letter of another design.
+   scripts/add_stress_to_fixel.py added the mark and the ten Ukrainian vowels
+   that carry it, small and capital, built from the font's own outlines.
+
    Montserrat is one variable file per alphabet, covering every weight used
    (600 to 800). The browser downloads only the alphabets a page shows; the
    ranges are the ones Google Fonts publishes for these files (v31). */

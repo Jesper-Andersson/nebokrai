@@ -83,8 +83,8 @@ cd .. && npm install && npm test
 
 ## Lenient search ("did you mean")
 
-When a query has no sure match, `lookup()` in `search.py` adds guesses. Two
-Four extra kinds of key in `search_keys` make this possible with plain index
+When a query has no sure match, `lookup()` in `search.py` adds guesses. Four
+extra kinds of key in `search_keys` make this possible with plain index
 lookups:
 
 | Kind | What it is | Rows |

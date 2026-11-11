@@ -105,10 +105,16 @@ def strip_stress(text):
     return unicodedata.normalize("NFC", text).replace(STRESS, "")
 
 
+# Characters people and dictionaries use for the Ukrainian apostrophe (п'ять):
+# typewriter ', curly ‘ ’, modifier letter ʼ, and the backtick ` and acute ´
+# that turn up in quick typing.
+APOSTROPHES = re.compile("['‘’ʼ`´]")
+
+
 def plain(text):
     """Lookup form of a Ukrainian word: no stress, lowercase, one apostrophe style."""
     text = strip_stress(text).lower()
-    return text.replace("’", "'").replace("ʼ", "'")
+    return APOSTROPHES.sub("'", text)
 
 
 def national_translit(word):

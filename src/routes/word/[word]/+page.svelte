@@ -12,7 +12,7 @@
 	import Tip from '#lib/Tip.svelte';
 	import { describeTags, formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { commonality } from '#lib/labels.ts';
+	import { commonality, orderedTags } from '#lib/labels.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -78,7 +78,7 @@
 			<header>
 				<p class="meta">
 					<span class="ui-badge">{posLabel(m, entry.pos)}</span>
-					{#if entry.tags.length}<span>{entry.tags.join(' · ')}</span>{/if}
+					{#if entry.tags.length}<span>{orderedTags(entry.tags).join(' · ')}</span>{/if}
 					<span
 						class="freq {common}"
 						title={entry.freq_rank ? m.word.rankTitle(rank(entry.freq_rank)) : m.word.unranked}

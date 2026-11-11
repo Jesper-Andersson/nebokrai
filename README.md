@@ -48,7 +48,8 @@ and saved words then go to `users.db` in the repo root, created on first use.
 
 In production the same four values are Worker secrets, and accounts live in a
 D1 database bound as `USERS`, apart from the dictionary. What is stored about a
-person: the provider's id for them, their display name and their saved words.
+person: the provider's id for them, their display name, their saved words and
+when each word was last exported.
 
 ## Deploying
 

@@ -7,6 +7,9 @@ export interface SavedWord {
 	saved_at: number;
 }
 
+/** When each word was last exported, in milliseconds: `{ "книга": 1794400000000 }`. */
+export type ExportedMarks = Record<string, number>;
+
 /** Most words one list can hold. */
 export const MAX_SAVED = 5000;
 /** Longest word, or word page address, worth looking up: the longest in the dictionary has 62 letters. */

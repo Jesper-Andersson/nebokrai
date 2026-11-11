@@ -6,8 +6,8 @@ import { Toaster } from 'melt/builders';
 
 export interface ToastData {
 	title: string;
-	/** The word the message is about, with its stress mark. */
-	headword: string;
+	/** The word the message is about, with its stress mark. Absent when it is about no one word. */
+	headword?: string;
 	undo?: () => void;
 }
 

@@ -12,6 +12,8 @@
 		speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
 		bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
 		'chevron-right': '<path d="m9 6 6 6-6 6"/>',
+		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+		download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
 		'arrow-left': '<path d="M19 12H5M11 6l-6 6 6 6"/>'
 	};
 

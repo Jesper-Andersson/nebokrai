@@ -7,8 +7,6 @@ export interface GitHubProfile {
 	login: string;
 	name: string | null;
 	bio: string | null;
-	location: string | null;
-	publicRepos: number | null;
 	avatarUrl: string;
 	url: string;
 }
@@ -24,8 +22,6 @@ export async function githubProfile(login: string, fetcher: typeof fetch): Promi
 		login,
 		name: null,
 		bio: null,
-		location: null,
-		publicRepos: null,
 		avatarUrl: `https://github.com/${login}.png?size=96`,
 		url: `https://github.com/${login}`
 	};
@@ -40,8 +36,6 @@ export async function githubProfile(login: string, fetcher: typeof fetch): Promi
 			login: u.login ?? login,
 			name: u.name || null,
 			bio: u.bio || null,
-			location: u.location || null,
-			publicRepos: typeof u.public_repos === 'number' ? u.public_repos : null,
 			avatarUrl: u.avatar_url ? `${u.avatar_url}&s=96` : fallback.avatarUrl,
 			url: u.html_url ?? fallback.url
 		};

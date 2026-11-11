@@ -17,7 +17,9 @@
 		<div {...toast.content} class="toast">
 			<p>
 				<span {...toast.title}>{toast.data.title}</span>
-				<b {...toast.description} lang="uk"><Stressed text={toast.data.headword} /></b>
+				{#if toast.data.headword}
+					<b {...toast.description} lang="uk"><Stressed text={toast.data.headword} /></b>
+				{/if}
 			</p>
 			{#if toast.data.undo}
 				<button

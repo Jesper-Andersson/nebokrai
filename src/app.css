@@ -52,12 +52,26 @@
 		U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* Fixel carries two sets of vertical measures, and they disagree. Windows
+   reads the one (ascent 750, descent 250 of 1000) that puts a capital letter
+   a tenth of the font size above the middle of its line; macOS, iOS, Android
+   and Linux read the other (900 and 190), which centres it. On Windows the
+   words in the header stood higher than the logo beside them, and the text
+   of a badge or a pill sat above its middle.
+
+   The three overrides in each Fixel rule give Windows browsers the second
+   set, so a line of Fixel is built the same way everywhere. The line gap
+   keeps a line of normal height at 1.38 of the font size, as it was.
+   Montserrat needs none: it tells Windows to read the centred set. */
 @font-face {
 	font-family: 'Fixel Text';
 	src: url('./lib/assets/fixel/FixelText-Regular.woff2') format('woff2');
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 @font-face {
@@ -66,6 +80,9 @@
 	font-weight: 600;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 @font-face {
@@ -74,6 +91,9 @@
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 @font-face {
@@ -82,6 +102,9 @@
 	font-weight: 800;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 @font-face {
@@ -90,6 +113,9 @@
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 @font-face {
@@ -98,6 +124,9 @@
 	font-weight: 800;
 	font-style: normal;
 	font-display: swap;
+	ascent-override: 90%;
+	descent-override: 19%;
+	line-gap-override: 29%;
 }
 
 /* Three font roles. Components use these, never a family name. */
@@ -140,8 +169,11 @@
 	--wash-bottom: rgb(247 246 242 / 0.5);
 	--shadow: 0 1px 2px rgb(22 24 29 / 0.05), 0 6px 20px rgb(22 24 29 / 0.06);
 	--shadow-pop: 0 2px 6px rgb(22 24 29 / 0.08), 0 16px 48px rgb(22 24 29 / 0.18);
-	--stress: #e3101b;
+	--stress: #cf3d2e;
 	--play: #1f8ac0;
+	/* The wordmark in the header: pure white on the dark page, and the text
+	   colour on the light one, where white would not show */
+	--logo-ink: #16181d;
 	--pill-1-bg: #dcf2e0; --pill-1-line: #2e8540; --pill-1-ink: #1d5c2b;
 	--pill-2-bg: #dde9f8; --pill-2-line: #2f6fb5; --pill-2-ink: #1c4a80;
 	--pill-3-bg: #fbefd2; --pill-3-line: #c08a1e; --pill-3-ink: #7a5208;
@@ -175,8 +207,9 @@
 	--wash-bottom: rgb(15 17 21 / 0.72);
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
-	--stress: #ff6b6b;
+	--stress: #f0876f;
 	--play: #5cb8e6;
+	--logo-ink: #ffffff;
 	--pill-1-bg: #1d3a24; --pill-1-line: #4fae67; --pill-1-ink: #a9e6b7;
 	--pill-2-bg: #1b2e48; --pill-2-line: #5b95d9; --pill-2-ink: #b5d0f2;
 	--pill-3-bg: #3d2f12; --pill-3-line: #c9962e; --pill-3-ink: #f0d18a;
@@ -212,8 +245,9 @@
 		--wash-bottom: rgb(15 17 21 / 0.72);
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
-		--stress: #ff6b6b;
+		--stress: #f0876f;
 		--play: #5cb8e6;
+		--logo-ink: #ffffff;
 		--pill-1-bg: #1d3a24; --pill-1-line: #4fae67; --pill-1-ink: #a9e6b7;
 		--pill-2-bg: #1b2e48; --pill-2-line: #5b95d9; --pill-2-ink: #b5d0f2;
 		--pill-3-bg: #3d2f12; --pill-3-line: #c9962e; --pill-3-ink: #f0d18a;
@@ -299,6 +333,23 @@ body {
 
 :root[data-bg] {
 	--on-page: var(--ink);
+}
+
+/* Two surfaces that change over a photo. --panel is a card or the search box:
+   solid on the plain background, and over a photo a little of the photo shows
+   through, so the cards sit in the picture instead of on top of it. --frame is
+   the header and the footer: frosted page colour on the plain background, and
+   over a photo the same surface colour as the cards, so the frame and the
+   cards read as one material. The frame is the denser of the two because the
+   header lies on the brightest part of a photo, the sky. */
+:root {
+	--panel: var(--surface);
+	--frame: color-mix(in srgb, var(--bg) 82%, transparent);
+}
+
+:root[data-bg] {
+	--panel: color-mix(in srgb, var(--surface) 84%, transparent);
+	--frame: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 
 a {
@@ -432,6 +483,78 @@ button {
 
 .ui-popover:focus-visible {
 	outline: none;
+}
+
+/* A short list of things to do (Bits UI DropdownMenu): a popover as wide as
+   its longest line. Bits UI marks the item under the pointer or the arrow
+   keys with data-highlighted. */
+.ui-popover.ui-menu {
+	display: grid;
+	width: auto;
+	min-width: 11rem;
+	padding: 0.35rem;
+}
+
+.ui-menu-item {
+	padding: 0.5rem 0.7rem;
+	border-radius: 9px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.ui-menu-item:focus-visible {
+	outline: none;
+}
+
+.ui-menu-item[data-highlighted] {
+	background: var(--surface-2);
+}
+
+.ui-menu-item[data-disabled] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* One choice out of a few inside a menu: a radio dot before the text, and
+   how many words the choice covers at the far end */
+.ui-menu-item[role='menuitemradio'] {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+}
+
+.ui-menu-item[role='menuitemradio']::before {
+	content: '';
+	box-sizing: border-box;
+	width: 0.95rem;
+	height: 0.95rem;
+	border: 2px solid var(--border-strong);
+	border-radius: 50%;
+}
+
+.ui-menu-item[role='menuitemradio'][data-state='checked']::before {
+	border-color: var(--accent);
+	background: radial-gradient(var(--accent) 42%, transparent 48%);
+}
+
+.ui-menu-count {
+	margin-left: auto;
+	padding-left: 1rem;
+	color: var(--muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.ui-menu-heading {
+	padding: 0.35rem 0.7rem 0.15rem;
+	color: var(--muted);
+	font-size: 0.78rem;
+	font-weight: 700;
+}
+
+.ui-menu-separator {
+	height: 1px;
+	margin: 0.3rem 0;
+	background: var(--border);
 }
 
 .ui-tooltip {

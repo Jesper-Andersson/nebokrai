@@ -15,6 +15,10 @@
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
+	// The English title joins the two languages with an arrow. The arrow is
+	// drawn, not typed: the heading font has no ↔, and the one borrowed from
+	// another font is hairline thin beside its heavy letters.
+	let [titleBefore, titleAfter] = $derived(m.home.titleRest.split('↔'));
 
 	let query = $state('');
 	// The answer for the latest query; null while the box is empty.
@@ -119,8 +123,19 @@
 
 <PageMeta title={m.meta.homeTitle} description={m.meta.home} />
 
-<div class="hero" class:searching={query.trim() !== ''}>
-	<h1><span class="accent">{m.home.titleAccent}</span>{m.home.titleRest}</h1>
+<div class="hero">
+	<h1>
+		<span class="accent">{m.home.titleAccent}</span>{titleBefore}{#if titleAfter !== undefined}<svg
+				class="arrow"
+				viewBox="0 0 28 16"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="3"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"><path d="M3 8h22M8 3 3 8l5 5M20 3l5 5-5 5" /></svg
+			>{titleAfter}{/if}
+	</h1>
 
 	<div class="searchbox">
 		<div class="field">
@@ -196,31 +211,26 @@
 <style>
 	/* Sky above, wheat below: the two colours meet behind the search box. The
 	   wheat fades out just above the hero's lower edge; centred on the edge it
-	   was cut off in a visible line. */
+	   was cut off in a visible line. The title and the box sit high and stay
+	   put: typing must not move the box under the caret. */
 	.hero {
-		padding: clamp(2rem, 9vh, 5.5rem) 1rem 1.25rem;
+		padding: clamp(1.25rem, 4vh, 2.5rem) 1rem 1.25rem;
 		background:
 			radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%),
 			radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
 		text-align: center;
-		transition: padding-top 0.2s ease;
 	}
 
-	/* Over a photo (app.css) the photo is the sky: no painted one, and the
-	   title gets a glow of the page colour so it reads on clouds and on blue. */
+	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
+	   a photo is its brightest part, so the page colour is laid over it under
+	   the header and fades out by the search box. That carries the title on
+	   clouds and on blue; the title's own shadow only has to firm its edges. */
 	:global(:root[data-bg]) .hero {
-		background: none;
+		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent);
 	}
 
 	:global(:root[data-bg]) h1 {
-		text-shadow:
-			0 0 0.5em var(--bg),
-			0 0 1.2em var(--bg);
-	}
-
-	/* With results on the page, the title gives them room */
-	.hero.searching {
-		padding-top: clamp(1.25rem, 4vh, 2.5rem);
+		text-shadow: 0 1px 0.35em color-mix(in srgb, var(--bg) 65%, transparent);
 	}
 
 	h1 {
@@ -236,14 +246,23 @@
 		color: var(--title-accent);
 	}
 
-	/* The search box; with the keyboard open it grows downward to hold it */
+	/* As heavy as the letters beside it, and centred on their height */
+	.arrow {
+		width: 1em;
+		height: 0.57em;
+		vertical-align: 0.06em;
+	}
+
+	/* The search box; with the keyboard open it grows downward to hold it.
+	   As wide as the results under it (.results), so the two share their edges. */
 	.searchbox {
-		max-width: 38rem;
+		box-sizing: border-box;
+		max-width: 50rem;
 		margin: 0 auto;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
 		border-radius: 16px;
-		background: var(--surface);
+		background: var(--panel);
 		box-shadow: var(--shadow);
 		text-align: left;
 	}
@@ -358,12 +377,6 @@
 
 		.results {
 			padding: 0 0.75rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.hero {
-			transition: none;
 		}
 	}
 </style>

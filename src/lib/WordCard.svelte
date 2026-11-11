@@ -1,11 +1,15 @@
 <!-- One search result. The headword and the arrow both lead to the word's
-     page; the meanings stay plain text so they can be selected and copied. -->
+     page; the meanings stay plain text so they can be selected and copied.
+     How common the word is stands at the right end of the grammar line, as
+     it does on the word's own page. -->
 <script lang="ts">
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { orderedTags } from '#lib/labels.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { mergeProps } from 'bits-ui';
+	import FrequencyMeter from './FrequencyMeter.svelte';
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
 	import SaveButton from './SaveButton.svelte';
@@ -42,7 +46,7 @@
 					class="ui-icon-btn play"
 					aria-label={m.card.play}
 				>
-					<Icon name="speaker" />
+					<Icon name="speaker" size={20} />
 				</button>
 			{/snippet}
 		</Tip>
@@ -50,7 +54,7 @@
 
 	<p class="meta">
 		<span class="ui-badge">{posLabel(m, entry.pos)}</span>
-		{#if entry.tags.length}<span>{entry.tags.join(' · ')}</span>{/if}
+		{#if entry.tags.length}<span>{orderedTags(entry.tags).join(' · ')}</span>{/if}
 		{#if genitive}
 			<span class="genitive">{m.card.genitive} <b lang="uk"><Stressed text={genitive} /></b></span>
 		{/if}
@@ -61,10 +65,12 @@
 	</p>
 
 	{#if !vesumOnly}
+		<div class="freq"><FrequencyMeter rank={entry.freq_rank} /></div>
+
 		<div class="actions">
-			<SaveButton word={entry.word} headword={entry.headword} />
+			<SaveButton word={entry.word} headword={entry.headword} size={20} />
 			<a class="ui-icon-btn" href={wordPath(entry.word)} aria-label={m.card.details} title={m.card.details}>
-				<Icon name="chevron-right" />
+				<Icon name="chevron-right" size={20} />
 			</a>
 		</div>
 	{/if}
@@ -77,13 +83,13 @@
 		grid-template-columns: minmax(0, 18rem) minmax(0, 1fr) auto;
 		grid-template-areas:
 			'word glosses actions'
-			'meta glosses actions';
+			'meta glosses freq';
 		align-items: center;
 		gap: 0.15rem 1.25rem;
 		padding: 0.75rem 0.6rem 0.8rem 1.1rem;
 		border: 1px solid var(--border);
 		border-radius: 14px;
-		background: var(--surface);
+		background: var(--panel);
 		transition:
 			border-color 0.12s,
 			box-shadow 0.12s;
@@ -167,10 +173,24 @@
 		line-height: 1.45;
 	}
 
+	/* Under the buttons, on the line of the grammar, and pushed to the same
+	   right edge as the arrow above it. As wide as the longest rank (#16,580):
+	   every card's last column is then the same width, and the ranks of a list
+	   of results line up like a column of figures. */
+	.freq {
+		grid-area: freq;
+		display: flex;
+		justify-content: flex-end;
+		box-sizing: border-box;
+		min-width: 5.2rem;
+		padding-right: 0.6rem;
+	}
+
 	.actions {
 		grid-area: actions;
 		display: flex;
 		align-items: center;
+		justify-content: flex-end;
 	}
 
 	/* Phones: the meanings go under the word and use the card's full width */
@@ -179,9 +199,14 @@
 			grid-template-columns: minmax(0, 1fr) auto;
 			grid-template-areas:
 				'word actions'
-				'meta meta'
+				'meta freq'
 				'glosses glosses';
 			padding: 0.6rem 0.4rem 0.8rem 0.9rem;
+		}
+
+		.freq {
+			min-width: 0;
+			padding-right: 0.7rem;
 		}
 
 		.glosses {

@@ -11,15 +11,9 @@
 	let m = $derived(messagesFor(settings.lang));
 
 	const EMAIL = 'contact@nebokrai.app';
-
-	// Ukrainian plural forms: 1 репозиторій, 2–4 репозиторії, 5+ репозиторіїв
-	function reposUk(n: number) {
-		const last = n % 10, lastTwo = n % 100;
-		if (last === 1 && lastTwo !== 11) return `${n} репозиторій`;
-		if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} репозиторії`;
-		return `${n} репозиторіїв`;
-	}
-	const reposEn = (n: number) => `${n} public ${n === 1 ? 'repository' : 'repositories'}`;
+	// Voluntary help with the hosting bill. It must never buy anything on the
+	// site: the VESUM data keeps Nebokrai non-commercial.
+	const KOFI = 'https://ko-fi.com/jesperandersson0';
 </script>
 
 <TextPage title={m.pageTitle.about} description={m.meta.about}>
@@ -51,13 +45,20 @@
 		<p>
 			Nebokrai — некомерційний проєкт Jesper Andersson.
 		</p>
-		<GitHubCard profile={data.github} reposLabel={reposUk} />
+		<GitHubCard profile={data.github} />
+
+		<h2>Підтримати Nebokrai</h2>
+		<p>
+			Nebokrai безкоштовний і без реклами. Якщо він вам корисний, можете допомогти покрити витрати на
+			хостинг <a href={KOFI} rel="noopener">на Ko-fi</a>. Внески добровільні й не дають жодних
+			переваг: усе на сайті лишається безкоштовним для всіх.
+		</p>
 
 		<h2>Приватність</h2>
 		<p>
 			Збережені слова зберігаються у вашому браузері. Якщо ви входите через Google або GitHub, ми
-			зберігаємо ваш ідентифікатор у цьому сервісі, ваше ім’я та збережені слова, щоб вони були на
-			всіх ваших пристроях. Ми не отримуємо вашу електронну адресу чи пароль. Файли cookie потрібні
+			зберігаємо ваш ідентифікатор у цьому сервісі, ваше ім’я, збережені слова й те, які з них ви
+			експортували, щоб вони були на всіх ваших пристроях. Ми не отримуємо вашу електронну адресу чи пароль. Файли cookie потрібні
 			лише для входу й налаштувань; реклами та відстеження немає. «Видалити обліковий запис» у
 			налаштуваннях одразу видаляє все це.
 		</p>
@@ -93,12 +94,20 @@
 		<p>
 			Nebokrai is a non-commercial project by Jesper Andersson.
 		</p>
-		<GitHubCard profile={data.github} reposLabel={reposEn} />
+		<GitHubCard profile={data.github} />
+
+		<h2>Supporting Nebokrai</h2>
+		<p>
+			Nebokrai is free and has no ads. If you find it useful, you can help cover the hosting costs
+			<a href={KOFI} rel="noopener">on Ko-fi</a>. Donations are voluntary and unlock nothing:
+			everything on the site stays free for everyone.
+		</p>
 
 		<h2>Privacy</h2>
 		<p>
 			Saved words are kept in your browser. If you sign in with Google or GitHub, we store that
-			service’s id for you, your name and your saved words, so that they follow you to every device.
+			service’s id for you, your name, your saved words and which of them you have exported, so that
+			they follow you to every device.
 			We never receive your email address or password. Cookies are used only for signing in and for
 			your settings; there are no ads and no tracking. “Delete account” in the settings removes all
 			of it at once.

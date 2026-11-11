@@ -1,12 +1,14 @@
-<!-- The top bar: logo, the four pages, quick search and settings. It stays at
+<!-- The top bar: logo, the four pages, quick search, the link to support
+     Ukraine and settings. It stays at
      the top of the window while the page scrolls. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import uaFlag from '#lib/assets/flag-ukraine.svg';
+	import logoIcon from '#lib/assets/logo-icon.svg';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
+	import Logo from './Logo.svelte';
 	import QuickSearch from './QuickSearch.svelte';
 	import SettingsMenu from './SettingsMenu.svelte';
 
@@ -24,7 +26,14 @@
 	const current = (href: string) =>
 		page.url.pathname === href || (href === '/' && page.url.pathname.startsWith('/word/'));
 
+	// United24 is the Ukrainian state's own fundraising platform.
+	const SUPPORT_URL = 'https://u24.gov.ua/';
+
 	let searchOpen = $state(false);
+
+	// The search page has its own box right under the header: a second field
+	// beside it only repeats it. Ctrl+K still opens the quick search there.
+	let onSearchPage = $derived(page.url.pathname === '/');
 
 	// Known only in the browser; the server always renders "Ctrl K".
 	let mac = $state(false);
@@ -36,8 +45,9 @@
 <header>
 	<div class="inner">
 		<a class="logo" href="/">
-			<img src={uaFlag} alt="" />
-			Nebokrai
+			<!-- The same drawing as the site's icon; the wordmark beside it carries the name -->
+			<img src={logoIcon} alt="" />
+			<Logo script={settings.lang === 'uk' ? 'uk' : 'en'} />
 		</a>
 		<nav aria-label={m.nav.label}>
 			{#each links as link (link.href)}
@@ -45,11 +55,38 @@
 			{/each}
 		</nav>
 		<div class="tools">
-			<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
-				<Icon name="search" size={18} />
-				<span class="label">{m.home.placeholder}</span>
-				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
-			</button>
+			{#if !onSearchPage}
+				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
+					<Icon name="search" size={18} />
+					<span class="label">{m.home.placeholder}</span>
+					<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+				</button>
+			{/if}
+			<a class="support" href={SUPPORT_URL} rel="noopener" aria-label={m.support.label} title={m.support.hint}>
+				<!-- A heart in the flag's two colours, the same blue and yellow as the
+				     logo. The yellow half all but vanishes on a white button, so the
+				     heart is outlined, in a darker amber under the blue. -->
+				<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+					<defs>
+						<linearGradient id="ui-flag-heart" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="50%" stop-color="#005bbb" />
+							<stop offset="50%" stop-color="#ffd500" />
+						</linearGradient>
+						<linearGradient id="ui-flag-heart-line" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="50%" stop-color="#005bbb" />
+							<stop offset="50%" stop-color="#b88a00" />
+						</linearGradient>
+					</defs>
+					<path
+						fill="url(#ui-flag-heart)"
+						stroke="url(#ui-flag-heart-line)"
+						stroke-width="1.5"
+						stroke-linejoin="round"
+						d="M12 20.5 4.6 13.1a4.9 4.9 0 0 1 6.9-6.9l.5.5.5-.5a4.9 4.9 0 0 1 6.9 6.9z"
+					/>
+				</svg>
+				<span class="label">{m.support.label}</span>
+			</a>
 			<SettingsMenu />
 		</div>
 	</div>
@@ -63,7 +100,7 @@
 		top: 0;
 		z-index: 30;
 		border-bottom: 1px solid var(--border);
-		background: color-mix(in srgb, var(--bg) 82%, transparent);
+		background: var(--frame);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
 	}
@@ -82,16 +119,18 @@
 	.logo {
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
-		color: var(--ink);
-		font-family: var(--font-heading);
-		font-size: 1.2rem;
-		font-weight: 800;
+		/* The wordmark's box has a little air on its left already */
+		gap: 0.25rem;
 	}
 
+	/* The icon is sized to the wordmark's capitals and lifted to stand with
+	   them: the wordmark's box keeps room under the baseline for descenders,
+	   so its letters sit above the middle of it. */
 	.logo img {
-		height: 1.05em;
-		border-radius: 3px;
+		position: relative;
+		top: -0.19rem;
+		width: 1.75rem;
+		height: 1.75rem;
 	}
 
 	nav {
@@ -133,7 +172,8 @@
 
 	nav a:focus-visible,
 	.logo:focus-visible,
-	.search:focus-visible {
+	.search:focus-visible,
+	.support:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: -2px;
 		border-radius: 8px;
@@ -176,8 +216,39 @@
 		}
 	}
 
-	/* Narrow windows: the search field shrinks to its icon */
-	@media (max-width: 980px) {
+	/* The way out to United24. Framed like the search field beside it and on
+	   the tools' side of the bar, so it does not read as a fifth page. */
+	.support {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		box-sizing: border-box;
+		height: 2.25rem;
+		padding: 0 0.8rem 0 0.65rem;
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		background: var(--surface);
+		color: var(--ink);
+		font-size: 0.9rem;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.support svg {
+		flex: none;
+	}
+
+	@media (hover: hover) {
+		.support:hover {
+			border-color: var(--border-strong);
+		}
+	}
+
+	/* Narrow windows: the search field shrinks to its icon. In Ukrainian the
+	   whole bar needs 1040px, "Підтримати Україну" being the longer label. */
+	@media (max-width: 1080px) {
 		.search {
 			justify-content: center;
 			width: 2.25rem;
@@ -188,6 +259,18 @@
 
 		.search .label,
 		.search .ui-kbd {
+			display: none;
+		}
+	}
+
+	/* Narrower still: the support link keeps only its heart */
+	@media (max-width: 880px) {
+		.support {
+			width: 2.25rem;
+			padding: 0;
+		}
+
+		.support .label {
 			display: none;
 		}
 	}
@@ -226,7 +309,8 @@
 			inset-inline: 0.5rem;
 		}
 
-		.search {
+		.search,
+		.support {
 			width: 2.75rem;
 			height: 2.75rem;
 		}

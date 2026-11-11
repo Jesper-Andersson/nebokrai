@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
-	import uaFlag from '#lib/assets/flag-ukraine.svg';
+	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Header from '#lib/Header.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
@@ -37,12 +37,12 @@
 </script>
 
 <svelte:head>
-	<!-- The site's icon is the flag from the header. Browsers that can show an
-	     SVG icon take the second line; the rest, and anything that asks for
-	     /favicon.ico by itself, get static/favicon.ico, which is the same
-	     drawing at 16, 32 and 48 pixels. -->
+	<!-- The site's icon is the pair of flashcards from the header. Browsers that
+	     can show an SVG icon take the second line; the rest, and anything that
+	     asks for /favicon.ico by itself, get static/favicon.ico, which is the
+	     same drawing at 16, 32 and 48 pixels. -->
 	<link rel="icon" href="/favicon.ico" sizes="32x32" />
-	<link rel="icon" href={uaFlag} type="image/svg+xml" />
+	<link rel="icon" href={logoIcon} type="image/svg+xml" />
 	<!-- Each page sets its own title and description (PageMeta.svelte); this
 	     title is what an error page falls back to. -->
 	<title>Nebokrai</title>
@@ -94,7 +94,7 @@
 	/* Frosted like the header, so its small text reads over a background photo */
 	footer {
 		border-top: 1px solid var(--border);
-		background: color-mix(in srgb, var(--bg) 82%, transparent);
+		background: var(--frame);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
 		color: var(--muted);

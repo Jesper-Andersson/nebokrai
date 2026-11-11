@@ -20,6 +20,8 @@ function listOf(items: (string | false | null)[], and: string): string {
 
 const en = {
 	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
+	/** The header's link out to United24, the state's own fundraising platform. */
+	support: { label: 'Support Ukraine', hint: 'Donate through United24, Ukraine’s official fundraising platform' },
 	/** The search that opens from the header, or with Ctrl+K. */
 	quick: {
 		open: 'Search',
@@ -35,6 +37,24 @@ const en = {
 		removed: 'Removed from saved',
 		undo: 'Undo',
 		dismiss: 'Dismiss'
+	},
+	/** Downloading the saved words as a file (the Saved page). */
+	export: {
+		button: 'Export',
+		working: 'Exporting…',
+		anki: 'Anki (text file)',
+		csv: 'CSV (spreadsheet)',
+		json: 'JSON',
+		failed: 'The export didn’t work. Please try again.',
+		ankiHint: 'In Anki, choose File › Import and pick the downloaded file.',
+		which: 'Which words',
+		scope: { all: 'All words', selected: 'Selected', fresh: 'Not exported yet' },
+		as: 'File',
+		exported: 'Exported',
+		exportedOn: (date: string) => `Exported ${date}`,
+		select: (word: string) => `Select ${word}`,
+		selectAll: 'Select all',
+		selectedCount: (n: number) => `${n} selected`
 	},
 	settings: {
 		open: 'Settings',
@@ -194,6 +214,7 @@ export type Messages = typeof en;
 
 const uk: Messages = {
 	nav: { label: 'Головне меню', dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
+	support: { label: 'Підтримати Україну', hint: 'Задонатити через United24, офіційну фандрейзингову платформу України' },
 	quick: {
 		open: 'Пошук',
 		title: 'Швидкий пошук',
@@ -207,6 +228,24 @@ const uk: Messages = {
 		removed: 'Прибрано зі збереженого',
 		undo: 'Скасувати',
 		dismiss: 'Закрити'
+	},
+	export: {
+		button: 'Експортувати',
+		working: 'Експортуємо…',
+		anki: 'Anki (текстовий файл)',
+		csv: 'CSV (таблиця)',
+		json: 'JSON',
+		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
+		ankiHint: 'В Anki виберіть «Файл» › «Імпортувати» й укажіть завантажений файл.',
+		which: 'Які слова',
+		scope: { all: 'Усі слова', selected: 'Вибрані', fresh: 'Ще не експортовані' },
+		as: 'Файл',
+		exported: 'Експортовано',
+		exportedOn: (date: string) => `Експортовано ${date}`,
+		select: (word: string) => `Вибрати ${word}`,
+		selectAll: 'Вибрати всі',
+		// "Вибрано: 5" needs no plural form of its own
+		selectedCount: (n: number) => `Вибрано: ${n}`
 	},
 	settings: {
 		open: 'Налаштування',

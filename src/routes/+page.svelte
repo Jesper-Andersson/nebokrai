@@ -254,8 +254,8 @@
 	}
 
 	/* --hand is the size of the handwriting, as a font size would be; the
-	   word's own box is --ems of it tall (словник, with no tall letters,
-	   less than dictionary). The outline in the letter's own colour thickens
+	   word's own box is --ems of it tall (Словник, with nothing under the line,
+	   less than Dictionary). The outline in the letter's own colour thickens
 	   it, as it does the logo. */
 	.word {
 		--hand: clamp(3.4rem, 11vw, 5.2rem);

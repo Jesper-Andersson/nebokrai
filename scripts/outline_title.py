@@ -1,7 +1,7 @@
 """Draw the home page's handwritten word as outlines.
 
-The title of the home page ends in one word in the hand of the logo: словник
-in the Ukrainian interface, dictionary in the English one. The logo is Caveat
+The title of the home page ends in one word in the hand of the logo: Словник
+in the Ukrainian interface, Dictionary in the English one. The logo is Caveat
 Bold converted to outlines (src/lib/logo-paths.ts), so that the site loads no
 font for it; this script does the same for the word, with the same size,
 spacing and line of writing, and writes src/lib/title-paths.ts.
@@ -25,7 +25,7 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
-WORDS = {"uk": "словник", "en": "dictionary"}
+WORDS = {"uk": "Словник", "en": "Dictionary"}
 OUT = "src/lib/title-paths.ts"
 
 # As the logo is drawn: 60 units to the em, the line of writing 50 units down,
@@ -70,8 +70,8 @@ def outline(path, text, language):
 
 def entry(path, text, language):
     d, (left, top, right, bottom) = outline(path, text, language)
-    # Each word in a box of its own, cut close: словник has nothing above or
-    # below its small letters, and would float in a box made for dictionary
+    # Each word in a box of its own, cut close: Словник has nothing below
+    # its line of writing, and would float in a box made for Dictionary
     return (f"{{\n\t\tname: '{text}',\n"
             f"\t\tbox: '{number(left - MARGIN)} {number(top - MARGIN)} "
             f"{number(right - left + 2 * MARGIN)} {number(bottom - top + 2 * MARGIN)}',\n"

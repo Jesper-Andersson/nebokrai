@@ -339,15 +339,16 @@ Response `200`:
 ```json
 {
   "words": [
-    { "word": "книга", "headword": "кни́га", "glosses": ["book (elevated)"] },
-    { "word": "небокрай", "headword": "небокра́й", "glosses": ["horizon (part of the sky which appears to meet the earth in the distance)", "synonym of не́бо n (nébo, “sky”)"] }
+    { "word": "книга", "headword": "кни́га", "pos": "noun", "glosses": ["book (elevated)"] },
+    { "word": "небокрай", "headword": "небокра́й", "pos": "noun", "glosses": ["horizon (part of the sky which appears to meet the earth in the distance)", "synonym of не́бо n (nébo, “sky”)"] }
   ]
 }
 ```
 
 In the order asked. A word with no entry is left out. `word` must be the exact
 spelling (`Київ`, not `київ`). A spelling with several entries is summarised
-by its most common one. `glosses` holds the first meanings, at most three.
+by its most common one. `pos` is that entry's part of speech, as in a search
+result. `glosses` holds the first meanings, at most three.
 
 ### `POST /api/words/cards`
 

@@ -3,24 +3,24 @@
      How common the word is stands at the right end of the grammar line, as
      it does on the word's own page. -->
 <script lang="ts">
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { orderedTags } from '#lib/labels.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { mergeProps } from 'bits-ui';
 	import FrequencyMeter from './FrequencyMeter.svelte';
+	import Grammar from './Grammar.svelte';
+	import Headword from './Headword.svelte';
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
 	import SaveButton from './SaveButton.svelte';
-	import Stressed from './Stressed.svelte';
 	import Tip from './Tip.svelte';
 
 	let { entry }: { entry: SearchResult | Suggestion } = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
-	let genitive = $derived(entry.head_forms.find((f) => f.tags.includes('genitive'))?.form);
+	let shown = $derived(entry.glosses.slice(0, 3));
 	// A VESUM-only word has no entry, so nothing to save or open.
 	let vesumOnly = $derived('vesum_only' in entry && entry.vesum_only === true);
 
@@ -31,13 +31,9 @@
 	}
 </script>
 
-<article class:plain={vesumOnly}>
+<article class="ui-card" class:plain={vesumOnly}>
 	<div class="word">
-		{#if vesumOnly}
-			<span class="headword" lang="uk"><Stressed text={entry.headword} /></span>
-		{:else}
-			<a class="headword" lang="uk" href={wordPath(entry.word)}><Stressed text={entry.headword} /></a>
-		{/if}
+		<Headword text={entry.headword} href={vesumOnly ? undefined : wordPath(entry.word)} />
 		<Tip label={m.card.play}>
 			{#snippet trigger(props)}
 				<button
@@ -52,17 +48,19 @@
 		</Tip>
 	</div>
 
-	<p class="meta">
-		<span class="ui-badge">{posLabel(m, entry.pos)}</span>
-		{#if entry.tags.length}<span>{orderedTags(entry.tags).join(' · ')}</span>{/if}
-		{#if genitive}
-			<span class="genitive">{m.card.genitive} <b lang="uk"><Stressed text={genitive} /></b></span>
-		{/if}
-	</p>
+	<div class="meta"><Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} brief /></div>
 
-	<p class="glosses">
-		{#if vesumOnly}<i>{m.card.noEntry}</i>{:else}{entry.glosses.slice(0, 3).join('; ')}{/if}
-	</p>
+	<div class="glosses">
+		{#if vesumOnly}
+			<i>{m.card.noEntry}</i>
+		{:else}
+			<!-- The semicolons are text, the numerals are not: copied, the line
+			     reads "coffee; coffee tree" -->
+			<ol class="ui-senses inline">
+				{#each shown as gloss, i (i)}<li>{gloss}{#if i < shown.length - 1};{/if}</li>{' '}{/each}
+			</ol>
+		{/if}
+	</div>
 
 	{#if !vesumOnly}
 		<div class="freq"><FrequencyMeter rank={entry.freq_rank} /></div>
@@ -87,18 +85,12 @@
 		align-items: center;
 		gap: 0.15rem 1.25rem;
 		padding: 0.75rem 0.6rem 0.8rem 1.1rem;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--panel);
-		transition:
-			border-color 0.12s,
-			box-shadow 0.12s;
+		transition: border-color var(--duration);
 	}
 
 	@media (hover: hover) {
 		article:not(.plain):hover {
 			border-color: var(--border-strong);
-			box-shadow: var(--shadow);
 		}
 	}
 
@@ -106,10 +98,7 @@
 	.plain {
 		border-style: dashed;
 		background: color-mix(in srgb, var(--surface) 55%, transparent);
-	}
-
-	p {
-		margin: 0;
+		box-shadow: none;
 	}
 
 	.word {
@@ -120,48 +109,13 @@
 		min-width: 0;
 	}
 
-	/* A long word (конкурентоспроможність) breaks onto a second line on a
-	   phone instead of pushing the page wider than the screen */
-	.headword {
-		min-width: 0;
-		color: var(--ink);
-		font-family: var(--font-headword);
-		font-size: 1.55rem;
-		font-weight: 800;
-		line-height: 1.25;
-		overflow-wrap: anywhere;
-	}
-
-	a.headword:hover {
-		text-decoration: underline;
-		text-decoration-thickness: 2px;
-		text-decoration-color: var(--gold);
-		text-underline-offset: 4px;
-	}
-
-	a.headword:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
-		border-radius: 4px;
-	}
-
 	.play {
 		color: var(--play);
 	}
 
 	.meta {
 		grid-area: meta;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		gap: 0.2rem 0.5rem;
-		color: var(--muted);
-		font-size: 0.85rem;
-	}
-
-	.genitive b {
-		color: var(--ink-2);
-		font-size: 0.95rem;
+		min-width: 0;
 	}
 
 	.glosses {
@@ -169,7 +123,7 @@
 		padding-left: 1.25rem;
 		border-left: 1px solid var(--border);
 		color: var(--ink-2);
-		font-size: 1.08rem;
+		font-size: var(--text-lg);
 		line-height: 1.45;
 	}
 
@@ -214,7 +168,7 @@
 			padding: 0.5rem 0.5rem 0 0;
 			border-top: 1px solid var(--border);
 			border-left: 0;
-			font-size: 1.02rem;
+			font-size: 1rem;
 		}
 	}
 </style>

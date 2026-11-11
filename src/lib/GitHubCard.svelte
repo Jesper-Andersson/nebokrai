@@ -39,21 +39,16 @@
 		margin: 0.75rem 0 0;
 		overflow: hidden;
 		border: 1px solid var(--border);
-		border-radius: 12px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: var(--ink);
 		text-decoration: none;
-		transition: border-color 0.15s;
+		transition: border-color var(--duration);
 	}
 
 	.card:hover {
 		border-color: var(--border-strong);
 		color: var(--ink);
-	}
-
-	.card:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
 	}
 
 	img {
@@ -82,7 +77,7 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: 0 0.4rem;
-		font-weight: 800;
+		font-weight: 700;
 		line-height: 1.3;
 	}
 
@@ -90,7 +85,7 @@
 		max-width: 100%;
 		overflow: hidden;
 		color: var(--muted);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 400;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -108,9 +103,9 @@
 		border-left: 1px solid var(--border);
 		background: var(--surface-2);
 		color: var(--ink-2);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 700;
-		transition: color 0.15s;
+		transition: color var(--duration);
 	}
 
 	.go svg:first-child {

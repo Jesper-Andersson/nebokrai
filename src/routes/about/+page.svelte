@@ -1,6 +1,7 @@
 <!-- Draft text. -->
 <script lang="ts">
 	import GitHubCard from '#lib/GitHubCard.svelte';
+	import Headword from '#lib/Headword.svelte';
 	import TextPage from '#lib/TextPage.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -24,7 +25,7 @@
 
 		<h2>Назва</h2>
 		<p>
-			<b lang="uk">Небокрай</b> означає «горизонт», дослівно — «край неба».
+			<Headword text="Небокра́й" size="sm" tag="b" /> означає «горизонт», дослівно — «край неба».
 		</p>
 
 		<h2>Що тут можна робити</h2>
@@ -73,7 +74,7 @@
 
 		<h2>The name</h2>
 		<p>
-			<b lang="uk">Небокрай</b> means “horizon”, literally “the sky’s edge”.
+			<Headword text="Небокра́й" size="sm" tag="b" /> means “horizon”, literally “the sky’s edge”.
 		</p>
 
 		<h2>What you can do here</h2>
@@ -122,10 +123,6 @@
 </TextPage>
 
 <style>
-	.lead {
-		font-size: 1.15rem;
-	}
-
 	ul {
 		margin: 0.5rem 0;
 		padding-left: 1.3rem;

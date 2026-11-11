@@ -2,8 +2,10 @@
      private reports database (src/lib/server/reports.ts). Still to come: an
      email notification, and Cloudflare Turnstile against spam. -->
 <script lang="ts">
+	import Grammar from '#lib/Grammar.svelte';
+	import Headword from '#lib/Headword.svelte';
 	import TextPage from '#lib/TextPage.svelte';
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import { REPORT_KINDS, type ReportKind } from '#lib/report.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { PageProps } from './$types';
@@ -82,11 +84,6 @@
 	}
 </script>
 
-<!-- A word with its stressed vowel (letter + U+0301) in red -->
-{#snippet stressed(text: string)}{#each text.split(/(.́)/) as part}{#if part.endsWith('́')}<span
-				class="stress">{part}</span
-			>{:else}{part}{/if}{/each}{/snippet}
-
 <TextPage title={m.report.title} description={m.meta.report}>
 	{#if sent}
 		<section class="thanks" aria-live="polite">
@@ -109,7 +106,7 @@
 				<pre>{JSON.stringify(payload, null, 2)}</pre>
 			</details>
 
-			<button type="button" class="secondary" onclick={reset}>{m.report.another}</button>
+			<button type="button" class="ui-btn" onclick={reset}>{m.report.another}</button>
 		</section>
 	{:else}
 		<p class="muted">{m.report.intro}</p>
@@ -119,8 +116,8 @@
 				<p class="context">
 					<span class="muted">{m.report.contextLabel}</span>
 					{#if data.entry}
-						<b lang="uk" class="headword">{@render stressed(data.entry.headword)}</b>
-						({posLabel(m, data.entry.pos)})
+						<Headword text={data.entry.headword} size="sm" tag="b" />
+						<Grammar pos={data.entry.pos} inline />
 					{:else}
 						{m.report.contextQuery(data.query)}
 					{/if}
@@ -131,7 +128,7 @@
 				<legend>{m.report.kindLegend}</legend>
 				<div class="kinds">
 					{#each REPORT_KINDS as k (k)}
-						<label class="chip" class:on={kind === k}>
+						<label class="ui-chip">
 							<input type="radio" name="kind" value={k} bind:group={kind} />
 							{m.report.kinds[k]}
 						</label>
@@ -143,6 +140,7 @@
 				<span>{m.report.messageLabel}</span>
 				<textarea
 					id="report-message"
+					class="ui-field"
 					rows="4"
 					maxlength="2000"
 					bind:value={message}
@@ -154,7 +152,7 @@
 
 			<label class="field" for="report-email">
 				<span>{m.report.emailLabel}</span>
-				<input id="report-email" type="email" autocomplete="email" bind:value={email} />
+				<input id="report-email" class="ui-field" type="email" autocomplete="email" bind:value={email} />
 				<small class="muted">{m.report.emailHint}</small>
 			</label>
 
@@ -170,7 +168,9 @@
 				<p class="error" role="alert">{failure === 'too_many' ? m.report.tooMany : m.report.failed}</p>
 			{/if}
 
-			<button type="submit" class="primary" disabled={sending}>{sending ? m.report.sending : m.report.send}</button>
+			<button type="submit" class="ui-btn ui-btn-primary" disabled={sending}>
+				{sending ? m.report.sending : m.report.send}
+			</button>
 		</form>
 	{/if}
 </TextPage>
@@ -191,20 +191,15 @@
 	}
 
 	.context {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.1rem 0.5rem;
 		margin: 0;
 		padding: 0.5rem 0.75rem;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		background: var(--surface);
 		border: 1px solid var(--border);
-	}
-
-	.headword {
-		font-family: var(--font-headword);
-		font-size: 1.15rem;
-	}
-
-	.stress {
-		color: var(--stress);
 	}
 
 	fieldset {
@@ -216,7 +211,6 @@
 	legend,
 	.field > span {
 		margin-bottom: 0.4rem;
-		font-family: var(--font-heading);
 		font-weight: 700;
 	}
 
@@ -226,35 +220,8 @@
 		gap: 0.4rem;
 	}
 
-	.chip {
-		padding: 0.3rem 0.8rem;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		cursor: pointer;
-	}
-
-	.chip.on {
-		border-color: var(--accent);
-		background: var(--accent);
-		color: var(--accent-ink);
-		font-weight: 700;
-	}
-
-	/* Fingers need bigger targets than a mouse pointer does */
-	@media (pointer: coarse) {
-		.chip {
-			padding-block: 0.5rem;
-		}
-	}
-
-	.chip:has(input:focus-visible) {
-		outline: 3px solid var(--accent);
-		outline-offset: 2px;
-	}
-
 	/* The radio buttons stay for keyboard and screen readers; the chips show the choice */
-	.chip input {
+	.kinds input {
 		position: absolute;
 		opacity: 0;
 		pointer-events: none;
@@ -265,26 +232,8 @@
 		gap: 0.3rem;
 	}
 
-	textarea,
-	input[type='email'] {
-		box-sizing: border-box;
-		width: 100%;
-		padding: 0.55rem 0.7rem;
-		border: 1.5px solid var(--border-strong);
-		border-radius: 8px;
-		background: var(--surface);
-		color: var(--ink);
-		font: inherit;
-	}
-
 	textarea {
 		resize: vertical;
-	}
-
-	textarea:focus-visible,
-	input[type='email']:focus-visible {
-		outline: 3px solid #5b8fd6;
-		outline-offset: 1px;
 	}
 
 	textarea[aria-invalid='true'] {
@@ -297,35 +246,9 @@
 		font-weight: 600;
 	}
 
+	/* A button is as wide as its words, not as the form */
 	button {
 		justify-self: start;
-		padding: 0.55rem 1.3rem;
-		border-radius: 999px;
-		font: inherit;
-		font-weight: 700;
-		cursor: pointer;
-	}
-
-	.primary {
-		border: 0;
-		background: var(--accent);
-		color: var(--accent-ink);
-	}
-
-	.primary:disabled {
-		opacity: 0.6;
-		cursor: progress;
-	}
-
-	.secondary {
-		border: 1.5px solid var(--border-strong);
-		background: var(--surface);
-		color: var(--ink);
-	}
-
-	button:focus-visible {
-		outline: 3px solid #5b8fd6;
-		outline-offset: 2px;
 	}
 
 	.thanks {
@@ -355,9 +278,9 @@
 		overflow-x: auto;
 		margin: 0.5rem 0 0;
 		padding: 0.6rem 0.8rem;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		background: var(--surface);
 		border: 1px solid var(--border);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 	}
 </style>

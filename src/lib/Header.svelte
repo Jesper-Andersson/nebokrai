@@ -110,7 +110,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		box-sizing: border-box;
-		max-width: 72rem;
+		max-width: var(--frame-width);
 		height: 3.5rem;
 		margin: 0 auto;
 		padding: 0 1rem;
@@ -174,9 +174,9 @@
 	.logo:focus-visible,
 	.search:focus-visible,
 	.support:focus-visible {
-		outline: 2px solid var(--accent);
+		/* Inside the edge: the sticky header would cut a ring outside it */
 		outline-offset: -2px;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 	}
 
 	.tools {
@@ -195,10 +195,10 @@
 		height: 2.25rem;
 		padding: 0 0.5rem 0 0.65rem;
 		border: 1px solid var(--border);
-		border-radius: 10px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: var(--muted);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		cursor: pointer;
 	}
 
@@ -228,10 +228,10 @@
 		height: 2.25rem;
 		padding: 0 0.8rem 0 0.65rem;
 		border: 1px solid var(--border);
-		border-radius: 10px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		color: var(--ink);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 600;
 		white-space: nowrap;
 	}

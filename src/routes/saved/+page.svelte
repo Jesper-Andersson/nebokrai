@@ -13,8 +13,9 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
+	import Grammar from '#lib/Grammar.svelte';
+	import Headword from '#lib/Headword.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
-	import Stressed from '#lib/Stressed.svelte';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -130,9 +131,9 @@
 
 <PageMeta title="{m.pageTitle.saved} · Nebokrai" description={m.meta.saved} />
 
-<div class="page">
+<div class="ui-page page">
 	<header>
-		<h1>{m.pageTitle.saved}</h1>
+		<h1 class="ui-title">{m.pageTitle.saved}</h1>
 		{#if saved.ready && saved.items.length}<span class="ui-badge">{saved.items.length}</span>{/if}
 	</header>
 
@@ -163,7 +164,7 @@
 			{m.export.selectAll}
 			{#if selected.length}<span>· {m.export.selectedCount(selected.length)}</span>{/if}
 		</label>
-		<ul class="list">
+		<ul class="ui-card list">
 			{#each saved.items as item (item.word)}
 				{@const summary = summaries.get(item.word)}
 				{@const exportedAt = saved.exportedAt(item.word)}
@@ -174,10 +175,11 @@
 						checked={ticked.has(item.word)}
 						onchange={(event) => (event.currentTarget.checked ? ticked.add(item.word) : ticked.delete(item.word))}
 					/>
-					<a class="headword" lang="uk" href={wordPath(item.word)}>
-						<Stressed text={summary?.headword ?? item.word} />
-					</a>
-					<span class="glosses">{summary?.glosses.join('; ') ?? ''}</span>
+					<Headword text={summary?.headword ?? item.word} size="sm" href={wordPath(item.word)} />
+					<!-- As a dictionary runs an entry on: the word, what it is, what it means -->
+					<span class="glosses">
+						{#if summary}<Grammar pos={summary.pos} inline /> {summary.glosses.join('; ')}{/if}
+					</span>
 					<span class="end">
 						{#if exportedAt !== undefined}
 							<span class="exported" title={m.export.exportedOn(dateFormat.format(exportedAt))}>
@@ -248,10 +250,7 @@
 
 <style>
 	.page {
-		box-sizing: border-box;
-		max-width: 46rem;
-		margin: 0 auto;
-		padding: 1.75rem 1rem 0;
+		padding-top: 1.75rem;
 	}
 
 	header {
@@ -259,14 +258,6 @@
 		align-items: center;
 		gap: 0.6rem;
 		margin-bottom: 1rem;
-	}
-
-	h1 {
-		margin: 0;
-		font-family: var(--font-heading);
-		font-size: clamp(1.6rem, 4vw, 2rem);
-		font-weight: 800;
-		line-height: 1.2;
 	}
 
 	p {
@@ -279,7 +270,7 @@
 		gap: 0.9rem;
 		padding: 2.5rem 1.25rem;
 		border: 1px dashed var(--border-strong);
-		border-radius: 16px;
+		border-radius: var(--radius-lg);
 		/* Half see-through, so the box still shows over a background photo */
 		background: color-mix(in srgb, var(--surface) 55%, transparent);
 		color: var(--on-page);
@@ -293,10 +284,6 @@
 	.list {
 		margin: 0;
 		padding: 0;
-		border: 1px solid var(--border);
-		border-radius: 16px;
-		background: var(--surface);
-		box-shadow: var(--shadow);
 		list-style: none;
 	}
 
@@ -324,7 +311,7 @@
 		width: fit-content;
 		margin: 0 0 0.5rem calc(1.1rem + 1px);
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		cursor: pointer;
 	}
 
@@ -348,21 +335,6 @@
 		border-top: 1px solid var(--border);
 	}
 
-	.headword {
-		color: var(--ink);
-		font-family: var(--font-headword);
-		font-size: 1.3rem;
-		font-weight: 800;
-		overflow-wrap: anywhere;
-	}
-
-	.headword:hover {
-		text-decoration: underline;
-		text-decoration-thickness: 2px;
-		text-decoration-color: var(--gold);
-		text-underline-offset: 4px;
-	}
-
 	.glosses {
 		color: var(--ink-2);
 	}
@@ -374,20 +346,20 @@
 		gap: 0.6rem;
 		margin-top: 1rem;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 	}
 
 	.hint {
 		margin-top: 0.6rem;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 	}
 
 	.notice {
 		margin-bottom: 1rem;
 		padding: 0.6rem 0.9rem;
 		border: 1px solid var(--stress);
-		border-radius: 10px;
+		border-radius: var(--radius-md);
 	}
 
 	.account {
@@ -397,15 +369,11 @@
 		padding-top: 1.25rem;
 		border-top: 1px solid var(--border);
 		color: var(--on-page);
-		font-size: 0.92rem;
+		font-size: var(--text-sm);
 	}
 
 	/* Phones: the meanings go under the word */
 	@media (max-width: 600px) {
-		.page {
-			padding-inline: 0.75rem;
-		}
-
 		.list li {
 			grid-template-columns: auto minmax(0, 1fr) auto;
 			column-gap: 0.75rem;

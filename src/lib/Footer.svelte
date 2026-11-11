@@ -3,10 +3,11 @@
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
 	import { page } from '$app/state';
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
-	import Stressed from './Stressed.svelte';
+	import Grammar from './Grammar.svelte';
+	import Headword from './Headword.svelte';
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -26,8 +27,8 @@
 	<div class="inner">
 		<div>
 			<p class="entry">
-				<a class="headword" lang="uk" href={wordPath(NAME)}><Stressed text={HEADWORD} /></a>
-				<span class="ui-badge">{posLabel(m, 'noun')}</span>
+				<Headword text={HEADWORD} size="sm" href={wordPath(NAME)} />
+				<Grammar pos="noun" inline />
 				<span class="gloss">{m.footer.nameGloss}</span>
 			</p>
 			<p class="credit">© 2026 Jesper Andersson · {m.footer.data}</p>
@@ -49,7 +50,7 @@
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 	}
 
 	/* The top edge is the header's hairline, and in the middle of it the gold
@@ -69,7 +70,7 @@
 		justify-content: space-between;
 		gap: 0.4rem 2rem;
 		box-sizing: border-box;
-		max-width: 72rem;
+		max-width: var(--frame-width);
 		margin: 0 auto;
 		padding: 1rem 1rem 0.85rem;
 	}
@@ -85,23 +86,9 @@
 		gap: 0.1rem 0.55rem;
 	}
 
-	.headword {
-		color: var(--ink);
-		font-family: var(--font-headword);
-		font-size: 1.25rem;
-		font-weight: 800;
-		line-height: 1.3;
-	}
-
-	/* Lifted to the middle of the headword beside it: a badge has no baseline
-	   of its own to line up on */
-	.ui-badge {
-		align-self: center;
-	}
-
 	.gloss {
 		color: var(--ink-2);
-		font-size: 0.92rem;
+		font-size: 1rem;
 	}
 
 	.credit {
@@ -118,7 +105,7 @@
 	nav a {
 		padding-block: 0.4rem;
 		color: var(--ink-2);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 600;
 	}
 
@@ -129,8 +116,7 @@
 	/* The gold line of the header's current page, here under whatever the
 	   pointer is on */
 	@media (hover: hover) {
-		nav a:hover,
-		.headword:hover {
+		nav a:hover {
 			color: var(--ink);
 			text-decoration: underline;
 			text-decoration-thickness: 2px;
@@ -139,10 +125,8 @@
 		}
 	}
 
-	a:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
-		border-radius: 4px;
+	nav a:focus-visible {
+		border-radius: var(--radius-sm);
 	}
 
 	@media (pointer: coarse) {

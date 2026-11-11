@@ -66,6 +66,8 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 export interface WordSummary {
 	word: string;
 	headword: string;
+	/** noun, verb, adj, … */
+	pos: string;
 	/** The first meanings, at most three. */
 	glosses: string[];
 }
@@ -79,7 +81,9 @@ export async function wordSummaries(db: Db, words: string[]): Promise<WordSummar
 	const best = await bestEntries(db, words);
 	return words.flatMap((w) => {
 		const found = best.get(w);
-		return found ? [{ word: found.word, headword: found.headword, glosses: found.glosses }] : [];
+		return found
+			? [{ word: found.word, headword: found.headword, pos: found.pos, glosses: found.glosses }]
+			: [];
 	});
 }
 

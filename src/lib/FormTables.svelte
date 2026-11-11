@@ -94,9 +94,8 @@
 	}
 
 	.tabs button:focus-visible {
-		outline: 2px solid var(--accent);
 		outline-offset: -2px;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 	}
 
 	@media (pointer: coarse) {
@@ -109,7 +108,7 @@
 		max-width: 100%;
 		overflow-x: auto;
 		border: 1px solid var(--border);
-		border-radius: 12px;
+		border-radius: var(--radius-md);
 	}
 
 	/* The `hidden` attribute of a tab that is not chosen must win over the rule above */
@@ -150,7 +149,7 @@
 
 	th {
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 		font-weight: 600;
 		white-space: nowrap;
 	}

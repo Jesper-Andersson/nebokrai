@@ -124,7 +124,7 @@
 <PageMeta title={m.meta.homeTitle} description={m.meta.home} />
 
 <div class="hero">
-	<h1>
+	<h1 class="ui-title">
 		<span class="accent">{m.home.titleAccent}</span>{titleBefore}{#if titleAfter !== undefined}<svg
 				class="arrow"
 				viewBox="0 0 28 16"
@@ -181,7 +181,7 @@
 		<p class="examples">
 			<span>{m.home.tryLabel}</span>
 			{#each examples as example (example)}
-				<button type="button" onclick={() => fill(example)}>{example}</button>
+				<button type="button" class="ui-chip" onclick={() => fill(example)}>{example}</button>
 			{/each}
 		</p>
 	{/if}
@@ -190,7 +190,7 @@
 {#if failed}
 	<p class="note">{m.home.failed}</p>
 {:else if found}
-	<ul class="results">
+	<ul class="ui-page results">
 		{#each found.results as entry (key(entry))}
 			<li><WordCard {entry} /></li>
 		{/each}
@@ -233,13 +233,10 @@
 		text-shadow: 0 1px 0.35em color-mix(in srgb, var(--bg) 65%, transparent);
 	}
 
+	/* The one title that is the page's whole greeting: a size above the rest */
 	h1 {
-		margin: 0 0 1.5rem;
-		font-family: var(--font-heading);
-		font-size: clamp(1.7rem, 5vw, 2.6rem);
-		font-weight: 800;
-		line-height: 1.15;
-		text-wrap: balance;
+		margin-bottom: 1.5rem;
+		font-size: clamp(1.9rem, 5.5vw, 2.9rem);
 	}
 
 	.accent {
@@ -257,11 +254,11 @@
 	   As wide as the results under it (.results), so the two share their edges. */
 	.searchbox {
 		box-sizing: border-box;
-		max-width: 50rem;
+		max-width: var(--page);
 		margin: 0 auto;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
-		border-radius: 16px;
+		border-radius: var(--radius-lg);
 		background: var(--panel);
 		box-shadow: var(--shadow);
 		text-align: left;
@@ -290,7 +287,7 @@
 		outline: none;
 		background: none;
 		color: var(--ink);
-		font-size: 1.1rem;
+		font-size: var(--text-lg);
 	}
 
 	input::placeholder {
@@ -305,54 +302,24 @@
 		gap: 0.4rem;
 		margin: 1rem 0 0;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 	}
 
 	.examples span {
 		margin-right: 0.2rem;
 	}
 
-	.examples button {
-		padding: 0.25rem 0.75rem;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		color: var(--ink-2);
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	@media (hover: hover) {
-		.examples button:hover {
-			border-color: var(--border-strong);
-			color: var(--ink);
-		}
-	}
-
-	.examples button:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
-	}
-
-	@media (pointer: coarse) {
-		.examples button {
-			padding-block: 0.55rem;
-		}
-	}
-
 	.results {
 		display: grid;
 		gap: 0.5rem;
-		max-width: 50rem;
-		margin: 0.5rem auto 0;
-		padding: 0 1rem;
+		margin-block: 0.5rem 0;
 		list-style: none;
 	}
 
 	.divider {
 		margin-top: 0.75rem;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 700;
 	}
 
@@ -373,10 +340,6 @@
 	@media (max-width: 600px) {
 		.hero {
 			padding-inline: 0.75rem;
-		}
-
-		.results {
-			padding: 0 0.75rem;
 		}
 	}
 </style>

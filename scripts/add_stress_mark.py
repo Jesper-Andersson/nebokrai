@@ -1,13 +1,18 @@
-"""Give the Fixel web fonts the stress mark.
+"""Give a web font the stressed Ukrainian vowels.
 
-Fixel has no combining acute accent (U+0301). A browser that meets а + U+0301
-(анана́с) therefore draws the whole stressed vowel in whatever system font has
-the mark, Segoe UI on Windows: a letter of another design, visibly smaller
-than its neighbours in bold text.
+A stressed vowel is written as the letter and a combining acute accent
+(U+0301): анана́с. Fonts handle the pair badly in two ways:
+
+  * Fixel has no U+0301 at all. A browser then draws the whole stressed vowel
+    in whatever system font has the mark, Segoe UI on Windows: a letter of
+    another design, visibly smaller than its neighbours in bold text.
+  * Nyght Serif has the mark, but no place for it on я and є, and it sets the
+    accent on top of the dot of і and into the dots of ї.
 
 This script adds to each file:
 
-  * the combining acute itself, for the rare stress on any other letter;
+  * the combining acute itself, if the font has none, for the rare stress on
+    any other letter;
   * one ready-made glyph for each Ukrainian vowel with the accent, small and
     capital (а́ е́ и́ і́ о́ у́ ю́ я́ є́ ї́), built from the font's own letter and its
     own acute. The accent stands where the designers put it on the Latin
@@ -16,16 +21,26 @@ This script adds to each file:
   * the kerning of the plain vowel for the stressed one.
 
 Nothing else in a file changes. The SIL Open Font License allows a modified
-version, and Fixel reserves no font name; the version string says what was
-added.
+version; the version string says what was added.
 
-Needs fontTools and Brotli, which are not part of this project:
+A font with a Reserved Font Name may not keep that name once it is modified.
+Nyght Serif reserves its name, so its files are copied under a new name first
+and renamed inside with --rename:
 
     pip install fonttools brotli
-    python scripts/add_stress_to_fixel.py src/lib/assets/fixel/*.woff2
+    python scripts/add_stress_mark.py src/lib/assets/fixel/*.woff2
 
-A file that already has U+0301 is left alone, so to build again start from the
-files as MacPaw publishes them (https://github.com/MacPaw/fixel).
+    cp src/lib/assets/nyght-serif-main/NyghtSerif-Bold.woff2 \
+       src/lib/assets/serif/NebokraiSerif-Bold.woff2
+    cp src/lib/assets/nyght-serif-main/NyghtSerif-RegularItalic.woff2 \
+       src/lib/assets/serif/NebokraiSerif-Italic.woff2
+    python scripts/add_stress_mark.py --rename "Nyght Serif=Nebokrai Serif" \
+        src/lib/assets/serif/*.woff2
+
+fontTools and Brotli are not part of this project. A file that already has
+the stressed vowels is left alone, so to build again start from the files as
+their makers publish them: https://github.com/MacPaw/fixel for Fixel, and
+src/lib/assets/nyght-serif-main/ for Nyght Serif, kept here unchanged.
 """
 
 import copy
@@ -39,9 +54,11 @@ from fontTools.pens.t2CharStringPen import T2CharStringPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from fontTools.ttLib.tables import otTables
+import fontTools.merge.layout  # noqa: F401  (gives the layout tables mapLookups)
 
 ACUTE = 0x0301
-MARK_NAME = "uni0301"
+# The name the mark gets in a font that has none
+NEW_MARK_NAME = "uni0301"
 
 # For each vowel, the Latin letter whose accented form shows how far right of
 # the letter's middle the acute belongs. The round о stands in for the vowels
@@ -97,7 +114,11 @@ def accent_placement(font, glyph_set, latin):
     """How the font places the acute on a Latin letter: how far the accent's
     middle lies to the right of the letter's, and how far it is lifted."""
     upper = latin[0].isupper()
-    mark = "acute.case" if upper else "acute"
+    mark = "acute"
+    if upper:
+        # Fixel calls the flatter accent for capitals acute.case; Nyght Serif
+        # has it only as a combining mark
+        mark = next((name for name in ("acute.case", "acutecomb.case") if name in glyph_set), "acute")
     floor = (font["OS/2"].sCapHeight if upper else font["OS/2"].sxHeight) + 20
     accents = [bounds(path) for path in contours(glyph_set, ACCENTED[latin])]
     accents = [box for box in accents if box[1] >= floor]
@@ -131,15 +152,19 @@ def add_glyph(font, top, name, program, advance, box):
     font["hmtx"][name] = (advance, round(box[0]))
 
 
-def add_substitution(font, stressed):
-    """vowel + U+0301 → the ready-made glyph, in every `ccmp` feature."""
+def add_substitution(font, stressed, mark_name):
+    """vowel + U+0301 → the ready-made glyph, in every `ccmp` feature.
+
+    The new rule becomes the font's first. Rules run in the order they are
+    stored, and Nyght Serif joins її into one glyph: in її́ the second ї must
+    take its accent before that happens."""
     gsub = font["GSUB"].table
     subtable = otTables.LigatureSubst()
     subtable.ligatures = {}
     for base, name in stressed.items():
         ligature = otTables.Ligature()
         ligature.LigGlyph = name
-        ligature.Component = [MARK_NAME]
+        ligature.Component = [mark_name]
         ligature.CompCount = 2
         subtable.ligatures[base] = [ligature]
     lookup = otTables.Lookup()
@@ -147,16 +172,31 @@ def add_substitution(font, stressed):
     lookup.LookupFlag = 0
     lookup.SubTable = [subtable]
     lookup.SubTableCount = 1
-    gsub.LookupList.Lookup.append(lookup)
+    # Every rule moves one place down, and so does every reference to one
+    shifted = {old: old + 1 for old in range(len(gsub.LookupList.Lookup))}
+    gsub.LookupList.mapLookups(shifted)
+    gsub.FeatureList.mapLookups(shifted)
+    gsub.LookupList.Lookup.insert(0, lookup)
     gsub.LookupList.LookupCount = len(gsub.LookupList.Lookup)
-    number = gsub.LookupList.LookupCount - 1
+    number = 0
 
     features = [r.Feature for r in gsub.FeatureList.FeatureRecord if r.FeatureTag == "ccmp"]
     if not features:
         raise ValueError("the font has no ccmp feature to add the rule to")
     for feature in features:
-        feature.LookupListIndex.append(number)
+        feature.LookupListIndex.insert(0, number)
         feature.LookupCount = len(feature.LookupListIndex)
+
+    # A feature only works for the scripts that list it: Cyrillic must
+    cyrillic = [r.Script for r in gsub.ScriptList.ScriptRecord if r.ScriptTag in ("cyrl", "DFLT")]
+    indexes = {i for i, r in enumerate(gsub.FeatureList.FeatureRecord) if r.FeatureTag == "ccmp"}
+    for script in cyrillic:
+        systems = [script.DefaultLangSys] + [r.LangSys for r in script.LangSysRecord]
+        for system in systems:
+            if system is not None and not indexes & set(system.FeatureIndex):
+                raise ValueError("a Cyrillic language in the font does not use ccmp")
+    if not cyrillic:
+        raise ValueError("the font has no Cyrillic or default script for the rule")
 
 
 def copy_kerning(font, stressed):
@@ -196,11 +236,33 @@ def copy_kerning(font, stressed):
                         right[name] = right[base]
 
 
-def add_stress(path):
+def rename(font, top, old, new):
+    """Give the font another family name, with and without the space
+    (Nyght Serif, NyghtSerif), wherever a program might show it."""
+    pairs = [(old, new), (old.replace(" ", ""), new.replace(" ", ""))]
+
+    def renamed(text):
+        for before, after in pairs:
+            text = text.replace(before, after)
+        return text
+
+    # 1 family, 3 unique id, 4 full name, 6 PostScript name, 16 typographic family
+    for record in font["name"].names:
+        if record.nameID in (1, 3, 4, 6, 16):
+            record.string = renamed(record.toUnicode())
+    cff = font["CFF "].cff
+    cff.fontNames = [renamed(name) for name in cff.fontNames]
+    for field in ("FullName", "FamilyName"):
+        if hasattr(top, field):
+            setattr(top, field, renamed(getattr(top, field)))
+
+
+def add_stress(path, new_name=None):
     font = TTFont(path, lazy=False)
     cmap = font.getBestCmap()
-    if ACUTE in cmap:
-        print(f"{path}: already has U+0301, left alone")
+    first = f"uni{ord('а'):04X}0301"
+    if first in font.getGlyphOrder():
+        print(f"{path}: already has the stressed vowels, left alone")
         return
 
     glyph_set = font.getGlyphSet()
@@ -208,12 +270,15 @@ def add_stress(path):
     hmtx = font["hmtx"]
     new = []
 
-    # The mark by itself: no width, and drawn to the left of where the pen
-    # stands, over a letter of ordinary width. A browser that knows the letter
-    # under it moves it to the middle of that letter.
-    box = glyph_bounds(glyph_set, "acute")
-    program, drawn = charstring(top, glyph_set, 0, [("acute", round(-250 - middle(box)), 0)])
-    new.append((MARK_NAME, program, 0, drawn))
+    mark_name = cmap.get(ACUTE)
+    if mark_name is None:
+        # The mark by itself: no width, and drawn to the left of where the pen
+        # stands, over a letter of ordinary width. A browser that knows the
+        # letter under it moves it to the middle of that letter.
+        mark_name = NEW_MARK_NAME
+        box = glyph_bounds(glyph_set, "acute")
+        program, drawn = charstring(top, glyph_set, 0, [("acute", round(-250 - middle(box)), 0)])
+        new.append((mark_name, program, 0, drawn))
 
     stressed = {}
     for vowel, latin in LIKE.items():
@@ -236,32 +301,42 @@ def add_stress(path):
         add_glyph(font, top, name, program, advance, drawn)
     font.setGlyphOrder(list(top.charset))
 
-    for table in font["cmap"].tables:
-        if table.isUnicode():
-            table.cmap[ACUTE] = MARK_NAME
-    # Class 3 is "mark": kerning looks past it
-    font["GDEF"].table.GlyphClassDef.classDefs[MARK_NAME] = 3
-    add_substitution(font, stressed)
+    if mark_name == NEW_MARK_NAME:
+        for table in font["cmap"].tables:
+            if table.isUnicode():
+                table.cmap[ACUTE] = mark_name
+        # Class 3 is "mark": kerning looks past it
+        font["GDEF"].table.GlyphClassDef.classDefs[mark_name] = 3
+    add_substitution(font, stressed, mark_name)
     copy_kerning(font, stressed)
 
     for record in font["name"].names:
         if record.nameID == 5 and VERSION_NOTE not in record.toUnicode():
             record.string = record.toUnicode() + VERSION_NOTE
+    if new_name:
+        rename(font, top, *new_name)
 
     font.save(path)
 
     # Read the file back: every new glyph is there and as wide as its vowel
     check = TTFont(path)
     after = check.getGlyphSet()
-    assert check.getBestCmap()[ACUTE] == MARK_NAME
+    assert check.getBestCmap()[ACUTE] == mark_name
     for base, name in stressed.items():
         assert after[name].width == after[base].width, name
-    print(f"{path}: added U+0301 and {len(stressed)} stressed vowels, {len(check.getGlyphOrder())} glyphs")
+    if new_name:
+        assert not any(new_name[0] in r.toUnicode() for r in check["name"].names if r.nameID in (1, 4, 16))
+    print(f"{path}: added {len(stressed)} stressed vowels, {len(check.getGlyphOrder())} glyphs")
 
 
 if __name__ == "__main__":
-    paths = [path for pattern in sys.argv[1:] for path in sorted(glob.glob(pattern))]
-    if not paths:
+    arguments = sys.argv[1:]
+    new_name = None
+    if arguments[:1] == ["--rename"]:
+        new_name = tuple(arguments[1].split("=", 1))
+        arguments = arguments[2:]
+    paths = [path for pattern in arguments for path in sorted(glob.glob(pattern))]
+    if not paths or (new_name and len(new_name) != 2):
         sys.exit(__doc__)
     for path in paths:
-        add_stress(path)
+        add_stress(path, new_name)

@@ -106,7 +106,7 @@ const en = {
 		save: 'Save word',
 		unsave: 'Remove from saved',
 		details: 'Details',
-		genitive: 'Gen',
+		genitive: 'gen.',
 		noEntry: 'A Ukrainian word with no dictionary entry yet.'
 	},
 	word: {
@@ -299,7 +299,7 @@ const uk: Messages = {
 		save: 'Зберегти слово',
 		unsave: 'Прибрати зі збереженого',
 		details: 'Докладніше',
-		genitive: 'Р. в.',
+		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.'
 	},
 	word: {

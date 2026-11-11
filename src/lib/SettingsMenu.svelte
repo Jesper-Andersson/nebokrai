@@ -133,7 +133,7 @@
 		margin: 0;
 		color: var(--muted);
 		font-family: var(--font-text);
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 		font-weight: 700;
 	}
 
@@ -152,7 +152,7 @@
 		border: 0;
 		background: none;
 		color: var(--muted);
-		font-size: 0.8rem;
+		font-size: var(--text-xs);
 		font-weight: 600;
 		cursor: pointer;
 	}
@@ -162,7 +162,7 @@
 		aspect-ratio: 8 / 5;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
-		border-radius: 9px;
+		border-radius: var(--radius-md);
 		background: var(--bg);
 	}
 
@@ -195,7 +195,7 @@
 	.hint {
 		margin: 0;
 		color: var(--muted);
-		font-size: 0.8rem;
+		font-size: var(--text-xs);
 		line-height: 1.4;
 	}
 

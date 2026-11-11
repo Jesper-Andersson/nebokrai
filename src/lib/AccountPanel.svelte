@@ -29,7 +29,7 @@
 		<p>{user.name ? m.account.signedInAs(user.name) : m.account.signedIn}</p>
 		<div class="buttons">
 			<form method="POST" action="/logout">
-				<button type="submit">{m.account.signOut}</button>
+				<button type="submit" class="ui-btn">{m.account.signOut}</button>
 			</form>
 			<button type="button" class="quiet" onclick={deleteAccount}>{m.account.delete}</button>
 		</div>
@@ -41,7 +41,7 @@
 		<div class="buttons">
 			{#each providers as provider (provider)}
 				<!-- A server route that redirects to the provider, so a full page load -->
-				<a class="button" href="/login/{provider}" data-sveltekit-reload>
+				<a class="ui-btn" href="/login/{provider}" data-sveltekit-reload>
 					{m.account.signInWith(names[provider])}
 				</a>
 			{/each}
@@ -58,7 +58,7 @@
 
 	p {
 		margin: 0;
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		line-height: 1.4;
 	}
 
@@ -69,26 +69,16 @@
 		gap: 0.5rem 0.8rem;
 	}
 
-	button,
-	.button {
-		padding: 0.35rem 0.9rem;
-		border: 1px solid currentColor;
-		border-radius: 999px;
+	/* Delete account: there to be found, not to be pressed by mistake */
+	.quiet {
+		padding: 0;
+		border: 0;
 		background: none;
 		color: inherit;
-		font: inherit;
-		font-size: 0.9rem;
-		font-weight: 600;
-		text-decoration: none;
-		cursor: pointer;
-	}
-
-	.quiet {
-		padding-inline: 0;
-		border: 0;
-		font-weight: 400;
+		font-size: var(--text-sm);
 		text-decoration: underline;
-		text-underline-offset: 2px;
+		text-underline-offset: 3px;
 		opacity: 0.8;
+		cursor: pointer;
 	}
 </style>

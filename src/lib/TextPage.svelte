@@ -1,4 +1,5 @@
-<!-- A panel with a title, for text pages (About, Resources, Report). -->
+<!-- A sheet with a title, for pages of text (About, Resources, Sources,
+     Report). `.lead` on a first paragraph sets it a size larger. -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -9,8 +10,8 @@
 
 <PageMeta title="{title} · Nebokrai" {description} />
 
-<article>
-	<h1>{title}</h1>
+<article class="ui-card">
+	<h1 class="ui-title">{title}</h1>
 	{@render children()}
 </article>
 
@@ -18,30 +19,26 @@
 	article {
 		box-sizing: border-box;
 		/* Leaves a 1rem gutter on each side of a narrow window */
-		width: min(44rem, 100% - 2rem);
+		width: min(var(--prose), 100% - 2rem);
 		margin: 1.5rem auto 2rem;
 		padding: 1.5rem 1.75rem 1.75rem;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		box-shadow: var(--shadow);
 		line-height: 1.6;
 	}
 
 	h1 {
-		margin: 0 0 0.75rem;
-		font-family: var(--font-heading);
-		font-size: clamp(1.6rem, 4vw, 2rem);
-		font-weight: 700;
-		line-height: 1.2;
+		margin-bottom: 0.75rem;
 	}
 
 	article :global(h2) {
 		margin: 1.75rem 0 0.5rem;
 		font-family: var(--font-heading);
-		font-size: 1.2rem;
+		font-size: 1.3rem;
 		font-weight: 700;
 		line-height: 1.25;
+	}
+
+	article :global(.lead) {
+		font-size: var(--text-lg);
 	}
 
 	article :global(p) {
@@ -51,7 +48,7 @@
 	article :global(a) {
 		color: var(--accent);
 		text-decoration: underline;
-		text-underline-offset: 2px;
+		text-underline-offset: 3px;
 	}
 
 	article :global(a:hover) {

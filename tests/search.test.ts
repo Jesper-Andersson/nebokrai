@@ -83,6 +83,7 @@ test('word summaries', { skip }, async () => {
 	const got = await wordSummaries(db, ['читати', 'qqqq', 'калина', 'стан']);
 	assert.deepEqual(got.map((s) => s.word), ['читати', 'калина', 'стан']); // order kept, unknown left out
 	assert.equal(got[1].headword, 'кали́на');
+	assert.equal(got[1].pos, 'noun');
 	assert.ok(got[1].glosses[0].includes('viburnum'));
 	assert.ok(got.every((s) => s.glosses.length >= 1 && s.glosses.length <= 3));
 	assert.deepEqual(await wordSummaries(db, ['Калина']), []); // the exact spelling, unlike wordDetails
@@ -94,7 +95,7 @@ test('word cards', { skip }, async () => {
 	const got = await wordCards(db, ['читати', 'qqqq', 'калина', 'стан']);
 	// The same words in the same order as the summaries, and the same entry for стан
 	const summaries = await wordSummaries(db, ['читати', 'qqqq', 'калина', 'стан']);
-	assert.deepEqual(got.map(({ word, headword, glosses }) => ({ word, headword, glosses })), summaries);
+	assert.deepEqual(got.map(({ word, headword, pos, glosses }) => ({ word, headword, pos, glosses })), summaries);
 
 	const [read, kalyna] = got;
 	assert.equal(kalyna.pos, 'noun');

@@ -22,7 +22,7 @@
 	const reposEn = (n: number) => `${n} public ${n === 1 ? 'repository' : 'repositories'}`;
 </script>
 
-<TextPage title={m.pageTitle.about}>
+<TextPage title={m.pageTitle.about} description={m.meta.about}>
 	{#if settings.lang === 'uk'}
 		<p class="lead">
 			Nebokrai — безкоштовний українсько-англійський словник для тих, хто вивчає українську.

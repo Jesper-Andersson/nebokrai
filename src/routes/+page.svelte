@@ -5,6 +5,7 @@
 	import { onMount, tick } from 'svelte';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 	import WordCard from '#lib/WordCard.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
@@ -115,6 +116,8 @@
 			return [VOWEL.test(text) ? text + STRESS : text, after];
 		});
 </script>
+
+<PageMeta title={m.meta.homeTitle} description={m.meta.home} />
 
 <div class="hero" class:searching={query.trim() !== ''}>
 	<h1><span class="accent">{m.home.titleAccent}</span>{m.home.titleRest}</h1>

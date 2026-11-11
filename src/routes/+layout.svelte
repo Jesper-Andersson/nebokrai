@@ -4,6 +4,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
 	import uaFlag from '#lib/assets/flag-ukraine.svg';
 	import Header from '#lib/Header.svelte';
@@ -24,6 +25,8 @@
 	provideSettings(settings);
 	let m = $derived(messagesFor(settings.lang));
 
+	let address = $derived(page.url.origin + page.url.pathname);
+
 	// Saved words: read from this browser once the page is running, and synced
 	// with the account when signed in (see saved.svelte.ts).
 	// svelte-ignore state_referenced_locally
@@ -40,7 +43,15 @@
 	     drawing at 16, 32 and 48 pixels. -->
 	<link rel="icon" href="/favicon.ico" sizes="32x32" />
 	<link rel="icon" href={uaFlag} type="image/svg+xml" />
+	<!-- Each page sets its own title and description (PageMeta.svelte); this
+	     title is what an error page falls back to. -->
 	<title>Nebokrai</title>
+	<!-- The one address a page is known by: without whatever parameters a
+	     link to it carried, so search engines do not list it twice. -->
+	<link rel="canonical" href={address} />
+	<meta property="og:url" content={address} />
+	<meta property="og:site_name" content="Nebokrai" />
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <Tooltip.Provider delayDuration={350}>

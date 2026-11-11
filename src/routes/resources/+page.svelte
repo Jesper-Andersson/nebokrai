@@ -62,7 +62,7 @@
 	];
 </script>
 
-<TextPage title={m.pageTitle.resources}>
+<TextPage title={m.pageTitle.resources} description={m.meta.resources}>
 	<p class="muted">
 		{settings.lang === 'uk'
 			? 'Добірка інших місць, де можна вчити українську. Список ще доповнюється.'

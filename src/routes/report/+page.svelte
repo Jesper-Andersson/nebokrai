@@ -87,7 +87,7 @@
 				class="stress">{part}</span
 			>{:else}{part}{/if}{/each}{/snippet}
 
-<TextPage title={m.report.title}>
+<TextPage title={m.report.title} description={m.meta.report}>
 	{#if sent}
 		<section class="thanks" aria-live="polite">
 			<h2>{m.report.thanks}</h2>

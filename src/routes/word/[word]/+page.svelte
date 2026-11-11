@@ -6,6 +6,7 @@
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Tip from '#lib/Tip.svelte';
@@ -13,6 +14,7 @@
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
 	import { commonality } from '#lib/labels.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
+	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { PageProps } from './$types';
 
@@ -47,9 +49,8 @@
 	const label = (tag: string) => tag.replace(/-/g, ' ');
 </script>
 
-<svelte:head>
-	<title>{data.entries[0].headword.replace(/́/g, '')} · Nebokrai</title>
-</svelte:head>
+<!-- A spelling with several entries is described by its most common one -->
+<PageMeta title={wordTitle(m, data.entries[0])} description={wordDescription(m, data.entries[0])} />
 
 <div class="page">
 	<p class="back">

@@ -5,6 +5,7 @@
 	import { page } from '$app/state';
 	import AccountPanel from '#lib/AccountPanel.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
@@ -45,9 +46,7 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{m.pageTitle.saved} · Nebokrai</title>
-</svelte:head>
+<PageMeta title="{m.pageTitle.saved} · Nebokrai" description={m.meta.saved} />
 
 <div class="page">
 	<header>

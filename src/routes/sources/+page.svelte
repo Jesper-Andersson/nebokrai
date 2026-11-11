@@ -1,8 +1,13 @@
 <!-- Text from docs/sources-and-licences.md. The per-item credits it describes
      (Wiktionary, Tatoeba and Commons links) are on each word's Details page. -->
-<svelte:head>
-	<title>Sources and licences · Nebokrai</title>
-</svelte:head>
+<script lang="ts">
+	import PageMeta from '#lib/PageMeta.svelte';
+</script>
+
+<PageMeta
+	title="Sources and licences · Nebokrai"
+	description="Where Nebokrai’s words, frequency ranks, example sentences and recordings come from, and the licence of each source."
+/>
 
 <article>
 	<h1>Sources and licences</h1>

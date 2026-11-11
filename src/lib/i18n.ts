@@ -2,6 +2,22 @@
 // tags such as "feminine") stays in English: it comes from English Wiktionary.
 import type { Lang } from './settings.ts';
 
+/** What a word's page has to show, for its title and description (see seo.ts). */
+export interface WordFacts {
+	/** The headword carries a stress mark */
+	stress: boolean;
+	/** A recording, not the browser's synthetic voice */
+	audio: boolean;
+	table: 'declension' | 'conjugation' | null;
+	examples: boolean;
+}
+
+/** "a, b and c" from the items that are there. */
+function listOf(items: (string | false | null)[], and: string): string {
+	const have = items.filter((item): item is string => Boolean(item));
+	return have.length > 1 ? `${have.slice(0, -1).join(', ')} ${and} ${have.at(-1)}` : (have[0] ?? '');
+}
+
 const en = {
 	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
 	/** The search that opens from the header, or with Ctrl+K. */
@@ -96,6 +112,30 @@ const en = {
 	/** Table titles and labels from forms.ts, keyed by their English text. */
 	forms: {} as Record<string, string>,
 	pageTitle: { resources: 'Resources', saved: 'Saved words', about: 'About' },
+	/**
+	 * What search results and link previews show for each page: its title and
+	 * a description of about 150 characters (PageMeta.svelte, seo.ts). Search
+	 * engines send no cookies, so they read the English ones.
+	 */
+	meta: {
+		homeTitle: 'Nebokrai: Ukrainian–English dictionary with stress and declension',
+		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
+		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
+		resources: 'Courses, dictionaries and practice sites for learning Ukrainian, chosen by hand.',
+		saved: 'The words you saved, kept in this browser or in your account.',
+		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		/** книга: meaning in English, stress and declension */
+		wordTitle: (word: string, has: WordFacts) =>
+			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
+		/** The last sentence of a word's description: what its page shows besides the meanings. */
+		wordShows: (has: WordFacts) => {
+			const shown = listOf([
+				has.stress && 'the stress marked', has.audio && 'audio',
+				has.table && `a full ${has.table} table`, has.examples && 'example sentences'
+			], 'and');
+			return shown && `With ${shown}.`;
+		}
+	},
 	keyboard: {
 		toggle: 'Ukrainian keyboard',
 		label: 'Ukrainian keyboard',
@@ -253,6 +293,27 @@ const uk: Messages = {
 		'2nd person plural': '2-га особа множини'
 	},
 	pageTitle: { resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт' },
+	meta: {
+		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
+		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
+		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
+		resources: 'Курси, словники та сайти для практики української мови, дібрані вручну.',
+		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		wordTitle: (word, has) =>
+			`${word}: ${listOf([
+				'значення англійською', has.stress && 'наголос',
+				has.table && (has.table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання')
+			], 'і')}`,
+		wordShows: (has) => {
+			const shown = listOf([
+				has.stress && 'наголос', has.audio && 'аудіо',
+				has.table && `повна таблиця ${has.table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання'}`,
+				has.examples && 'приклади речень'
+			], 'та');
+			return shown && `На сторінці: ${shown}.`;
+		}
+	},
 	keyboard: {
 		toggle: 'Українська клавіатура',
 		label: 'Українська клавіатура',

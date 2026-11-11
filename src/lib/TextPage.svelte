@@ -1,13 +1,13 @@
 <!-- A panel with a title, for text pages (About, Resources, Report). -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 
-	let { title, children }: { title: string; children: Snippet } = $props();
+	/** `description` is for search results and link previews; the page itself does not show it. */
+	let { title, description, children }: { title: string; description: string; children: Snippet } = $props();
 </script>
 
-<svelte:head>
-	<title>{title} · Nebokrai</title>
-</svelte:head>
+<PageMeta title="{title} · Nebokrai" {description} />
 
 <article>
 	<h1>{title}</h1>

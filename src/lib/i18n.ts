@@ -90,8 +90,8 @@ const en = {
 		sources: 'Sources and licences'
 	},
 	home: {
-		titleAccent: 'Ukrainian',
-		titleRest: ' ↔ English Dictionary',
+		/** The title's first line; its last word is drawn (title-paths.ts). */
+		titlePair: 'Ukrainian–English',
 		tryLabel: 'Try',
 		wordOfDay: 'Word of the day',
 		placeholder: 'Search a word…',
@@ -284,8 +284,7 @@ const uk: Messages = {
 		sources: 'Джерела й ліцензії'
 	},
 	home: {
-		titleAccent: 'Українсько',
-		titleRest: '-англійський словник',
+		titlePair: 'Українсько-англійський',
 		tryLabel: 'Спробуйте',
 		wordOfDay: 'Слово дня',
 		placeholder: 'Шукати слово…',

@@ -14,16 +14,14 @@
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import type { LookupResult } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { TITLE_WORD } from '#lib/title-paths.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
-	// The English title joins the two languages with an arrow. The arrow is
-	// drawn, not typed: the heading font has no ↔, and the one borrowed from
-	// another font is hairline thin beside its heavy letters.
-	let [titleBefore, titleAfter] = $derived(m.home.titleRest.split('↔'));
+	let word = $derived(TITLE_WORD[settings.lang]);
 
 	let query = $state('');
 	// The answer for the latest query; null while the box is empty.
@@ -129,17 +127,13 @@
 <PageMeta title={m.meta.homeTitle} description={m.meta.home} />
 
 <div class="hero">
-	<h1 class="ui-title">
-		<span class="accent">{m.home.titleAccent}</span>{titleBefore}{#if titleAfter !== undefined}<svg
-				class="arrow"
-				viewBox="0 0 28 16"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="3"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"><path d="M3 8h22M8 3 3 8l5 5M20 3l5 5-5 5" /></svg
-			>{titleAfter}{/if}
+	<!-- One phrase on two lines: the languages in print, and the last word in
+	     the hand of the logo. The word is a drawing (title-paths.ts), so the
+	     heading also carries it as text for a screen reader or a search engine. -->
+	<h1>
+		<span class="pair">{m.home.titlePair}</span>
+		<span class="ui-sr-only">{word.name}</span>
+		<svg class="word" viewBox={word.box} style:--ems={word.ems} aria-hidden="true"><path d={word.d} /></svg>
 	</h1>
 
 	<div class="searchbox">
@@ -236,25 +230,43 @@
 		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent);
 	}
 
-	:global(:root[data-bg]) h1 {
+	:global(:root[data-bg]) .pair {
+		color: var(--ink);
 		text-shadow: 0 1px 0.35em color-mix(in srgb, var(--bg) 65%, transparent);
 	}
 
-	/* The one title that is the page's whole greeting: a size above the rest */
+	:global(:root[data-bg]) .word {
+		filter: drop-shadow(0 1px 0.3rem color-mix(in srgb, var(--bg) 65%, transparent));
+	}
+
 	h1 {
-		margin-bottom: 1.5rem;
-		font-size: clamp(1.9rem, 5.5vw, 2.9rem);
+		display: grid;
+		justify-items: center;
+		gap: 0.15rem;
+		margin: 0 0 1.4rem;
 	}
 
-	.accent {
-		color: var(--title-accent);
+	.pair {
+		color: var(--ink-2);
+		font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+		font-weight: 600;
+		line-height: 1.3;
 	}
 
-	/* As heavy as the letters beside it, and centred on their height */
-	.arrow {
-		width: 1em;
-		height: 0.57em;
-		vertical-align: 0.06em;
+	/* --hand is the size of the handwriting, as a font size would be; the
+	   word's own box is --ems of it tall (словник, with no tall letters,
+	   less than dictionary). The outline in the letter's own colour thickens
+	   it, as it does the logo. */
+	.word {
+		--hand: clamp(3.4rem, 11vw, 5.2rem);
+		display: block;
+		width: auto;
+		max-width: 100%;
+		height: calc(var(--hand) * var(--ems));
+		fill: var(--ink);
+		stroke: var(--ink);
+		stroke-width: 0.9;
+		stroke-linejoin: round;
 	}
 
 	/* The search box; with the keyboard open it grows downward to hold it.

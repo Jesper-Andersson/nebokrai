@@ -1,0 +1,44 @@
+@font-face {
+	font-family: 'Nyght Serif';
+	src: url('./lib/assets/nyght-serif-main/NyghtSerif-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Nyght Serif';
+	src: url('./lib/assets/nyght-serif-main/NyghtSerif-RegularItalic.woff2') format('woff2');
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Nyght Serif';
+	src: url('./lib/assets/nyght-serif-main/NyghtSerif-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+body {
+	font-family: 'Nyght Serif', Georgia, serif;
+	margin: 0;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	/* Put your photo at static/background.jpg; until then the dark colour shows */
+	background: #1e1e1e url('/background.jpg') center / cover fixed;
+	text-align: center;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+input,
+button {
+	font: inherit;
+}

@@ -30,7 +30,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 47,567 |
 | `forms` | inflected form (declension / conjugation cell) | 529,270 |
 | `examples` | Tatoeba sentence with English translation | 28,670 |
-| `search_keys` | normalised lookup key pointing at an entry | 626,107 |
+| `search_keys` | normalised lookup key pointing at an entry | 916,359 |
 
 Pages that only say "genitive singular of X" are skipped (29,315), because the
 same forms are already in X's own table.

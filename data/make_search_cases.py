@@ -14,7 +14,7 @@ from search import search
 
 QUERIES = [
     # exact words and inflected forms
-    "калина", "книги", "читаю", "КАЛИНА", "кали́на", "стан", "за", "читано", "м'яти", "м’яти",
+    "калина", "книги", "читаю", "КАЛИНА", "кали́на", "стан", "за", "читано", "м'яти", "м’яти", "мʼяти", "м`яти", "м´яти", "м‘яти", "п`ять", "об`єднання",
     # Latin input
     "kalyna", "kalina", "khata", "xata", "pryvit", "Kyiv", "shchastia", "dobryi", "čytáty",
     # English meanings

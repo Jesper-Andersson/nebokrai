@@ -720,6 +720,198 @@
   ]
  },
  {
+  "query": "мʼяти",
+  "vesum": false,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "мʼяти",
+  "vesum": true,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м`яти",
+  "vesum": false,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м`яти",
+  "vesum": true,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м´яти",
+  "vesum": false,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м´яти",
+  "vesum": true,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м‘яти",
+  "vesum": false,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "м‘яти",
+  "vesum": true,
+  "expect": [
+   [
+    8207,
+    "м'яти",
+    "verb",
+    "word"
+   ],
+   [
+    4171,
+    "м'ята",
+    "noun",
+    "form"
+   ]
+  ]
+ },
+ {
+  "query": "п`ять",
+  "vesum": false,
+  "expect": [
+   [
+    3868,
+    "п'ять",
+    "num",
+    "word"
+   ]
+  ]
+ },
+ {
+  "query": "п`ять",
+  "vesum": true,
+  "expect": [
+   [
+    3868,
+    "п'ять",
+    "num",
+    "word"
+   ]
+  ]
+ },
+ {
+  "query": "об`єднання",
+  "vesum": false,
+  "expect": [
+   [
+    5107,
+    "об'єднання",
+    "noun",
+    "word"
+   ]
+  ]
+ },
+ {
+  "query": "об`єднання",
+  "vesum": true,
+  "expect": [
+   [
+    5107,
+    "об'єднання",
+    "noun",
+    "word"
+   ]
+  ]
+ },
+ {
   "query": "kalyna",
   "vesum": false,
   "expect": [

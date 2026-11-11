@@ -13,7 +13,9 @@ import { openLocal } from './local-db.ts';
 
 test('normalisation', () => {
 	assert.equal(plain('Кали́на'), 'калина');
-	assert.equal(plain('м’яти'), "м'яти");
+	for (const typed of ["м'яти", 'м’яти', 'мʼяти', 'м`яти', 'м´яти', 'м‘яти']) {
+		assert.equal(plain(typed), "м'яти");
+	}
 	assert.equal(plain('її'), 'її'); // ї must survive stress removal
 	assert.equal(nationalTranslit('калина'), 'kalyna');
 	assert.equal(nationalTranslit('Київ'), 'kyiv');

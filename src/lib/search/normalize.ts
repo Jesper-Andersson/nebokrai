@@ -2,7 +2,12 @@
 // data/import_wiktionary.py exactly: the database keys were made with those, so
 // what the user types must be normalised the same way.
 
-const STRESS = '́';
+const STRESS = '\u0301';
+
+// Characters people and dictionaries use for the Ukrainian apostrophe (п'ять):
+// typewriter ', curly ‘ ’, modifier letter ʼ, and the backtick ` and acute ´
+// that turn up in quick typing.
+const APOSTROPHES = /['‘’ʼ`´]/g;
 
 /** Lookup form of a Ukrainian word: no stress mark, lowercase, one apostrophe style. */
 export function plain(text: string): string {
@@ -10,8 +15,7 @@ export function plain(text: string): string {
 		.normalize('NFC')
 		.replaceAll(STRESS, '')
 		.toLowerCase()
-		.replaceAll('’', "'")
-		.replaceAll('ʼ', "'");
+		.replace(APOSTROPHES, "'");
 }
 
 // Ukrainian national transliteration (Cabinet of Ministers resolution 55, 2010).

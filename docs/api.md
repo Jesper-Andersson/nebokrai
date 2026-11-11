@@ -6,7 +6,7 @@ SvelteKit routes that expose them are still to be written.
 
 | Endpoint | Used by | Code |
 |---|---|---|
-| `/api/search?q=…` | search box, results page | `search()` in `search.ts` |
+| `/api/search?q=…` | results page | `lookup()` in `suggest.ts` |
 | `/api/word/…` | Details page | `wordDetails()` in `word.ts` |
 
 All text is UTF-8. Ukrainian words in a URL must be percent-encoded
@@ -36,7 +36,8 @@ Response `200`:
       "freq_rank": 16580,
       "match": "latin"
     }
-  ]
+  ],
+  "suggestions": []
 }
 ```
 
@@ -91,9 +92,49 @@ entry for that word, the result looks like this:
 There is no stress mark, no meaning and no Details page for it. The page can
 say that the word exists and that it has no entry yet.
 
+### Suggestions ("did you mean")
+
+`suggestions` is filled only when no result is a sure match: the results are
+empty, or contain nothing better than words that start with the query or
+meanings that mention it. Each suggestion has the same fields as a result,
+and its `match` says how the guess was made:
+
+| Value | Example | |
+|---|---|---|
+| `layout` | `ghbdsn` → привіт | Typed with the keyboard on the Latin layout. |
+| `respelled` | `привит` → привіт, `dobra nich` → добраніч, `книгы` → книга | The same word under another spelling habit, with or without spaces, or with Russian letters. |
+| `sound` | `превіт` → привіт, `shastya` → щастя, `kiev` → Київ | Letters that sound alike: е/и/і, щ/ш. |
+| `typo` | `привфт` → привіт, `молако` → молоко | One letter wrong, missing, extra, or two swapped. |
+
+At most five, most certain first. Example for `/api/search?q=превіт`:
+
+```json
+{
+  "query": "превіт",
+  "results": [],
+  "suggestions": [
+    {
+      "id": 3258,
+      "word": "привіт",
+      "headword": "приві́т",
+      "pos": "noun",
+      "tags": ["inanimate", "masculine"],
+      "head_forms": [{ "form": "приві́ту", "tags": ["genitive"] }],
+      "glosses": ["greeting"],
+      "freq_rank": 227,
+      "match": "sound"
+    }
+  ]
+}
+```
+
+(`head_forms` is shortened here.) Guesses cover dictionary words only: a typo
+in an inflected form (`книгаю`) is not corrected.
+
 ### Nothing found
 
-`200` with `"results": []`. An empty or missing `q` gives the same.
+`200` with `"results": []` and `"suggestions": []`. An empty or missing `q`
+gives the same.
 
 ## `GET /api/word/<word>`
 
@@ -189,3 +230,24 @@ Two forms can share the same labels. That means the cell has two variants
 | `400` | `limit` is not a number. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
+
+## Suggestions while typing (no request)
+
+The dropdown under the search box does not call the server. The page
+downloads `static/words.json` once (29,020 headwords, most common first,
+about 175 KB compressed) and matches locally:
+
+```ts
+import { buildIndex, suggestLocal } from '$lib/search/client-suggest';
+
+const index = buildIndex(await (await fetch('/words.json')).json()); // once
+suggestLocal(index, 'pryv', 5);
+// [{ headword: 'приві́т', word: 'привіт', match: 'prefix' }, …]
+```
+
+`match` is `prefix`, `layout`, `sound` or `typo`, as above. It knows
+dictionary words only, not inflected forms or English, so pressing Enter
+should still go to `/api/search`. Building the index takes about 0.15 s; one
+suggestion call takes a few milliseconds.
+
+`words.json` is made by `python3 data/export_wordlist.py nebokrai.db static/words.json`.

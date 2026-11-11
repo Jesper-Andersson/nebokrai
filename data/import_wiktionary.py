@@ -71,7 +71,7 @@ CREATE TABLE examples (
 CREATE TABLE search_keys (
     key       TEXT NOT NULL,
     entry_id  INTEGER NOT NULL REFERENCES entries(id),
-    kind      TEXT NOT NULL         -- word | form | latin | english
+    kind      TEXT NOT NULL         -- word | form | latin | english | sound | typo
 );
 """
 
@@ -148,6 +148,55 @@ def loose_latin(text):
     ):
         text = text.replace(old, new)
     return re.sub(r"(.)\1+", r"\1", text)  # collapse doubled letters
+
+
+def sound_key(loose):
+    """Collapse a loose Latin key further, merging sounds learners mix up.
+
+    е/и/і all become "i" and щ joins ш, so превіт meets привіт, shastya meets
+    щастя and kiev meets Київ. Input is the output of loose_latin().
+    """
+    text = loose.replace("e", "i").replace("sc", "s")
+    return re.sub(r"(.)\1+", r"\1", text)
+
+
+def deletes(key):
+    """Every way of removing one letter. Two keys within one typo of each other
+    (a wrong, missing, extra or swapped letter) always share one of these, or
+    one contains the other, which is what lets an ordinary index find typos."""
+    return {key[:i] + key[i + 1:] for i in range(len(key))}
+
+
+TYPO_MIN = 4  # shorter keys are one typo away from far too many words
+
+# What the keys of a Latin (QWERTY) keyboard type on the Ukrainian layout, for
+# people who forgot to switch: "ghbdsn" -> "привіт".
+KEYBOARD = str.maketrans(
+    "qwertyuiop[]asdfghjkl;'zxcvbnm,.`\\",
+    "йцукенгшщзхїфівапролджєячсмитьбю'ґ")
+
+# Letters from a Russian keyboard and their nearest Ukrainian spelling.
+RUSSIAN_LETTERS = {"ы": "и", "э": "е", "ё": "йо", "ъ": "'"}
+
+
+def from_russian_letters(text):
+    return "".join(RUSSIAN_LETTERS.get(ch, ch) for ch in text)
+
+
+def edits_apart(a, b):
+    """True if a and b differ by at most one typo: one letter wrong, missing,
+    extra, or two neighbours swapped."""
+    if a == b:
+        return True
+    if abs(len(a) - len(b)) > 1:
+        return False
+    i = 0
+    while i < min(len(a), len(b)) and a[i] == b[i]:
+        i += 1
+    if len(a) == len(b):
+        return a[i + 1:] == b[i + 1:] or (a[i:i + 2] == b[i:i + 2][::-1] and a[i + 2:] == b[i + 2:])
+    longer, shorter = (a, b) if len(a) > len(b) else (b, a)
+    return longer[i + 1:] == shorter[i:]
 
 
 def is_form_of(entry):
@@ -328,6 +377,13 @@ def build(src, dst, freq=None, tatoeba=None):
         keys.add((loose_latin(national_translit(word)), "latin"))
         if roman:
             keys.add((loose_latin(roman), "latin"))
+        # Looser keys for "did you mean": sounds-alike, and one typo away.
+        for k, kind in list(keys):
+            if kind == "latin" and k:
+                sk = sound_key(k)
+                keys.add((sk, "sound"))
+                if len(sk) >= TYPO_MIN:
+                    keys.update((d, "typo") for d in deletes(sk))
 
         n = 0
         had_example = False

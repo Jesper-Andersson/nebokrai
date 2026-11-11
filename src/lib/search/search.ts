@@ -172,7 +172,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 }
 
 /** Order strings the way Python does, so both searches break ties identically. */
-function compareCodePoints(a: string, b: string): number {
+export function compareCodePoints(a: string, b: string): number {
 	const x = [...a], y = [...b];
 	for (let i = 0; i < Math.min(x.length, y.length); i++) {
 		const d = x[i].codePointAt(0)! - y[i].codePointAt(0)!;

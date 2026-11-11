@@ -68,3 +68,65 @@ export function looseLatin(text: string): string {
 export function isCyrillic(text: string): boolean {
 	return /[Ѐ-ӿ]/.test(text);
 }
+
+/**
+ * Collapse a loose Latin key further, merging sounds learners mix up: е/и/і all
+ * become "i" and щ joins ш, so превіт meets привіт, shastya meets щастя and
+ * kiev meets Київ. Input is the output of looseLatin().
+ */
+export function soundKey(loose: string): string {
+	return loose.replaceAll('e', 'i').replaceAll('sc', 's').replace(/(.)\1+/g, '$1');
+}
+
+/**
+ * Every way of removing one letter. Two keys within one typo of each other
+ * always share one of these, or one contains the other, which is what lets an
+ * ordinary index find typos.
+ */
+export function deletes(key: string): string[] {
+	const out = new Set<string>();
+	for (let i = 0; i < key.length; i++) out.add(key.slice(0, i) + key.slice(i + 1));
+	return [...out];
+}
+
+/** Shorter keys are one typo away from far too many words. */
+export const TYPO_MIN = 4;
+
+/** True if a and b differ by at most one typo: a letter wrong, missing, extra, or two swapped. */
+export function editsApart(a: string, b: string): boolean {
+	if (a === b) return true;
+	if (Math.abs(a.length - b.length) > 1) return false;
+	let i = 0;
+	while (i < Math.min(a.length, b.length) && a[i] === b[i]) i++;
+	if (a.length === b.length) {
+		return (
+			a.slice(i + 1) === b.slice(i + 1) ||
+			(a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2))
+		);
+	}
+	const [longer, shorter] = a.length > b.length ? [a, b] : [b, a];
+	return longer.slice(i + 1) === shorter.slice(i);
+}
+
+// What the keys of a Latin (QWERTY) keyboard type on the Ukrainian layout, for
+// people who forgot to switch: "ghbdsn" -> "привіт".
+const QWERTY = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`\\";
+const UKRAINIAN_KEYS = "йцукенгшщзхїфівапролджєячсмитьбю'ґ";
+
+export function fromWrongLayout(text: string): string {
+	let out = '';
+	for (const ch of text.toLowerCase()) {
+		const i = QWERTY.indexOf(ch);
+		out += i === -1 ? ch : UKRAINIAN_KEYS[i];
+	}
+	return out;
+}
+
+// Letters from a Russian keyboard and their nearest Ukrainian spelling.
+const RUSSIAN_LETTERS: Record<string, string> = { ы: 'и', э: 'е', ё: 'йо', ъ: "'" };
+
+export function fromRussianLetters(text: string): string {
+	let out = '';
+	for (const ch of text) out += RUSSIAN_LETTERS[ch] ?? ch;
+	return out;
+}

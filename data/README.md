@@ -81,6 +81,30 @@ cd data && python3 make_search_cases.py ../nebokrai.db ../vesum.db > ../tests/se
 cd .. && npm install && npm test
 ```
 
+## Lenient search ("did you mean")
+
+When a query has no sure match, `lookup()` in `search.py` adds guesses. Two
+extra kinds of key in `search_keys` make this possible with plain index
+lookups:
+
+| Kind | What it is | Rows |
+|---|---|---|
+| `sound` | the Latin key with sound-alike letters merged (е/и/і, щ/ш) | 31,089 |
+| `typo` | every `sound` key with one letter removed | 256,503 |
+
+A Cyrillic query is first written in Latin letters, so both scripts share the
+same keys. Guesses are tried in order: wrong keyboard layout (`ghbdsn`),
+another spelling (`привит`, `dobra nich`, Russian letters), sound-alike
+(`превіт`, `kiev`), one typo (`привфт`). Only dictionary words are guessed,
+not inflected forms.
+
+`export_wordlist.py` writes the word list the browser uses for suggestions
+while typing:
+
+```
+python3 data/export_wordlist.py nebokrai.db static/words.json
+```
+
 ## VESUM form lookup (separate database)
 
     pip install pymorphy3 pymorphy3-dicts-uk

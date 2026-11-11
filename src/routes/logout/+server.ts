@@ -6,9 +6,9 @@ import { getUserDb } from '#lib/server/user-db.ts';
 import { SESSION_COOKIE, deleteSession } from '#lib/server/users.ts';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ cookies, platform }) => {
+export const POST: RequestHandler = async ({ cookies }) => {
 	const token = cookies.get(SESSION_COOKIE);
-	const users = token ? await getUserDb(platform) : undefined;
+	const users = token ? await getUserDb() : undefined;
 	if (token && users) await deleteSession(users, token);
 	clearSessionCookie(cookies);
 	redirect(303, '/');

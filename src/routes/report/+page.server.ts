@@ -5,14 +5,14 @@ import { getDatabases } from '#lib/server/db.ts';
 import { isReportKind, type ReportEntry } from '#lib/report.ts';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ url, platform }) => {
+export const load: PageServerLoad = async ({ url }) => {
 	const askedKind = url.searchParams.get('kind');
 	const query = (url.searchParams.get('q') ?? '').trim().slice(0, 100);
 
 	let entry: ReportEntry | null = null;
 	const id = Number(url.searchParams.get('entry'));
 	if (Number.isInteger(id) && id > 0) {
-		const { db } = await getDatabases(platform);
+		const { db } = await getDatabases();
 		const rows = await db.all<ReportEntry>('SELECT id, word, headword, pos FROM entries WHERE id = ?', [id]);
 		entry = rows[0] ?? null;
 	}

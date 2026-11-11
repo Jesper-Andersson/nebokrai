@@ -2,25 +2,27 @@
 // details) in Cloudflare's cache for a while, so asking the same thing again
 // costs no database read. One search can read tens of thousands of rows
 // ("of" matches 7,442 entries), which is the cheapest way to use up the
-// database's daily allowance; with this, repeating it is free.
+// database's allowance; with this, repeating it is free.
 //
 // The cache belongs to each Cloudflare data centre, so the first visitor in
-// each one still reaches the database. During `npm run dev` there is no cache
+// each one still reaches the database. During `npm run dev` nothing is cached
 // and every request is answered afresh.
 //
-// After nebokrai.db is rebuilt and uploaded, answers can be up to an hour old.
-// Entry ids change on a rebuild, so wait that hour before trusting an id in a
-// new report, or purge the cache in the Cloudflare dashboard.
+// After the dictionary is replaced (data/README.md, "Publishing to D1"),
+// answers can be up to an hour old, with the entry ids of the old build.
+// Purge the cache in the Cloudflare dashboard to switch at once.
+//
+// This is the Cache API, called from here. Cloudflare's "Workers Cache",
+// which caches by response headers alone, is deliberately not switched on in
+// wrangler.jsonc: pages differ by cookie (theme, language) and must not be
+// cached, and only the two endpoints that use this file are safe to share.
+import { waitUntil } from 'cloudflare:workers';
+import { dev } from '$app/env';
 
-/** The parts of Cloudflare's `platform` used here. */
-export interface EdgePlatform {
-	caches?: {
-		default?: {
-			match(key: string): Promise<Response | undefined>;
-			put(key: string, response: Response): Promise<void>;
-		};
-	};
-	ctx?: { waitUntil(promise: Promise<unknown>): void };
+/** The part of a Worker's `caches.default` used here. Browsers' own `caches` has no `default`. */
+interface EdgeCache {
+	match(key: string): Promise<Response | undefined>;
+	put(key: string, response: Response): Promise<void>;
 }
 
 const HOUR = 60 * 60;
@@ -34,10 +36,10 @@ const CACHE_CONTROL = `public, max-age=300, s-maxage=${HOUR}`;
  * Never pass the request's own URL: extra parameters (`&x=1`, `&x=2`) would
  * each get an entry of their own and reach the database every time.
  */
-export async function cached(
-	platform: EdgePlatform | undefined, key: string, produce: () => Promise<Response>
-): Promise<Response> {
-	const cache = platform?.caches?.default;
+export async function cached(key: string, produce: () => Promise<Response>): Promise<Response> {
+	// Not in dev: the adapter provides a stand-in cache there, and an hour-old
+	// answer is the last thing wanted while changing the search.
+	const cache = dev ? undefined : (globalThis.caches as { default?: EdgeCache } | undefined)?.default;
 	if (!cache) return produce();
 
 	// A cache that fails must not take the search down with it.
@@ -51,9 +53,7 @@ export async function cached(
 	const response = await produce();
 	if (response.status !== 200) return response;
 	response.headers.set('cache-control', CACHE_CONTROL);
-	const stored = cache.put(key, response.clone()).catch(() => {});
-	// Store after answering where the platform allows it.
-	if (platform.ctx) platform.ctx.waitUntil(stored);
-	else await stored;
+	// Stored after the answer has gone out, so the visitor does not wait for it.
+	waitUntil(cache.put(key, response.clone()).catch(() => {}));
 	return response;
 }

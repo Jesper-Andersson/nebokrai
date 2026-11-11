@@ -10,6 +10,7 @@
 //
 // Retention: the email is only for replying; clear it when a report is closed
 // (status leaves 'new' / 'confirmed'). IP addresses are never stored.
+import { env } from 'cloudflare:workers';
 import { dev } from '$app/env';
 import type { ReportKind } from '#lib/report.ts';
 import { openLocalWritable, type LocalWritable } from './db.ts';
@@ -67,8 +68,13 @@ let d1Ready: Promise<unknown> | undefined;
 let local: Promise<LocalWritable> | undefined;
 
 /** Store a report; returns its id. */
-export async function saveReport(platform: App.Platform | undefined, report: NewReport): Promise<number | null> {
-	const d1 = platform?.env?.REPORTS;
+export async function saveReport(report: NewReport): Promise<number | null> {
+	// `dev` first: see getDatabases() in db.ts.
+	if (dev) {
+		const sqlite = await (local ??= openLocalWritable('reports.db', SCHEMA));
+		return Number(sqlite.run(INSERT, values(report)).lastInsertRowid);
+	}
+	const d1 = env.REPORTS;
 	if (d1) {
 		await (d1Ready ??= d1.prepare(SCHEMA).run().catch((err) => {
 			// Forget the failure, so the next report tries again.
@@ -78,9 +84,5 @@ export async function saveReport(platform: App.Platform | undefined, report: New
 		const result = await d1.prepare(INSERT).bind(...values(report)).run();
 		return result.meta?.last_row_id ?? null;
 	}
-	if (dev) {
-		const sqlite = await (local ??= openLocalWritable('reports.db', SCHEMA));
-		return Number(sqlite.run(INSERT, values(report)).lastInsertRowid);
-	}
-	throw new Error('No reports database: bind REPORTS to the Cloudflare worker.');
+	throw new Error('No reports database: wrangler.jsonc must bind REPORTS.');
 }

@@ -4,8 +4,8 @@ import { ATTEMPT_COOKIE, authorizeUrl, isProvider, newAttempt } from '#lib/serve
 import { hasUserDb } from '#lib/server/user-db.ts';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ params, url, cookies, platform }) => {
-	if (!isProvider(params.provider) || !hasUserDb(platform)) error(404);
+export const GET: RequestHandler = async ({ params, url, cookies }) => {
+	if (!isProvider(params.provider) || !hasUserDb()) error(404);
 	const attempt = newAttempt();
 	const target = await authorizeUrl(params.provider, url.origin, attempt);
 	if (!target) error(404);

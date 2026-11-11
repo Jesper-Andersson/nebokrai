@@ -7,11 +7,11 @@ import type { PageServerLoad } from './$types';
 
 // /word/shvetsiia is the address; /word/Швеція still works and redirects to
 // it. The few words with no Latin letters (ь, №) keep their Cyrillic address.
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	const asked = params.word;
 	// No address is this long (the longest slug has 62 letters): no need to ask the database.
 	if (asked.length > MAX_WORD_LENGTH) error(404, 'No dictionary entry at this address.');
-	const { db } = await getDatabases(platform);
+	const { db } = await getDatabases();
 
 	if (/[^\x00-\x7f]/.test(asked)) {
 		const slug = wordSlug(asked);

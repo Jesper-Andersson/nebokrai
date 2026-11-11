@@ -49,3 +49,47 @@ and saved words then go to `users.db` in the repo root, created on first use.
 In production the same four values are Worker secrets, and accounts live in a
 D1 database bound as `USERS`, apart from the dictionary. What is stored about a
 person: the provider's id for them, their display name and their saved words.
+
+## Deploying
+
+The site runs on Cloudflare Workers, with four D1 databases. `wrangler.jsonc`
+describes all of it.
+
+| Binding | Database | Holds |
+|---|---|---|
+| `DB` | `nebokrai-dict-<date>` | the dictionary (`nebokrai.db`) |
+| `VESUM` | `nebokrai-vesum-<date>` | VESUM forms (`vesum.db`), apart for its licence |
+| `USERS` | `nebokrai-users` | accounts, sessions, saved words |
+| `REPORTS` | `nebokrai-reports` | "Report an issue" reports |
+
+```sh
+npx wrangler login    # once per machine
+npm run deploy        # builds, then publishes to nebokrai.app
+npx wrangler tail     # live logs
+npx wrangler rollback # back to the previous version
+```
+
+Before the first deploy, and after every rebuild of the dictionary, the data
+has to be loaded into D1: see "Publishing to D1" in `data/README.md`.
+
+Things to know:
+
+- **`static/words.json` is not in git.** Make it before building
+  (`python3 data/export_wordlist.py nebokrai.db static/words.json`), or the
+  deployed site has no word list.
+- **The four sign-in values are secrets**, set once with
+  `npx wrangler secret put GITHUB_CLIENT_ID` and so on. The redirect address
+  to register at each provider is `https://nebokrai.app/auth/callback/github`
+  (or `/google`).
+- **The site has one address.** `workers_dev` and `preview_urls` are off in
+  `wrangler.jsonc`, so there is no `workers.dev` copy reaching the same
+  databases.
+- **`npm run dev` does not use D1.** It reads `nebokrai.db` and `vesum.db` in
+  the repo root, and keeps accounts and reports in `users.db` and
+  `reports.db`. To run the built site the way Cloudflare does, load the data
+  with `--local` instead of `--remote` (see `data/README.md`), then
+  `npm run build && npx wrangler dev .svelte-kit/cloudflare/_worker.js`.
+- **Back up the two private databases**, which cannot be rebuilt:
+  `npx wrangler d1 export nebokrai-users --remote --output=users.sql`, and the
+  same for `nebokrai-reports`. The database does not answer while an export
+  runs, so pick a quiet hour, and keep the files off this machine.

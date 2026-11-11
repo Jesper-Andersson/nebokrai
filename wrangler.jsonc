@@ -1,0 +1,57 @@
+// How the site runs on Cloudflare Workers. README.md ("Deploying") has the
+// steps; data/README.md ("Publishing to D1") has the dictionary upload.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "nebokrai",
+	// Written by `npm run build` (the SvelteKit Cloudflare adapter)
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-11-11",
+	// SvelteKit needs AsyncLocalStorage, and nothing else from Node
+	"compatibility_flags": ["nodejs_als"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+
+	// The site has one address. Without these two lines Cloudflare also serves
+	// it at nebokrai.<account>.workers.dev and at a preview address per upload,
+	// all reaching the same databases, outside the rules set for nebokrai.app.
+	"workers_dev": false,
+	"preview_urls": false,
+	"routes": [{ "pattern": "nebokrai.app", "custom_domain": true }],
+
+	// Four databases, apart on purpose:
+	// - the dictionary is rebuilt from open data and replaced whole (CC BY-SA);
+	// - VESUM has a non-commercial licence and must never share a database with it;
+	// - accounts and reports are personal data that must survive every rebuild.
+	// The dictionary names carry the date they were loaded: a rebuild goes
+	// into a new database and the id here is switched (data/README.md).
+	// The ids below are placeholders until the databases are created; each
+	// differs because local runs (`wrangler dev`, `d1 execute --local`) keep
+	// one file per id.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "nebokrai-dict-20261111",
+			"database_id": "00000000-0000-0000-0000-000000000001"
+		},
+		{
+			"binding": "VESUM",
+			"database_name": "nebokrai-vesum-20261111",
+			"database_id": "00000000-0000-0000-0000-000000000002"
+		},
+		{
+			"binding": "USERS",
+			"database_name": "nebokrai-users",
+			"database_id": "00000000-0000-0000-0000-000000000003"
+		},
+		{
+			"binding": "REPORTS",
+			"database_name": "nebokrai-reports",
+			"database_id": "00000000-0000-0000-0000-000000000004"
+		}
+	],
+
+	// Keep request logs and errors, to read in the dashboard or with `wrangler tail`
+	"observability": { "enabled": true }
+}

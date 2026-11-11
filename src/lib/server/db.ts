@@ -1,6 +1,7 @@
-// Where the search gets its data. In production that is Cloudflare D1
-// (platform.env.DB, and platform.env.VESUM if bound). During `npm run dev` it
-// is the local nebokrai.db and vesum.db in the repo root (see data/README.md).
+// Where the search gets its data. In production that is Cloudflare D1 (the
+// bindings DB, and VESUM if present, in wrangler.jsonc). During `npm run dev`
+// it is the local nebokrai.db and vesum.db in the repo root (see data/README.md).
+import { env } from 'cloudflare:workers';
 import { dev } from '$app/env';
 import { fromD1, type Db } from '#lib/search/db.ts';
 
@@ -11,11 +12,13 @@ export interface Databases {
 
 let local: Promise<Databases> | undefined;
 
-export async function getDatabases(platform: App.Platform | undefined): Promise<Databases> {
-	const env = platform?.env;
-	if (env?.DB) return { db: fromD1(env.DB), vesum: env.VESUM ? fromD1(env.VESUM) : undefined };
+export async function getDatabases(): Promise<Databases> {
+	// `dev` is asked first, here and for accounts and reports: during
+	// `npm run dev` the Cloudflare adapter supplies empty stand-ins for the
+	// bindings, which would otherwise be taken for the real databases.
 	if (dev) return (local ??= openLocalFiles());
-	throw new Error('No database: bind DB (and optionally VESUM) to the Cloudflare worker.');
+	if (env.DB) return { db: fromD1(env.DB), vesum: env.VESUM ? fromD1(env.VESUM) : undefined };
+	throw new Error('No database: wrangler.jsonc must bind DB (and optionally VESUM).');
 }
 
 async function openLocalFiles(): Promise<Databases> {

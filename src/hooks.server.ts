@@ -60,7 +60,7 @@ const answer: Handle = async ({ event, resolve }) => {
 	if (token && !SESSION_TOKEN.test(token)) clearSessionCookie(event.cookies);
 	else if (token) {
 		try {
-			const users = await getUserDb(event.platform);
+			const users = await getUserDb();
 			const session = users && (await validateSession(users, token));
 			if (!session) clearSessionCookie(event.cookies);
 			else {

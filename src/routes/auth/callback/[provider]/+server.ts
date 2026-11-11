@@ -10,7 +10,7 @@ import type { RequestHandler } from './$types';
 /** The Saved page shows a "sign-in didn't work" note for this address. */
 const FAILED = '/saved?login=failed';
 
-export const GET: RequestHandler = async ({ params, url, cookies, platform, fetch }) => {
+export const GET: RequestHandler = async ({ params, url, cookies, fetch }) => {
 	const provider = params.provider;
 	if (!isProvider(provider)) error(404);
 
@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, url, cookies, platform, fetc
 	// answer was not asked for by this browser.
 	if (!code || !state || !verifier || url.searchParams.get('state') !== state) redirect(303, FAILED);
 
-	const users = await getUserDb(platform);
+	const users = await getUserDb();
 	if (!users) error(404);
 	const profile = await fetchProfile(provider, url.origin, code, verifier, fetch);
 	if (!profile) redirect(303, FAILED);

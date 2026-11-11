@@ -8,10 +8,10 @@ import type { PageServerLoad } from './$types';
 
 // The same answers as src/routes/word/[word]/+page.server.ts. It is a copy and
 // not a re-export only because the redirects must stay under /draft.
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params }) => {
 	const asked = params.word;
 	if (asked.length > MAX_WORD_LENGTH) error(404, 'No dictionary entry at this address.');
-	const { db } = await getDatabases(platform);
+	const { db } = await getDatabases();
 
 	if (/[^\x00-\x7f]/.test(asked)) {
 		const slug = wordSlug(asked);

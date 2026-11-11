@@ -1,17 +1,22 @@
 <!-- The search page: the search box with its on-screen keyboard, and the
-     answers of /api/search as cards. The keyboard's open and closed state is a
-     Melt Collapsible. -->
+     answers of /api/search as cards. While the box is empty, the word of the
+     day stands where the answers will. The keyboard's open and closed state
+     is a Melt Collapsible. -->
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import WordCard from '#lib/WordCard.svelte';
+	import WordOfDay from '#lib/WordOfDay.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import type { LookupResult } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -187,7 +192,9 @@
 	{/if}
 </div>
 
-{#if failed}
+{#if !query.trim()}
+	{#if data.wordOfDay}<WordOfDay entry={data.wordOfDay} />{/if}
+{:else if failed}
 	<p class="note">{m.home.failed}</p>
 {:else if found}
 	<ul class="ui-page results">

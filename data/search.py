@@ -33,6 +33,7 @@ import sys
 from import_wiktionary import loose_latin, national_translit, plain
 
 RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_loose": 4, "english_mention": 5, "prefix": 6}
+KIND = {v: k for k, v in RANK.items()}
 
 
 def search(db, query, limit=20, vesum=None):
@@ -54,16 +55,17 @@ def search(db, query, limit=20, vesum=None):
         add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
         if not hits and vesum is not None:
             for lemma, pos in vesum.execute(
-                    "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=?", (key,)):
+                    "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos", (key,)):
                 found = db.execute("SELECT entry_id, 'form' FROM search_keys WHERE key=? AND kind='word'",
                                    (lemma,)).fetchall()
                 if found:
                     add(found)
                 else:
                     stubs.append(dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[],
-                                      head_forms=[], glosses=[], freq_rank=None, vesum_only=True))
+                                      head_forms=[], glosses=[], freq_rank=None, match="form",
+                                      vesum_only=True))
         if len(hits) < limit:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? LIMIT ?",
+            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
                            (key, key + "￿", limit * 3)), RANK["prefix"])
     else:
         words = re.findall(r"[a-z]+(?:[-'][a-z]+)*", q.lower())
@@ -77,7 +79,7 @@ def search(db, query, limit=20, vesum=None):
         if sets:
             add(((eid, "english") for eid in set.intersection(*sets)))
         if len(hits) < limit and key and " " not in q and len(key) >= 3:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='latin' AND key >= ? AND key < ? LIMIT ?",
+            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='latin' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
                            (key, key + "{", limit * 3)), RANK["prefix"])
 
     results = []
@@ -100,8 +102,8 @@ def search(db, query, limit=20, vesum=None):
         tie = common
         results.append((rank, tie, dict(id=eid, word=word, headword=headword, pos=pos,
                                         tags=json.loads(tags), head_forms=json.loads(head_forms),
-                                        glosses=glosses, freq_rank=freq_rank)))
-    results.sort(key=lambda r: (r[0], r[1], r[2]["word"]))
+                                        glosses=glosses, freq_rank=freq_rank, match=KIND[rank])))
+    results.sort(key=lambda r: (r[0], r[1], r[2]["word"], r[2]["id"]))
     exact = [r[2] for r in results if r[0] <= RANK["form"]]
     rest = [r[2] for r in results if r[0] > RANK["form"]]
     return (exact + stubs + rest)[:limit]

@@ -3,7 +3,8 @@
 
 import type { Db } from './db.ts';
 import type { HeadForm } from './search.ts';
-import { plain } from './normalize.ts';
+import { looseLatin, plain } from './normalize.ts';
+import { wordSlug } from './slug.ts';
 
 export interface Sense {
 	n: number;
@@ -59,4 +60,56 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 		});
 	}
 	return entries;
+}
+
+/** What a list of words (the Saved page) shows for one word. */
+export interface WordSummary {
+	word: string;
+	headword: string;
+	/** The first meanings, at most three. */
+	glosses: string[];
+}
+
+/**
+ * A short summary for each of `words` (the `word` field of an entry, exact
+ * spelling), in the order given. Words with no entry are left out. A spelling
+ * with several entries (стан) is summarised by its most common one.
+ */
+export async function wordSummaries(db: Db, words: string[]): Promise<WordSummary[]> {
+	if (!words.length) return [];
+	// One JSON parameter for the whole list: D1 binds at most 100.
+	const rows = await db.all<{ id: number; word: string; headword: string }>(
+		`SELECT id, word, headword FROM entries WHERE word IN (SELECT value FROM json_each(?))
+		 ORDER BY freq_rank IS NULL, freq_rank, id`, [JSON.stringify(words)]);
+	const best = new Map<string, WordSummary & { id: number }>();
+	for (const r of rows) if (!best.has(r.word)) best.set(r.word, { ...r, glosses: [] });
+	const byId = new Map([...best.values()].map((s) => [s.id, s]));
+	const senses = await db.all<{ entry_id: number; gloss: string }>(
+		`SELECT entry_id, gloss FROM senses WHERE entry_id IN (SELECT value FROM json_each(?)) AND n <= 3
+		 ORDER BY entry_id, n`, [JSON.stringify([...byId.keys()])]);
+	for (const s of senses) byId.get(s.entry_id)!.glosses.push(s.gloss);
+	return words.flatMap((w) => {
+		const found = best.get(w);
+		return found ? [{ word: found.word, headword: found.headword, glosses: found.glosses }] : [];
+	});
+}
+
+/**
+ * Details for every word whose page address is `slug` (see slug.ts). The
+ * "latin" search key is the loose form of the same romanisation, so it finds
+ * the candidates; the exact slug then picks the right ones.
+ */
+export async function wordDetailsBySlug(db: Db, slug: string): Promise<WordEntry[]> {
+	const candidates = await db.all<{ word: string }>(
+		`SELECT DISTINCT e.word FROM search_keys k JOIN entries e ON e.id = k.entry_id
+		 WHERE k.key = ? AND k.kind = 'latin'`, [looseLatin(slug)]);
+	const words = candidates.map((r) => r.word).filter((w) => wordSlug(w) === slug);
+	// wordDetails ignores case, so А and а return the same entries: keep each once.
+	const seen = new Set<number>();
+	const entries: WordEntry[] = [];
+	for (const list of await Promise.all(words.map((w) => wordDetails(db, w)))) {
+		for (const e of list) if (!seen.has(e.id)) { seen.add(e.id); entries.push(e); }
+	}
+	return entries.sort((a, b) =>
+		(a.freq_rank ?? Infinity) - (b.freq_rank ?? Infinity) || a.id - b.id);
 }

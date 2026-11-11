@@ -10,7 +10,7 @@ import {
 	deletes, editsApart, fromRussianLetters, fromWrongLayout, looseLatin, nationalTranslit, plain, soundKey
 } from '../src/lib/search/normalize.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
-import { wordDetails } from '../src/lib/search/word.ts';
+import { wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
 
 test('normalisation', () => {
@@ -76,4 +76,15 @@ test('word details', { skip }, async () => {
 
 	assert.ok((await wordDetails(db, 'стан')).length > 1); // several entries, one spelling
 	assert.deepEqual(await wordDetails(db, 'qqqq'), []);
+});
+
+test('word summaries', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const got = await wordSummaries(db, ['читати', 'qqqq', 'калина', 'стан']);
+	assert.deepEqual(got.map((s) => s.word), ['читати', 'калина', 'стан']); // order kept, unknown left out
+	assert.equal(got[1].headword, 'кали́на');
+	assert.ok(got[1].glosses[0].includes('viburnum'));
+	assert.ok(got.every((s) => s.glosses.length >= 1 && s.glosses.length <= 3));
+	assert.deepEqual(await wordSummaries(db, ['Калина']), []); // the exact spelling, unlike wordDetails
+	assert.deepEqual(await wordSummaries(db, []), []);
 });

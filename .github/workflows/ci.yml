@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions are pinned to a commit, not a tag: a tag can be moved to other
+      # code, a commit cannot. Dependabot keeps the pins and the version
+      # comments up to date (.github/dependabot.yml).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # Don't leave the token in .git/config for later steps to read
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Every installed package must carry a valid signature from the npm
+      # registry: catches a tampered or substituted download.
+      - name: Package signatures
+        run: npm audit signatures
+
+      - name: Type check
+        run: npm run check
+
+      # nebokrai.db and vesum.db are not in the repository, so the tests that
+      # compare the TypeScript search with the Python reference are skipped
+      # here. Run `npm test` locally with both databases to check those.
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Python syntax
+        run: python3 -m py_compile data/*.py

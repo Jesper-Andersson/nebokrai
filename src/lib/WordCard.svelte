@@ -1,12 +1,25 @@
 <script lang="ts">
-	import type { Entry } from '#lib';
+	import type { SearchResult } from '#lib/search/search.ts';
+	import type { Suggestion } from '#lib/search/suggest.ts';
 
-	let { entry }: { entry: Entry } = $props();
+	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { useSaved } from '#lib/saved.svelte.ts';
+	import { useSettings } from '#lib/settings.ts';
+	import { wordPath } from '#lib/search/slug.ts';
 
-	let saved = $state(false);
+	let { entry }: { entry: SearchResult | Suggestion } = $props();
+
+	const settings = useSettings();
+	let m = $derived(messagesFor(settings.lang));
+	let partOfSpeech = $derived(posLabel(m, entry.pos));
+	let genitive = $derived(entry.head_forms.find((f) => f.tags.includes('genitive'))?.form);
+	let vesumOnly = $derived('vesum_only' in entry && entry.vesum_only);
+
+	const savedWords = useSaved();
+	let saved = $derived(savedWords.has(entry.word));
 
 	function speak() {
-		const utterance = new SpeechSynthesisUtterance(entry.word.replace(/́/g, ''));
+		const utterance = new SpeechSynthesisUtterance(entry.word);
 		utterance.lang = 'uk-UA';
 		speechSynthesis.speak(utterance);
 	}
@@ -18,33 +31,37 @@
 <article class="card">
 	<div class="entry">
 		<p class="meta">
-			<span class="pos">{entry.partOfSpeech}</span>
+			<span class="pos">{partOfSpeech}</span>
 			{entry.tags.join(' - ')}
 		</p>
 		<p class="word">
-			<span lang="uk">{@render stressed(entry.word)}</span>
-			<button class="icon play" aria-label="Play pronunciation" onclick={speak}>
+			<span class="headword" lang="uk">{@render stressed(entry.headword)}</span>
+			<button class="icon play" aria-label={m.card.play} onclick={speak}>
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<circle cx="12" cy="12" r="10" />
 					<polygon points="10 8 16 12 10 16 10 8" />
 				</svg>
 			</button>
 		</p>
-		{#if entry.genitive}
+		{#if genitive}
 			<p class="forms">
-				(Gen) <b lang="uk">{@render stressed(entry.genitive)}</b>
+				({m.card.genitive}) <b lang="uk">{@render stressed(genitive)}</b>
 			</p>
 		{/if}
 	</div>
 
-	<p class="translations">{entry.translations.join(', ')}</p>
+	<p class="translations">
+		{#if vesumOnly}<i>{m.card.noEntry}</i>{:else}{entry.glosses.slice(0, 3).join('; ')}{/if}
+	</p>
 
 	<div class="actions">
+		<!-- A VESUM-only word has no entry, so nothing to save or open -->
+		{#if !vesumOnly}
 		<button
 			class="icon"
-			aria-label={saved ? 'Remove from saved' : 'Save word'}
+			aria-label={saved ? m.card.unsave : m.card.save}
 			aria-pressed={saved}
-			onclick={() => (saved = !saved)}
+			onclick={() => savedWords.toggle(entry.word)}
 		>
 			<svg
 				viewBox="0 0 24 24"
@@ -56,7 +73,8 @@
 				<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
 			</svg>
 		</button>
-		<a href="/word/{entry.latin}">Details</a>
+		<a href={wordPath(entry.word)}>{m.card.details}</a>
+		{/if}
 	</div>
 </article>
 
@@ -66,9 +84,8 @@
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
 		padding: 0.25rem 0.6rem 0.5rem 0.8rem;
 		border-radius: 6px;
-		background: #f7f8fc;
-		color: #111;
-		font-family: 'Nunito', sans-serif;
+		background: var(--panel);
+		color: var(--ink);
 		text-align: left;
 	}
 
@@ -82,10 +99,9 @@
 
 	.pos {
 		margin-right: 0.3rem;
-		color: #333;
-		font-family: 'Nyght Serif', serif;
-		font-size: 1.15rem;
-		font-weight: 700;
+		color: var(--ink-soft);
+		font-size: 1.05rem;
+		font-weight: 800;
 	}
 
 	.word {
@@ -97,8 +113,16 @@
 		line-height: 1.3;
 	}
 
+	/* A long word (конкурентоспроможність) breaks onto a second line on a
+	   phone instead of pushing the page wider than the screen */
+	.headword {
+		min-width: 0;
+		font-family: var(--font-headword);
+		overflow-wrap: anywhere;
+	}
+
 	.stress {
-		color: #e3101b;
+		color: var(--stress);
 	}
 
 	.forms {
@@ -115,7 +139,7 @@
 		align-items: center;
 		margin-block: 0.6rem;
 		padding-left: 2.5rem;
-		border-left: 1.5px solid #222;
+		border-left: 1.5px solid var(--rule);
 		font-size: 1.3rem;
 	}
 
@@ -127,15 +151,25 @@
 	}
 
 	.actions a {
+		position: relative;
 		margin-block: auto;
-		font-family: 'Nyght Serif', serif;
 		font-weight: 700;
 		text-decoration: underline;
 	}
 
+	/* A larger tap area around the link, without changing the card's height */
+	.actions a::after {
+		content: '';
+		position: absolute;
+		inset: -0.6rem -0.4rem;
+	}
+
+	/* Padding for a 40px tap area; the negative margin keeps the icon in place */
 	.icon {
 		display: inline-flex;
-		padding: 0;
+		flex: none;
+		margin: -0.6rem;
+		padding: 0.6rem;
 		border: 0;
 		background: none;
 		color: inherit;
@@ -148,17 +182,18 @@
 	}
 
 	.play {
-		color: #1f8ac0;
+		color: var(--play);
 	}
 
-	/* Phones: translations go under the word instead of beside it */
+	/* Phones: translations go under the word instead of beside it, and use the
+	   card's full width. The actions stay beside the word. */
 	@media (max-width: 600px) {
 		.card {
 			grid-template-columns: minmax(0, 1fr) auto;
 		}
 
 		.translations {
-			grid-column: 1;
+			grid-column: 1 / -1;
 			margin: 0.3rem 0 0;
 			padding-left: 0;
 			border-left: 0;
@@ -166,7 +201,7 @@
 		}
 
 		.actions {
-			grid-row: 1 / span 2;
+			grid-row: 1;
 			grid-column: 2;
 		}
 	}

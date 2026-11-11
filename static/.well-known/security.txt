@@ -1,0 +1,6 @@
+# Found a security problem on nebokrai.app? Please write to the address below
+# before making it public. This file follows RFC 9116.
+Contact: mailto:contact@nebokrai.app
+Expires: 2027-11-01T00:00:00.000Z
+Preferred-Languages: en, uk
+Canonical: https://nebokrai.app/.well-known/security.txt

@@ -205,7 +205,10 @@ def lookup(db, query, limit=20, vesum=None, suggestions=5):
 if __name__ == "__main__":
     import argparse
     import signal
-    signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # allow piping into head
+    if hasattr(signal, "SIGPIPE"):  # not on Windows
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)  # allow piping into head
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows defaults to cp1252 when piped
     ap = argparse.ArgumentParser(description="Search the Nebokrai dictionary.")
     ap.add_argument("database")
     ap.add_argument("--vesum", help="path to vesum.db for the form-lookup fallback")

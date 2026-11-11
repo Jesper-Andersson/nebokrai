@@ -44,4 +44,5 @@ if __name__ == "__main__":
             brief = lambda rows: [[r["id"], r["word"], r["pos"], r["match"]] for r in rows]
             cases.append({"query": q, "vesum": use_vesum, "expect": brief(got["results"]),
                           "suggest": brief(got["suggestions"])})
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows defaults to cp1252 when redirected
     json.dump(cases, sys.stdout, ensure_ascii=False, indent=1)

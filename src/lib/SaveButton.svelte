@@ -7,7 +7,6 @@
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
-	import { draftStrings } from './strings.ts';
 	import Tip from './Tip.svelte';
 	import { useToasts } from './toasts.ts';
 
@@ -17,7 +16,6 @@
 	const savedWords = useSaved();
 	const toaster = useToasts();
 	let m = $derived(messagesFor(settings.lang));
-	let s = $derived(draftStrings(settings.lang));
 
 	// The saved list is the source of truth; the toggle only reports the click.
 	const toggle = new Toggle({
@@ -29,7 +27,7 @@
 			if (savedWords.has(word) === before) return;
 			toaster.addToast({
 				data: {
-					title: before ? s.toast.removed : s.toast.saved,
+					title: before ? m.toast.removed : m.toast.saved,
 					headword,
 					undo: () => void savedWords.toggle(word)
 				}
@@ -43,7 +41,7 @@
 		<button
 			{...mergeProps(props, toggle.trigger)}
 			type="button"
-			class="d-icon-btn"
+			class="ui-icon-btn"
 			aria-label={toggle.value ? m.card.unsave : m.card.save}
 		>
 			<Icon name="bookmark" {size} filled={toggle.value} />

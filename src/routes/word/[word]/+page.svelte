@@ -1,9 +1,19 @@
+<!-- A word's page: for each entry of the spelling, the headword with its
+     actions, the meanings, example sentences, the form tables behind tabs
+     (FormTables.svelte) and the etymology. A spelling with several entries
+     gets a list of them first. -->
 <script lang="ts">
+	import { mergeProps } from 'bits-ui';
+	import FormTables from '#lib/FormTables.svelte';
+	import Icon from '#lib/Icon.svelte';
+	import SaveButton from '#lib/SaveButton.svelte';
+	import Stressed from '#lib/Stressed.svelte';
+	import Tip from '#lib/Tip.svelte';
 	import { describeTags, formTables } from '#lib/forms.ts';
-	import { formLabel, messagesFor, posLabel } from '#lib/i18n.ts';
+	import { messagesFor, posLabel } from '#lib/i18n.ts';
 	import { commonality } from '#lib/labels.ts';
-	import { useSettings } from '#lib/settings.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
+	import { useSettings } from '#lib/settings.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -26,7 +36,7 @@
 
 	function play(entry: WordEntry) {
 		if (entry.audio_url) {
-			new Audio(entry.audio_url).play();
+			void new Audio(entry.audio_url).play();
 		} else {
 			const utterance = new SpeechSynthesisUtterance(entry.word);
 			utterance.lang = 'uk-UA';
@@ -41,217 +51,275 @@
 	<title>{data.entries[0].headword.replace(/́/g, '')} · Nebokrai</title>
 </svelte:head>
 
-<!-- A word with its stressed vowel (letter + U+0301) in red -->
-{#snippet stressed(text: string)}{#each text.split(/(.́)/) as part}{#if part.endsWith('́')}<span class="stress">{part}</span>{:else}{part}{/if}{/each}{/snippet}
+<div class="page">
+	<p class="back">
+		<a href="/"><Icon name="arrow-left" size={16} />{m.word.back}</a>
+	</p>
 
-<p class="back"><a href="/">{m.word.back}</a></p>
+	<!-- стан is a noun five times over: say so before the first entry -->
+	{#if data.entries.length > 1}
+		<nav class="entries" aria-label={m.word.entries}>
+			{#each data.entries as entry, i (entry.id)}
+				<a href="#entry-{entry.id}">
+					<span class="n">{i + 1}</span>
+					<b>{posLabel(m, entry.pos)}</b>
+					<span class="gloss">{entry.senses[0]?.gloss ?? ''}</span>
+				</a>
+			{/each}
+		</nav>
+	{/if}
 
-{#each data.entries as entry (entry.id)}
-	{@const { tables, other } = formTables(entry.pos, entry.forms, entry.word)}
-	{@const common = commonality(entry.freq_rank)}
-	<article>
-		<header>
-			<p
-				class="freq {common}"
-				title={entry.freq_rank
-					? m.word.rankTitle(rank(entry.freq_rank))
-					: m.word.unranked}
-			>
-				{m.tiers[common]}{#if entry.freq_rank}<span class="rank">#{rank(entry.freq_rank)}</span>{/if}
-			</p>
-			<p class="meta">
-				<span class="pos">{posLabel(m, entry.pos)}</span>
-				{entry.tags.join(' · ')}
-			</p>
-			<h1>
-				<span class="headword" lang="uk">{@render stressed(entry.headword)}</span>
-				<button
-					class="play"
-					aria-label={m.card.play}
-					title={entry.audio_url ? m.word.playRecording : m.word.playVoice}
-					onclick={() => play(entry)}
-				>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-						<circle cx="12" cy="12" r="10" />
-						<polygon points="10 8 16 12 10 16 10 8" />
-					</svg>
-				</button>
-			</h1>
-			<p class="pron">
-				{#if entry.roman}<span>{entry.roman}</span>{/if}
-				{#if entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
-			</p>
-			{#if entry.head_forms.length}
-				<p class="head-forms">
-					{#each entry.head_forms as f, i}
-						{#if i}<span class="sep">·</span>{/if}
-						<span class="tags">{describeTags(f.tags)}</span>
-						<b lang="uk">{@render stressed(f.form)}</b>
-					{/each}
+	{#each data.entries as entry (entry.id)}
+		{@const { tables, other } = formTables(entry.pos, entry.forms, entry.word)}
+		{@const common = commonality(entry.freq_rank)}
+		{@const playLabel = entry.audio_url ? m.word.playRecording : m.word.playVoice}
+		<article id="entry-{entry.id}">
+			<header>
+				<p class="meta">
+					<span class="ui-badge">{posLabel(m, entry.pos)}</span>
+					{#if entry.tags.length}<span>{entry.tags.join(' · ')}</span>{/if}
+					<span
+						class="freq {common}"
+						title={entry.freq_rank ? m.word.rankTitle(rank(entry.freq_rank)) : m.word.unranked}
+					>
+						{m.tiers[common]}{#if entry.freq_rank}<span class="rank">#{rank(entry.freq_rank)}</span>{/if}
+					</span>
 				</p>
-			{/if}
-		</header>
+				<div class="title">
+					<h1 class="headword" lang="uk"><Stressed text={entry.headword} /></h1>
+					<div class="actions">
+						<Tip label={playLabel}>
+							{#snippet trigger(props)}
+								<button
+									{...mergeProps(props, { onclick: () => play(entry) })}
+									type="button"
+									class="ui-icon-btn play"
+									aria-label={m.card.play}
+								>
+									<Icon name="speaker" size={22} />
+								</button>
+							{/snippet}
+						</Tip>
+						<SaveButton word={entry.word} headword={entry.headword} size={21} />
+					</div>
+				</div>
+				{#if entry.roman || entry.ipa}
+					<p class="pron">
+						{#if entry.roman}<span>{entry.roman}</span>{/if}
+						{#if entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
+					</p>
+				{/if}
+				{#if entry.head_forms.length}
+					<ul class="head-forms">
+						{#each entry.head_forms as f}
+							<li>
+								<span>{describeTags(f.tags)}</span>
+								<b lang="uk"><Stressed text={f.form} /></b>
+							</li>
+						{/each}
+					</ul>
+				{/if}
+			</header>
 
-		<section>
-			<h2>{m.word.meanings}</h2>
-			<ol class="senses">
-				{#each entry.senses as sense (sense.n)}
-					<li>
-						{#each sense.tags as tag}<span class="badge">{label(tag)}</span>{/each}
-						{sense.gloss}
-						{#if sense.examples.length}
-							<ul class="quotes">
-								{#each sense.examples as ex}
-									<li>
-										<span lang="uk">{ex.text}</span>
-										{#if ex.english}<span class="en">{ex.english}</span>{/if}
-									</li>
-								{/each}
-							</ul>
-						{/if}
-					</li>
-				{/each}
-			</ol>
-		</section>
-
-		{#if entry.examples.length}
 			<section>
-				<h2>{m.word.examples}</h2>
-				<ul class="sentences">
-					{#each entry.examples as ex (ex.tatoeba_id)}
+				<h2>{m.word.meanings}</h2>
+				<ol class="senses">
+					{#each entry.senses as sense (sense.n)}
 						<li>
-							<span lang="uk">{ex.uk}</span>
-							<span class="en">{ex.en}</span>
-							<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
-								Tatoeba #{ex.tatoeba_id}
-							</a>
+							<p>
+								{#each sense.tags as tag}<span class="tag">{label(tag)}</span>{/each}
+								{sense.gloss}
+							</p>
+							{#if sense.examples.length}
+								<ul class="quotes">
+									{#each sense.examples as ex}
+										<li>
+											<span lang="uk">{ex.text}</span>
+											{#if ex.english}<span class="en">{ex.english}</span>{/if}
+										</li>
+									{/each}
+								</ul>
+							{/if}
 						</li>
 					{/each}
-				</ul>
+				</ol>
 			</section>
-		{/if}
 
-		{#if tables.length || other.length}
-			<section>
-				<h2>{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
-				<div class="tables">
-					{#each tables as table (table.title)}
-						<div class="table-wrap">
-							<table>
-								<caption>{formLabel(m, table.title)}</caption>
-								{#if table.columns.some(Boolean)}
-									<thead>
-										<tr>
-											<td></td>
-											{#each table.columns as col}<th scope="col">{formLabel(m, col)}</th>{/each}
-										</tr>
-									</thead>
-								{/if}
-								<tbody>
-									{#each table.rows as row (row.label)}
-										<tr>
-											<th scope="row">{formLabel(m, row.label)}</th>
-											{#each row.cells as cell}
-												<td lang="uk">
-													{#each cell as item, i}
-														{#if i}<br />{/if}{@render stressed(item.form)}{#if item.note}
-															<small>{item.note}</small>{/if}
-													{:else}<span class="none">—</span>{/each}
-												</td>
-											{/each}
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					{/each}
-				</div>
-				{#if other.length}
-					<dl class="other">
-						{#each other as group (group.label)}
-							<div>
-								<dt>{group.label}</dt>
-								<dd lang="uk">
-									{#each group.forms as form, i}{#if i}, {/if}{@render stressed(form)}{/each}
-								</dd>
-							</div>
+			{#if entry.examples.length}
+				<section>
+					<h2>{m.word.examples}</h2>
+					<ul class="sentences">
+						{#each entry.examples as ex (ex.tatoeba_id)}
+							<li>
+								<span lang="uk">{ex.uk}</span>
+								<span class="en">{ex.en}</span>
+								<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
+									Tatoeba #{ex.tatoeba_id}
+								</a>
+							</li>
 						{/each}
-					</dl>
-				{/if}
-			</section>
-		{/if}
-
-		{#if entry.etymology}
-			<section>
-				<h2>{m.word.etymology}</h2>
-				<p class="etymology">{entry.etymology}</p>
-			</section>
-		{/if}
-
-		<footer>
-			{m.word.from} <a href={wiktionary(entry.word)}>{m.word.wiktionary}</a>
-			(<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>)
-			{#if entry.audio_url}
-				· <a href={commonsPage(entry.audio_url)}>{m.word.recording}</a>
+					</ul>
+				</section>
 			{/if}
-			<a class="report" href="/report?entry={entry.id}">{m.word.report}</a>
-		</footer>
-	</article>
-{/each}
+
+			{#if tables.length || other.length}
+				<section>
+					<h2>{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
+					{#if tables.length}<FormTables {tables} />{/if}
+					{#if other.length}
+						<dl class="other">
+							{#each other as group (group.label)}
+								<div>
+									<dt>{group.label}</dt>
+									<dd lang="uk">
+										<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
+										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} />{/each}
+									</dd>
+								</div>
+							{/each}
+						</dl>
+					{/if}
+				</section>
+			{/if}
+
+			{#if entry.etymology}
+				<section>
+					<h2>{m.word.etymology}</h2>
+					<p class="etymology">{entry.etymology}</p>
+				</section>
+			{/if}
+
+			<footer>
+				<span>
+					{m.word.from} <a href={wiktionary(entry.word)}>{m.word.wiktionary}</a>
+					(<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>)
+					{#if entry.audio_url}
+						· <a href={commonsPage(entry.audio_url)}>{m.word.recording}</a>
+					{/if}
+				</span>
+				<a href="/report?entry={entry.id}">{m.word.report}</a>
+			</footer>
+		</article>
+	{/each}
+</div>
 
 <style>
-	.back {
-		max-width: 48rem;
-		margin: 0.25rem auto 0;
-		text-align: left;
-	}
-
-	/* The padding makes the link a 40px tap target; it sits where it did before */
-	.back a {
-		display: inline-block;
-		padding: 0.75rem 0.75rem 0.6rem 0;
-		color: white;
-		filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.6));
-	}
-
-	article {
+	.page {
 		box-sizing: border-box;
-		max-width: 48rem;
-		margin: 0 auto 1.25rem;
-		padding: 1.25rem 1.5rem 1rem;
-		border-radius: 6px;
-		background: var(--panel);
-		color: var(--ink);
-		line-height: 1.5;
-		text-align: left;
+		max-width: 50rem;
+		margin: 0 auto;
+		padding: 0 1rem;
 	}
 
 	p {
 		margin: 0;
 	}
 
-	a {
-		color: var(--link);
+	.back {
+		margin: 0.5rem 0;
+	}
+
+	/* The padding makes the link a 40px tap target */
+	.back a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.6rem 0.75rem 0.6rem 0;
+		color: var(--on-page);
+		font-size: 0.92rem;
+		font-weight: 600;
+	}
+
+	.back a:hover {
+		color: var(--ink);
+	}
+
+	/* The entries of this spelling, as links that wrap onto more lines */
+	.entries {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.entries a {
+		display: flex;
+		align-items: baseline;
+		gap: 0.45rem;
+		max-width: 16rem;
+		padding: 0.4rem 0.75rem 0.4rem 0.5rem;
+		border: 1px solid var(--border);
+		border-radius: 10px;
+		background: var(--surface);
+		font-size: 0.88rem;
+	}
+
+	.entries a:hover {
+		border-color: var(--border-strong);
+	}
+
+	.entries .n {
+		min-width: 1.3rem;
+		border-radius: 6px;
+		background: var(--surface-2);
+		color: var(--muted);
+		font-size: 0.78rem;
+		font-weight: 700;
+		line-height: 1.3rem;
+		text-align: center;
+	}
+
+	.entries .gloss {
+		overflow: hidden;
+		color: var(--muted);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	article {
+		margin-bottom: 1.25rem;
+		padding: 1.5rem 1.75rem 1.1rem;
+		border: 1px solid var(--border);
+		border-radius: 16px;
+		background: var(--surface);
+		box-shadow: var(--shadow);
+		line-height: 1.5;
+		/* A link from the list of entries stops below the sticky header */
+		scroll-margin-top: 4.5rem;
+	}
+
+	article a,
+	.entries a:focus-visible {
+		text-underline-offset: 3px;
+	}
+
+	section a,
+	footer a {
+		color: var(--accent);
 		text-decoration: underline;
-		text-underline-offset: 2px;
 	}
 
-	header {
-		position: relative;
+	.meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3rem 0.6rem;
+		color: var(--muted);
+		font-size: 0.9rem;
 	}
 
-	/* Commonality pill, top right; colours keep the text above 4.5:1 contrast */
+	/* How common the word is, at the right end of the line; the colours keep
+	   the text above 4.5:1 contrast */
 	.freq {
-		float: right;
 		display: inline-flex;
 		align-items: baseline;
 		gap: 0.4rem;
-		margin: 0 0 0 0.75rem;
-		padding: 0.15rem 0.75rem;
-		border: 1.5px solid;
+		margin-left: auto;
+		padding: 0.1rem 0.7rem;
+		border: 1px solid;
 		border-radius: 999px;
-		font-size: 0.9rem;
-		font-weight: 800;
+		font-size: 0.82rem;
+		font-weight: 700;
 		white-space: nowrap;
 	}
 
@@ -284,126 +352,132 @@
 		color: var(--pill-4-ink);
 	}
 
-	.meta {
-		font-size: 0.9rem;
-	}
-
-	.pos {
-		margin-right: 0.3rem;
-		color: var(--ink-soft);
-		font-size: 1.1rem;
-		font-weight: 800;
-	}
-
-	h1 {
+	.title {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		/* Start below the commonality pill. Beside it, the headword lost the
-		   pill's width on every line, and a long word broke into three on a phone. */
-		clear: right;
-		margin: 0.1rem 0 0.2rem;
-		font-size: clamp(2rem, 6vw, 2.6rem);
-		font-weight: 800;
-		line-height: 1.2;
+		margin-top: 0.5rem;
 	}
 
 	/* A long word (конкурентоспроможність) breaks onto a second line on a
 	   phone instead of pushing the page wider than the screen */
 	.headword {
 		min-width: 0;
+		margin: 0;
 		font-family: var(--font-headword);
+		font-size: clamp(2.1rem, 7vw, 3rem);
+		font-weight: 800;
+		line-height: 1.15;
 		overflow-wrap: anywhere;
 	}
 
-	.stress {
-		color: var(--stress);
-	}
-
-	/* Padding for a 43px tap area; the negative margin keeps the icon in place */
-	.play {
-		display: inline-flex;
+	.actions {
+		display: flex;
 		flex: none;
-		margin: -0.55rem;
-		padding: 0.55rem;
-		border: 0;
-		background: none;
-		color: var(--play);
-		cursor: pointer;
+		gap: 0.1rem;
 	}
 
-	.play svg {
-		width: 1.6rem;
-		height: 1.6rem;
+	.play {
+		color: var(--play);
 	}
 
 	.pron {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.2rem 1rem;
-		color: var(--ink-soft);
+		margin-top: 0.15rem;
+		color: var(--ink-2);
 	}
 
 	.ipa {
+		color: var(--muted);
 		font-family: 'Gentium Plus', 'Charis SIL', 'Doulos SIL', 'Segoe UI', sans-serif;
 	}
 
 	.head-forms {
-		margin-top: 0.4rem;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: 0.8rem 0 0;
+		padding: 0;
+		list-style: none;
 	}
 
-	.head-forms .tags {
+	.head-forms li {
+		display: flex;
+		align-items: baseline;
+		gap: 0.45rem;
+		padding: 0.2rem 0.7rem;
+		border: 1px solid var(--border);
+		border-radius: 999px;
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: 0.82rem;
 	}
 
 	.head-forms b {
-		font-size: 1.05rem;
-	}
-
-	.sep {
-		margin: 0 0.4rem;
-		color: var(--faint);
+		color: var(--ink);
+		font-size: 1rem;
 	}
 
 	section {
-		margin-top: 1.25rem;
+		margin-top: 1.6rem;
 	}
 
 	h2 {
-		margin: 0 0 0.4rem;
-		padding-bottom: 0.2rem;
-		border-bottom: 1.5px solid var(--rule);
+		margin: 0 0 0.6rem;
+		color: var(--muted);
 		font-family: var(--font-heading);
-		font-size: 1.15rem;
+		font-size: 0.95rem;
 		font-weight: 700;
 	}
 
+	/* Meanings: each number sits in a small tile of its own */
 	.senses {
+		display: grid;
+		gap: 0.55rem;
 		margin: 0;
-		padding-left: 1.5rem;
+		padding: 0;
+		list-style: none;
+		counter-reset: sense;
 		font-size: 1.1rem;
 	}
 
-	.senses > li + li {
-		margin-top: 0.3rem;
+	.senses > li {
+		position: relative;
+		padding-left: 2.2rem;
+		counter-increment: sense;
 	}
 
-	.badge {
+	.senses > li::before {
+		content: counter(sense);
+		position: absolute;
+		top: 0.1rem;
+		left: 0;
+		width: 1.5rem;
+		border-radius: 7px;
+		background: var(--surface-2);
+		color: var(--muted);
+		font-size: 0.8rem;
+		font-weight: 700;
+		line-height: 1.5rem;
+		text-align: center;
+	}
+
+	.tag {
 		display: inline-block;
 		margin-right: 0.35rem;
 		padding: 0 0.45rem;
-		border-radius: 999px;
-		background: var(--badge-bg);
-		color: var(--badge-ink);
-		font-size: 0.8rem;
+		border-radius: 6px;
+		background: var(--gold-soft);
+		color: var(--gold-ink);
+		font-size: 0.78rem;
 		font-weight: 600;
 		vertical-align: 0.1em;
 	}
 
 	.quotes,
 	.sentences {
-		margin: 0.25rem 0 0;
+		margin: 0.3rem 0 0;
 		padding: 0;
 		list-style: none;
 		font-size: 1rem;
@@ -411,15 +485,25 @@
 
 	.quotes li {
 		padding-left: 0.75rem;
-		border-left: 3px solid var(--line);
+		border-left: 2px solid var(--border-strong);
+	}
+
+	.quotes li + li {
+		margin-top: 0.3rem;
+	}
+
+	.sentences {
+		margin: 0;
+		border: 1px solid var(--border);
+		border-radius: 12px;
 	}
 
 	.sentences li {
-		padding: 0.35rem 0;
+		padding: 0.6rem 0.9rem;
 	}
 
 	.sentences li + li {
-		border-top: 1px solid var(--line);
+		border-top: 1px solid var(--border);
 	}
 
 	.en {
@@ -427,61 +511,16 @@
 		color: var(--muted);
 	}
 
-	.credit {
-		color: var(--faint);
-		font-size: 0.8rem;
-	}
-
-	.tables {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem 1.5rem;
-		align-items: flex-start;
-	}
-
-	.table-wrap {
-		max-width: 100%;
-		overflow-x: auto;
-	}
-
-	table {
-		border-collapse: collapse;
-		font-size: 1rem;
-	}
-
-	caption {
-		padding-bottom: 0.2rem;
-		font-weight: 800;
-		text-align: left;
-	}
-
-	th,
-	td {
-		padding: 0.25rem 0.75rem 0.25rem 0;
-		border-bottom: 1px solid var(--line);
-		text-align: left;
-		vertical-align: top;
-	}
-
-	th {
+	section a.credit {
 		color: var(--muted);
-		font-size: 0.85rem;
-		font-weight: 600;
-	}
-
-	td small {
-		color: var(--faint);
-	}
-
-	.none {
-		color: var(--faint);
+		font-size: 0.78rem;
 	}
 
 	.other {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-		gap: 0.3rem 1.5rem;
-		margin: 0.75rem 0 0;
+		gap: 0.4rem 1.5rem;
+		margin: 0.9rem 0 0;
 	}
 
 	.other dt {
@@ -497,25 +536,25 @@
 		white-space: pre-line;
 	}
 
-	footer .report {
-		float: right;
-		margin-left: 1rem;
-	}
-
-	/* flow-root: the floated report link stays inside the panel when it wraps
-	   to a line of its own (it hung below the panel's edge on a phone) */
 	footer {
-		display: flow-root;
-		margin-top: 1.25rem;
-		padding-top: 0.5rem;
-		border-top: 1px solid var(--line);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 0.3rem 1.5rem;
+		margin-top: 1.6rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--border);
 		color: var(--muted);
 		font-size: 0.85rem;
 	}
 
 	@media (max-width: 600px) {
+		.page {
+			padding: 0 0.75rem;
+		}
+
 		article {
-			padding: 1rem 1rem 0.75rem;
+			padding: 1.1rem 1rem 0.9rem;
 		}
 	}
 </style>

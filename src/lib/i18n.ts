@@ -3,7 +3,23 @@
 import type { Lang } from './settings.ts';
 
 const en = {
-	nav: { dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
+	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
+	/** The search that opens from the header, or with Ctrl+K. */
+	quick: {
+		open: 'Search',
+		title: 'Quick search',
+		hint: 'Type a word in Ukrainian or English.',
+		navigate: 'to move',
+		select: 'to open',
+		close: 'to close'
+	},
+	/** The short messages in the corner of the page. */
+	toast: {
+		saved: 'Saved',
+		removed: 'Removed from saved',
+		undo: 'Undo',
+		dismiss: 'Dismiss'
+	},
 	settings: {
 		open: 'Settings',
 		appearance: 'Appearance',
@@ -14,7 +30,9 @@ const en = {
 		layout: 'Keyboard layout',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Phonetic',
-		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike: п on P, г on H.'
+		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike: п on P, г on H.',
+		background: 'Background',
+		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' }
 	},
 	account: {
 		legend: 'Account',
@@ -35,6 +53,7 @@ const en = {
 	home: {
 		titleAccent: 'Ukrainian',
 		titleRest: ' ↔ English Dictionary',
+		tryLabel: 'Try',
 		placeholder: 'Search a word…',
 		clear: 'Clear search',
 		failed: 'Search isn’t working right now. Try again in a moment.',
@@ -52,7 +71,8 @@ const en = {
 		noEntry: 'A Ukrainian word with no dictionary entry yet.'
 	},
 	word: {
-		back: '← Back to search',
+		back: 'Back to search',
+		entries: 'Entries on this page',
 		playRecording: 'Play recording',
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
@@ -133,7 +153,21 @@ const en = {
 export type Messages = typeof en;
 
 const uk: Messages = {
-	nav: { dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
+	nav: { label: 'Головне меню', dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
+	quick: {
+		open: 'Пошук',
+		title: 'Швидкий пошук',
+		hint: 'Введіть слово українською чи англійською.',
+		navigate: 'вибрати',
+		select: 'відкрити',
+		close: 'закрити'
+	},
+	toast: {
+		saved: 'Збережено',
+		removed: 'Прибрано зі збереженого',
+		undo: 'Скасувати',
+		dismiss: 'Закрити'
+	},
 	settings: {
 		open: 'Налаштування',
 		appearance: 'Вигляд',
@@ -144,7 +178,9 @@ const uk: Messages = {
 		layout: 'Розкладка клавіатури',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Фонетична',
-		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком: п на P, г на H.'
+		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком: п на P, г на H.',
+		background: 'Тло',
+		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' }
 	},
 	account: {
 		legend: 'Обліковий запис',
@@ -165,6 +201,7 @@ const uk: Messages = {
 	home: {
 		titleAccent: 'Українсько',
 		titleRest: '-англійський словник',
+		tryLabel: 'Спробуйте',
 		placeholder: 'Шукати слово…',
 		clear: 'Очистити пошук',
 		failed: 'Пошук зараз не працює. Спробуйте ще раз за хвилину.',
@@ -182,7 +219,8 @@ const uk: Messages = {
 		noEntry: 'Українське слово, якого ще немає в словнику.'
 	},
 	word: {
-		back: '← До пошуку',
+		back: 'До пошуку',
+		entries: 'Статті на цій сторінці',
 		playRecording: 'Прослухати запис',
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',

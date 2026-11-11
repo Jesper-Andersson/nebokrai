@@ -11,7 +11,7 @@ export interface ToastData {
 	undo?: () => void;
 }
 
-const KEY = Symbol('draft-toasts');
+const KEY = Symbol('toasts');
 
 export function provideToasts(): Toaster<ToastData> {
 	return setContext(KEY, new Toaster<ToastData>({ closeDelay: 4000 }));

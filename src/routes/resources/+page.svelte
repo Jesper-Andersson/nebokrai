@@ -95,7 +95,7 @@
 		display: grid;
 		gap: 0.1rem;
 		padding: 0.6rem 0.8rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--border);
 		border-radius: 6px;
 	}
 

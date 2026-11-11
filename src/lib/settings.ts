@@ -7,18 +7,25 @@ export type Theme = 'system' | 'light' | 'dark';
 /** On-screen keyboard layout: standard ЙЦУКЕН, or phonetic (xkb "homophonic"). */
 export type KeyboardLayout = 'standard' | 'phonetic';
 
+/** What is behind the page: the theme's plain colour, or one of the photos in src/lib/assets/backgrounds. */
+export type Background = 'plain' | 'field' | 'hills';
+export const BACKGROUNDS: Background[] = ['plain', 'field', 'hills'];
+
 export interface Settings {
 	lang: Lang;
 	theme: Theme;
 	layout: KeyboardLayout;
+	background: Background;
 }
 
 export function readSettings(cookie: (name: string) => string | undefined): Settings {
 	const theme = cookie('theme');
+	const background = cookie('bg');
 	return {
 		lang: cookie('lang') === 'uk' ? 'uk' : 'en',
 		theme: theme === 'light' || theme === 'dark' ? theme : 'system',
-		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard'
+		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard',
+		background: background === 'field' || background === 'hills' ? background : 'plain'
 	};
 }
 
@@ -38,6 +45,15 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 	} else if (name === 'lang') {
 		document.cookie = `lang=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 		root.setAttribute('lang', value);
+	} else if (name === 'background') {
+		// <html data-bg="field"> puts the photo behind the page (app.css).
+		if (value === 'plain') {
+			document.cookie = 'bg=; path=/; max-age=0; samesite=lax';
+			root.removeAttribute('data-bg');
+		} else {
+			document.cookie = `bg=${value}; path=/; max-age=${YEAR}; samesite=lax`;
+			root.setAttribute('data-bg', value);
+		}
 	} else {
 		document.cookie = `kbd=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	}

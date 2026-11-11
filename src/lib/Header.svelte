@@ -1,5 +1,5 @@
-<!-- The draft's top bar: logo, the four pages, quick search and settings. It
-     stays at the top of the window while the page scrolls. -->
+<!-- The top bar: logo, the four pages, quick search and settings. It stays at
+     the top of the window while the page scrolls. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
@@ -7,25 +7,22 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
-	import { DRAFT } from './paths.ts';
 	import QuickSearch from './QuickSearch.svelte';
 	import SettingsMenu from './SettingsMenu.svelte';
-	import { draftStrings } from './strings.ts';
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
-	let s = $derived(draftStrings(settings.lang));
 
 	const links = $derived([
-		{ href: DRAFT, label: m.nav.dictionary },
-		{ href: `${DRAFT}/resources`, label: m.nav.resources },
-		{ href: `${DRAFT}/saved`, label: m.nav.saved },
-		{ href: `${DRAFT}/about`, label: m.nav.about }
+		{ href: '/', label: m.nav.dictionary },
+		{ href: '/resources', label: m.nav.resources },
+		{ href: '/saved', label: m.nav.saved },
+		{ href: '/about', label: m.nav.about }
 	]);
 
 	// A word's page belongs to the dictionary.
 	const current = (href: string) =>
-		page.url.pathname === href || (href === DRAFT && page.url.pathname.startsWith(`${DRAFT}/word/`));
+		page.url.pathname === href || (href === '/' && page.url.pathname.startsWith('/word/'));
 
 	let searchOpen = $state(false);
 
@@ -38,21 +35,20 @@
 
 <header>
 	<div class="inner">
-		<a class="logo" href={DRAFT}>
+		<a class="logo" href="/">
 			<img src={uaFlag} alt="" />
 			Nebokrai
 		</a>
-		<a class="draft" href="/" title={s.draftTitle}>{s.draft}</a>
-		<nav aria-label={s.nav}>
+		<nav aria-label={m.nav.label}>
 			{#each links as link (link.href)}
 				<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
 			{/each}
 		</nav>
 		<div class="tools">
-			<button type="button" class="search" aria-label={s.quick.open} onclick={() => (searchOpen = true)}>
+			<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
 				<Icon name="search" size={18} />
 				<span class="label">{m.home.placeholder}</span>
-				<kbd class="d-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
 			</button>
 			<SettingsMenu />
 		</div>
@@ -66,8 +62,8 @@
 		position: sticky;
 		top: 0;
 		z-index: 30;
-		border-bottom: 1px solid var(--d-border);
-		background: color-mix(in srgb, var(--d-bg) 82%, transparent);
+		border-bottom: 1px solid var(--border);
+		background: color-mix(in srgb, var(--bg) 82%, transparent);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
 	}
@@ -87,7 +83,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
-		color: var(--d-ink);
+		color: var(--ink);
 		font-family: var(--font-heading);
 		font-size: 1.2rem;
 		font-weight: 800;
@@ -96,16 +92,6 @@
 	.logo img {
 		height: 1.05em;
 		border-radius: 3px;
-	}
-
-	.draft {
-		padding: 0.05rem 0.45rem;
-		border: 1px solid var(--d-gold);
-		border-radius: 999px;
-		background: var(--d-gold-soft);
-		color: var(--d-gold-ink);
-		font-size: 0.7rem;
-		font-weight: 700;
 	}
 
 	nav {
@@ -120,14 +106,14 @@
 		display: flex;
 		align-items: center;
 		padding: 0 0.75rem;
-		color: var(--d-muted);
+		color: var(--muted);
 		font-size: 0.95rem;
 		font-weight: 600;
 		white-space: nowrap;
 	}
 
 	nav a[aria-current='page'] {
-		color: var(--d-ink);
+		color: var(--ink);
 	}
 
 	nav a[aria-current='page']::after {
@@ -136,20 +122,19 @@
 		inset: auto 0.75rem -1px;
 		height: 2px;
 		border-radius: 2px;
-		background: var(--d-gold);
+		background: var(--gold);
 	}
 
 	@media (hover: hover) {
 		nav a:hover {
-			color: var(--d-ink);
+			color: var(--ink);
 		}
 	}
 
 	nav a:focus-visible,
 	.logo:focus-visible,
-	.draft:focus-visible,
 	.search:focus-visible {
-		outline: 2px solid var(--d-accent);
+		outline: 2px solid var(--accent);
 		outline-offset: -2px;
 		border-radius: 8px;
 	}
@@ -169,10 +154,10 @@
 		width: 15rem;
 		height: 2.25rem;
 		padding: 0 0.5rem 0 0.65rem;
-		border: 1px solid var(--d-border);
+		border: 1px solid var(--border);
 		border-radius: 10px;
-		background: var(--d-surface);
-		color: var(--d-muted);
+		background: var(--surface);
+		color: var(--muted);
 		font-size: 0.9rem;
 		cursor: pointer;
 	}
@@ -187,7 +172,7 @@
 
 	@media (hover: hover) {
 		.search:hover {
-			border-color: var(--d-border-strong);
+			border-color: var(--border-strong);
 		}
 	}
 
@@ -202,7 +187,7 @@
 		}
 
 		.search .label,
-		.search .d-kbd {
+		.search .ui-kbd {
 			display: none;
 		}
 	}
@@ -225,7 +210,7 @@
 			flex: 0 0 100%;
 			margin: 0;
 			overflow-x: auto;
-			border-top: 1px solid var(--d-border);
+			border-top: 1px solid var(--border);
 			scrollbar-width: none;
 		}
 

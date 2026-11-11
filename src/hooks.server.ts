@@ -1,6 +1,6 @@
-// Reads the visitor's settings (theme, interface language) from cookies and
-// writes them into the page before it is sent, so the first paint is already
-// in the right theme and language. The settings menu sets the cookies.
+// Reads the visitor's settings (theme, interface language, background) from
+// cookies and writes them into the page before it is sent, so the first paint
+// is already in the right theme and language. The settings menu sets the cookies.
 //
 // Also finds out who is signed in, from the session cookie. A visitor without
 // that cookie costs no database query.
@@ -80,5 +80,6 @@ const answer: Handle = async ({ event, resolve }) => {
 			html
 				.replace('%app.lang%', settings.lang)
 				.replace('%app.theme%', settings.theme === 'system' ? '' : `data-theme="${settings.theme}"`)
+				.replace('%app.bg%', settings.background === 'plain' ? '' : `data-bg="${settings.background}"`)
 	});
 };

@@ -5,7 +5,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { Tooltip } from 'bits-ui';
-	import favicon from '#lib/assets/favicon.svg';
+	import uaFlag from '#lib/assets/flag-ukraine.svg';
 	import Header from '#lib/Header.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
@@ -34,7 +34,12 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<!-- The site's icon is the flag from the header. Browsers that can show an
+	     SVG icon take the second line; the rest, and anything that asks for
+	     /favicon.ico by itself, get static/favicon.ico, which is the same
+	     drawing at 16, 32 and 48 pixels. -->
+	<link rel="icon" href="/favicon.ico" sizes="32x32" />
+	<link rel="icon" href={uaFlag} type="image/svg+xml" />
 	<title>Nebokrai</title>
 </svelte:head>
 

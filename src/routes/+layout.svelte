@@ -1,122 +1,121 @@
+<!-- The frame every page is drawn in: the header, the page, the footer, and the
+     corner messages. It also provides what the pages share through context:
+     the settings, the saved words and the toaster. -->
 <script lang="ts">
 	import '../app.css';
-	import { page } from '$app/state';
-	import favicon from '#lib/assets/favicon.svg';
+	import { onMount } from 'svelte';
+	import { Tooltip } from 'bits-ui';
 	import uaFlag from '#lib/assets/flag-ukraine.svg';
+	import Header from '#lib/Header.svelte';
+	import { messagesFor } from '#lib/i18n.ts';
+	import { provideSaved } from '#lib/saved.svelte.ts';
+	import { provideSettings } from '#lib/settings.ts';
+	import Toasts from '#lib/Toasts.svelte';
+	import { provideToasts } from '#lib/toasts.ts';
 	import type { LayoutProps } from './$types';
 
-	let { children }: LayoutProps = $props();
+	let { children, data }: LayoutProps = $props();
 
-	const links = [
-		{ href: '/', label: 'Dictionary' },
-		{ href: '/resources', label: 'Resources' },
-		{ href: '/saved', label: 'Saved' },
-		{ href: '/about', label: 'About' }
-	];
+	// The settings come from cookies on the server; changing them in the
+	// settings menu (SettingsMenu.svelte) updates the whole page at once and
+	// stores the new cookie.
+	// svelte-ignore state_referenced_locally
+	const settings = $state({ ...data.settings });
+	provideSettings(settings);
+	let m = $derived(messagesFor(settings.lang));
+
+	// Saved words: read from this browser once the page is running, and synced
+	// with the account when signed in (see saved.svelte.ts).
+	// svelte-ignore state_referenced_locally
+	const saved = provideSaved(data.user?.id ?? null);
+	onMount(() => void saved.load());
+
+	provideToasts();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<!-- The site's icon is the flag from the header. Browsers that can show an
+	     SVG icon take the second line; the rest, and anything that asks for
+	     /favicon.ico by itself, get static/favicon.ico, which is the same
+	     drawing at 16, 32 and 48 pixels. -->
+	<link rel="icon" href="/favicon.ico" sizes="32x32" />
+	<link rel="icon" href={uaFlag} type="image/svg+xml" />
 	<title>Nebokrai</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-	<link
-		href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=Patua+One&display=swap"
-		rel="stylesheet"
-	/>
 </svelte:head>
 
-<header>
-	<a href="/" class="logo">
-		<img src={uaFlag} alt="" />
-		Nebokrai
-	</a>
-	<nav>
-		{#each links as link (link.href)}
-			<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>
-				{link.label}
-			</a>
-		{/each}
-	</nav>
-	<a href="/settings" class="settings" aria-label="Settings">
-		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-			<circle cx="12" cy="12" r="3" />
-			<path
-				d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-			/>
-		</svg>
-	</a>
-</header>
+<Tooltip.Provider delayDuration={350}>
+	<div class="frame">
+		<Header />
 
-<main>
-	{@render children()}
-</main>
+		<main>
+			{@render children()}
+		</main>
 
-<footer>
-	<a href="/report">Report An Issue</a>
-	<p>Copyright - Jesper Andersson 2026</p>
-</footer>
+		<footer>
+			<div class="inner">
+				<p>
+					© 2026 Jesper Andersson · {m.footer.data} ·
+					<a href="/sources">{m.footer.sources}</a>
+				</p>
+				<a href="/report">{m.footer.report}</a>
+			</div>
+		</footer>
+	</div>
+
+	<Toasts />
+</Tooltip.Provider>
 
 <style>
-	header {
+	.frame {
 		display: flex;
-		flex-wrap: wrap;
-		justify-content: center;
-		border-bottom: 1px solid #2b2b2b;
-		background-color: #e4cb81;
-		font-family: 'Patua One', serif;
-		font-size: 24px;
+		flex: 1;
+		flex-direction: column;
+		min-height: 100dvh;
 	}
 
-	/* Every header link fills the bar's full height, so the active one gets a full-height highlight */
-	header a {
-		display: flex;
-		align-items: center;
-		padding: 14px 0.8em;
-	}
-
-	nav {
-		display: flex;
-		flex-wrap: wrap;
-	}
-
-	nav a[aria-current='page'] {
-		padding-inline: 1.4em;
-		background-color: #5b8fd6;
-		color: white;
-	}
-
-	.logo {
-		gap: 0.15em;
-		margin-right: 0.4em;
-	}
-
-	.logo img {
-		height: 1em;
-	}
-
-	.settings svg {
-		width: 1.5em;
-		height: 1.5em;
-	}
-
+	/* No side padding here: the search page's coloured band reaches both
+	   edges of the window, so each page sets its own. */
 	main {
-		padding: 0 16px;
+		flex: 1;
+		padding-bottom: 3rem;
 	}
 
+	/* Frosted like the header, so its small text reads over a background photo */
 	footer {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-top: auto;
-		padding: 15px 16px;
-		background-color: #1e1e1e;
-		color: white;
-		font-family: 'Patua One', serif;
-		font-size: 15px;
+		border-top: 1px solid var(--border);
+		background: color-mix(in srgb, var(--bg) 82%, transparent);
+		backdrop-filter: blur(14px);
+		-webkit-backdrop-filter: blur(14px);
+		color: var(--muted);
+		font-size: 0.85rem;
 	}
 
-	footer p {
+	.inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.25rem 1.5rem;
+		box-sizing: border-box;
+		max-width: 72rem;
+		margin: 0 auto;
+		padding: 0.9rem 1rem;
+	}
+
+	p {
 		margin: 0;
+	}
+
+	/* Padding for a taller tap area */
+	a {
+		padding-block: 0.4rem;
+		color: var(--ink-2);
+		text-decoration: underline;
+		text-decoration-color: var(--border-strong);
+		text-underline-offset: 3px;
+	}
+
+	a:hover {
+		color: var(--ink);
 	}
 </style>

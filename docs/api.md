@@ -1,13 +1,18 @@
 # Search API
 
 The contract between the front end and the dictionary data. Two endpoints, both
-`GET`, both returning JSON. The code behind them is in `src/lib/search/`; the
-SvelteKit routes that expose them are still to be written.
+`GET`, both returning JSON. The code behind them is in `src/lib/search/`.
+The routes are `src/routes/api/search/+server.ts` and
+`src/routes/api/word/[word]/+server.ts`. The Details page (`/word/<slug>`)
+reads the database directly instead of calling `/api/word`.
 
 | Endpoint | Used by | Code |
 |---|---|---|
 | `/api/search?q=…` | results page | `lookup()` in `suggest.ts` |
 | `/api/word/…` | Details page | `wordDetails()` in `word.ts` |
+
+Saved words and accounts have endpoints of their own, described at the end
+under [Saved words and accounts](#saved-words-and-accounts).
 
 All text is UTF-8. Ukrainian words in a URL must be percent-encoded
 (`encodeURIComponent` does this).
@@ -16,8 +21,12 @@ All text is UTF-8. Ukrainian words in a URL must be percent-encoded
 
 | Parameter | | |
 |---|---|---|
-| `q` | required | What the user typed: Ukrainian, Latin letters or English. |
+| `q` | required | What the user typed: Ukrainian, Latin letters or English. At most 100 characters. |
 | `limit` | optional | Most results to return. Default 20, at most 50. |
+
+A longer `q` gets `400` with `{ "error": "query_too_long" }`. The search box
+has the same limit (`MAX_QUERY_LENGTH` in `src/lib/limits.ts`), so a visitor
+never sees this.
 
 Response `200`:
 
@@ -44,7 +53,7 @@ Response `200`:
 | Field | Meaning |
 |---|---|
 | `id` | Entry id. `null` for a VESUM-only result (see below). |
-| `word` | Plain spelling. Use this in links: `/word/калина`. |
+| `word` | Plain spelling. Link to its Details page with `wordPath(word)` from `slug.ts`: `/word/kalyna`. |
 | `headword` | Spelling with the stress mark (U+0301 after the stressed vowel). About 6% of entries have no stress mark. |
 | `pos` | Part of speech: `noun`, `verb`, `adj`, `adv`, `name`, `pron`, `num`, `prep`, `conj`, `particle`, `intj`, `phrase`, and a few rare ones. |
 | `tags` | Grammar labels for the word itself: gender and animacy for nouns, aspect for verbs. Can be empty. |
@@ -229,8 +238,20 @@ Two forms can share the same labels. That means the cell has two variants
 | Status | When |
 |---|---|
 | `400` | `limit` is not a number. |
+| `400` | `/api/search` with `q` over 100 characters. Body: `{ "error": "query_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
+
+## Caching
+
+Both endpoints answer the same thing to every visitor, so a `200` is sent with
+`Cache-Control: public, max-age=300, s-maxage=3600` and kept in Cloudflare's
+cache for an hour (`src/lib/server/cache.ts`). Parameters other than `q` and
+`limit` are ignored and do not make a separate cache entry.
+
+After `nebokrai.db` is rebuilt and uploaded, answers can be up to an hour old,
+with the entry ids of the previous build. Purge the cache in the Cloudflare
+dashboard to switch at once.
 
 ## Suggestions while typing (no request)
 
@@ -252,3 +273,83 @@ should still go to `/api/search`. Building the index takes about 0.15 s; one
 suggestion call takes a few milliseconds.
 
 `words.json` is made by `python3 data/export_wordlist.py nebokrai.db static/words.json`.
+
+## Saved words and accounts
+
+A visitor can save words without an account: the list is then kept in the
+browser's `localStorage` and the server is not involved. Signing in (Google or
+GitHub) moves the list to the account, so it is the same on every device. The
+browser side is `src/lib/saved.svelte.ts`, the server side
+`src/lib/server/users.ts`.
+
+A saved word is `{ "word": "книга", "saved_at": 1794400000000 }`: the `word`
+field of a search result, and when it was saved in milliseconds. Lists are
+newest first. One list holds at most 5,000 words.
+
+| Endpoint | Signed in? | |
+|---|---|---|
+| `GET /api/saved` | yes | The account's list: `{ "words": [...] }`. |
+| `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. |
+| `DELETE /api/saved/<word>` | yes | Remove one word. `{ "ok": true }`, also when it was not saved. |
+| `POST /api/saved/merge` | yes | Add a browser's list to the account. |
+| `POST /api/words/summary` | no | Headword and meanings for a list of words. |
+| `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
+
+"Signed in" means the request carries the `session` cookie. The browser sends
+it by itself to same-site requests; it is `HttpOnly`, so page scripts never
+see it.
+
+### `POST /api/saved/merge`
+
+Called once, on the first page load after signing in, with the words saved in
+this browser while signed out.
+
+Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }] }`
+
+Response `200`: `{ "words": [...] }`, the account's whole list afterwards. A
+word already in the account keeps its date. Items that are malformed or not
+dictionary words are skipped, and so are words beyond the limit of 5,000.
+
+### `POST /api/words/summary`
+
+What the Saved page shows beside each word. A `POST` only because the list can
+be longer than a URL allows; it changes nothing.
+
+Body: `{ "words": ["книга", "небокрай"] }`, at most 500 words.
+
+Response `200`:
+
+```json
+{
+  "words": [
+    { "word": "книга", "headword": "кни́га", "glosses": ["book (elevated)"] },
+    { "word": "небокрай", "headword": "небокра́й", "glosses": ["horizon (part of the sky which appears to meet the earth in the distance)", "synonym of не́бо n (nébo, “sky”)"] }
+  ]
+}
+```
+
+In the order asked. A word with no entry is left out. `word` must be the exact
+spelling (`Київ`, not `київ`). A spelling with several entries is summarised
+by its most common one. `glosses` holds the first meanings, at most three.
+
+### Signing in and out
+
+These are pages the browser visits, not JSON endpoints.
+
+| Address | |
+|---|---|
+| `GET /login/google`, `GET /login/github` | Redirects to the provider. `404` when that provider has no credentials here. |
+| `GET /auth/callback/<provider>` | Where the provider sends the visitor back. Starts the session and redirects to `/saved`, or to `/saved?login=failed`. |
+| `POST /logout` | A form post. Ends the session and redirects to `/`. |
+
+### Errors
+
+| Status | Body | When |
+|---|---|---|
+| `400` | `{ "error": "invalid_json" }` | The body is not JSON. |
+| `400` | `{ "error": "invalid_words" }` | `/api/words/summary`: `words` is not a list, or has more than 500 items. |
+| `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
+| `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary`, 1 MB for `/api/saved/merge`. |
+| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. |
+| `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when the list already holds 5,000 words. |

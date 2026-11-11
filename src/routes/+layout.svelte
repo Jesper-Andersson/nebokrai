@@ -7,8 +7,8 @@
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
 	import logoIcon from '#lib/assets/logo-icon.svg';
+	import Footer from '#lib/Footer.svelte';
 	import Header from '#lib/Header.svelte';
-	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
 	import { provideSettings } from '#lib/settings.ts';
 	import Toasts from '#lib/Toasts.svelte';
@@ -23,7 +23,6 @@
 	// svelte-ignore state_referenced_locally
 	const settings = $state({ ...data.settings });
 	provideSettings(settings);
-	let m = $derived(messagesFor(settings.lang));
 
 	let address = $derived(page.url.origin + page.url.pathname);
 
@@ -62,15 +61,7 @@
 			{@render children()}
 		</main>
 
-		<footer>
-			<div class="inner">
-				<p>
-					© 2026 Jesper Andersson · {m.footer.data} ·
-					<a href="/sources">{m.footer.sources}</a>
-				</p>
-				<a href="/report">{m.footer.report}</a>
-			</div>
-		</footer>
+		<Footer />
 	</div>
 
 	<Toasts />
@@ -89,44 +80,5 @@
 	main {
 		flex: 1;
 		padding-bottom: 3rem;
-	}
-
-	/* Frosted like the header, so its small text reads over a background photo */
-	footer {
-		border-top: 1px solid var(--border);
-		background: var(--frame);
-		backdrop-filter: blur(14px);
-		-webkit-backdrop-filter: blur(14px);
-		color: var(--muted);
-		font-size: 0.85rem;
-	}
-
-	.inner {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.25rem 1.5rem;
-		box-sizing: border-box;
-		max-width: 72rem;
-		margin: 0 auto;
-		padding: 0.9rem 1rem;
-	}
-
-	p {
-		margin: 0;
-	}
-
-	/* Padding for a taller tap area */
-	a {
-		padding-block: 0.4rem;
-		color: var(--ink-2);
-		text-decoration: underline;
-		text-decoration-color: var(--border-strong);
-		text-underline-offset: 3px;
-	}
-
-	a:hover {
-		color: var(--ink);
 	}
 </style>

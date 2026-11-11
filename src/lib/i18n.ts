@@ -82,6 +82,9 @@ const en = {
 		deleteFailed: 'Your account couldn’t be deleted. Please try again.'
 	},
 	footer: {
+		label: 'Footer',
+		/** The site's name, set as a dictionary entry of its own. */
+		nameGloss: 'horizon, literally “the sky’s edge”',
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
 		sources: 'Sources and licences'
@@ -273,6 +276,8 @@ const uk: Messages = {
 		deleteFailed: 'Не вдалося видалити обліковий запис. Спробуйте ще раз.'
 	},
 	footer: {
+		label: 'Нижнє меню',
+		nameGloss: 'горизонт, дослівно — «край неба»',
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
 		sources: 'Джерела й ліцензії'

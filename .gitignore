@@ -1,0 +1,7 @@
+# Downloaded source data and built databases (rebuild with data/import_wiktionary.py)
+data/raw/
+*.db
+*.db.gz
+__pycache__/
+node_modules/
+.env

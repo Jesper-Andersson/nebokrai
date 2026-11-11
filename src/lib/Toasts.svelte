@@ -1,15 +1,15 @@
 <!-- Draws the messages of the page's toaster (toasts.ts) in the bottom corner.
      Melt shows the container as a `popover`, so it sits above dialogs too. -->
 <script lang="ts">
+	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
 	import Stressed from './Stressed.svelte';
-	import { draftStrings } from './strings.ts';
 	import { useToasts } from './toasts.ts';
 
 	const settings = useSettings();
 	const toaster = useToasts();
-	let s = $derived(draftStrings(settings.lang));
+	let m = $derived(messagesFor(settings.lang));
 </script>
 
 <div {...toaster.root} class="toasts">
@@ -28,10 +28,10 @@
 						toast.removeSelf();
 					}}
 				>
-					{s.toast.undo}
+					{m.toast.undo}
 				</button>
 			{/if}
-			<button {...toast.close} type="button" class="d-icon-btn" aria-label={s.toast.dismiss}>
+			<button {...toast.close} type="button" class="ui-icon-btn" aria-label={m.toast.dismiss}>
 				<Icon name="x" size={16} />
 			</button>
 		</div>
@@ -62,11 +62,11 @@
 		align-items: center;
 		gap: 0.4rem;
 		padding: 0.45rem 0.45rem 0.45rem 0.9rem;
-		border: 1px solid var(--d-border);
+		border: 1px solid var(--border);
 		border-radius: 12px;
-		background: var(--d-surface);
-		box-shadow: var(--d-shadow-pop);
-		color: var(--d-ink);
+		background: var(--surface);
+		box-shadow: var(--shadow-pop);
+		color: var(--ink);
 		font-size: 0.92rem;
 	}
 
@@ -91,19 +91,19 @@
 		border: 0;
 		border-radius: 8px;
 		background: none;
-		color: var(--d-accent);
+		color: var(--accent);
 		font-weight: 700;
 		cursor: pointer;
 	}
 
 	@media (hover: hover) {
 		.undo:hover {
-			background: var(--d-accent-soft);
+			background: var(--accent-soft);
 		}
 	}
 
 	.undo:focus-visible {
-		outline: 2px solid var(--d-accent);
+		outline: 2px solid var(--accent);
 		outline-offset: 1px;
 	}
 

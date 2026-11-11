@@ -35,9 +35,9 @@
 		max-width: 26rem;
 		margin: 0.75rem 0 0;
 		padding: 0.75rem 0.9rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--border);
 		border-radius: 10px;
-		background: var(--field);
+		background: var(--surface);
 		color: var(--ink) !important;
 		text-decoration: none !important;
 		transition: border-color 0.15s;
@@ -57,7 +57,7 @@
 		width: 56px;
 		height: 56px;
 		border-radius: 50%;
-		background: var(--line);
+		background: var(--border);
 	}
 
 	.text {

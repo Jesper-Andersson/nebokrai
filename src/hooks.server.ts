@@ -1,6 +1,6 @@
-// Reads the visitor's settings (theme, interface language) from cookies and
-// writes them into the page before it is sent, so the first paint is already
-// in the right theme and language. The settings menu sets the cookies.
+// Reads the visitor's settings (theme, interface language, background) from
+// cookies and writes them into the page before it is sent, so the first paint
+// is already in the right theme and language. The settings menu sets the cookies.
 //
 // Also finds out who is signed in, from the session cookie. A visitor without
 // that cookie costs no database query.
@@ -28,9 +28,15 @@ const HEADERS: Record<string, string> = {
 	'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()'
 };
 
+// Not pages to find through a search engine: the API, a visitor's own list,
+// the report form and the sign-in addresses. static/robots.txt asks crawlers
+// not to fetch most of these; this covers the ones that are fetched anyway.
+const NOT_FOR_SEARCH = /^\/(api|saved|report|login|auth|logout)(\/|$)/;
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const response = await answer({ event, resolve });
 	for (const [name, value] of Object.entries(HEADERS)) response.headers.set(name, value);
+	if (NOT_FOR_SEARCH.test(event.url.pathname)) response.headers.set('x-robots-tag', 'noindex');
 	if (event.url.protocol === 'https:') {
 		response.headers.set('strict-transport-security', 'max-age=63072000; includeSubDomains');
 	}
@@ -80,5 +86,6 @@ const answer: Handle = async ({ event, resolve }) => {
 			html
 				.replace('%app.lang%', settings.lang)
 				.replace('%app.theme%', settings.theme === 'system' ? '' : `data-theme="${settings.theme}"`)
+				.replace('%app.bg%', settings.background === 'plain' ? '' : `data-bg="${settings.background}"`)
 	});
 };

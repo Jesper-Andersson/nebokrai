@@ -1,4 +1,4 @@
-<!-- The draft's line icons, drawn on a 24px grid. Decorative: the button or
+<!-- The line icons, drawn on a 24px grid. Decorative: the button or
      link around an icon carries the label. -->
 <script lang="ts" module>
 	const PATHS = {

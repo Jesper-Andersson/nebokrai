@@ -102,93 +102,116 @@
 	--font-headword: 'Fixel Display', 'Fixel Text', system-ui, sans-serif;
 }
 
-/* Colours of the light panels (cards, word page, text pages). The page
-   background and the header and footer bars stay the same in both themes.
-   Theme: <html data-theme="light|dark"> from the settings menu, or the
-   system setting when none is chosen (see hooks.server.ts). */
+/* Colours. Theme: <html data-theme="light|dark"> from the settings menu, or
+   the system setting when none is chosen (see hooks.server.ts). Every colour
+   is defined three times: light, dark by choice, and dark by system setting.
+
+   They sit on :root, not on a wrapper, because Bits UI moves popovers,
+   dialogs and tooltips to the end of <body>. */
 :root {
-	--panel: #f7f8fc;
-	--ink: #111111;
-	--ink-soft: #333333;
-	--muted: #555555;
+	--bg: #f7f6f2;
+	--surface: #ffffff;
+	--surface-2: #f0eee7;
+	--raised: #ffffff;
+	--border: #e3e0d6;
+	--border-strong: #cdc9bc;
+	--ink: #16181d;
+	--ink-2: #3c4049;
+	--muted: #646a76;
 	--faint: #777777;
-	--line: #e2e4ec;
-	--rule: #222222;
-	--field: #ffffff;
-	--field-line: #222222;
-	--link: #1a5fb4;
+	--accent: #1f5fbf;
+	--accent-ink: #ffffff;
+	--accent-soft: #e4edfb;
 	--link-hover: #0d3f7a;
+	--gold: #d9b755;
+	--gold-soft: #f8efd2;
+	--gold-ink: #6b4e06;
+	--title-accent: #1f5fbf;
+	--sky: rgb(91 143 214 / 0.2);
+	--wheat: rgb(228 203 129 / 0.3);
+	--scrim: rgb(22 24 29 / 0.4);
+	--wash-top: rgb(247 246 242 / 0.25);
+	--wash-bottom: rgb(247 246 242 / 0.5);
+	--shadow: 0 1px 2px rgb(22 24 29 / 0.05), 0 6px 20px rgb(22 24 29 / 0.06);
+	--shadow-pop: 0 2px 6px rgb(22 24 29 / 0.08), 0 16px 48px rgb(22 24 29 / 0.18);
 	--stress: #e3101b;
 	--play: #1f8ac0;
-	--badge-bg: #e4cb81;
-	--badge-ink: #111111;
 	--pill-1-bg: #dcf2e0; --pill-1-line: #2e8540; --pill-1-ink: #1d5c2b;
 	--pill-2-bg: #dde9f8; --pill-2-line: #2f6fb5; --pill-2-ink: #1c4a80;
 	--pill-3-bg: #fbefd2; --pill-3-line: #c08a1e; --pill-3-ink: #7a5208;
 	--pill-4-bg: #eceef2; --pill-4-line: #8a8f99; --pill-4-ink: #4a4f58;
-	--menu-bg: #ffffff;
-	--menu-ink: #111111;
-	--menu-line: #d4d7e0;
-	--menu-on: #5b8fd6;
-	--menu-on-ink: #ffffff;
 	color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-	--panel: #22252c;
+	--bg: #0f1115;
+	--surface: #171a20;
+	--surface-2: #1f232b;
+	--raised: #2e333e;
+	--border: #2a2f39;
+	--border-strong: #3d4350;
 	--ink: #eceef3;
-	--ink-soft: #d0d3db;
-	--muted: #a7acb8;
+	--ink-2: #cdd1da;
+	--muted: #9aa1ae;
 	--faint: #8a909c;
-	--line: #3a3e48;
-	--rule: #c9ccd4;
-	--field: #2b2f37;
-	--field-line: #6a7080;
-	--link: #8db4f0;
+	--accent: #8db4f0;
+	--accent-ink: #0d1a2e;
+	--accent-soft: #1b2a44;
 	--link-hover: #b5cff7;
+	--gold: #e4cb81;
+	--gold-soft: #3a3013;
+	--gold-ink: #f0d995;
+	--title-accent: #e4cb81;
+	--sky: rgb(91 143 214 / 0.22);
+	--wheat: rgb(228 203 129 / 0.1);
+	--scrim: rgb(0 0 0 / 0.6);
+	--wash-top: rgb(15 17 21 / 0.5);
+	--wash-bottom: rgb(15 17 21 / 0.72);
+	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
+	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	--stress: #ff6b6b;
 	--play: #5cb8e6;
-	--badge-bg: #5c4b1d;
-	--badge-ink: #f3e3b3;
 	--pill-1-bg: #1d3a24; --pill-1-line: #4fae67; --pill-1-ink: #a9e6b7;
 	--pill-2-bg: #1b2e48; --pill-2-line: #5b95d9; --pill-2-ink: #b5d0f2;
 	--pill-3-bg: #3d2f12; --pill-3-line: #c9962e; --pill-3-ink: #f0d18a;
 	--pill-4-bg: #2c2f36; --pill-4-line: #7d8391; --pill-4-ink: #c4c8d0;
-	--menu-bg: #22252c;
-	--menu-ink: #eceef3;
-	--menu-line: #3a3e48;
-	--menu-on: #5b8fd6;
-	--menu-on-ink: #ffffff;
 	color-scheme: dark;
 }
 
 /* No choice made: follow the system. Same values as above. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme]) {
-		--panel: #22252c;
+		--bg: #0f1115;
+		--surface: #171a20;
+		--surface-2: #1f232b;
+		--raised: #2e333e;
+		--border: #2a2f39;
+		--border-strong: #3d4350;
 		--ink: #eceef3;
-		--ink-soft: #d0d3db;
-		--muted: #a7acb8;
+		--ink-2: #cdd1da;
+		--muted: #9aa1ae;
 		--faint: #8a909c;
-		--line: #3a3e48;
-		--rule: #c9ccd4;
-		--field: #2b2f37;
-		--field-line: #6a7080;
-		--link: #8db4f0;
+		--accent: #8db4f0;
+		--accent-ink: #0d1a2e;
+		--accent-soft: #1b2a44;
 		--link-hover: #b5cff7;
+		--gold: #e4cb81;
+		--gold-soft: #3a3013;
+		--gold-ink: #f0d995;
+		--title-accent: #e4cb81;
+		--sky: rgb(91 143 214 / 0.22);
+		--wheat: rgb(228 203 129 / 0.1);
+		--scrim: rgb(0 0 0 / 0.6);
+		--wash-top: rgb(15 17 21 / 0.5);
+		--wash-bottom: rgb(15 17 21 / 0.72);
+		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
+		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		--stress: #ff6b6b;
 		--play: #5cb8e6;
-		--badge-bg: #5c4b1d;
-		--badge-ink: #f3e3b3;
 		--pill-1-bg: #1d3a24; --pill-1-line: #4fae67; --pill-1-ink: #a9e6b7;
 		--pill-2-bg: #1b2e48; --pill-2-line: #5b95d9; --pill-2-ink: #b5d0f2;
 		--pill-3-bg: #3d2f12; --pill-3-line: #c9962e; --pill-3-ink: #f0d18a;
 		--pill-4-bg: #2c2f36; --pill-4-line: #7d8391; --pill-4-ink: #c4c8d0;
-		--menu-bg: #22252c;
-		--menu-ink: #eceef3;
-		--menu-line: #3a3e48;
-		--menu-on: #5b8fd6;
-		--menu-on-ink: #ffffff;
 		color-scheme: dark;
 	}
 }
@@ -212,21 +235,64 @@ body {
 	min-height: 100dvh;
 	display: flex;
 	flex-direction: column;
-	background-color: #1e1e1e;
-	text-align: center;
+	background: var(--bg);
+	color: var(--ink);
 }
 
-/* Put your photo at static/background.jpg; until then the dark colour shows.
+/* A photo behind the page, chosen in the settings menu: <html data-bg="field">
+   (hooks.server.ts writes it from the `bg` cookie). The files are in
+   src/lib/assets/backgrounds: 1600px wide for phones, 2400px for wider windows.
+
    The photo sits on its own fixed layer because iOS Safari ignores
    `background-attachment: fixed` and stretches the image over the whole page.
-   100lvh: the layer keeps its size when the phone's address bar slides away. */
-body::before {
+   100lvh: the layer keeps its size when the phone's address bar slides away.
+
+   Over the photo lies a wash of the page colour (--wash-top to --wash-bottom),
+   lighter at the top: text that stands straight on the page stays readable in
+   both themes, and the sky keeps its colour. */
+:root[data-bg] body::before {
 	content: '';
 	position: fixed;
 	inset: 0 0 auto;
 	z-index: -1;
 	height: 100lvh;
-	background: url('/background.jpg') center / cover;
+	background: center / cover no-repeat;
+}
+
+:root[data-bg='field'] body::before {
+	background-image:
+		linear-gradient(var(--wash-top), var(--wash-bottom)),
+		url('./lib/assets/backgrounds/field-1600.webp');
+}
+
+:root[data-bg='hills'] body::before {
+	background-image:
+		linear-gradient(var(--wash-top), var(--wash-bottom)),
+		url('./lib/assets/backgrounds/hills-1600.webp');
+}
+
+@media (min-width: 900px) {
+	:root[data-bg='field'] body::before {
+		background-image:
+			linear-gradient(var(--wash-top), var(--wash-bottom)),
+			url('./lib/assets/backgrounds/field-2400.webp');
+	}
+
+	:root[data-bg='hills'] body::before {
+		background-image:
+			linear-gradient(var(--wash-top), var(--wash-bottom)),
+			url('./lib/assets/backgrounds/hills-2400.webp');
+	}
+}
+
+/* Small text that stands straight on the page, not on a card: muted on the
+   plain background, full ink over a photo, where muted grey is too faint. */
+:root {
+	--on-page: var(--muted);
+}
+
+:root[data-bg] {
+	--on-page: var(--ink);
 }
 
 a {
@@ -237,4 +303,205 @@ a {
 input,
 button {
 	font: inherit;
+}
+
+/* ---- Shared pieces. Global, because Bits UI renders the elements itself
+   and a component's scoped styles do not reach them. ---- */
+
+.ui-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.ui-icon-btn {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	border: 0;
+	border-radius: 9px;
+	background: none;
+	color: var(--muted);
+	cursor: pointer;
+}
+
+@media (hover: hover) {
+	.ui-icon-btn:hover {
+		background: var(--surface-2);
+		color: var(--ink);
+	}
+}
+
+.ui-icon-btn[aria-pressed='true'],
+.ui-icon-btn[aria-expanded='true'] {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+/* Fingers need bigger targets than a mouse pointer does */
+@media (pointer: coarse) {
+	.ui-icon-btn {
+		width: 2.75rem;
+		height: 2.75rem;
+	}
+}
+
+.ui-icon-btn:focus-visible,
+.ui-btn:focus-visible,
+.ui-segment:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.ui-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.45rem 0.9rem;
+	border: 1px solid var(--border-strong);
+	border-radius: 9px;
+	background: var(--surface);
+	color: var(--ink);
+	font-size: 0.92rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+@media (hover: hover) {
+	.ui-btn:hover:not(:disabled) {
+		background: var(--surface-2);
+	}
+}
+
+.ui-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.ui-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.1rem 0.5rem;
+	border-radius: 6px;
+	background: var(--surface-2);
+	color: var(--ink-2);
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.ui-kbd {
+	padding: 0.05rem 0.4rem;
+	border: 1px solid var(--border);
+	border-bottom-width: 2px;
+	border-radius: 6px;
+	background: var(--surface);
+	color: var(--muted);
+	font-family: var(--font-text);
+	font-size: 0.72rem;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.ui-popover {
+	z-index: 50;
+	box-sizing: border-box;
+	width: min(21rem, calc(100vw - 16px));
+	padding: 1rem;
+	border: 1px solid var(--border);
+	border-radius: 14px;
+	background: var(--surface);
+	box-shadow: var(--shadow-pop);
+	color: var(--ink);
+	font-size: 0.92rem;
+}
+
+.ui-popover:focus-visible {
+	outline: none;
+}
+
+.ui-tooltip {
+	z-index: 60;
+	padding: 0.3rem 0.55rem;
+	border-radius: 7px;
+	background: var(--ink);
+	color: var(--bg);
+	font-size: 0.78rem;
+	font-weight: 600;
+}
+
+/* One choice out of a few, in a row (Bits UI RadioGroup) */
+.ui-segmented {
+	display: flex;
+	gap: 2px;
+	padding: 3px;
+	border: 1px solid var(--border);
+	border-radius: 11px;
+	background: var(--surface-2);
+}
+
+.ui-segment {
+	flex: 1;
+	padding: 0.4rem 0.6rem;
+	border: 0;
+	border-radius: 8px;
+	background: none;
+	color: var(--muted);
+	font-size: 0.9rem;
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.ui-segment[data-state='checked'] {
+	background: var(--raised);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+	color: var(--ink);
+}
+
+@media (pointer: coarse) {
+	.ui-segment {
+		padding-block: 0.7rem;
+	}
+}
+
+.ui-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 40;
+	background: var(--scrim);
+	backdrop-filter: blur(3px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.ui-popover[data-state='open'],
+	.ui-tooltip[data-state='delayed-open'],
+	.ui-tooltip[data-state='instant-open'] {
+		animation: ui-pop 0.14s ease-out;
+	}
+
+	.ui-overlay[data-state='open'] {
+		animation: ui-fade 0.14s ease-out;
+	}
+}
+
+@keyframes ui-pop {
+	from {
+		opacity: 0;
+		scale: 0.97;
+	}
+}
+
+@keyframes ui-fade {
+	from {
+		opacity: 0;
+	}
 }

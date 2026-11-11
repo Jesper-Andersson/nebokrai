@@ -372,8 +372,8 @@
 		grid-template-columns: repeat(24, minmax(0, 1fr));
 		gap: 5px 0;
 		padding: 0.7rem 0.7rem 0.8rem;
-		border-top: 1px solid var(--line);
-		background: var(--panel);
+		border-top: 1px solid var(--border);
+		background: var(--surface-2);
 		user-select: none;
 		-webkit-user-select: none;
 		touch-action: manipulation;
@@ -387,10 +387,10 @@
 		height: 2.6rem;
 		margin: 0 2px;
 		padding: 0;
-		border: 1px solid var(--line);
+		border: 1px solid var(--border);
 		border-bottom-width: 2px;
 		border-radius: 6px;
-		background: var(--field);
+		background: var(--surface);
 		color: var(--ink);
 		font-family: var(--font-headword);
 		font-size: 1.15rem;
@@ -411,7 +411,7 @@
 	.key.down {
 		translate: 0 1px;
 		border-bottom-width: 1px;
-		background: var(--line);
+		background: var(--border);
 	}
 
 	.key:focus-visible {

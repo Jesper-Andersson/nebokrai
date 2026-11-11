@@ -31,7 +31,7 @@
 {#each tables as table (table.title)}
 	<div {...tabbed ? tabs.getContent(table.title) : {}} class="table-wrap">
 		<table>
-			<caption class:d-sr-only={tabbed}>{formLabel(m, table.title)}</caption>
+			<caption class:ui-sr-only={tabbed}>{formLabel(m, table.title)}</caption>
 			{#if table.columns.some(Boolean)}
 				<thead>
 					<tr>
@@ -65,7 +65,7 @@
 		gap: 0.25rem;
 		margin-bottom: 0.6rem;
 		overflow-x: auto;
-		border-bottom: 1px solid var(--d-border);
+		border-bottom: 1px solid var(--border);
 		scrollbar-width: none;
 	}
 
@@ -74,14 +74,14 @@
 		padding: 0.5rem 0.75rem;
 		border: 0;
 		background: none;
-		color: var(--d-muted);
+		color: var(--muted);
 		font-weight: 600;
 		white-space: nowrap;
 		cursor: pointer;
 	}
 
 	.tabs button[data-active] {
-		color: var(--d-ink);
+		color: var(--ink);
 	}
 
 	.tabs button[data-active]::after {
@@ -90,11 +90,11 @@
 		inset: auto 0.75rem 0;
 		height: 2px;
 		border-radius: 2px;
-		background: var(--d-gold);
+		background: var(--gold);
 	}
 
 	.tabs button:focus-visible {
-		outline: 2px solid var(--d-accent);
+		outline: 2px solid var(--accent);
 		outline-offset: -2px;
 		border-radius: 8px;
 	}
@@ -108,7 +108,7 @@
 	.table-wrap {
 		max-width: 100%;
 		overflow-x: auto;
-		border: 1px solid var(--d-border);
+		border: 1px solid var(--border);
 		border-radius: 12px;
 	}
 
@@ -125,8 +125,8 @@
 
 	caption {
 		padding: 0.5rem 0.9rem;
-		border-bottom: 1px solid var(--d-border);
-		background: var(--d-surface-2);
+		border-bottom: 1px solid var(--border);
+		background: var(--surface-2);
 		font-weight: 700;
 		text-align: left;
 	}
@@ -134,7 +134,7 @@
 	th,
 	td {
 		padding: 0.45rem 0.9rem;
-		border-bottom: 1px solid var(--d-border);
+		border-bottom: 1px solid var(--border);
 		text-align: left;
 		vertical-align: top;
 	}
@@ -145,14 +145,20 @@
 
 	thead th,
 	thead td {
-		background: var(--d-surface-2);
+		background: var(--surface-2);
 	}
 
 	th {
-		color: var(--d-muted);
+		color: var(--muted);
 		font-size: 0.85rem;
 		font-weight: 600;
 		white-space: nowrap;
+	}
+
+	/* The row labels keep to their own width, so the forms start close to them */
+	tbody th {
+		width: 1%;
+		padding-right: 2rem;
 	}
 
 	td {
@@ -160,12 +166,12 @@
 	}
 
 	td small {
-		color: var(--d-muted);
+		color: var(--muted);
 		font-weight: 400;
 	}
 
 	.none {
-		color: var(--d-muted);
+		color: var(--muted);
 		font-weight: 400;
 	}
 </style>

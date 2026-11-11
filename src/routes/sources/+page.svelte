@@ -1,8 +1,13 @@
 <!-- Text from docs/sources-and-licences.md. The per-item credits it describes
      (Wiktionary, Tatoeba and Commons links) are on each word's Details page. -->
-<svelte:head>
-	<title>Sources and licences · Nebokrai</title>
-</svelte:head>
+<script lang="ts">
+	import PageMeta from '#lib/PageMeta.svelte';
+</script>
+
+<PageMeta
+	title="Sources and licences · Nebokrai"
+	description="Where Nebokrai’s words, frequency ranks, example sentences and recordings come from, and the licence of each source."
+/>
 
 <article>
 	<h1>Sources and licences</h1>
@@ -53,6 +58,15 @@
 		</dd>
 	</dl>
 
+	<h2>Background photos</h2>
+	<p>
+		The two photos you can choose as a background in the settings are
+		<a href="https://unsplash.com/photos/Y4aVJso5J_c">a field of yellow flowers under a blue sky</a>
+		by Igor Karimov on Unsplash (<a href="https://unsplash.com/license">Unsplash Licence</a>) and
+		<a href="https://www.pexels.com/photo/28041738/">a green hill with trees and fog</a>
+		by neslihan on Pexels (<a href="https://www.pexels.com/license/">Pexels Licence</a>).
+	</p>
+
 	<h2>Using our data</h2>
 	<p>
 		The dictionary data shown on this site, apart from VESUM, is available under
@@ -72,14 +86,15 @@
 <style>
 	article {
 		box-sizing: border-box;
-		max-width: 44rem;
+		/* Leaves a 1rem gutter on each side of a narrow window */
+		width: min(44rem, 100% - 2rem);
 		margin: 1.5rem auto 2rem;
 		padding: 1.5rem 1.75rem 1.75rem;
-		border-radius: 6px;
-		background: var(--panel);
-		color: var(--ink);
+		border: 1px solid var(--border);
+		border-radius: 14px;
+		background: var(--surface);
+		box-shadow: var(--shadow);
 		line-height: 1.6;
-		text-align: left;
 	}
 
 	h1,
@@ -118,7 +133,7 @@
 	}
 
 	a {
-		color: var(--link);
+		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 2px;
 	}

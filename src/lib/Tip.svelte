@@ -19,6 +19,6 @@
 		{#snippet child({ props })}{@render trigger(props)}{/snippet}
 	</Tooltip.Trigger>
 	<Tooltip.Portal>
-		<Tooltip.Content class="d-tooltip" sideOffset={6}>{label}</Tooltip.Content>
+		<Tooltip.Content class="ui-tooltip" sideOffset={6}>{label}</Tooltip.Content>
 	</Tooltip.Portal>
 </Tooltip.Root>

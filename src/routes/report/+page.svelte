@@ -87,7 +87,7 @@
 				class="stress">{part}</span
 			>{:else}{part}{/if}{/each}{/snippet}
 
-<TextPage title={m.report.title}>
+<TextPage title={m.report.title} description={m.meta.report}>
 	{#if sent}
 		<section class="thanks" aria-live="polite">
 			<h2>{m.report.thanks}</h2>
@@ -194,8 +194,8 @@
 		margin: 0;
 		padding: 0.5rem 0.75rem;
 		border-radius: 6px;
-		background: var(--field);
-		border: 1px solid var(--line);
+		background: var(--surface);
+		border: 1px solid var(--border);
 	}
 
 	.headword {
@@ -228,16 +228,16 @@
 
 	.chip {
 		padding: 0.3rem 0.8rem;
-		border: 1px solid var(--line);
+		border: 1px solid var(--border);
 		border-radius: 999px;
-		background: var(--field);
+		background: var(--surface);
 		cursor: pointer;
 	}
 
 	.chip.on {
-		border-color: var(--menu-on);
-		background: var(--menu-on);
-		color: var(--menu-on-ink);
+		border-color: var(--accent);
+		background: var(--accent);
+		color: var(--accent-ink);
 		font-weight: 700;
 	}
 
@@ -249,7 +249,7 @@
 	}
 
 	.chip:has(input:focus-visible) {
-		outline: 3px solid var(--menu-on);
+		outline: 3px solid var(--accent);
 		outline-offset: 2px;
 	}
 
@@ -270,9 +270,9 @@
 		box-sizing: border-box;
 		width: 100%;
 		padding: 0.55rem 0.7rem;
-		border: 1.5px solid var(--field-line);
+		border: 1.5px solid var(--border-strong);
 		border-radius: 8px;
-		background: var(--field);
+		background: var(--surface);
 		color: var(--ink);
 		font: inherit;
 	}
@@ -308,8 +308,8 @@
 
 	.primary {
 		border: 0;
-		background: var(--menu-on);
-		color: var(--menu-on-ink);
+		background: var(--accent);
+		color: var(--accent-ink);
 	}
 
 	.primary:disabled {
@@ -318,8 +318,8 @@
 	}
 
 	.secondary {
-		border: 1.5px solid var(--field-line);
-		background: var(--field);
+		border: 1.5px solid var(--border-strong);
+		background: var(--surface);
 		color: var(--ink);
 	}
 
@@ -356,8 +356,8 @@
 		margin: 0.5rem 0 0;
 		padding: 0.6rem 0.8rem;
 		border-radius: 6px;
-		background: var(--field);
-		border: 1px solid var(--line);
+		background: var(--surface);
+		border: 1px solid var(--border);
 		font-size: 0.85rem;
 	}
 </style>

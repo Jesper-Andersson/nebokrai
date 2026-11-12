@@ -6,10 +6,14 @@
      "Again" and "Good". The card lies on a pile: answered, it leaves to the
      left for "Again" and to the right for "Good", and the next one comes up.
      A finger can send it there by swiping; the keys are Anki's. Under the
-     decks, a calendar of the reviews done each day, with the streak. -->
+     decks, a calendar of the reviews done each day, with the streak.
+     A list of saved words (saved.ts) can be a deck of its own; and
+     /review?list=<id>, where the Saved page's Practise button leads from a
+     list, practises that list alone for the visit without changing the decks. -->
 <script lang="ts">
 	import { RadioGroup, Switch } from 'bits-ui';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
@@ -20,7 +24,9 @@
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
 	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
-	import { COMMON_DECKS, DECK_IDS, NEW_PER_DAY, SAVED_DECK } from '#lib/review/decks.ts';
+	import {
+		COMMON_DECKS, NEW_PER_DAY, SAVED_DECK, listDeck, listOfDeck, wordsOfDeck
+	} from '#lib/review/decks.ts';
 	import {
 		AGAIN, GOOD, REVIEW, answer, dayNumber, newCard, preview, type Grade, type ReviewCard
 	} from '#lib/review/fsrs.ts';
@@ -73,11 +79,24 @@
 		return () => clearInterval(tick);
 	});
 
-	const wordsOf = (deck: string): string[] =>
-		deck === SAVED_DECK ? saved.items.map((item) => item.word) : (review.common.get(deck) ?? []);
+	let savedWords = $derived(saved.items.map((item) => item.word));
+	const wordsOf = (deck: string): string[] => wordsOfDeck(deck, savedWords, saved.lists, review.common);
 
 	// Saved words first, newest first: they are the ones the visitor asked for.
-	let words = $derived(review.settings.decks.flatMap(wordsOf).filter((word) => !gone.has(word)));
+	// Every deck there is to switch on: the saved words, each list of them, the common words.
+	let decks = $derived([
+		SAVED_DECK, ...saved.lists.map((list) => listDeck(list.id)), ...COMMON_DECKS.map((deck) => deck.id as string)
+	]);
+	const deckName = (deck: string) =>
+		saved.lists.find((list) => list.id === listOfDeck(deck))?.name ?? m.review.deck[deck] ?? deck;
+	let allSaved = $derived(review.settings.decks.includes(SAVED_DECK));
+	const isOn = (deck: string) => review.settings.decks.includes(deck) || (allSaved && listOfDeck(deck) !== null);
+
+	// The one list this visit is for (/review?list=<id>), if it is one of the visitor's.
+	let only = $derived(saved.lists.find((list) => list.id === page.url.searchParams.get('list')) ?? null);
+
+	let words = $derived(
+		(only ? only.words : review.settings.decks.flatMap(wordsOf)).filter((word) => !gone.has(word)));
 	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now));
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
@@ -339,8 +358,9 @@
 	}
 
 	function toggleDeck(deck: string, on: boolean) {
-		const decks = on ? [...review.settings.decks, deck] : review.settings.decks.filter((id) => id !== deck);
-		review.change({ decks: DECK_IDS.filter((id) => decks.includes(id)) });
+		const chosen = on ? [...review.settings.decks, deck] : review.settings.decks.filter((id) => id !== deck);
+		// In the order shown; this also lets go of lists that have been deleted.
+		review.change({ decks: decks.filter((id) => chosen.includes(id)) });
 		now = Date.now();
 	}
 
@@ -379,6 +399,9 @@
 			<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
 				{m.review.start}
 			</button>
+			{#if only}
+				<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
+			{/if}
 			{#if ready && !left}
 				<p class="muted">
 					{words.length ? m.review.nothingToday : m.review.noWords}
@@ -390,19 +413,23 @@
 		<section class="ui-card options">
 			<h2 class="ui-label">{m.review.decks}</h2>
 			<ul>
-				{#each DECK_IDS as deck (deck)}
+				{#each decks as deck (deck)}
 					{@const all = wordsOf(deck)}
-					<li>
-						<span class="name" id="deck-{deck}">{m.review.deck[deck]}</span>
+					{@const list = listOfDeck(deck) !== null}
+					<li class:list>
+						<span class="name" id="deck-{deck}">{deckName(deck)}</span>
 						<span class="muted">
-							{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
+							{#if list || deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
 								{m.review.progress(all.filter((word) => review.cards.has(word)).length, all.length)}
 							{/if}
+							{#if list && allSaved}· {m.review.inSaved}{/if}
 						</span>
+						<!-- With every saved word in, a list is in too, and cannot be taken out alone -->
 						<Switch.Root
 							class="ui-switch"
 							aria-labelledby="deck-{deck}"
-							checked={review.settings.decks.includes(deck)}
+							checked={isOn(deck)}
+							disabled={list && allSaved}
 							onCheckedChange={(on) => toggleDeck(deck, on)}
 						>
 							<Switch.Thumb class="ui-switch-thumb" />
@@ -612,6 +639,11 @@
 
 	.options li .muted {
 		grid-row: 2;
+	}
+
+	/* A list is part of the saved words: set in under them */
+	.options li.list {
+		padding-left: 1rem;
 	}
 
 	.options li :global(.ui-switch) {

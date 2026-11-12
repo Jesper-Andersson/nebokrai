@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { mergeCards, nextUp, parseCards, plan, span } from '../src/lib/review/cards.ts';
-import { DEFAULT_SETTINGS, parseSettings } from '../src/lib/review/decks.ts';
+import { DEFAULT_SETTINGS, listDeck, listOfDeck, parseSettings, wordsOfDeck } from '../src/lib/review/decks.ts';
 import {
 	AGAIN, DAY, GOOD, MINUTE, NEW, REVIEW, answer, newCard, type Rating, type ReviewCard
 } from '../src/lib/review/fsrs.ts';
@@ -120,6 +120,40 @@ test('a session comes to an end', () => {
 test('span rounds a length of time to one unit', () => {
 	const spans = [MINUTE, 10 * MINUTE, 90 * MINUTE, 2 * DAY, 45 * DAY, 498 * DAY].map((ms) => span(ms));
 	assert.deepEqual(spans.map(({ n, unit }) => `${n} ${unit}`), ['1 min', '10 min', '2 h', '2 d', '2 mo', '1.4 y']);
+});
+
+test('a list of saved words is a deck', () => {
+	const lists = [{ id: 'list-food-01', words: ['хліб', 'сіль'] }, { id: 'list-home-01', words: ['дім'] }];
+	const common = new Map([['common-500', ['не', 'я']]]);
+	const saved = ['дім', 'хліб', 'сіль', 'кіт'];
+	const words = (deck: string) => wordsOfDeck(deck, saved, lists, common);
+
+	assert.equal(listDeck('list-food-01'), 'list:list-food-01');
+	assert.equal(listOfDeck('list:list-food-01'), 'list-food-01');
+	for (const not of ['saved', 'common-500', 'list:', 'list:short', 'list:has spaces in it']) {
+		assert.equal(listOfDeck(not), null, not);
+	}
+
+	assert.deepEqual(words('saved'), saved);
+	assert.deepEqual(words('list:list-food-01'), ['хліб', 'сіль']);
+	assert.deepEqual(words('common-500'), ['не', 'я']);
+	// A list since deleted, and a deck not yet fetched, have no words.
+	assert.deepEqual(words('list:list-gone-01'), []);
+	assert.deepEqual(words('common-1000'), []);
+
+	// Only the list's words are new cards when the list alone is switched on.
+	assert.deepEqual(plan(new Map(), words('list:list-food-01'), 10, T0).fresh, ['хліб', 'сіль']);
+});
+
+test('settings keep list decks, between the saved words and the common ones', () => {
+	const sent = {
+		new_per_day: 10, updated_at: T0,
+		decks: ['common-500', 'list:list-home-01', 'saved', 'list:list-food-01', 'list:list-home-01', 'list:x', 7]
+	};
+	assert.deepEqual(parseSettings(sent, T0)?.decks, ['saved', 'list:list-home-01', 'list:list-food-01', 'common-500']);
+	// No more list decks than there can be lists.
+	const many = Array.from({ length: 80 }, (_, i) => `list:list-${String(i).padStart(4, '0')}`);
+	assert.equal(parseSettings({ ...sent, decks: many }, T0)?.decks.length, 50);
 });
 
 test('parseSettings', () => {

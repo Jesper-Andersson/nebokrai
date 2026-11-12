@@ -11,7 +11,7 @@
 	import { plan } from '#lib/review/cards.ts';
 	import { keyOfDay, reviewStats } from '#lib/review/days.ts';
 	import { dayNumber } from '#lib/review/fsrs.ts';
-	import { SAVED_DECK } from '#lib/review/decks.ts';
+	import { wordsOfDeck } from '#lib/review/decks.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -52,8 +52,8 @@
 	});
 	let due = $derived.by(() => {
 		if (!review.cards.size || !saved.ready) return 0;
-		const words = review.settings.decks.flatMap((deck) =>
-			deck === SAVED_DECK ? saved.items.map((item) => item.word) : (review.common.get(deck) ?? []));
+		const savedWords = saved.items.map((item) => item.word);
+		const words = review.settings.decks.flatMap((deck) => wordsOfDeck(deck, savedWords, saved.lists, review.common));
 		// New words are not counted: they wait for the visitor, nothing is lost by leaving them.
 		const today = plan(review.cards, words, 0, Date.now());
 		return today.learning.length + today.due.length;

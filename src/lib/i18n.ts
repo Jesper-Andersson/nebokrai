@@ -443,6 +443,9 @@ const en = {
 			'common-2000': 'Common words 1,001–2,000'
 		} as Record<string, string>,
 		progress: (started: number, total: number) => `${started} of ${total} started`,
+		inSaved: 'Included in Saved words',
+		onlyList: (name: string) => `Only the list “${name}”.`,
+		allDecks: 'Practise all your decks',
 		newPerDay: 'New cards a day',
 		kept: 'Your reviews are kept in this browser. Sign in on the Saved page to have them on every device.',
 		keptAccount: 'Your reviews are kept in your account.',
@@ -1039,6 +1042,9 @@ const uk: Messages = {
 			'common-2000': 'Найуживаніші слова 1001–2000'
 		},
 		progress: (started, total) => `розпочато ${started} з ${total}`,
+		inSaved: 'Входить до збережених слів',
+		onlyList: (name) => `Лише список «${name}».`,
+		allDecks: 'Тренувати всі колоди',
 		newPerDay: 'Нових карток на день',
 		kept: 'Ваші повторення зберігаються в цьому браузері. Увійдіть на сторінці «Збережене», щоб мати їх на кожному пристрої.',
 		keptAccount: 'Ваші повторення зберігаються у вашому обліковому записі.',

@@ -577,7 +577,11 @@ Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794
   `since` the list is empty: a browser with more than 500 cards to send
   leaves it out of every request but the last.
 - `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "updated_at": 1794400000000 }`:
-  how many new words a day, and which decks are switched on. Of the copy sent
+  how many new words a day, and which decks are switched on. A deck is
+  `saved` (every saved word), `list:<id>` (one of the visitor's lists, by the
+  list's id; at most 50 are kept) or a deck of common words. Whether a list
+  still exists is not checked here: a deleted list is a deck with no words,
+  and the browser drops it the next time the decks are changed. Of the copy sent
   and the account's, the one with the later `updated_at` is kept, and
   returned; `null` when the account has none.
 - `days` counts the reviews done on each day, for the review page's calendar

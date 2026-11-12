@@ -439,7 +439,8 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
-			<a class="ui-btn" href="/review">{m.review.practise}</a>
+			<!-- From a list, the review is of that list alone -->
+			<a class="ui-btn" href={current ? `/review?list=${current.id}` : '/review'}>{m.review.practise}</a>
 		</div>
 		{#if notice}
 			<div class="anki-note" data-tone={notice.tone} role="status">

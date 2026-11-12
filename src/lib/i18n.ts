@@ -183,14 +183,14 @@ const en = {
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
-		saved: 'The words you saved, kept in this browser or in your account.',
-		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		commonWords: 'The 1,000 most common Ukrainian words in order of frequency, each with its stress mark, part of speech and meaning in English.',
 		words: 'Browse the whole Ukrainian–English dictionary by letter: every word in alphabetical order, each with its stress, forms and meanings.',
 		/** Ukrainian words beginning with П, from па to перев */
 		letter: (letter: string, first: string, last: string) =>
 			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
 		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
+		saved: 'The words you saved, kept in this browser or in your account.',
+		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** книга: meaning in English, stress and declension */
 		wordTitle: (word: string, has: WordFacts) =>
 			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
@@ -447,13 +447,13 @@ const uk: Messages = {
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
-		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
-		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		commonWords: '1000 найуживаніших українських слів за частотою, кожне з наголосом, частиною мови та значенням англійською.',
 		words: 'Увесь українсько-англійський словник за літерами: кожне слово за абеткою, з наголосом, формами та значеннями.',
 		letter: (letter, first, last) =>
 			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
 		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
+		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		wordTitle: (word, has) =>
 			`${word}: ${listOf([
 				'значення англійською', has.stress && 'наголос',

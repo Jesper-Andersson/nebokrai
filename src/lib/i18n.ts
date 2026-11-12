@@ -66,7 +66,7 @@ const en = {
 		layout: 'Keyboard layout',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Phonetic',
-		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike: п on P, г on H.',
+		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike.',
 		background: 'Background',
 		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' }
 	},
@@ -261,7 +261,7 @@ const uk: Messages = {
 		layout: 'Розкладка клавіатури',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Фонетична',
-		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком: п на P, г на H.',
+		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком.',
 		background: 'Тло',
 		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' }
 	},

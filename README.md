@@ -10,7 +10,7 @@ A Ukrainian learning site and dictionary, at [nebokrai.app](https://nebokrai.app
 |---|---|
 | `src/routes/` | The site's pages (SvelteKit). |
 | `src/lib/` | Shared components and assets. `src/lib/server/` picks the database: D1 in production, the local `nebokrai.db` during `npm run dev`. |
-| `static/` | Files served as-is. `og.png`, the picture shown beside a shared link, is drawn by `npm run og-image` (needs Edge or Chrome). |
+| `static/` | Files served as-is. `og.png`, the picture shown beside a shared link, is drawn by `npm run og-image`, and the app icons in `icons/` by `npm run app-icons` (both need Edge or Chrome). |
 | `data/` | Scripts that build the dictionary database from open data. Start with `data/README.md`. |
 | `src/lib/search/` | The search the site will use (TypeScript). |
 | `tests/` | Checks that the TypeScript search agrees with the reference search in `data/search.py`. Run with `npm test`. |
@@ -50,6 +50,25 @@ In production the same four values are Worker secrets, and accounts live in a
 D1 database bound as `USERS`, apart from the dictionary. What is stored about a
 person: the provider's id for them, their display name, their saved words and
 when each word was last exported.
+
+## Installing the site as an app
+
+A phone or a desktop browser can install the site: Chrome on Android offers
+"Install app" in its menu. The installed app is the site without the
+browser's bars; it is not a separate program and has no data of its own.
+
+| File | |
+|---|---|
+| `static/manifest.webmanifest` | The app's name, colours, icons and shortcuts. Linked from `src/app.html`. |
+| `static/icons/` | The icons, drawn from the logo by `npm run app-icons`. |
+| `src/service-worker/` | Shows `static/offline.html` when a page cannot be reached, and keeps nothing else: pages and API answers differ by cookie, and the browser's own cache already holds the build's files. |
+| `tests/installable.test.ts` | Holds the manifest, the icons, the offline page and the service worker together. |
+
+The service worker has a `tsconfig.json` of its own and is type-checked at the
+end of `npm run check`. It runs during `npm run dev` too: stop the dev server
+and reload, and the offline page appears. Chrome's developer tools show the
+manifest and the worker under Application. Nothing works offline beyond the
+offline page: every search asks the server.
 
 ## Deploying
 

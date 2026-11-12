@@ -11,6 +11,9 @@
 		<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
 		<!-- Lets a browser search the dictionary from its address bar (static/opensearch.xml) -->
 		<link rel="search" type="application/opensearchdescription+xml" title="Nebokrai" href="/opensearch.xml" />
+		<!-- What a phone needs to offer "Install app": the name, the icons and
+		     how the installed app opens. With src/service-worker/. -->
+		<link rel="manifest" href="/manifest.webmanifest" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

@@ -3,6 +3,9 @@
 # sign-in addresses. src/hooks.server.ts also marks these and /saved "noindex".
 # A search (/?q=kava) is not a page either: every query is an address, and
 # each one fetched is a search of the database.
+# offline.html is what the installed app shows without a connection; it says
+# "noindex" itself. Cloudflare serves it at /offline, and the line below
+# covers both addresses.
 User-agent: *
 Disallow: /?q=
 Disallow: /api/
@@ -10,5 +13,6 @@ Disallow: /report
 Disallow: /login/
 Disallow: /auth/
 Disallow: /logout
+Disallow: /offline
 
 Sitemap: https://nebokrai.app/sitemap.xml

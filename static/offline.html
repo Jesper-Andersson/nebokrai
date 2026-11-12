@@ -1,0 +1,115 @@
+<!doctype html>
+<!-- What the service worker (src/service-worker/index.ts) shows in place of a page
+     that cannot be reached. It stands alone: no script, no stylesheet, no font
+     file, because none of them can be fetched either. So the colours are
+     written out (they are --bg, --ink, --muted and --accent of src/app.css),
+     the letters are the device's own, and both languages are shown: the
+     language setting is a cookie, which a file cannot read.
+
+     "Try again" is a link to the address the visitor asked for, which is the
+     address this page is shown at. -->
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex" />
+		<meta name="theme-color" content="#f7f6f2" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
+		<title>Offline · Nebokrai</title>
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<style>
+			:root {
+				--bg: #f7f6f2;
+				--ink: #16181d;
+				--muted: #646a76;
+				--accent: #1f5fbf;
+				--accent-ink: #ffffff;
+				color-scheme: light;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #0f1115;
+					--ink: #eceef3;
+					--muted: #9aa1ae;
+					--accent: #8db4f0;
+					--accent-ink: #0d1a2e;
+					color-scheme: dark;
+				}
+			}
+
+			body {
+				display: grid;
+				min-height: 100dvh;
+				margin: 0;
+				place-items: center;
+				background: var(--bg);
+				color: var(--ink);
+				font:
+					1rem/1.5 system-ui,
+					sans-serif;
+			}
+
+			main {
+				box-sizing: border-box;
+				width: min(30rem, 100%);
+				padding: 2rem 1.25rem;
+				text-align: center;
+			}
+
+			.name {
+				margin: 0 0 1.5rem;
+				color: var(--muted);
+				font-size: 0.88rem;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+
+			h1 {
+				margin: 0;
+				font-size: 1.5rem;
+				line-height: 1.25;
+			}
+
+			p {
+				margin: 0.4rem 0 0;
+				color: var(--muted);
+			}
+
+			section + section {
+				margin-top: 1.5rem;
+			}
+
+			a {
+				display: inline-block;
+				margin-top: 2rem;
+				padding: 0.6rem 1.2rem;
+				border-radius: 10px;
+				background: var(--accent);
+				color: var(--accent-ink);
+				font-weight: 600;
+				text-decoration: none;
+			}
+
+			a:focus-visible {
+				outline: 2px solid var(--accent);
+				outline-offset: 2px;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<p class="name">Nebokrai</p>
+			<section>
+				<h1>You are offline</h1>
+				<p>Nebokrai needs a connection to look words up.</p>
+			</section>
+			<section lang="uk">
+				<h1>Немає з’єднання</h1>
+				<p>Щоб шукати слова, Небокраю потрібен інтернет.</p>
+			</section>
+			<a href="">Try again · <span lang="uk">Спробувати ще раз</span></a>
+		</main>
+	</body>
+</html>

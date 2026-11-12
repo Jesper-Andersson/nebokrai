@@ -72,6 +72,11 @@ words as a form, so a homograph can pick up a sentence meant for its twin.
 
 Within each step, more common words come first.
 
+A result found through an inflected form also says which form the query is
+(`matched_forms`): `руки` is both руки́, the genitive singular of рука, and
+ру́ки, its nominative, accusative and vocative plural. The same holds for a
+form typed in Latin letters (`ruky`).
+
 The site runs a TypeScript version of the same search (`src/lib/search/`).
 `search.py` stays the reference. After changing it or rebuilding the database,
 record its answers again and run the TypeScript tests against them:

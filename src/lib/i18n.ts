@@ -123,7 +123,12 @@ const en = {
 		unsave: 'Remove from saved',
 		details: 'Details',
 		genitive: 'gen.',
-		noEntry: 'A Ukrainian word with no dictionary entry yet.'
+		noEntry: 'A Ukrainian word with no dictionary entry yet.',
+		/** Before the form of the word that the search found: руки́ genitive singular */
+		formFound: 'Form found:',
+		moreForms: (n: number) => `+${n} more`,
+		/** When it is known to be a form of the word, but not which */
+		someForm: 'Your search is a form of this word.'
 	},
 	word: {
 		back: 'Back to search',
@@ -364,7 +369,10 @@ const uk: Messages = {
 		unsave: 'Прибрати зі збереженого',
 		details: 'Докладніше',
 		genitive: 'р. в.',
-		noEntry: 'Українське слово, якого ще немає в словнику.'
+		noEntry: 'Українське слово, якого ще немає в словнику.',
+		formFound: 'Знайдена форма:',
+		moreForms: (n: number) => `ще ${n}`,
+		someForm: 'Ваш запит є формою цього слова.'
 	},
 	word: {
 		back: 'До пошуку',

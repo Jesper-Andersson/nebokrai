@@ -59,6 +59,11 @@ test('search matches the Python reference', { skip }, async () => {
 			rows.map((r) => [r.id, r.word, r.pos, r.match]);
 		assert.deepEqual(brief(got.results), c.expect, `results for ${label}`);
 		assert.deepEqual(brief(got.suggestions), c.suggest, `suggestions for ${label}`);
+		// Which forms the query spells; recorded only for the cases that have any
+		const forms = got.results
+			.filter((r) => r.matched_forms?.length)
+			.map((r) => [r.id, r.matched_forms!.map((f) => [f.form, f.tags])]);
+		assert.deepEqual(forms, c.forms ?? [], `matched forms for ${label}`);
 	}
 });
 

@@ -189,7 +189,7 @@ const en = {
 		/** On a resource's own line */
 		kind: {
 			course: 'Course', podcast: 'Podcast or video', reading: 'Reading and listening',
-			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors and community', book: 'Book'
+			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', book: 'Book'
 		} as Record<Kind, string>,
 		cost: { free: 'Free', freemium: 'Free + paid', paid: 'Paid' } as Record<Cost, string>,
 		ukOnly: 'UK',
@@ -424,7 +424,7 @@ const uk: Messages = {
 		},
 		kind: {
 			course: 'Курс', podcast: 'Подкаст або відео', reading: 'Читання й слухання',
-			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори та спільнота', book: 'Книжка'
+			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', book: 'Книжка'
 		},
 		cost: { free: 'Безкоштовно', freemium: 'Безкоштовно + платне', paid: 'Платно' },
 		ukOnly: 'УКР',

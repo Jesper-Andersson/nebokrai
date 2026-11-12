@@ -29,11 +29,45 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `entries` | dictionary word + part of speech | 30,982 |
 | `senses` | English meaning of an entry | 47,567 |
 | `forms` | inflected form (declension / conjugation cell) | 529,270 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 79,365 |
 | `examples` | Tatoeba sentence with English translation | 28,670 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
 
 Pages that only say "genitive singular of X" are skipped (29,315), because the
 same forms are already in X's own table.
+
+## Related words
+
+`relations` holds the other words Wiktionary lists on an entry or on one of
+its meanings (`sense_n`; empty for the entry as a whole). 18,942 entries name
+at least one.
+
+| Kind | Rows | Entries | Rows whose word has an entry |
+|---|---|---|---|
+| `synonym` | 30,114 | 12,584 | 22,584 |
+| `antonym` | 1,497 | 1,093 | 1,277 |
+| `derived` (formed from the word) | 26,716 | 7,098 | 7,933 |
+| `related` (same root) | 21,038 | 6,910 | 12,688 |
+
+Three things are done to what Wiktionary gives:
+
+- **Cleaning.** A romanisation in brackets and a gender or aspect mark in
+  Latin letters are cut off (`мольфар (molʹfar)`, `не́бо n`). A word is not
+  listed under itself, nor twice under one meaning.
+- **Stress.** A word written without a stress mark takes the headword's when
+  exactly one headword has that spelling: `красивий` becomes `краси́вий` (887
+  rows).
+- **Both ways.** A synonym or an antonym is also stored on the other word's
+  side when that spelling has exactly one entry of the same part of speech:
+  великий names малий, so малий names великий (7,720 rows, with no meaning
+  attached). With two candidates there is no telling which was meant, and
+  nothing is added.
+
+Coordinate terms are left out: 532 entries carry about 29,000 of them (every
+month under січень, every country under Україна).
+
+Whether the other word has an entry is not stored. The site looks it up when
+it draws a page, so the answer cannot go stale.
 
 ## Frequency ranking
 
@@ -71,6 +105,11 @@ words as a form, so a homograph can pick up a sentence meant for its twin.
 7. Prefix match, for search-as-you-type
 
 Within each step, more common words come first.
+
+A result found through an inflected form also says which form the query is
+(`matched_forms`): `руки` is both руки́, the genitive singular of рука, and
+ру́ки, its nominative, accusative and vocative plural. The same holds for a
+form typed in Latin letters (`ruky`).
 
 The site runs a TypeScript version of the same search (`src/lib/search/`).
 `search.py` stays the reference. After changing it or rebuilding the database,

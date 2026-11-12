@@ -1,6 +1,7 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { RADIO_ORIGINS } from './src/lib/radio.ts';
 
 export default defineConfig({
 	plugins: [
@@ -26,8 +27,9 @@ export default defineConfig({
 					'font-src': ['self'],
 					// data: for small images Vite inlines; GitHub for the avatar on /about
 					'img-src': ['self', 'data:', 'https://avatars.githubusercontent.com', 'https://github.com'],
-					// Recordings of words, on Wikimedia Commons
-					'media-src': ['https://upload.wikimedia.org'],
+					// Recordings of words, on Wikimedia Commons; and the radio's
+					// stations, each played from its own server (src/lib/radio.ts)
+					'media-src': ['https://upload.wikimedia.org', ...RADIO_ORIGINS],
 					'connect-src': ['self'],
 					'object-src': ['none'],
 					'base-uri': ['self'],

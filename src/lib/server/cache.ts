@@ -15,7 +15,7 @@
 // This is the Cache API, called from here. Cloudflare's "Workers Cache",
 // which caches by response headers alone, is deliberately not switched on in
 // wrangler.jsonc: pages differ by cookie (theme, language) and must not be
-// cached, and only the two endpoints that use this file are safe to share.
+// cached; only what is the same for every visitor goes through this file.
 import { waitUntil } from 'cloudflare:workers';
 import { dev } from '$app/env';
 
@@ -35,8 +35,15 @@ const CACHE_CONTROL = `public, max-age=300, s-maxage=${HOUR}`;
  * `key` must be an absolute URL built only from what the answer depends on.
  * Never pass the request's own URL: extra parameters (`&x=1`, `&x=2`) would
  * each get an entry of their own and reach the database every time.
+ *
+ * `cacheControl` is for an answer that goes stale sooner than the dictionary
+ * does: the song a radio station is playing lasts seconds, not an hour.
  */
-export async function cached(key: string, produce: () => Promise<Response>): Promise<Response> {
+export async function cached(
+	key: string,
+	produce: () => Promise<Response>,
+	cacheControl: string = CACHE_CONTROL
+): Promise<Response> {
 	// Not in dev: the adapter provides a stand-in cache there, and an hour-old
 	// answer is the last thing wanted while changing the search.
 	const cache = dev ? undefined : (globalThis.caches as { default?: EdgeCache } | undefined)?.default;
@@ -52,8 +59,18 @@ export async function cached(key: string, produce: () => Promise<Response>): Pro
 
 	const response = await produce();
 	if (response.status !== 200) return response;
-	response.headers.set('cache-control', CACHE_CONTROL);
+	response.headers.set('cache-control', cacheControl);
 	// Stored after the answer has gone out, so the visitor does not wait for it.
 	waitUntil(cache.put(key, response.clone()).catch(() => {}));
 	return response;
+}
+
+/**
+ * The same for a value that is not an answer of its own but part of a page:
+ * the words under a letter, which several pages are cut from. `key` is an
+ * address used only as the value's name in the cache; nothing is served there.
+ */
+export async function cachedJson<T>(key: string, produce: () => Promise<T>): Promise<T> {
+	const response = await cached(key, async () => Response.json(await produce()));
+	return response.json();
 }

@@ -1,6 +1,9 @@
 <!-- Text from docs/sources-and-licences.md. The per-item credits it describes
-     (Wiktionary, Tatoeba and Commons links) are on each word's Details page. -->
+     (Wiktionary, Tatoeba and Commons links) are on each word's Details page.
+     The radio stations are named from the player's own list, so the two
+     cannot differ. -->
 <script lang="ts">
+	import { STATIONS } from '#lib/radio.ts';
 	import TextPage from '#lib/TextPage.svelte';
 </script>
 
@@ -74,6 +77,20 @@
 		The logos on the <a href="/support">Support Ukraine</a> page belong to the organisations they
 		stand for. Each was taken from that organisation’s own site and is shown only to say whose link
 		it is. None of the licences above covers them.
+	</p>
+
+	<h2>Radio</h2>
+	<p>
+		The radio you can switch on in the settings plays Ukrainian stations:
+		{#each STATIONS as station, i (station.id)}
+			{#if i}{i === STATIONS.length - 1 ? ' and ' : ', '}{/if}<a href={station.home} lang="uk">{station.name}</a
+			>{/each}. Each stream is the station’s own and comes straight from the station’s server to your
+		browser; Nebokrai stores and re-broadcasts nothing. The programmes, and any advertising in
+		them, belong to the stations, and Nebokrai earns nothing from them. The name of the song is the
+		station’s own text: what it sends with its stream, or what its own player lists. The moving bars that show a
+		station is on air follow an animation by Sam Herbert
+		(<a href="https://github.com/SamHerbert/SVG-Loaders">SVG Loaders</a>,
+		<a href="https://github.com/SamHerbert/SVG-Loaders/blob/master/LICENSE.md">MIT licence</a>).
 	</p>
 
 	<h2>Using our data</h2>

@@ -1,4 +1,4 @@
-<!-- Draft: a starting list to review. The funds are in src/lib/charities.ts. -->
+<!-- The funds, and the rule for adding one, are in src/lib/charities.ts. -->
 <script lang="ts">
 	import { AREAS, CHECKED } from '#lib/charities.ts';
 	import Headword from '#lib/Headword.svelte';

@@ -1,8 +1,9 @@
 <!-- The settings under the header's sliders button: a Bits UI Popover (it
      handles Escape, clicks outside and focus) holding one RadioGroup per
-     setting. The settings themselves work as before (src/lib/settings.ts). -->
+     setting, and a Switch for the one that is only on or off. The settings
+     themselves work as before (src/lib/settings.ts). -->
 <script lang="ts">
-	import { Popover, RadioGroup } from 'bits-ui';
+	import { Popover, RadioGroup, Switch } from 'bits-ui';
 	import { page } from '$app/state';
 	import AccountPanel from '#lib/AccountPanel.svelte';
 	import fieldThumb from '#lib/assets/backgrounds/field-thumb.webp';
@@ -30,7 +31,7 @@
 	// Small previews of the photos; the plain background shows the page colour.
 	const previews: Record<Background, string | null> = { plain: null, field: fieldThumb, hills: hillsThumb };
 
-	function set<K extends 'theme' | 'lang' | 'layout' | 'background'>(name: K, value: string) {
+	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio'>(name: K, value: string) {
 		settings[name] = value as (typeof settings)[K];
 		applySetting(name, settings[name]);
 	}
@@ -123,6 +124,23 @@
 						<span class="keys"><kbd class="ui-kbd">H</kbd> → <span lang="uk">г</span></span>
 						<span class="sentence">{m.settings.layoutHint}</span>
 					</p>
+				</section>
+				<!-- The radio's button (RadioPlayer.svelte) is on the page only
+				     while this is on; switching it off also stops the sound -->
+				<section class="divided">
+					<div class="switch-row">
+						<h2 id="ui-set-radio">{m.settings.radio}</h2>
+						<Switch.Root
+							class="ui-switch"
+							aria-labelledby="ui-set-radio"
+							aria-describedby="ui-set-radio-hint"
+							checked={settings.radio === 'on'}
+							onCheckedChange={(on) => set('radio', on ? 'on' : 'off')}
+						>
+							<Switch.Thumb class="ui-switch-thumb" />
+						</Switch.Root>
+					</div>
+					<p class="hint" id="ui-set-radio-hint">{m.settings.radioHint}</p>
 				</section>
 				{#if hasAccount}
 					<section class="divided">
@@ -339,7 +357,53 @@
 		flex-basis: 100%;
 	}
 
-	/* A line above: where the language settings start, and the account */
+	/* A setting that is only on or off: its name, and the switch at the
+	   other end of the line. Bits UI draws the switch (a button) and its
+	   thumb, so their rules are global. */
+	.switch-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	:global(.ui-switch) {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		width: 2.5rem;
+		height: 1.5rem;
+		padding: 2px;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-pill);
+		background: var(--surface-2);
+		cursor: pointer;
+	}
+
+	:global(.ui-switch[data-state='checked']) {
+		border-color: var(--accent);
+		background: var(--accent);
+	}
+
+	:global(.ui-switch-thumb) {
+		width: 1.125rem;
+		height: 1.125rem;
+		border-radius: 50%;
+		background: var(--muted);
+	}
+
+	:global(.ui-switch-thumb[data-state='checked']) {
+		background: var(--accent-ink);
+		translate: 1rem 0;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		:global(.ui-switch-thumb) {
+			transition: translate var(--duration);
+		}
+	}
+
+	/* A line above: where the language settings start, the radio, and the account */
 	.divided {
 		padding-top: 0.9rem;
 		border-top: 1px solid var(--border);

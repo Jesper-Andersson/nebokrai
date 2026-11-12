@@ -12,9 +12,11 @@
 	import PageMeta from '#lib/PageMeta.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
+	import Term from '#lib/Term.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import { formTables } from '#lib/forms.ts';
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { otherFormLabel, termOf } from '#lib/grammar.ts';
+	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -45,8 +47,6 @@
 			speechSynthesis.speak(utterance);
 		}
 	}
-
-	const label = (tag: string) => tag.replace(/-/g, ' ');
 </script>
 
 <!-- A spelling with several entries is described by its most common one -->
@@ -113,7 +113,10 @@
 					{#each entry.senses as sense (sense.n)}
 						<li>
 							<p>
-								{#if sense.tags.length}<i class="tag">({sense.tags.map(label).join(', ')})</i>{/if}
+								<!-- A remark that is a grammar word can be pressed for its note -->
+								{#if sense.tags.length}
+									<i class="tag">({#each sense.tags as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
+								{/if}
 								{sense.gloss}
 							</p>
 							{#if sense.examples.length}
@@ -154,9 +157,11 @@
 					{#if tables.length}<FormTables {tables} />{/if}
 					{#if other.length}
 						<dl class="other">
-							{#each other as group (group.label)}
+							{#each other as group, i (i)}
+								{@const label = otherFormLabel(group.tags)}
+								{@const text = formName(m, settings.lang, label.key && m.grammar.otherForms[label.key], label.extra)}
 								<div>
-									<dt>{group.label}</dt>
+									<dt>{#if label.term}<Term id={label.term}>{text}</Term>{:else}{text}{/if}</dt>
 									<dd lang="uk">
 										<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
 										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} />{/each}
@@ -165,6 +170,9 @@
 							{/each}
 						</dl>
 					{/if}
+					<p class="guide">
+						<a href="/grammar#{entry.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
+					</p>
 				</section>
 			{/if}
 
@@ -385,6 +393,11 @@
 
 	.other dd {
 		margin: 0;
+	}
+
+	.guide {
+		margin-top: 0.75rem;
+		font-size: var(--text-sm);
 	}
 
 	.etymology {

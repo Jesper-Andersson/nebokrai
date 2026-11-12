@@ -1,5 +1,5 @@
 <!-- The foot of every page: the site's name as a dictionary entry of its own,
-     the credit line, and the two pages the header has no room for. Its top
+     the credit line, and the pages the header has no room for. Its top
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
 	import { page } from '$app/state';
@@ -18,6 +18,7 @@
 
 	// Only what the header does not already link to
 	const links = $derived([
+		{ href: '/grammar', label: m.footer.grammar },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/report', label: m.footer.report }
 	]);

@@ -43,7 +43,7 @@ export function wordDescription(m: Messages, entry: WordEntry): string {
 }
 
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */
-const PAGES = ['/', '/about', '/resources', '/support', '/sources'];
+const PAGES = ['/', '/about', '/resources', '/grammar', '/support', '/sources'];
 
 const xml = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 

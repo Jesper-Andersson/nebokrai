@@ -18,6 +18,7 @@
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { differOnlyByStress, stressMoved, stressShift } from '#lib/stress.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -47,6 +48,13 @@
 	}
 
 	const label = (tag: string) => tag.replace(/-/g, ' ');
+
+	// The list of entries names each headword only when they are not all the
+	// same (за́мок and замо́к, or а, А and -а behind one address).
+	let varied = $derived(new Set(data.entries.map((e) => e.headword)).size > 1);
+	let stressedApart = $derived(
+		data.entries.some((a, i) => data.entries.slice(i + 1).some((b) => differOnlyByStress(a.headword, b.headword)))
+	);
 </script>
 
 <!-- A spelling with several entries is described by its most common one -->
@@ -59,10 +67,12 @@
 
 	<!-- стан is a noun five times over: say so before the first entry -->
 	{#if data.entries.length > 1}
+		{#if stressedApart}<p class="apart">{m.word.sameSpelling}</p>{/if}
 		<nav class="entries" aria-label={m.word.entries}>
 			{#each data.entries as entry, i (entry.id)}
 				<a href="#entry-{entry.id}">
 					<span class="n">{i + 1}</span>
+					{#if varied}<b lang="uk"><Stressed text={entry.headword} /></b>{/if}
 					<b>{posLabel(m, entry.pos)}</b>
 					<span class="gloss">{entry.senses[0]?.gloss ?? ''}</span>
 				</a>
@@ -73,6 +83,10 @@
 	{#each data.entries as entry (entry.id)}
 		{@const { tables, other } = formTables(entry.pos, entry.forms, entry.word)}
 		{@const playLabel = entry.audio_url ? m.word.playRecording : m.word.playVoice}
+		<!-- What each form's stress is compared with. Not for pronouns: мене́ is
+		     another word than я, not я with its stress moved. -->
+		{@const base = entry.pos === 'pron' ? '' : entry.headword}
+		{@const shift = stressShift(base, entry.forms.map((f) => f.form))}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
 				<div class="title">
@@ -151,7 +165,7 @@
 			{#if tables.length || other.length}
 				<section>
 					<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
-					{#if tables.length}<FormTables {tables} />{/if}
+					{#if tables.length}<FormTables {tables} headword={base} />{/if}
 					{#if other.length}
 						<dl class="other">
 							{#each other as group (group.label)}
@@ -159,11 +173,16 @@
 									<dt>{group.label}</dt>
 									<dd lang="uk">
 										<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
-										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} />{/each}
+										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} moved={stressMoved(base, form)} />{/each}
 									</dd>
 								</div>
 							{/each}
 						</dl>
+					{/if}
+					{#if shift === 'moves'}
+						<p class="shift">{m.word.stressMoves} <b lang="uk"><Stressed text={entry.headword} /></b>.</p>
+					{:else if shift === 'stays'}
+						<p class="shift">{m.word.stressStays}</p>
 					{/if}
 				</section>
 			{/if}
@@ -211,6 +230,13 @@
 
 	.back a:hover {
 		color: var(--ink);
+	}
+
+	/* Stands on the page, above the list of entries */
+	.apart {
+		margin-bottom: 0.5rem;
+		color: var(--on-page);
+		font-size: var(--text-sm);
 	}
 
 	/* The entries of this spelling, as links that wrap onto more lines */
@@ -385,6 +411,17 @@
 
 	.other dd {
 		margin: 0;
+	}
+
+	/* What the underlines in the tables mean */
+	.shift {
+		margin-top: 0.6rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.shift b {
+		color: var(--ink-2);
 	}
 
 	.etymology {

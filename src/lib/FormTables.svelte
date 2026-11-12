@@ -7,9 +7,12 @@
 	import type { FormTable } from '#lib/forms.ts';
 	import { formLabel, messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { stressMoved } from './stress.ts';
 	import Stressed from './Stressed.svelte';
 
-	let { tables }: { tables: FormTable[] } = $props();
+	// `headword` is what each form's stress is compared with; leave it out and
+	// no form is marked as moving the stress.
+	let { tables, headword = '' }: { tables: FormTable[]; headword?: string } = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -47,7 +50,7 @@
 						{#each row.cells as cell}
 							<td lang="uk">
 								{#each cell as item, i}
-									{#if i}<br />{/if}<Stressed text={item.form} />{#if item.note}
+									{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}
 										<small>{item.note}</small>{/if}
 								{:else}<span class="none">—</span>{/each}
 							</td>

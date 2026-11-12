@@ -8,6 +8,10 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
+	import { plan } from '#lib/review/cards.ts';
+	import { SAVED_DECK } from '#lib/review/decks.ts';
+	import { useReview } from '#lib/review.svelte.ts';
+	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
@@ -34,6 +38,24 @@
 	let onATab = $derived(links.some((link) => current(link.href)));
 
 	const quick = useQuickSearch();
+
+	// How many flashcards are due, on the button that leads to them. Counted
+	// from what this browser holds, with no request to the account; and for a
+	// visitor who has never reviewed a card, with no request at all.
+	const review = useReview();
+	const saved = useSaved();
+	onMount(() => review.peek());
+	$effect(() => {
+		if (review.cards.size) review.fetchDecks(review.settings.decks);
+	});
+	let due = $derived.by(() => {
+		if (!review.cards.size || !saved.ready) return 0;
+		const words = review.settings.decks.flatMap((deck) =>
+			deck === SAVED_DECK ? saved.items.map((item) => item.word) : (review.common.get(deck) ?? []));
+		// New words are not counted: they wait for the visitor, nothing is lost by leaving them.
+		const today = plan(review.cards, words, 0, Date.now());
+		return today.learning.length + today.due.length;
+	});
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -104,6 +126,16 @@
 				<span class="label">{m.home.placeholder}</span>
 				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
 			</button>
+			<a
+				class="ui-icon-btn cards"
+				href="/review"
+				aria-current={current('/review') ? 'page' : undefined}
+				aria-label={due ? m.review.openDue(due) : m.review.open}
+				title={m.review.open}
+			>
+				<Icon name="cards" size={20} />
+				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
+			</a>
 			<SettingsMenu />
 		</div>
 	</div>
@@ -304,6 +336,32 @@
 		align-items: center;
 		justify-self: end;
 		gap: 0.35rem;
+	}
+
+	/* The way to the flashcards, with how many are due on its corner */
+	.cards {
+		position: relative;
+	}
+
+	.cards[aria-current='page'] {
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+
+	.count {
+		position: absolute;
+		top: -0.15rem;
+		right: -0.3rem;
+		min-width: 1.1rem;
+		padding: 0 0.3rem;
+		border-radius: var(--radius-pill);
+		background: var(--accent);
+		color: var(--accent-ink);
+		font-size: 0.7rem;
+		font-weight: 700;
+		line-height: 1.1rem;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was

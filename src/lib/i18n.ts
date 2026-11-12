@@ -395,6 +395,8 @@ const en = {
 		tags: {} as Record<string, string>
 	},
 	review: {
+		open: 'Flashcards',
+		openDue: (n: number) => `Flashcards: ${n} to review`,
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
 		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
@@ -418,7 +420,7 @@ const en = {
 		show: 'Show answer',
 		again: 'Again',
 		good: 'Good',
-		keys: 'Space shows the answer. Then 1 is Again, and 2 or Space is Good.',
+		keys: 'Space shows the answer. Then 1 or ← is Again, and 2, → or Space is Good.',
 		undo: 'Undo',
 		undone: 'Answer taken back',
 		openWord: 'Open in the dictionary',
@@ -933,6 +935,8 @@ const uk: Messages = {
 		}
 	},
 	review: {
+		open: 'Картки',
+		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
 		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
@@ -956,7 +960,7 @@ const uk: Messages = {
 		show: 'Показати відповідь',
 		again: 'Ще раз',
 		good: 'Добре',
-		keys: 'Пробіл показує відповідь. Далі 1 означає «Ще раз», а 2 або пробіл означає «Добре».',
+		keys: 'Пробіл показує відповідь. Далі 1 або ← означає «Ще раз», а 2, → або пробіл означає «Добре».',
 		undo: 'Скасувати',
 		undone: 'Відповідь скасовано',
 		openWord: 'Відкрити у словнику',

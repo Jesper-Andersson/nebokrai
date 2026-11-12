@@ -15,7 +15,7 @@
 // be shared between visitors on the server).
 import { getContext, setContext } from 'svelte';
 import { SYNC_MAX, mergeCards, parseCards } from './review/cards.ts';
-import { DEFAULT_SETTINGS, parseSettings, type ReviewSettings } from './review/decks.ts';
+import { DEFAULT_SETTINGS, SAVED_DECK, parseSettings, type ReviewSettings } from './review/decks.ts';
 import { DAY, type ReviewCard } from './review/fsrs.ts';
 
 const CARDS_KEY = 'review';
@@ -59,6 +59,8 @@ export class Review {
 	settings = $state.raw<ReviewSettings>(DEFAULT_SETTINGS);
 	/** False until the browser's cards have been read. */
 	ready = $state(false);
+	/** The words of each deck of common words, once fetched (fetchDecks). */
+	common = $state.raw<ReadonlyMap<string, string[]>>(new Map());
 
 	#unsent = $state.raw<ReadonlySet<string>>(new Set());
 	#synced = 0;
@@ -66,6 +68,8 @@ export class Review {
 	/** Exchanges with the account run one after another, never two at once. */
 	#queue: Promise<void> = Promise.resolve();
 	#loading: Promise<void> | undefined;
+	#read = false;
+	#asked = new Set<string>();
 
 	constructor(userId: string | null) {
 		this.#userId = userId;
@@ -83,14 +87,37 @@ export class Review {
 
 	/**
 	 * Browser only: read the stored cards and bring them in line with the
-	 * account. Called by the pages that show reviews, not by the layout, so the
-	 * dictionary pages cost the account nothing; a second call does nothing.
+	 * account. Called by the pages that show reviews, so the dictionary pages
+	 * cost the account nothing; a second call does nothing.
 	 */
 	load(): Promise<void> {
-		return (this.#loading ??= this.#load());
+		this.peek();
+		return (this.#loading ??= this.sync());
 	}
 
-	async #load(): Promise<void> {
+	/**
+	 * Fetch the words of these decks of common words, each once. They are the
+	 * same for everyone and cached, and are needed to tell which cards belong
+	 * to a deck that is switched on.
+	 */
+	fetchDecks(ids: readonly string[]): void {
+		for (const id of ids) {
+			if (id === SAVED_DECK || this.#asked.has(id)) continue;
+			this.#asked.add(id);
+			void fetch(`/api/review/deck/${id}`)
+				.then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+				.then((found: { words: string[] }) => (this.common = new Map(this.common).set(id, found.words)))
+				.catch(() => this.#asked.delete(id)); // asked again by the next call
+		}
+	}
+
+	/**
+	 * Browser only: read what this browser holds, without asking the account.
+	 * Enough for the header's count of cards due; a second call does nothing.
+	 */
+	peek(): void {
+		if (this.#read) return;
+		this.#read = true;
 		// Another tab reviewed a card or changed the settings.
 		addEventListener('storage', (event) => {
 			if (event.key === CARDS_KEY) this.cards = readCards();
@@ -98,7 +125,7 @@ export class Review {
 		});
 		// Leaving the page: send what was answered, while there is still time to.
 		addEventListener('visibilitychange', () => {
-			if (document.visibilityState === 'hidden') void this.sync();
+			if (document.visibilityState === 'hidden' && this.#unsent.size) void this.sync();
 		});
 
 		this.settings = parseSettings(read(SETTINGS_KEY)) ?? DEFAULT_SETTINGS;
@@ -133,7 +160,6 @@ export class Review {
 			this.#setUnsent(new Set(local.keys()));
 		}
 		this.ready = true;
-		await this.sync();
 	}
 
 	/** True while the last answer for `word` can still be taken back. */

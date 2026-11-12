@@ -705,16 +705,20 @@
 		text-align: center;
 	}
 
+	/* The answer sits under the word, centred like it */
 	.back {
 		display: grid;
+		justify-items: center;
 		gap: 0.75rem;
 		padding-top: 1.25rem;
 		border-top: 1px solid var(--border);
+		text-align: center;
 	}
 
 	.grammar {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: 0.25rem 0.75rem;
 		color: var(--ink-2);
 		font-size: var(--text-sm);
@@ -724,16 +728,17 @@
 		font-family: var(--font-ipa);
 	}
 
+	/* The numbers stay with their lines, which are centred */
 	.glosses {
 		display: grid;
 		gap: 0.25rem;
-		padding-left: 1.25rem;
+		padding-left: 0;
+		list-style-position: inside;
 		font-size: var(--text-lg);
 	}
 
 	/* One meaning needs no number */
 	.glosses li:only-child {
-		margin-left: -1.25rem;
 		list-style: none;
 	}
 
@@ -743,7 +748,6 @@
 	}
 
 	.more {
-		justify-self: start;
 		font-size: var(--text-sm);
 	}
 

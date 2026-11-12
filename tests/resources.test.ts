@@ -80,15 +80,15 @@ test('narrowing the list', () => {
 		filterResources(RESOURCES, kind, text).map((r) => r.name);
 	assert.deepEqual(names(null, 'горох'), ['Горох']);
 	assert.deepEqual(names(null, 'ГОРО́Х'), ['Горох']);
-	assert.ok(names(null, 'forvo').includes('Forvo'));
+	assert.ok(names(null, 'tatoeba').includes('Tatoeba'));
 
 	// The description counts, in either language, and every word must be there
-	assert.ok(names(null, 'native speakers').includes('Forvo'));
-	assert.ok(names(null, 'носіями').includes('Forvo'));
-	assert.deepEqual(names(null, 'forvo горох'), []);
+	assert.ok(names(null, 'example sentences').includes('Tatoeba'));
+	assert.ok(names(null, 'перекладами').includes('Tatoeba'));
+	assert.deepEqual(names(null, 'tatoeba горох'), []);
 
 	// A kind and a word together
-	assert.deepEqual(names('dictionary', 'forvo'), []);
+	assert.deepEqual(names('dictionary', 'tatoeba'), []);
 	for (const r of filterResources(RESOURCES, 'dictionary', '')) assert.equal(r.kind, 'dictionary');
 
 	for (const kind of kindsIn(RESOURCES)) assert.ok(filterResources(RESOURCES, kind, '').length > 0);

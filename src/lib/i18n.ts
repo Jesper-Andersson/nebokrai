@@ -102,7 +102,28 @@ const en = {
 		nameGloss: 'horizon, literally “the sky’s edge”',
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
-		sources: 'Sources and licences'
+		sources: 'Sources and licences',
+		common: 'Common words',
+		words: 'All words'
+	},
+	/** The pages for browsing: /common-words and /words (browse.ts). */
+	browse: {
+		commonTitle: 'The 1,000 most common Ukrainian words',
+		commonLead: 'The words you will meet most often, commonest first, each with its stress and first meaning. Follow a word for all its meanings and forms.',
+		commonSource: 'Counted in film and television subtitles, so everyday speech weighs more than books.',
+		commonPages: 'Parts of the list',
+		wordsTitle: 'All words',
+		wordsLead: 'Every word in the dictionary under its first letter, in alphabetical order.',
+		wordsCommon: 'Or start with the 1,000 most common words.',
+		letterTitle: (letter: string) => `Words beginning with ${letter}`,
+		otherTitle: 'Other entries',
+		otherLead: 'Entries that begin with no Ukrainian letter.',
+		other: 'Other',
+		alphabet: 'Letters',
+		pages: 'Pages',
+		previous: 'Previous page',
+		next: 'Next page',
+		all: 'All letters'
 	},
 	home: {
 		/** The title's first line; its last word is drawn (title-paths.ts). */
@@ -146,7 +167,7 @@ const en = {
 	pos: {
 		noun: 'Noun', verb: 'Verb', adj: 'Adjective', adv: 'Adverb', name: 'Name',
 		pron: 'Pronoun', num: 'Numeral', prep: 'Preposition', conj: 'Conjunction',
-		particle: 'Particle', intj: 'Interjection', phrase: 'Phrase'
+		particle: 'Particle', intj: 'Interjection', phrase: 'Phrase', det: 'Determiner'
 	} as Record<string, string>,
 	/** Table titles and labels from forms.ts, keyed by their English text. */
 	forms: {} as Record<string, string>,
@@ -164,6 +185,12 @@ const en = {
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		commonWords: 'The 1,000 most common Ukrainian words in order of frequency, each with its stress mark, part of speech and meaning in English.',
+		words: 'Browse the whole Ukrainian–English dictionary by letter: every word in alphabetical order, each with its stress, forms and meanings.',
+		/** Ukrainian words beginning with П, from па to перев */
+		letter: (letter: string, first: string, last: string) =>
+			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
+		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		/** книга: meaning in English, stress and declension */
 		wordTitle: (word: string, has: WordFacts) =>
 			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
@@ -337,7 +364,27 @@ const uk: Messages = {
 		nameGloss: 'горизонт, дослівно — «край неба»',
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
-		sources: 'Джерела й ліцензії'
+		sources: 'Джерела й ліцензії',
+		common: 'Найуживаніші слова',
+		words: 'Усі слова'
+	},
+	browse: {
+		commonTitle: '1000 найуживаніших українських слів',
+		commonLead: 'Слова, які трапляються найчастіше, від найуживанішого, з наголосом і першим значенням. Перейдіть до слова, щоб побачити всі його значення та форми.',
+		commonSource: 'Підраховано за субтитрами до фільмів і серіалів, тому розмовна мова важить більше за книжну.',
+		commonPages: 'Частини списку',
+		wordsTitle: 'Усі слова',
+		wordsLead: 'Кожне слово словника під своєю першою літерою, за абеткою.',
+		wordsCommon: 'Або почніть із 1000 найуживаніших слів.',
+		letterTitle: (letter) => `Слова на літеру ${letter}`,
+		otherTitle: 'Інші статті',
+		otherLead: 'Статті, що не починаються з української літери.',
+		other: 'Інше',
+		alphabet: 'Літери',
+		pages: 'Сторінки',
+		previous: 'Попередня сторінка',
+		next: 'Наступна сторінка',
+		all: 'Усі літери'
 	},
 	home: {
 		titlePair: 'Українсько-англійський',
@@ -380,7 +427,7 @@ const uk: Messages = {
 	pos: {
 		noun: 'Іменник', verb: 'Дієслово', adj: 'Прикметник', adv: 'Прислівник', name: 'Власна назва',
 		pron: 'Займенник', num: 'Числівник', prep: 'Прийменник', conj: 'Сполучник',
-		particle: 'Частка', intj: 'Вигук', phrase: 'Фраза'
+		particle: 'Частка', intj: 'Вигук', phrase: 'Фраза', det: 'Займенник'
 	},
 	forms: {
 		Declension: 'Відмінювання', Present: 'Теперішній час', Future: 'Майбутній час',
@@ -402,6 +449,11 @@ const uk: Messages = {
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		commonWords: '1000 найуживаніших українських слів за частотою, кожне з наголосом, частиною мови та значенням англійською.',
+		words: 'Увесь українсько-англійський словник за літерами: кожне слово за абеткою, з наголосом, формами та значеннями.',
+		letter: (letter, first, last) =>
+			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
+		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		wordTitle: (word, has) =>
 			`${word}: ${listOf([
 				'значення англійською', has.stress && 'наголос',

@@ -4,6 +4,9 @@
 // sitemap a crawler would never see them.
 //
 // Nothing here imports from SvelteKit, so `npm test` can run it.
+import {
+	ALPHABET, COMMON_PER_PAGE, COMMON_WORDS, OTHER, WORDS_PER_PAGE, commonPath, letterOf, letterPath
+} from './browse.ts';
 import { posLabel, type Messages, type WordFacts } from './i18n.ts';
 import type { Db } from './search/db.ts';
 import { wordPath } from './search/slug.ts';
@@ -43,7 +46,7 @@ export function wordDescription(m: Messages, entry: WordEntry): string {
 }
 
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */
-const PAGES = ['/', '/about', '/resources', '/support', '/sources'];
+const PAGES = ['/', '/about', '/resources', '/support', '/sources', '/words'];
 
 const xml = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
@@ -52,11 +55,25 @@ const xml = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt
  * first. Several words can share a page (а, А and -а are all /word/a); each
  * page is listed once. About 29,000 addresses, under the limit of 50,000 for
  * one sitemap file.
+ *
+ * Before the words come the pages that list them (browse.ts): the ten of the
+ * common words, and each letter's, as many as its words fill. A letter is a
+ * Cyrillic address, written here the way a browser sends it (%D0%BF for п).
  */
 export async function sitemap(db: Db, origin: string): Promise<string> {
 	const rows = await db.all<{ word: string }>(
 		'SELECT word FROM entries GROUP BY word ORDER BY min(coalesce(freq_rank, 1e9)), word');
 	const paths = new Set(PAGES);
+	for (let page = 1; page <= COMMON_WORDS / COMMON_PER_PAGE; page++) paths.add(commonPath(page));
+	const under = new Map<string, number>();
+	for (const { word } of rows) {
+		const letter = letterOf(word) ?? OTHER;
+		under.set(letter, (under.get(letter) ?? 0) + 1);
+	}
+	for (const letter of [...ALPHABET, OTHER]) {
+		const pages = Math.ceil((under.get(letter) ?? 0) / WORDS_PER_PAGE);
+		for (let page = 1; page <= pages; page++) paths.add(encodeURI(letterPath(letter, page)));
+	}
 	for (const { word } of rows) paths.add(wordPath(word));
 	const urls = [...paths].map((path) => `<url><loc>${xml(origin + path)}</loc></url>`);
 	return [

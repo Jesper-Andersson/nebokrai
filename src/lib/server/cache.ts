@@ -15,7 +15,7 @@
 // This is the Cache API, called from here. Cloudflare's "Workers Cache",
 // which caches by response headers alone, is deliberately not switched on in
 // wrangler.jsonc: pages differ by cookie (theme, language) and must not be
-// cached, and only the two endpoints that use this file are safe to share.
+// cached; only what is the same for every visitor goes through this file.
 import { waitUntil } from 'cloudflare:workers';
 import { dev } from '$app/env';
 
@@ -56,4 +56,14 @@ export async function cached(key: string, produce: () => Promise<Response>): Pro
 	// Stored after the answer has gone out, so the visitor does not wait for it.
 	waitUntil(cache.put(key, response.clone()).catch(() => {}));
 	return response;
+}
+
+/**
+ * The same for a value that is not an answer of its own but part of a page:
+ * the words under a letter, which several pages are cut from. `key` is an
+ * address used only as the value's name in the cache; nothing is served there.
+ */
+export async function cachedJson<T>(key: string, produce: () => Promise<T>): Promise<T> {
+	const response = await cached(key, async () => Response.json(await produce()));
+	return response.json();
 }

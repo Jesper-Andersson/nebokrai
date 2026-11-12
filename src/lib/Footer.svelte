@@ -1,5 +1,5 @@
 <!-- The foot of every page: the site's name as a dictionary entry of its own,
-     the credit line, and the two pages the header has no room for. Its top
+     the credit line, and the pages the header has no room for. Its top
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
 	import { page } from '$app/state';
@@ -16,11 +16,18 @@
 	const NAME = 'небокрай';
 	const HEADWORD = 'небокра́й';
 
-	// Only what the header does not already link to
+	// Only what the header does not already link to. The first two are the
+	// ways into the dictionary without searching; from every page, they are
+	// also how a search engine comes to the word pages.
 	const links = $derived([
+		{ href: '/common-words', label: m.footer.common },
+		{ href: '/words', label: m.footer.words },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/report', label: m.footer.report }
 	]);
+
+	// /words is the current page on /words/п too
+	const current = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(href + '/');
 </script>
 
 <footer>
@@ -36,7 +43,7 @@
 
 		<nav aria-label={m.footer.label}>
 			{#each links as link (link.href)}
-				<a href={link.href} aria-current={page.url.pathname === link.href ? 'page' : undefined}>{link.label}</a>
+				<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
 			{/each}
 		</nav>
 	</div>

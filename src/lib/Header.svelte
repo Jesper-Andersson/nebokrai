@@ -1,6 +1,6 @@
 <!-- The top bar, set like the head of a dictionary page: the four pages as
      tabs on the left, the name in the middle, and on the right the link to
-     support Ukraine, quick search and settings. A thick rule closes it. It
+     support Ukraine, quick search and settings. A ribbon in the flag's colours closes it. It
      stays at the top of the window while the page scrolls. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
@@ -28,15 +28,17 @@
 	const current = (href: string) =>
 		page.url.pathname === href || (href === '/' && page.url.pathname.startsWith('/word/'));
 
-	// The rule under the bar is drawn by the current page's tab. A page that is
+	// The ribbon under the bar is drawn by the current page's tab. A page that is
 	// none of the four (/support, /sources, /report, an error) has no such tab, and the
-	// bar then draws the rule itself, unbroken.
+	// bar then draws the ribbon itself, unbroken.
 	let onATab = $derived(links.some((link) => current(link.href)));
 
 	const quick = useQuickSearch();
 
 	// The search page has its own box right under the header: a second field
-	// beside it only repeats it. Ctrl+K still opens the quick search there.
+	// beside it only repeats it. The button is hidden there but keeps its
+	// place, so the rest of the bar stands still from one page to the next.
+	// Ctrl+K still opens the quick search there.
 	let onSearchPage = $derived(page.url.pathname === '/');
 
 	// Known only in the browser; the server always renders "Ctrl K".
@@ -91,13 +93,17 @@
 			</a>
 			<!-- A hairline between the link to the funds and the site's own tools -->
 			<span class="divider"></span>
-			{#if !onSearchPage}
-				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (quick.open = true)}>
-					<Icon name="search" size={18} />
-					<span class="label">{m.home.placeholder}</span>
-					<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
-				</button>
-			{/if}
+			<button
+				type="button"
+				class="search"
+				class:away={onSearchPage}
+				aria-label={m.quick.open}
+				onclick={() => (quick.open = true)}
+			>
+				<Icon name="search" size={18} />
+				<span class="label">{m.home.placeholder}</span>
+				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+			</button>
 			<SettingsMenu />
 		</div>
 	</div>
@@ -106,23 +112,62 @@
 <QuickSearch />
 
 <style>
+	/* Under the bar runs a ribbon in the flag's colours, wound round a pole
+	   like the stripes of a barber's: blue and yellow turn about, at 45
+	   degrees. It was a plain rule in the text colour until 2026-11-12.
+
+	   Whole pixels thick. At 2.5px it was three screen pixels on a page with
+	   no tab and two and a half beside a tab: the mask (below) draws the half,
+	   and a box without one is drawn to the nearest whole.
+
+	   The colours are the flag's own, the same in both themes, as in the
+	   heart beside "Support Ukraine".
+
+	   It is painted in two layers. The first is a little light along the top
+	   and shade along the bottom, fitted to the strip: enough to round it, and
+	   the colours stay nearly as flat as the flag's. The second is the
+	   stripes, and they are fixed to the window, not to whatever draws them:
+	   the ribbon is drawn by the current tab, and stripes that started from
+	   the tab would shift from page to page. One blue and one yellow stripe
+	   take 28px of the ribbon's length, 19.8px along a line at 45 degrees, so
+	   a tile 28px square repeats without a seam. (iOS Safari does not fix a
+	   background to the window; there the stripes start from the tab.) */
 	header {
+		--ribbon-height: 3px;
+		--flag-blue: #005bbb;
+		--flag-yellow: #ffd500;
+		--ribbon:
+			linear-gradient(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 50%, rgb(0 0 0 / 0.12)) 0 0 / 100% 100%
+				no-repeat,
+			repeating-linear-gradient(
+					135deg,
+					var(--flag-blue) 0 9.65px,
+					var(--flag-yellow) 9.9px 19.55px,
+					var(--flag-blue) 19.8px
+				)
+				0 0 / 28px 28px repeat fixed;
 		position: sticky;
 		top: 0;
 		z-index: 30;
-		/* Room for the thick rule. The current tab draws it (below); the bar
+		/* Room for the ribbon. The current tab draws it (below); the bar
 		   draws it only on a page that has no tab. */
-		border-bottom: 2px solid transparent;
+		border-bottom: var(--ribbon-height) solid transparent;
 		background: var(--frame);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
-		/* The rule runs a window's width each way from the tab; cut it at the
+		/* The ribbon runs a window's width each way from the tab; cut it at the
 		   window's edges. `clip` only: `hidden` would cut the tab's foot too. */
 		overflow-x: clip;
 	}
 
-	header.ruled {
-		border-bottom-color: var(--ink);
+	/* A page with no tab: the bar lays the ribbon over its own bottom border */
+	header.ruled::after {
+		content: '';
+		position: absolute;
+		inset: 100% 0 auto;
+		height: var(--ribbon-height);
+		background: var(--ribbon);
+		pointer-events: none;
 	}
 
 	/* Pages, name, tools. The outer two share what the name leaves, so the
@@ -169,7 +214,7 @@
 		gap: 2px;
 	}
 
-	/* The pages are tabs standing on the rule, like the thumb index cut into
+	/* The pages are tabs standing on the ribbon, like the thumb index cut into
 	   the edge of a printed dictionary, and lettered like the names of an
 	   entry's parts (ui-label). */
 	nav a {
@@ -190,30 +235,35 @@
 		white-space: nowrap;
 	}
 
-	/* The page you are on: an outlined tab that reaches down through the rule
-	   and is open to the page under it. The padding keeps its word level
-	   with the others. */
+	/* The page you are on: an outlined tab that reaches down through the
+	   ribbon and is open to the page under it. The padding keeps its word
+	   level with the others. */
 	nav a[aria-current='page'] {
-		height: calc(2.5rem + 2px);
-		margin-bottom: -2px;
-		padding-bottom: 2px;
+		height: calc(2.5rem + var(--ribbon-height));
+		margin-bottom: calc(-1 * var(--ribbon-height));
+		padding-bottom: var(--ribbon-height);
 		border-color: var(--border-strong);
 		color: var(--ink);
 	}
 
-	/* The rule, in two pieces that stop at the tab's sides. It is drawn, not
-	   a border painted over under the tab: the bar is see-through, and over a
-	   background photo there is no one colour to paint with. */
+	/* The ribbon, in two pieces that stop at the tab's sides: a strip a
+	   window's width each way from the tab, and a mask that keeps the two
+	   pieces beside the tab and leaves the tab's own width open. It is cut
+	   open, not painted over under the tab: the bar is see-through, and over
+	   a background photo there is no one colour to paint with. */
 	nav a[aria-current='page']::before {
+		--beside:
+			linear-gradient(#000, #000) left / 100vw 100% no-repeat,
+			linear-gradient(#000, #000) right / 100vw 100% no-repeat;
 		content: '';
 		position: absolute;
 		right: calc(-100vw - 1px);
 		bottom: 0;
 		left: calc(-100vw - 1px);
-		height: 2px;
-		background:
-			linear-gradient(var(--ink), var(--ink)) left / 100vw 100% no-repeat,
-			linear-gradient(var(--ink), var(--ink)) right / 100vw 100% no-repeat;
+		height: var(--ribbon-height);
+		background: var(--ribbon);
+		-webkit-mask: var(--beside);
+		mask: var(--beside);
 		pointer-events: none;
 	}
 
@@ -316,6 +366,12 @@
 		cursor: pointer;
 	}
 
+	/* On the search page: not shown, not reachable by Tab and not read out,
+	   but still as wide, so nothing beside it moves */
+	.search.away {
+		visibility: hidden;
+	}
+
 	.search .label {
 		flex: 1;
 		overflow: hidden;
@@ -414,8 +470,7 @@
 		}
 
 		nav a[aria-current='page'] {
-			height: calc(2.75rem + 2px);
-			padding-bottom: 2px;
+			height: calc(2.75rem + var(--ribbon-height));
 		}
 
 		nav a[aria-current='page']::after {
@@ -427,4 +482,5 @@
 			height: 2.75rem;
 		}
 	}
+
 </style>

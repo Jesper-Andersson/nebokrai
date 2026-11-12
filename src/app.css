@@ -237,10 +237,18 @@
 	}
 }
 
-/* iOS Safari enlarges text when a phone is turned sideways; keep the sizes as written */
+/* iOS Safari enlarges text when a phone is turned sideways; keep the sizes as written.
+
+   The scrollbar's space is kept on a page too short to scroll. Without it a
+   short page (no saved words) is some 15px wider on Windows than a long one
+   (About), and going from one to the other shifts everything centred: the
+   name in the header, the tabs, and the background photo, which is fitted to
+   the window's width. Bits UI sees the kept space and adds no padding of its
+   own when a dialog stops the page scrolling. */
 html {
 	-webkit-text-size-adjust: 100%;
 	text-size-adjust: 100%;
+	scrollbar-gutter: stable;
 }
 
 body {

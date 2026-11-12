@@ -6,19 +6,19 @@ import { removeWord, saveWord } from '#lib/server/users.ts';
 import { wordSummaries } from '#lib/search/word.ts';
 import type { RequestHandler } from './$types';
 
-export const PUT: RequestHandler = async ({ params, locals, platform }) => {
-	const who = await signedIn(locals, platform);
+export const PUT: RequestHandler = async ({ params, locals }) => {
+	const who = await signedIn(locals);
 	if (who instanceof Response) return who;
 	// Only dictionary words are kept, so the account cannot be used to store other text.
-	const { db } = await getDatabases(platform);
+	const { db } = await getDatabases();
 	const known = params.word.length <= MAX_WORD_LENGTH && (await wordSummaries(db, [params.word])).length;
 	if (!known) return fail(404, 'not_found');
 	if (!(await saveWord(who.users, who.user.id, params.word))) return fail(409, 'full');
 	return Response.json({ ok: true });
 };
 
-export const DELETE: RequestHandler = async ({ params, locals, platform }) => {
-	const who = await signedIn(locals, platform);
+export const DELETE: RequestHandler = async ({ params, locals }) => {
+	const who = await signedIn(locals);
 	if (who instanceof Response) return who;
 	await removeWord(who.users, who.user.id, params.word);
 	return Response.json({ ok: true });

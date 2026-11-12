@@ -5,8 +5,8 @@ import { test } from 'node:test';
 
 import { MAX_SAVED } from '../src/lib/saved.ts';
 import {
-	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, listSaved, mergeSaved,
-	parseSavedWords, removeWord, saveWord, validateSession
+	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, listExported, listSaved, markExported,
+	mergeSaved, parseExportedMarks, parseExportedWords, parseSavedWords, removeWord, saveWord, validateSession
 } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -89,10 +89,12 @@ test('deleting an account removes everything', async () => {
 	const { token } = await createSession(db, user);
 	await saveWord(db, user, 'книга');
 	await saveWord(db, other, 'книга');
+	await markExported(db, user, { книга: T0 });
+	await markExported(db, other, { книга: T0 });
 
 	await deleteUser(db, user);
 	assert.equal(await validateSession(db, token), null);
-	for (const table of ['users', 'identities', 'saved_words']) {
+	for (const table of ['users', 'identities', 'saved_words', 'exported_words']) {
 		assert.equal((await db.all(`SELECT 1 FROM ${table}`)).length, 1, table); // only Тарас is left
 	}
 	assert.notEqual(await findOrCreateUser(db, 'github', '42', 'Олена'), user); // a new account
@@ -108,4 +110,48 @@ test('a list sent by a browser is read defensively', () => {
 			{ word: 'привіт', saved_at: now + DAY }, { word: 'небокрай', saved_at: 'вчора' } // bad dates become now
 		], now),
 		[{ word: 'книга', saved_at: T0 }, { word: 'привіт', saved_at: now }, { word: 'небокрай', saved_at: now }]);
+});
+
+test('exported marks', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', null);
+	const other = await findOrCreateUser(db, 'github', '43', null);
+	await saveWord(db, user, 'книга', T0);
+	await saveWord(db, user, 'привіт', T0);
+	await saveWord(db, other, 'небокрай', T0);
+
+	// Only words in this account's list are marked
+	await markExported(db, user, { книга: T0 + 5, небокрай: T0 + 5, 'не слово': T0 + 5 });
+	assert.deepEqual(await listExported(db, user), { книга: T0 + 5 });
+	assert.deepEqual(await listExported(db, other), {});
+
+	// The later date wins, whichever arrives second
+	await markExported(db, user, { книга: T0 + 1, привіт: T0 + 2 });
+	await markExported(db, user, { привіт: T0 + 9 });
+	assert.deepEqual(await listExported(db, user), { книга: T0 + 5, привіт: T0 + 9 });
+	await markExported(db, user, {});
+
+	// A mark outlives its word: saved again, the word is still marked
+	await removeWord(db, user, 'книга');
+	assert.equal((await listExported(db, user))['книга'], T0 + 5);
+	await saveWord(db, user, 'книга', T0 + 20);
+	assert.equal((await listExported(db, user))['книга'], T0 + 5);
+
+	// More marks than D1 allows bound parameters
+	const many = Array.from({ length: 300 }, (_, i) => `слово${i}`);
+	await mergeSaved(db, user, many.map((word) => ({ word, saved_at: T0 })));
+	await markExported(db, user, Object.fromEntries(many.map((word) => [word, T0 + 30])));
+	assert.equal(Object.keys(await listExported(db, user)).length, 302);
+});
+
+test('exported marks sent by a browser are read defensively', () => {
+	const now = T0 + DAY;
+	assert.deepEqual(
+		parseExportedMarks({ книга: T0, привіт: now + DAY, небокрай: 'вчора', '': T0, ['я'.repeat(101)]: T0 }, now),
+		{ книга: T0, привіт: now, небокрай: now }); // bad dates become now
+	for (const junk of [null, 'книга', 7, ['книга']]) assert.deepEqual(parseExportedMarks(junk, now), {});
+
+	assert.deepEqual(parseExportedWords(['книга', '', 7, null, 'я'.repeat(101), 'привіт', 'книга'], now),
+		{ книга: now, привіт: now });
+	for (const junk of [null, 'книга', { книга: T0 }]) assert.deepEqual(parseExportedWords(junk, now), {});
 });

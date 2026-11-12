@@ -1,19 +1,27 @@
 <!-- The search page: the search box with its on-screen keyboard, and the
-     answers of /api/search as cards. The keyboard's open and closed state is a
-     Melt Collapsible. -->
+     answers of /api/search as cards. While the box is empty, the word of the
+     day stands where the answers will. The keyboard's open and closed state
+     is a Melt Collapsible. -->
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 	import WordCard from '#lib/WordCard.svelte';
+	import WordOfDay from '#lib/WordOfDay.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import type { LookupResult } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { TITLE_WORD } from '#lib/title-paths.ts';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
+	let word = $derived(TITLE_WORD[settings.lang]);
 
 	let query = $state('');
 	// The answer for the latest query; null while the box is empty.
@@ -116,8 +124,17 @@
 		});
 </script>
 
-<div class="hero" class:searching={query.trim() !== ''}>
-	<h1><span class="accent">{m.home.titleAccent}</span>{m.home.titleRest}</h1>
+<PageMeta title={m.meta.homeTitle} description={m.meta.home} />
+
+<div class="hero">
+	<!-- One phrase on two lines: the languages in print, and the last word in
+	     the hand of the logo. The word is a drawing (title-paths.ts), so the
+	     heading also carries it as text for a screen reader or a search engine. -->
+	<h1>
+		<span class="pair">{m.home.titlePair}</span>
+		<span class="ui-sr-only">{word.name}</span>
+		<svg class="word" viewBox={word.box} style:--ems={word.ems} aria-hidden="true"><path d={word.d} /></svg>
+	</h1>
 
 	<div class="searchbox">
 		<div class="field">
@@ -163,16 +180,18 @@
 		<p class="examples">
 			<span>{m.home.tryLabel}</span>
 			{#each examples as example (example)}
-				<button type="button" onclick={() => fill(example)}>{example}</button>
+				<button type="button" class="ui-chip" onclick={() => fill(example)}>{example}</button>
 			{/each}
 		</p>
 	{/if}
 </div>
 
-{#if failed}
+{#if !query.trim()}
+	{#if data.wordOfDay}<WordOfDay entry={data.wordOfDay} />{/if}
+{:else if failed}
 	<p class="note">{m.home.failed}</p>
 {:else if found}
-	<ul class="results">
+	<ul class="ui-page results">
 		{#each found.results as entry (key(entry))}
 			<li><WordCard {entry} /></li>
 		{/each}
@@ -193,54 +212,72 @@
 <style>
 	/* Sky above, wheat below: the two colours meet behind the search box. The
 	   wheat fades out just above the hero's lower edge; centred on the edge it
-	   was cut off in a visible line. */
+	   was cut off in a visible line. The title and the box sit high and stay
+	   put: typing must not move the box under the caret. */
 	.hero {
-		padding: clamp(2rem, 9vh, 5.5rem) 1rem 1.25rem;
+		padding: clamp(1.25rem, 4vh, 2.5rem) 1rem 1.25rem;
 		background:
 			radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%),
 			radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
 		text-align: center;
-		transition: padding-top 0.2s ease;
 	}
 
-	/* Over a photo (app.css) the photo is the sky: no painted one, and the
-	   title gets a glow of the page colour so it reads on clouds and on blue. */
+	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
+	   a photo is its brightest part, so the page colour is laid over it under
+	   the header and fades out by the search box. That carries the title on
+	   clouds and on blue; the title's own shadow only has to firm its edges. */
 	:global(:root[data-bg]) .hero {
-		background: none;
+		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent);
 	}
 
-	:global(:root[data-bg]) h1 {
-		text-shadow:
-			0 0 0.5em var(--bg),
-			0 0 1.2em var(--bg);
+	:global(:root[data-bg]) .pair {
+		color: var(--ink);
+		text-shadow: 0 1px 0.35em color-mix(in srgb, var(--bg) 65%, transparent);
 	}
 
-	/* With results on the page, the title gives them room */
-	.hero.searching {
-		padding-top: clamp(1.25rem, 4vh, 2.5rem);
+	:global(:root[data-bg]) .word {
+		filter: drop-shadow(0 1px 0.3rem color-mix(in srgb, var(--bg) 65%, transparent));
 	}
 
 	h1 {
-		margin: 0 0 1.5rem;
-		font-family: var(--font-heading);
-		font-size: clamp(1.7rem, 5vw, 2.6rem);
-		font-weight: 800;
-		line-height: 1.15;
-		text-wrap: balance;
+		display: grid;
+		justify-items: center;
+		margin: 0 0 0.9rem;
 	}
 
-	.accent {
-		color: var(--title-accent);
+	.pair {
+		color: var(--ink-2);
+		font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+		font-weight: 600;
+		line-height: 1.3;
 	}
 
-	/* The search box; with the keyboard open it grows downward to hold it */
+	/* --hand is the size of the handwriting, as a font size would be; the
+	   word's own box is --ems of it tall (Словник, with nothing under the line,
+	   less than Dictionary). The outline in the letter's own colour thickens
+	   it, as it does the logo. */
+	.word {
+		--hand: clamp(2.9rem, 9vw, 4.1rem);
+		display: block;
+		width: auto;
+		max-width: 100%;
+		height: calc(var(--hand) * var(--ems));
+		fill: var(--ink);
+		stroke: var(--ink);
+		stroke-width: 0.9;
+		stroke-linejoin: round;
+	}
+
+	/* The search box; with the keyboard open it grows downward to hold it.
+	   As wide as the results under it (.results), so the two share their edges. */
 	.searchbox {
-		max-width: 38rem;
+		box-sizing: border-box;
+		max-width: var(--page);
 		margin: 0 auto;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
-		border-radius: 16px;
-		background: var(--surface);
+		border-radius: var(--radius-lg);
+		background: var(--panel);
 		box-shadow: var(--shadow);
 		text-align: left;
 	}
@@ -268,7 +305,7 @@
 		outline: none;
 		background: none;
 		color: var(--ink);
-		font-size: 1.1rem;
+		font-size: var(--text-lg);
 	}
 
 	input::placeholder {
@@ -283,54 +320,24 @@
 		gap: 0.4rem;
 		margin: 1rem 0 0;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 	}
 
 	.examples span {
 		margin-right: 0.2rem;
 	}
 
-	.examples button {
-		padding: 0.25rem 0.75rem;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		background: var(--surface);
-		color: var(--ink-2);
-		font-weight: 600;
-		cursor: pointer;
-	}
-
-	@media (hover: hover) {
-		.examples button:hover {
-			border-color: var(--border-strong);
-			color: var(--ink);
-		}
-	}
-
-	.examples button:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
-	}
-
-	@media (pointer: coarse) {
-		.examples button {
-			padding-block: 0.55rem;
-		}
-	}
-
 	.results {
 		display: grid;
 		gap: 0.5rem;
-		max-width: 50rem;
-		margin: 0.5rem auto 0;
-		padding: 0 1rem;
+		margin-block: 0.5rem 0;
 		list-style: none;
 	}
 
 	.divider {
 		margin-top: 0.75rem;
 		color: var(--on-page);
-		font-size: 0.9rem;
+		font-size: var(--text-sm);
 		font-weight: 700;
 	}
 
@@ -351,16 +358,6 @@
 	@media (max-width: 600px) {
 		.hero {
 			padding-inline: 0.75rem;
-		}
-
-		.results {
-			padding: 0 0.75rem;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.hero {
-			transition: none;
 		}
 	}
 </style>

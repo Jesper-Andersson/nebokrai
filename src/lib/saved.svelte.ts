@@ -4,14 +4,22 @@
 // the account holds the list and localStorage is a copy of it: a change is
 // shown at once, sent to the server, and undone if the server refuses.
 //
+// Which words have been exported (the Saved page's Export menu) is remembered
+// beside the list and travels the same way: in this browser while signed out,
+// in the account when signed in. A mark outlives its word being removed,
+// because the card made from it is still in the visitor's flashcard app if
+// the word is saved again.
+//
 // One object per page, shared through Svelte context like the settings (a
 // module variable would be shared between visitors on the server).
 import { getContext, setContext } from 'svelte';
-import { MAX_SAVED, type SavedWord } from './saved.ts';
+import { MAX_SAVED, type ExportedMarks, type SavedWord } from './saved.ts';
 
 const LIST_KEY = 'saved';
 /** The id of the account the stored list is a copy of. Absent while signed out. */
 const OWNER_KEY = 'saved-owner';
+/** When each word was last exported: `{ "книга": 1794400000000 }`. */
+const EXPORTED_KEY = 'saved-exported';
 
 function readList(): SavedWord[] {
 	try {
@@ -20,6 +28,16 @@ function readList(): SavedWord[] {
 		return list.filter((i) => typeof i?.word === 'string' && typeof i?.saved_at === 'number');
 	} catch {
 		return []; // storage blocked, or not JSON
+	}
+}
+
+function readExported(): Map<string, number> {
+	try {
+		const marks: unknown = JSON.parse(localStorage.getItem(EXPORTED_KEY) ?? '{}');
+		if (!marks || typeof marks !== 'object' || Array.isArray(marks)) return new Map();
+		return new Map(Object.entries(marks).filter((mark): mark is [string, number] => typeof mark[1] === 'number'));
+	} catch {
+		return new Map(); // storage blocked, or not JSON
 	}
 }
 
@@ -40,6 +58,7 @@ export class SavedWords {
 	readonly signedIn: boolean;
 
 	#words = $derived(new Set(this.items.map((i) => i.word)));
+	#exported = $state.raw(new Map<string, number>());
 	#userId: string | null;
 
 	constructor(userId: string | null) {
@@ -49,6 +68,30 @@ export class SavedWords {
 
 	has(word: string): boolean {
 		return this.#words.has(word);
+	}
+
+	/** When the word was last exported from this browser (milliseconds), if it ever was. */
+	exportedAt(word: string): number | undefined {
+		return this.#exported.get(word);
+	}
+
+	/** Remember that these words have just been exported. */
+	async markExported(words: string[]): Promise<void> {
+		const now = Date.now();
+		this.#setExported(new Map([...this.#exported, ...words.map((w) => [w, now] as const)]));
+		if (!this.#userId) return;
+		// Not undone if this fails: the file has been downloaded either way. The
+		// marks then last until the next page load, which shows the account's.
+		await fetch('/api/saved/exported', {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ words })
+		}).catch(() => null);
+	}
+
+	#setExported(marks: Map<string, number>): void {
+		this.#exported = marks;
+		store(EXPORTED_KEY, JSON.stringify(Object.fromEntries(marks)));
 	}
 
 	#set(items: SavedWord[]): void {
@@ -61,6 +104,7 @@ export class SavedWords {
 		// Another tab saved or removed a word.
 		addEventListener('storage', (event) => {
 			if (event.key === LIST_KEY) this.items = readList();
+			if (event.key === EXPORTED_KEY) this.#exported = readExported();
 		});
 
 		const local = readList();
@@ -70,6 +114,10 @@ export class SavedWords {
 		} catch {
 			// storage blocked
 		}
+		// The marks go with the list: after signing out, or signing in to another
+		// account, they are someone else's.
+		const localMarks = owner && owner !== this.#userId ? new Map<string, number>() : readExported();
+		this.#setExported(localMarks);
 
 		if (!this.#userId) {
 			// Just signed out: the list was a copy of the account, and the next
@@ -87,16 +135,22 @@ export class SavedWords {
 		this.ready = mine;
 		try {
 			// First load after signing in: words saved here while signed out join
-			// the account. (A copy of some other account is not sent anywhere.)
+			// the account, with their exported marks. (A copy of some other
+			// account is not sent anywhere.)
 			const res = mine
 				? await fetch('/api/saved')
 				: await fetch('/api/saved/merge', {
 						method: 'POST',
 						headers: { 'content-type': 'application/json' },
-						body: JSON.stringify({ words: owner ? [] : local })
+						body: JSON.stringify({
+							words: owner ? [] : local,
+							exported: owner ? {} : Object.fromEntries(localMarks)
+						})
 					});
 			if (!res.ok) throw new Error(String(res.status));
-			this.#set((await res.json()).words);
+			const account: { words: SavedWord[]; exported?: ExportedMarks } = await res.json();
+			this.#set(account.words);
+			this.#setExported(new Map(Object.entries(account.exported ?? {})));
 			store(OWNER_KEY, this.#userId);
 		} catch {
 			// Offline or the server failed: keep what this browser has. Without

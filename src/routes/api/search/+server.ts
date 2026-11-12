@@ -5,7 +5,7 @@ import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 import { lookup } from '#lib/search/suggest.ts';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, platform }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const query = url.searchParams.get('q') ?? '';
 	if (!query.trim()) return Response.json({ query, results: [], suggestions: [] });
 	// The work grows with the query: one database query per English word, and
@@ -16,8 +16,8 @@ export const GET: RequestHandler = async ({ url, platform }) => {
 	const limit = Number.isInteger(asked) && asked > 0 ? Math.min(asked, 50) : 20;
 
 	const key = `${url.origin}/api/search?${new URLSearchParams({ q: query, limit: String(limit) })}`;
-	return cached(platform, key, async () => {
-		const { db, vesum } = await getDatabases(platform);
+	return cached(key, async () => {
+		const { db, vesum } = await getDatabases();
 		return Response.json(await lookup(db, query, { limit, vesum }));
 	});
 };

@@ -13,7 +13,7 @@ interface D1Like {
 	};
 }
 
-/** Wrap a Cloudflare D1 binding (platform.env.DB in SvelteKit). */
+/** Wrap a Cloudflare D1 binding (`env.DB` from 'cloudflare:workers'). */
 export function fromD1(d1: D1Like): Db {
 	return {
 		async all<T>(sql: string, params: unknown[] = []) {

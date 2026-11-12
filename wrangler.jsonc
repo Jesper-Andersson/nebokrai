@@ -1,0 +1,56 @@
+// How the site runs on Cloudflare Workers. README.md ("Deploying") has the
+// steps; data/README.md ("Publishing to D1") has the dictionary upload.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "nebokrai",
+	// Written by `npm run build` (the SvelteKit Cloudflare adapter)
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-11-11",
+	// SvelteKit needs AsyncLocalStorage, and nothing else from Node
+	"compatibility_flags": ["nodejs_als"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+
+	// The site has one address. Without these two lines Cloudflare also serves
+	// it at nebokrai.<account>.workers.dev and at a preview address per upload,
+	// all reaching the same databases, outside the rules set for nebokrai.app.
+	"workers_dev": false,
+	"preview_urls": false,
+	"routes": [{ "pattern": "nebokrai.app", "custom_domain": true }],
+
+	// Four databases, apart on purpose:
+	// - the dictionary is rebuilt from open data and replaced whole (CC BY-SA);
+	// - VESUM has a non-commercial licence and must never share a database with it;
+	// - accounts and reports are personal data that must survive every rebuild.
+	// The dictionary names carry the date they were loaded: a rebuild goes
+	// into a new database and the id here is switched (data/README.md).
+	// An id names a database on the Cloudflare account; it is not a secret.
+	// All four are in Eastern Europe (location hint eeur).
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "nebokrai-dict-20261111",
+			"database_id": "f4b48963-a5ca-467b-a7e0-ac4bd367ad23"
+		},
+		{
+			"binding": "VESUM",
+			"database_name": "nebokrai-vesum-20261111",
+			"database_id": "05592f5b-cc92-45a0-b62a-f5d944e09c00"
+		},
+		{
+			"binding": "USERS",
+			"database_name": "nebokrai-users",
+			"database_id": "b281766b-da4c-487f-be78-45009a7189e2"
+		},
+		{
+			"binding": "REPORTS",
+			"database_name": "nebokrai-reports",
+			"database_id": "ed15b7f2-ffa3-4a80-8bfa-913301caa107"
+		}
+	],
+
+	// Keep request logs and errors, to read in the dashboard or with `wrangler tail`
+	"observability": { "enabled": true }
+}

@@ -7,13 +7,13 @@ import { MAX_WORD_LENGTH, SUMMARY_MAX } from '#lib/saved.ts';
 import { wordSummaries } from '#lib/search/word.ts';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, platform }) => {
+export const POST: RequestHandler = async ({ request }) => {
 	// 500 of the longest dictionary words come to about 62 KB.
 	const body = await readJson(request, 128 * 1024);
 	if (body instanceof Response) return body;
 	const asked = (body as { words?: unknown } | null)?.words;
 	if (!Array.isArray(asked) || asked.length > SUMMARY_MAX) return fail(400, 'invalid_words');
 	const words = asked.filter((w): w is string => typeof w === 'string' && w.length <= MAX_WORD_LENGTH);
-	const { db } = await getDatabases(platform);
+	const { db } = await getDatabases();
 	return Response.json({ words: await wordSummaries(db, words) });
 };

@@ -5,8 +5,8 @@ import { clearSessionCookie } from '#lib/server/oauth.ts';
 import { deleteUser } from '#lib/server/users.ts';
 import type { RequestHandler } from './$types';
 
-export const DELETE: RequestHandler = async ({ locals, platform, cookies }) => {
-	const who = await signedIn(locals, platform);
+export const DELETE: RequestHandler = async ({ locals, cookies }) => {
+	const who = await signedIn(locals);
 	if (who instanceof Response) return who;
 	await deleteUser(who.users, who.user.id);
 	clearSessionCookie(cookies);

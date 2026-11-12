@@ -3,6 +3,7 @@
 // Production: the Cloudflare D1 binding USERS. `npm run dev`: users.db in the
 // repo root (git-ignored, like every *.db). The tables are created on first use.
 // With neither, there is no sign-in and the site saves words in the browser only.
+import { env } from 'cloudflare:workers';
 import { dev } from '$app/env';
 import { openLocalWritable } from './db.ts';
 import { SCHEMA, type UserDb } from './users.ts';
@@ -16,15 +17,17 @@ export interface D1Users {
 }
 
 /** Whether accounts can work at all here, without opening anything. */
-export function hasUserDb(platform: App.Platform | undefined): boolean {
-	return Boolean(platform?.env?.USERS) || dev;
+export function hasUserDb(): boolean {
+	return dev || Boolean(env.USERS);
 }
 
 let d1Ready: Promise<void> | undefined;
 let local: Promise<UserDb> | undefined;
 
-export async function getUserDb(platform: App.Platform | undefined): Promise<UserDb | undefined> {
-	const d1 = platform?.env?.USERS;
+export async function getUserDb(): Promise<UserDb | undefined> {
+	// `dev` first: see getDatabases() in db.ts.
+	if (dev) return (local ??= openLocal());
+	const d1 = env.USERS;
 	if (d1) {
 		await (d1Ready ??= (async () => {
 			for (const statement of SCHEMA) await d1.prepare(statement).run();
@@ -43,7 +46,6 @@ export async function getUserDb(platform: App.Platform | undefined): Promise<Use
 			}
 		};
 	}
-	if (dev) return (local ??= openLocal());
 	return undefined;
 }
 

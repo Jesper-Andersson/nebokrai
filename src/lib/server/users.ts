@@ -4,11 +4,12 @@
 // rebuilds. See user-db.ts for where that database is.
 //
 // What is stored about a person: the id their provider (Google or GitHub) gives
-// them, their display name, and the words they saved. No email, no password.
+// them, their display name, the words they saved and when they exported them.
+// No email, no password.
 //
 // Nothing here imports from SvelteKit, so `npm test` can run it against an
 // in-memory SQLite database.
-import { MAX_SAVED, MAX_WORD_LENGTH, type SavedWord } from '../saved.ts';
+import { MAX_SAVED, MAX_WORD_LENGTH, type ExportedMarks, type SavedWord } from '../saved.ts';
 
 /** The database as this file needs it: read rows, or run a statement. */
 export interface UserDb {
@@ -42,6 +43,16 @@ export const SCHEMA = [
 		user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 		word TEXT NOT NULL,
 		saved_at INTEGER NOT NULL,
+		PRIMARY KEY (user_id, word)
+	) WITHOUT ROWID`,
+	// When a word was last exported to a file (the Saved page's Export menu).
+	// A table of its own, not a column of saved_words: the mark outlives the
+	// word being removed, because the flashcard made from it still exists if
+	// the word is saved again.
+	`CREATE TABLE IF NOT EXISTS exported_words (
+		user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		word TEXT NOT NULL,
+		exported_at INTEGER NOT NULL,
 		PRIMARY KEY (user_id, word)
 	) WITHOUT ROWID`
 ];
@@ -141,7 +152,7 @@ export async function deleteSession(db: UserDb, token: string): Promise<void> {
 export async function deleteUser(db: UserDb, userId: string): Promise<void> {
 	// Spelled out rather than left to ON DELETE CASCADE, so nothing is left
 	// behind even where foreign keys are not enforced.
-	for (const table of ['saved_words', 'sessions', 'identities']) {
+	for (const table of ['exported_words', 'saved_words', 'sessions', 'identities']) {
 		await db.run(`DELETE FROM ${table} WHERE user_id = ?`, [userId]);
 	}
 	await db.run('DELETE FROM users WHERE id = ?', [userId]);
@@ -182,6 +193,51 @@ export async function mergeSaved(db: UserDb, userId: string, words: SavedWord[])
 			[userId, JSON.stringify(words), userId, MAX_SAVED, userId]);
 	}
 	return listSaved(db, userId);
+}
+
+/** When each word of the account was last exported. Includes words since removed from the list. */
+export async function listExported(db: UserDb, userId: string): Promise<ExportedMarks> {
+	const rows = await db.all<{ word: string; exported_at: number }>(
+		'SELECT word, exported_at FROM exported_words WHERE user_id = ?', [userId]);
+	return Object.fromEntries(rows.map((r) => [r.word, r.exported_at]));
+}
+
+/**
+ * Remember when words were exported. Only words in the account's list are
+ * marked, so this stores nothing but dictionary words and cannot outgrow the
+ * dictionary. A word marked before keeps the later of its two dates.
+ */
+export async function markExported(db: UserDb, userId: string, marks: ExportedMarks): Promise<void> {
+	const rows = Object.entries(marks).map(([word, exported_at]) => ({ word, exported_at }));
+	if (!rows.length) return;
+	// One JSON parameter for the whole list: D1 binds at most 100.
+	await db.run(
+		`INSERT INTO exported_words (user_id, word, exported_at)
+		 SELECT ?, json_extract(value, '$.word'), json_extract(value, '$.exported_at') FROM json_each(?)
+		 WHERE json_extract(value, '$.word') IN (SELECT word FROM saved_words WHERE user_id = ?)
+		 ON CONFLICT (user_id, word) DO UPDATE SET exported_at = max(exported_at, excluded.exported_at)`,
+		[userId, JSON.stringify(rows), userId]);
+}
+
+/** Read the exported marks sent by a browser (`{ word: when }`), dropping anything malformed. */
+export function parseExportedMarks(value: unknown, now = Date.now()): ExportedMarks {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+	const marks: ExportedMarks = {};
+	for (const [word, at] of Object.entries(value).slice(0, MAX_SAVED)) {
+		if (!word || word.length > MAX_WORD_LENGTH) continue;
+		marks[word] = Number.isInteger(at) && at > 0 && at <= now ? at : now;
+	}
+	return marks;
+}
+
+/** Read a list of words sent by a browser as exported just now. */
+export function parseExportedWords(value: unknown, now = Date.now()): ExportedMarks {
+	if (!Array.isArray(value)) return {};
+	const marks: ExportedMarks = {};
+	for (const word of value.slice(0, MAX_SAVED)) {
+		if (typeof word === 'string' && word && word.length <= MAX_WORD_LENGTH) marks[word] = now;
+	}
+	return marks;
 }
 
 /** Read a list of saved words sent by a browser, dropping anything malformed. */

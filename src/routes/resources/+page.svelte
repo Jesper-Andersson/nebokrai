@@ -62,7 +62,7 @@
 	];
 </script>
 
-<TextPage title={m.pageTitle.resources}>
+<TextPage title={m.pageTitle.resources} description={m.meta.resources}>
 	<p class="muted">
 		{settings.lang === 'uk'
 			? 'Добірка інших місць, де можна вчити українську. Список ще доповнюється.'
@@ -96,7 +96,7 @@
 		gap: 0.1rem;
 		padding: 0.6rem 0.8rem;
 		border: 1px solid var(--border);
-		border-radius: 6px;
+		border-radius: var(--radius-md);
 	}
 
 	.resources a {

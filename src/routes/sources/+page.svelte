@@ -1,12 +1,13 @@
 <!-- Text from docs/sources-and-licences.md. The per-item credits it describes
      (Wiktionary, Tatoeba and Commons links) are on each word's Details page. -->
-<svelte:head>
-	<title>Sources and licences · Nebokrai</title>
-</svelte:head>
+<script lang="ts">
+	import TextPage from '#lib/TextPage.svelte';
+</script>
 
-<article>
-	<h1>Sources and licences</h1>
-
+<TextPage
+	title="Sources and licences"
+	description="Where Nebokrai’s words, frequency ranks, example sentences and recordings come from, and the licence of each source."
+>
 	<p class="lead">
 		Nebokrai is built from open data made by volunteers. Thank you to all of them.
 	</p>
@@ -76,71 +77,16 @@
 		Most mistakes come from the sources. You can <a href="/report">report an issue</a>, and many
 		mistakes can be fixed directly on Wiktionary or Tatoeba, which improves them for everyone.
 	</p>
-</article>
+</TextPage>
 
 <style>
-	article {
-		box-sizing: border-box;
-		/* Leaves a 1rem gutter on each side of a narrow window */
-		width: min(44rem, 100% - 2rem);
-		margin: 1.5rem auto 2rem;
-		padding: 1.5rem 1.75rem 1.75rem;
-		border: 1px solid var(--border);
-		border-radius: 14px;
-		background: var(--surface);
-		box-shadow: var(--shadow);
-		line-height: 1.6;
-	}
-
-	h1,
-	h2 {
-		font-family: var(--font-heading);
-		font-weight: 700;
-		line-height: 1.2;
-	}
-
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: clamp(1.6rem, 4vw, 2rem);
-	}
-
-	h2 {
-		margin: 1.75rem 0 0.5rem;
-		font-size: 1.3rem;
-	}
-
-	.lead {
-		margin-top: 0;
-		font-size: 1.1rem;
-	}
-
 	dt {
 		margin-top: 1rem;
-		font-weight: 800;
+		font-weight: 700;
 	}
 
 	dd {
 		margin: 0.2rem 0 0;
 	}
 
-	p {
-		margin: 0.5rem 0;
-	}
-
-	a {
-		color: var(--accent);
-		text-decoration: underline;
-		text-underline-offset: 2px;
-	}
-
-	a:hover {
-		color: var(--link-hover);
-	}
-
-	@media (max-width: 600px) {
-		article {
-			margin-top: 1rem;
-			padding: 1.1rem 1.1rem 1.3rem;
-		}
-	}
 </style>

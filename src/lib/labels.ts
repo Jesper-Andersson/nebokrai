@@ -14,3 +14,21 @@ const TIERS: [maxRank: number, tier: Commonality][] = [
 export function commonality(freqRank: number | null): Commonality {
 	return TIERS.find(([max]) => (freqRank ?? Infinity) <= max)![1];
 }
+
+// The database keeps an entry's grammar tags in alphabetical order, which
+// puts "feminine" before "inanimate" and "masculine" after it. Shown to a
+// reader they go gender first, then animacy, then number: "masculine ·
+// inanimate". Tags not named here (the verb aspects) keep their order, last.
+const TAG_ORDER = [
+	'masculine', 'feminine', 'neuter',
+	'inanimate', 'animate', 'person', 'personal', 'animal-not-person', 'by-personal-gender',
+	'singular', 'plural'
+];
+
+export function orderedTags(tags: string[]): string[] {
+	const place = (tag: string) => {
+		const i = TAG_ORDER.indexOf(tag);
+		return i < 0 ? TAG_ORDER.length : i;
+	};
+	return [...tags].sort((a, b) => place(a) - place(b));
+}

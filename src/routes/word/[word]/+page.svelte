@@ -1,18 +1,22 @@
 <!-- A word's page: for each entry of the spelling, the headword with its
-     actions, the meanings, example sentences, the form tables behind tabs
-     (FormTables.svelte) and the etymology. A spelling with several entries
-     gets a list of them first. -->
+     actions, how it is said, its grammar in one italic line, the meanings,
+     example sentences, the form tables behind tabs (FormTables.svelte) and
+     the etymology. A spelling with several entries gets a list of them first. -->
 <script lang="ts">
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
+	import FrequencyMeter from '#lib/FrequencyMeter.svelte';
+	import Grammar from '#lib/Grammar.svelte';
+	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import PageMeta from '#lib/PageMeta.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Tip from '#lib/Tip.svelte';
-	import { describeTags, formTables } from '#lib/forms.ts';
+	import { formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { commonality } from '#lib/labels.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
+	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { PageProps } from './$types';
 
@@ -20,8 +24,6 @@
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
-	const rank = (n: number) => n.toLocaleString(settings.lang === 'uk' ? 'uk' : 'en');
-
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
 
@@ -47,11 +49,10 @@
 	const label = (tag: string) => tag.replace(/-/g, ' ');
 </script>
 
-<svelte:head>
-	<title>{data.entries[0].headword.replace(/́/g, '')} · Nebokrai</title>
-</svelte:head>
+<!-- A spelling with several entries is described by its most common one -->
+<PageMeta title={wordTitle(m, data.entries[0])} description={wordDescription(m, data.entries[0])} />
 
-<div class="page">
+<div class="ui-page">
 	<p class="back">
 		<a href="/"><Icon name="arrow-left" size={16} />{m.word.back}</a>
 	</p>
@@ -71,22 +72,11 @@
 
 	{#each data.entries as entry (entry.id)}
 		{@const { tables, other } = formTables(entry.pos, entry.forms, entry.word)}
-		{@const common = commonality(entry.freq_rank)}
 		{@const playLabel = entry.audio_url ? m.word.playRecording : m.word.playVoice}
-		<article id="entry-{entry.id}">
+		<article id="entry-{entry.id}" class="ui-card">
 			<header>
-				<p class="meta">
-					<span class="ui-badge">{posLabel(m, entry.pos)}</span>
-					{#if entry.tags.length}<span>{entry.tags.join(' · ')}</span>{/if}
-					<span
-						class="freq {common}"
-						title={entry.freq_rank ? m.word.rankTitle(rank(entry.freq_rank)) : m.word.unranked}
-					>
-						{m.tiers[common]}{#if entry.freq_rank}<span class="rank">#{rank(entry.freq_rank)}</span>{/if}
-					</span>
-				</p>
 				<div class="title">
-					<h1 class="headword" lang="uk"><Stressed text={entry.headword} /></h1>
+					<Headword text={entry.headword} size="lg" tag="h1" />
 					<div class="actions">
 						<Tip label={playLabel}>
 							{#snippet trigger(props)}
@@ -109,25 +99,21 @@
 						{#if entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
 					</p>
 				{/if}
-				{#if entry.head_forms.length}
-					<ul class="head-forms">
-						{#each entry.head_forms as f}
-							<li>
-								<span>{describeTags(f.tags)}</span>
-								<b lang="uk"><Stressed text={f.form} /></b>
-							</li>
-						{/each}
-					</ul>
-				{/if}
+				<!-- How common the word is stands at the right end of the grammar
+				     line, as it does on a search card -->
+				<div class="grammar">
+					<Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} />
+					<FrequencyMeter rank={entry.freq_rank} showTier />
+				</div>
 			</header>
 
 			<section>
-				<h2>{m.word.meanings}</h2>
-				<ol class="senses">
+				<h2 class="ui-label">{m.word.meanings}</h2>
+				<ol class="ui-senses senses">
 					{#each entry.senses as sense (sense.n)}
 						<li>
 							<p>
-								{#each sense.tags as tag}<span class="tag">{label(tag)}</span>{/each}
+								{#if sense.tags.length}<i class="tag">({sense.tags.map(label).join(', ')})</i>{/if}
 								{sense.gloss}
 							</p>
 							{#if sense.examples.length}
@@ -147,7 +133,7 @@
 
 			{#if entry.examples.length}
 				<section>
-					<h2>{m.word.examples}</h2>
+					<h2 class="ui-label">{m.word.examples}</h2>
 					<ul class="sentences">
 						{#each entry.examples as ex (ex.tatoeba_id)}
 							<li>
@@ -164,7 +150,7 @@
 
 			{#if tables.length || other.length}
 				<section>
-					<h2>{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
+					<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
 					{#if tables.length}<FormTables {tables} />{/if}
 					{#if other.length}
 						<dl class="other">
@@ -184,7 +170,7 @@
 
 			{#if entry.etymology}
 				<section>
-					<h2>{m.word.etymology}</h2>
+					<h2 class="ui-label">{m.word.etymology}</h2>
 					<p class="etymology">{entry.etymology}</p>
 				</section>
 			{/if}
@@ -204,13 +190,6 @@
 </div>
 
 <style>
-	.page {
-		box-sizing: border-box;
-		max-width: 50rem;
-		margin: 0 auto;
-		padding: 0 1rem;
-	}
-
 	p {
 		margin: 0;
 	}
@@ -226,7 +205,7 @@
 		gap: 0.4rem;
 		padding: 0.6rem 0.75rem 0.6rem 0;
 		color: var(--on-page);
-		font-size: 0.92rem;
+		font-size: var(--text-sm);
 		font-weight: 600;
 	}
 
@@ -249,9 +228,9 @@
 		max-width: 16rem;
 		padding: 0.4rem 0.75rem 0.4rem 0.5rem;
 		border: 1px solid var(--border);
-		border-radius: 10px;
-		background: var(--surface);
-		font-size: 0.88rem;
+		border-radius: var(--radius-md);
+		background: var(--panel);
+		font-size: var(--text-sm);
 	}
 
 	.entries a:hover {
@@ -259,14 +238,8 @@
 	}
 
 	.entries .n {
-		min-width: 1.3rem;
-		border-radius: 6px;
-		background: var(--surface-2);
-		color: var(--muted);
-		font-size: 0.78rem;
 		font-weight: 700;
-		line-height: 1.3rem;
-		text-align: center;
+		font-variant-numeric: tabular-nums;
 	}
 
 	.entries .gloss {
@@ -279,10 +252,6 @@
 	article {
 		margin-bottom: 1.25rem;
 		padding: 1.5rem 1.75rem 1.1rem;
-		border: 1px solid var(--border);
-		border-radius: 16px;
-		background: var(--surface);
-		box-shadow: var(--shadow);
 		line-height: 1.5;
 		/* A link from the list of entries stops below the sticky header */
 		scroll-margin-top: 4.5rem;
@@ -299,76 +268,24 @@
 		text-decoration: underline;
 	}
 
-	.meta {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.3rem 0.6rem;
-		color: var(--muted);
-		font-size: 0.9rem;
-	}
-
-	/* How common the word is, at the right end of the line; the colours keep
-	   the text above 4.5:1 contrast */
-	.freq {
-		display: inline-flex;
-		align-items: baseline;
-		gap: 0.4rem;
-		margin-left: auto;
-		padding: 0.1rem 0.7rem;
-		border: 1px solid;
-		border-radius: 999px;
-		font-size: 0.82rem;
-		font-weight: 700;
-		white-space: nowrap;
-	}
-
-	.freq .rank {
-		font-weight: 600;
-		opacity: 0.8;
-	}
-
-	.freq.very-common {
-		border-color: var(--pill-1-line);
-		background: var(--pill-1-bg);
-		color: var(--pill-1-ink);
-	}
-
-	.freq.common {
-		border-color: var(--pill-2-line);
-		background: var(--pill-2-bg);
-		color: var(--pill-2-ink);
-	}
-
-	.freq.uncommon {
-		border-color: var(--pill-3-line);
-		background: var(--pill-3-bg);
-		color: var(--pill-3-ink);
-	}
-
-	.freq.rare {
-		border-color: var(--pill-4-line);
-		background: var(--pill-4-bg);
-		color: var(--pill-4-ink);
-	}
-
 	.title {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		margin-top: 0.5rem;
 	}
 
-	/* A long word (конкурентоспроможність) breaks onto a second line on a
-	   phone instead of pushing the page wider than the screen */
-	.headword {
-		min-width: 0;
-		margin: 0;
-		font-family: var(--font-headword);
-		font-size: clamp(2.1rem, 7vw, 3rem);
-		font-weight: 800;
-		line-height: 1.15;
-		overflow-wrap: anywhere;
+	.grammar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.3rem 1.5rem;
+		margin-top: 0.6rem;
+	}
+
+	/* At the right edge also when it has a line to itself */
+	.grammar :global(.freq) {
+		margin-left: auto;
 	}
 
 	.actions {
@@ -391,32 +308,7 @@
 
 	.ipa {
 		color: var(--muted);
-		font-family: 'Gentium Plus', 'Charis SIL', 'Doulos SIL', 'Segoe UI', sans-serif;
-	}
-
-	.head-forms {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-		margin: 0.8rem 0 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.head-forms li {
-		display: flex;
-		align-items: baseline;
-		gap: 0.45rem;
-		padding: 0.2rem 0.7rem;
-		border: 1px solid var(--border);
-		border-radius: 999px;
-		color: var(--muted);
-		font-size: 0.82rem;
-	}
-
-	.head-forms b {
-		color: var(--ink);
-		font-size: 1rem;
+		font-family: var(--font-ipa);
 	}
 
 	section {
@@ -424,55 +316,18 @@
 	}
 
 	h2 {
-		margin: 0 0 0.6rem;
-		color: var(--muted);
-		font-family: var(--font-heading);
-		font-size: 0.95rem;
-		font-weight: 700;
+		margin-bottom: 0.75rem;
 	}
 
-	/* Meanings: each number sits in a small tile of its own */
 	.senses {
-		display: grid;
-		gap: 0.55rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-		counter-reset: sense;
-		font-size: 1.1rem;
+		font-size: var(--text-lg);
 	}
 
-	.senses > li {
-		position: relative;
-		padding-left: 2.2rem;
-		counter-increment: sense;
-	}
-
-	.senses > li::before {
-		content: counter(sense);
-		position: absolute;
-		top: 0.1rem;
-		left: 0;
-		width: 1.5rem;
-		border-radius: 7px;
-		background: var(--surface-2);
-		color: var(--muted);
-		font-size: 0.8rem;
-		font-weight: 700;
-		line-height: 1.5rem;
-		text-align: center;
-	}
-
+	/* A remark on a meaning, as a dictionary sets it: (figurative) skyline */
 	.tag {
-		display: inline-block;
-		margin-right: 0.35rem;
-		padding: 0 0.45rem;
-		border-radius: 6px;
-		background: var(--gold-soft);
-		color: var(--gold-ink);
-		font-size: 0.78rem;
-		font-weight: 600;
-		vertical-align: 0.1em;
+		color: var(--muted);
+		font-size: 1rem;
+		font-style: italic;
 	}
 
 	.quotes,
@@ -495,7 +350,7 @@
 	.sentences {
 		margin: 0;
 		border: 1px solid var(--border);
-		border-radius: 12px;
+		border-radius: var(--radius-md);
 	}
 
 	.sentences li {
@@ -513,7 +368,7 @@
 
 	section a.credit {
 		color: var(--muted);
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 	}
 
 	.other {
@@ -525,7 +380,7 @@
 
 	.other dt {
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 	}
 
 	.other dd {
@@ -545,14 +400,10 @@
 		padding-top: 0.75rem;
 		border-top: 1px solid var(--border);
 		color: var(--muted);
-		font-size: 0.85rem;
+		font-size: var(--text-sm);
 	}
 
 	@media (max-width: 600px) {
-		.page {
-			padding: 0 0.75rem;
-		}
-
 		article {
 			padding: 1.1rem 1rem 0.9rem;
 		}

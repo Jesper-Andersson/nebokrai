@@ -128,6 +128,40 @@ use, the site has to stay non-commercial.
 
 The data comes from the `pymorphy3-dicts-uk` package, a 2022 snapshot of VESUM.
 
+## Publishing to D1
+
+The live site reads the dictionary from Cloudflare D1, which loads SQL text,
+not a `.db` file. `export_sql.py` writes that text:
+
+    python3 data/export_sql.py nebokrai.db data/raw/nebokrai.sql   # 125 MB, 2.1 million rows
+    python3 data/export_sql.py vesum.db data/raw/vesum.sql         # 224 MB, 3.7 million rows
+
+A rebuilt dictionary goes into a **new** database, and the site is then
+pointed at it. The old one stays until the new one is seen to work, so going
+back is one deploy.
+
+    npx wrangler d1 create nebokrai-dict-<date> --location=eeur
+    npx wrangler d1 execute nebokrai-dict-<date> --remote --file=data/raw/nebokrai.sql
+
+1. Put the new database's name and id in `wrangler.jsonc` (binding `DB`).
+2. `npm run deploy`.
+3. Purge the cache in the Cloudflare dashboard. Search answers are cached for
+   an hour and entry ids change with every rebuild, so until the purge a
+   cached answer can carry an id that now belongs to another word.
+4. When the site has been checked, delete the old database:
+   `npx wrangler d1 delete nebokrai-dict-<old date>`.
+
+`vesum.db` is published the same way, into its own database (binding
+`VESUM`), never into the dictionary's: see the licence note above. It only
+needs publishing again when `import_vesum.py` has been run again.
+
+Loading counts as rows written, index entries included: about 4.8 million for
+the dictionary and 3.7 million for VESUM. The Workers Paid plan includes 50
+million a month; the free plan's 100,000 a day cannot load either.
+
+To try a dump without touching the account, use `--local` in place of
+`--remote`; the data then goes into `.wrangler/` in the repo.
+
 ## Known gaps
 
 - 1,030 nouns, verbs and adjectives have no inflection table.

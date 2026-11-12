@@ -28,9 +28,15 @@ const HEADERS: Record<string, string> = {
 	'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()'
 };
 
+// Not pages to find through a search engine: the API, a visitor's own list,
+// the report form and the sign-in addresses. static/robots.txt asks crawlers
+// not to fetch most of these; this covers the ones that are fetched anyway.
+const NOT_FOR_SEARCH = /^\/(api|saved|report|login|auth|logout)(\/|$)/;
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const response = await answer({ event, resolve });
 	for (const [name, value] of Object.entries(HEADERS)) response.headers.set(name, value);
+	if (NOT_FOR_SEARCH.test(event.url.pathname)) response.headers.set('x-robots-tag', 'noindex');
 	if (event.url.protocol === 'https:') {
 		response.headers.set('strict-transport-security', 'max-age=63072000; includeSubDomains');
 	}
@@ -60,7 +66,7 @@ const answer: Handle = async ({ event, resolve }) => {
 	if (token && !SESSION_TOKEN.test(token)) clearSessionCookie(event.cookies);
 	else if (token) {
 		try {
-			const users = await getUserDb(event.platform);
+			const users = await getUserDb();
 			const session = users && (await validateSession(users, token));
 			if (!session) clearSessionCookie(event.cookies);
 			else {

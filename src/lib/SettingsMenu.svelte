@@ -17,13 +17,15 @@
 		type Lang,
 		type Theme
 	} from '#lib/settings.ts';
-	import Icon from './Icon.svelte';
+	import Icon, { type IconName } from './Icon.svelte';
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
 
-	const themes: Theme[] = ['system', 'light', 'dark'];
-	const languages: [Lang, string][] = [['uk', 'Українська'], ['en', 'English']];
+	const themes: [Theme, IconName][] = [['system', 'monitor'], ['light', 'sun'], ['dark', 'moon']];
+	// Each language is marked by two letters of its own script, not a flag: a
+	// flag names a country, and ї is written in Ukrainian alone.
+	const languages: [Lang, string, string][] = [['uk', 'Українська', 'Її'], ['en', 'English', 'Aa']];
 	const layouts: KeyboardLayout[] = ['standard', 'phonetic'];
 	// Small previews of the photos; the plain background shows the page colour.
 	const previews: Record<Background, string | null> = { plain: null, field: fieldThumb, hills: hillsThumb };
@@ -46,14 +48,17 @@
 				<section>
 					<h2 id="ui-set-theme">{m.settings.appearance}</h2>
 					<RadioGroup.Root
-						class="ui-segmented"
+						class="ui-tiles"
 						orientation="horizontal"
 						aria-labelledby="ui-set-theme"
 						value={settings.theme}
 						onValueChange={(value) => set('theme', value)}
 					>
-						{#each themes as theme (theme)}
-							<RadioGroup.Item class="ui-segment" value={theme}>{m.settings[theme]}</RadioGroup.Item>
+						{#each themes as [theme, icon] (theme)}
+							<RadioGroup.Item class="ui-tile" value={theme}>
+								<Icon name={icon} size={20} />
+								{m.settings[theme]}
+							</RadioGroup.Item>
 						{/each}
 					</RadioGroup.Root>
 				</section>
@@ -71,14 +76,17 @@
 								<span class="picture">
 									{#if previews[background]}
 										<img src={previews[background]} alt="" width="132" height="82" />
+									{:else}
+										<span class="mini-page"></span>
 									{/if}
+									<span class="tick"><Icon name="check" size={12} /></span>
 								</span>
 								{m.settings.backgrounds[background]}
 							</RadioGroup.Item>
 						{/each}
 					</RadioGroup.Root>
 				</section>
-				<section>
+				<section class="divided">
 					<h2 id="ui-set-lang">{m.settings.language}</h2>
 					<RadioGroup.Root
 						class="ui-segmented"
@@ -87,8 +95,11 @@
 						value={settings.lang}
 						onValueChange={(value) => set('lang', value)}
 					>
-						{#each languages as [code, name] (code)}
-							<RadioGroup.Item class="ui-segment" value={code} lang={code}>{name}</RadioGroup.Item>
+						{#each languages as [code, name, mark] (code)}
+							<RadioGroup.Item class="ui-segment" value={code} lang={code}>
+								<span class="mark" aria-hidden="true">{mark}</span>
+								{name}
+							</RadioGroup.Item>
 						{/each}
 					</RadioGroup.Root>
 				</section>
@@ -105,10 +116,16 @@
 							<RadioGroup.Item class="ui-segment" value={layout}>{m.settings[layout]}</RadioGroup.Item>
 						{/each}
 					</RadioGroup.Root>
-					<p class="hint">{m.settings.layoutHint}</p>
+					<!-- The same two keys in both languages: the Latin key, then the
+					     letter it types -->
+					<p class="hint">
+						<span class="keys"><kbd class="ui-kbd">P</kbd> → <span lang="uk">п</span></span>
+						<span class="keys"><kbd class="ui-kbd">H</kbd> → <span lang="uk">г</span></span>
+						<span class="sentence">{m.settings.layoutHint}</span>
+					</p>
 				</section>
 				{#if hasAccount}
-					<section class="account">
+					<section class="divided">
 						<h2>{m.account.legend}</h2>
 						<AccountPanel />
 					</section>
@@ -133,12 +150,69 @@
 		margin: 0;
 		color: var(--muted);
 		font-family: var(--font-text);
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 		font-weight: 700;
 	}
 
-	/* The background choices: a small picture with its name under it. The
-	   buttons are drawn by Bits UI, so their rules are global. */
+	/* The theme choices: an icon over its name, in the same three columns as
+	   the background pictures under them. The name sits under the icon, not
+	   beside it, so that «Як у системі» fits. The buttons are drawn by Bits
+	   UI, so their rules are global. */
+	:global(.ui-tiles) {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.6rem;
+	}
+
+	:global(.ui-tile) {
+		display: grid;
+		justify-items: center;
+		gap: 0.3rem;
+		padding: 0.6rem 0.3rem;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--radius-md);
+		background: var(--surface-2);
+		color: var(--muted);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		line-height: 1.2;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	@media (hover: hover) {
+		:global(.ui-tile:hover) {
+			color: var(--ink);
+		}
+	}
+
+	:global(.ui-tile[data-state='checked']) {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		background: var(--raised);
+		color: var(--ink);
+	}
+
+	:global(.ui-tile:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		box-shadow: 0 0 0 6px var(--accent-soft);
+	}
+
+	/* The chosen option's symbol takes the accent, so the choice shows at a
+	   glance */
+	:global(.ui-tile[data-state='checked'] svg),
+	:global(.ui-segment[data-state='checked']) .mark {
+		color: var(--accent);
+	}
+
+	.mark {
+		color: var(--muted);
+		font-family: var(--font-headword);
+		font-weight: 700;
+	}
+
+	/* The background choices: a small picture with its name under it. */
 	:global(.ui-swatches) {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -152,17 +226,18 @@
 		border: 0;
 		background: none;
 		color: var(--muted);
-		font-size: 0.8rem;
+		font-size: var(--text-xs);
 		font-weight: 600;
 		cursor: pointer;
 	}
 
 	.picture {
+		position: relative;
 		display: block;
 		aspect-ratio: 8 / 5;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
-		border-radius: 9px;
+		border-radius: var(--radius-md);
 		background: var(--bg);
 	}
 
@@ -171,6 +246,57 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+	}
+
+	/* The plain background has no photo to show, so its picture is the page
+	   itself in small: a card with a word and a line of text on it. */
+	.mini-page {
+		position: absolute;
+		inset: 22% 18%;
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		background: var(--surface);
+	}
+
+	.mini-page::before,
+	.mini-page::after {
+		content: '';
+		position: absolute;
+		left: 12%;
+		height: 3px;
+		border-radius: 2px;
+	}
+
+	.mini-page::before {
+		top: 26%;
+		width: 40%;
+		background: var(--muted);
+	}
+
+	.mini-page::after {
+		top: 58%;
+		width: 68%;
+		background: var(--border-strong);
+	}
+
+	/* A tick in the corner of the chosen picture; the ring of the menu's own
+	   colour keeps it clear of the photo behind it */
+	.tick {
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		display: none;
+		place-items: center;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: var(--accent);
+		box-shadow: 0 0 0 2px var(--surface);
+		color: var(--accent-ink);
+	}
+
+	:global(.ui-swatch[data-state='checked']) .tick {
+		display: grid;
 	}
 
 	:global(.ui-swatch[data-state='checked']) {
@@ -193,13 +319,28 @@
 	}
 
 	.hint {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.3rem 0.9rem;
 		margin: 0;
 		color: var(--muted);
-		font-size: 0.8rem;
+		font-size: var(--text-xs);
 		line-height: 1.4;
 	}
 
-	.account {
+	.keys {
+		color: var(--ink-2);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.sentence {
+		flex-basis: 100%;
+	}
+
+	/* A line above: where the language settings start, and the account */
+	.divided {
 		padding-top: 0.9rem;
 		border-top: 1px solid var(--border);
 	}

@@ -66,6 +66,8 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 export interface WordSummary {
 	word: string;
 	headword: string;
+	/** noun, verb, adj, … */
+	pos: string;
 	/** The first meanings, at most three. */
 	glosses: string[];
 }
@@ -76,22 +78,76 @@ export interface WordSummary {
  * with several entries (стан) is summarised by its most common one.
  */
 export async function wordSummaries(db: Db, words: string[]): Promise<WordSummary[]> {
-	if (!words.length) return [];
+	const best = await bestEntries(db, words);
+	return words.flatMap((w) => {
+		const found = best.get(w);
+		return found
+			? [{ word: found.word, headword: found.headword, pos: found.pos, glosses: found.glosses }]
+			: [];
+	});
+}
+
+/** What a flashcard made from a saved word holds (src/lib/export.ts). */
+export interface WordCard extends WordSummary {
+	pos: string;
+	tags: string[];
+	ipa: string | null;
+	/** The first Tatoeba sentence that uses the word, if there is one. */
+	example: { uk: string; en: string; tatoeba_id: number } | null;
+}
+
+/**
+ * A card for each of `words`, chosen and ordered as `wordSummaries` does: the
+ * two share `bestEntries`, so a list and its export never show different
+ * entries for one spelling.
+ */
+export async function wordCards(db: Db, words: string[]): Promise<WordCard[]> {
+	const best = await bestEntries(db, words);
+	const examples = new Map<number, NonNullable<WordCard['example']>>();
+	if (best.size) {
+		const rows = await db.all<{ entry_id: number; uk: string; en: string; tatoeba_id: number }>(
+			`SELECT entry_id, uk, en, tatoeba_id FROM examples WHERE id IN (
+			   SELECT MIN(id) FROM examples WHERE entry_id IN (SELECT value FROM json_each(?)) GROUP BY entry_id)`,
+			[JSON.stringify([...best.values()].map((e) => e.id))]);
+		for (const { entry_id, ...example } of rows) examples.set(entry_id, example);
+	}
+	return words.flatMap((w) => {
+		const found = best.get(w);
+		if (!found) return [];
+		return [{
+			word: found.word, headword: found.headword, glosses: found.glosses,
+			pos: found.pos, tags: JSON.parse(found.tags), ipa: found.ipa,
+			example: examples.get(found.id) ?? null
+		}];
+	});
+}
+
+interface BestEntry {
+	id: number;
+	word: string;
+	headword: string;
+	pos: string;
+	/** A JSON list, as stored. */
+	tags: string;
+	ipa: string | null;
+	glosses: string[];
+}
+
+/** The most common entry for each spelling in `words`, with its first three meanings. */
+async function bestEntries(db: Db, words: string[]): Promise<Map<string, BestEntry>> {
+	const best = new Map<string, BestEntry>();
+	if (!words.length) return best;
 	// One JSON parameter for the whole list: D1 binds at most 100.
-	const rows = await db.all<{ id: number; word: string; headword: string }>(
-		`SELECT id, word, headword FROM entries WHERE word IN (SELECT value FROM json_each(?))
+	const rows = await db.all<Omit<BestEntry, 'glosses'>>(
+		`SELECT id, word, headword, pos, tags, ipa FROM entries WHERE word IN (SELECT value FROM json_each(?))
 		 ORDER BY freq_rank IS NULL, freq_rank, id`, [JSON.stringify(words)]);
-	const best = new Map<string, WordSummary & { id: number }>();
 	for (const r of rows) if (!best.has(r.word)) best.set(r.word, { ...r, glosses: [] });
 	const byId = new Map([...best.values()].map((s) => [s.id, s]));
 	const senses = await db.all<{ entry_id: number; gloss: string }>(
 		`SELECT entry_id, gloss FROM senses WHERE entry_id IN (SELECT value FROM json_each(?)) AND n <= 3
 		 ORDER BY entry_id, n`, [JSON.stringify([...byId.keys()])]);
 	for (const s of senses) byId.get(s.entry_id)!.glosses.push(s.gloss);
-	return words.flatMap((w) => {
-		const found = best.get(w);
-		return found ? [{ word: found.word, headword: found.headword, glosses: found.glosses }] : [];
-	});
+	return best;
 }
 
 /**

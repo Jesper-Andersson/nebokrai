@@ -2,8 +2,26 @@
 // tags such as "feminine") stays in English: it comes from English Wiktionary.
 import type { Lang } from './settings.ts';
 
+/** What a word's page has to show, for its title and description (see seo.ts). */
+export interface WordFacts {
+	/** The headword carries a stress mark */
+	stress: boolean;
+	/** A recording, not the browser's synthetic voice */
+	audio: boolean;
+	table: 'declension' | 'conjugation' | null;
+	examples: boolean;
+}
+
+/** "a, b and c" from the items that are there. */
+function listOf(items: (string | false | null)[], and: string): string {
+	const have = items.filter((item): item is string => Boolean(item));
+	return have.length > 1 ? `${have.slice(0, -1).join(', ')} ${and} ${have.at(-1)}` : (have[0] ?? '');
+}
+
 const en = {
 	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
+	/** The header's link out to United24, the state's own fundraising platform. */
+	support: { label: 'Support Ukraine', hint: 'Donate through United24, Ukraine’s official fundraising platform' },
 	/** The search that opens from the header, or with Ctrl+K. */
 	quick: {
 		open: 'Search',
@@ -20,6 +38,24 @@ const en = {
 		undo: 'Undo',
 		dismiss: 'Dismiss'
 	},
+	/** Downloading the saved words as a file (the Saved page). */
+	export: {
+		button: 'Export',
+		working: 'Exporting…',
+		anki: 'Anki (text file)',
+		csv: 'CSV (spreadsheet)',
+		json: 'JSON',
+		failed: 'The export didn’t work. Please try again.',
+		ankiHint: 'In Anki, choose File › Import and pick the downloaded file.',
+		which: 'Which words',
+		scope: { all: 'All words', selected: 'Selected', fresh: 'Not exported yet' },
+		as: 'File',
+		exported: 'Exported',
+		exportedOn: (date: string) => `Exported ${date}`,
+		select: (word: string) => `Select ${word}`,
+		selectAll: 'Select all',
+		selectedCount: (n: number) => `${n} selected`
+	},
 	settings: {
 		open: 'Settings',
 		appearance: 'Appearance',
@@ -30,7 +66,7 @@ const en = {
 		layout: 'Keyboard layout',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Phonetic',
-		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike: п on P, г on H.',
+		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike.',
 		background: 'Background',
 		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' }
 	},
@@ -46,14 +82,18 @@ const en = {
 		deleteFailed: 'Your account couldn’t be deleted. Please try again.'
 	},
 	footer: {
+		label: 'Footer',
+		/** The site's name, set as a dictionary entry of its own. */
+		nameGloss: 'horizon, literally “the sky’s edge”',
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
 		sources: 'Sources and licences'
 	},
 	home: {
-		titleAccent: 'Ukrainian',
-		titleRest: ' ↔ English Dictionary',
+		/** The title's first line; its last word is drawn (title-paths.ts). */
+		titlePair: 'Ukrainian–English',
 		tryLabel: 'Try',
+		wordOfDay: 'Word of the day',
 		placeholder: 'Search a word…',
 		clear: 'Clear search',
 		failed: 'Search isn’t working right now. Try again in a moment.',
@@ -67,7 +107,7 @@ const en = {
 		save: 'Save word',
 		unsave: 'Remove from saved',
 		details: 'Details',
-		genitive: 'Gen',
+		genitive: 'gen.',
 		noEntry: 'A Ukrainian word with no dictionary entry yet.'
 	},
 	word: {
@@ -96,6 +136,30 @@ const en = {
 	/** Table titles and labels from forms.ts, keyed by their English text. */
 	forms: {} as Record<string, string>,
 	pageTitle: { resources: 'Resources', saved: 'Saved words', about: 'About' },
+	/**
+	 * What search results and link previews show for each page: its title and
+	 * a description of about 150 characters (PageMeta.svelte, seo.ts). Search
+	 * engines send no cookies, so they read the English ones.
+	 */
+	meta: {
+		homeTitle: 'Nebokrai: Ukrainian–English dictionary with stress and declension',
+		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
+		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
+		resources: 'Courses, dictionaries and practice sites for learning Ukrainian, chosen by hand.',
+		saved: 'The words you saved, kept in this browser or in your account.',
+		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		/** книга: meaning in English, stress and declension */
+		wordTitle: (word: string, has: WordFacts) =>
+			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
+		/** The last sentence of a word's description: what its page shows besides the meanings. */
+		wordShows: (has: WordFacts) => {
+			const shown = listOf([
+				has.stress && 'the stress marked', has.audio && 'audio',
+				has.table && `a full ${has.table} table`, has.examples && 'example sentences'
+			], 'and');
+			return shown && `With ${shown}.`;
+		}
+	},
 	keyboard: {
 		toggle: 'Ukrainian keyboard',
 		label: 'Ukrainian keyboard',
@@ -154,6 +218,7 @@ export type Messages = typeof en;
 
 const uk: Messages = {
 	nav: { label: 'Головне меню', dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
+	support: { label: 'Підтримати Україну', hint: 'Задонатити через United24, офіційну фандрейзингову платформу України' },
 	quick: {
 		open: 'Пошук',
 		title: 'Швидкий пошук',
@@ -168,6 +233,24 @@ const uk: Messages = {
 		undo: 'Скасувати',
 		dismiss: 'Закрити'
 	},
+	export: {
+		button: 'Експортувати',
+		working: 'Експортуємо…',
+		anki: 'Anki (текстовий файл)',
+		csv: 'CSV (таблиця)',
+		json: 'JSON',
+		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
+		ankiHint: 'В Anki виберіть «Файл» › «Імпортувати» й укажіть завантажений файл.',
+		which: 'Які слова',
+		scope: { all: 'Усі слова', selected: 'Вибрані', fresh: 'Ще не експортовані' },
+		as: 'Файл',
+		exported: 'Експортовано',
+		exportedOn: (date: string) => `Експортовано ${date}`,
+		select: (word: string) => `Вибрати ${word}`,
+		selectAll: 'Вибрати всі',
+		// "Вибрано: 5" needs no plural form of its own
+		selectedCount: (n: number) => `Вибрано: ${n}`
+	},
 	settings: {
 		open: 'Налаштування',
 		appearance: 'Вигляд',
@@ -178,7 +261,7 @@ const uk: Messages = {
 		layout: 'Розкладка клавіатури',
 		standard: 'ЙЦУКЕН',
 		phonetic: 'Фонетична',
-		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком: п на P, г на H.',
+		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком.',
 		background: 'Тло',
 		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' }
 	},
@@ -194,14 +277,16 @@ const uk: Messages = {
 		deleteFailed: 'Не вдалося видалити обліковий запис. Спробуйте ще раз.'
 	},
 	footer: {
+		label: 'Нижнє меню',
+		nameGloss: 'горизонт, дослівно — «край неба»',
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
 		sources: 'Джерела й ліцензії'
 	},
 	home: {
-		titleAccent: 'Українсько',
-		titleRest: '-англійський словник',
+		titlePair: 'Українсько-англійський',
 		tryLabel: 'Спробуйте',
+		wordOfDay: 'Слово дня',
 		placeholder: 'Шукати слово…',
 		clear: 'Очистити пошук',
 		failed: 'Пошук зараз не працює. Спробуйте ще раз за хвилину.',
@@ -215,7 +300,7 @@ const uk: Messages = {
 		save: 'Зберегти слово',
 		unsave: 'Прибрати зі збереженого',
 		details: 'Докладніше',
-		genitive: 'Р. в.',
+		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.'
 	},
 	word: {
@@ -253,6 +338,27 @@ const uk: Messages = {
 		'2nd person plural': '2-га особа множини'
 	},
 	pageTitle: { resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт' },
+	meta: {
+		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
+		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
+		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
+		resources: 'Курси, словники та сайти для практики української мови, дібрані вручну.',
+		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		wordTitle: (word, has) =>
+			`${word}: ${listOf([
+				'значення англійською', has.stress && 'наголос',
+				has.table && (has.table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання')
+			], 'і')}`,
+		wordShows: (has) => {
+			const shown = listOf([
+				has.stress && 'наголос', has.audio && 'аудіо',
+				has.table && `повна таблиця ${has.table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання'}`,
+				has.examples && 'приклади речень'
+			], 'та');
+			return shown && `На сторінці: ${shown}.`;
+		}
+	},
 	keyboard: {
 		toggle: 'Українська клавіатура',
 		label: 'Українська клавіатура',

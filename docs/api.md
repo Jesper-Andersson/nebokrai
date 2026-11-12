@@ -288,11 +288,13 @@ newest first. One list holds at most 5,000 words.
 
 | Endpoint | Signed in? | |
 |---|---|---|
-| `GET /api/saved` | yes | The account's list: `{ "words": [...] }`. |
+| `GET /api/saved` | yes | The account's list and its exported marks: `{ "words": [...], "exported": {...} }`. |
 | `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. |
 | `DELETE /api/saved/<word>` | yes | Remove one word. `{ "ok": true }`, also when it was not saved. |
 | `POST /api/saved/merge` | yes | Add a browser's list to the account. |
+| `POST /api/saved/exported` | yes | Mark words as exported just now. `{ "ok": true }`. |
 | `POST /api/words/summary` | no | Headword and meanings for a list of words. |
+| `POST /api/words/cards` | no | What a flashcard holds, for a list of words. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
 
 "Signed in" means the request carries the `session` cookie. The browser sends
@@ -304,11 +306,26 @@ see it.
 Called once, on the first page load after signing in, with the words saved in
 this browser while signed out.
 
-Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }] }`
+Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }], "exported": { "книга": 1794400500000 } }`.
+`exported` is optional.
 
-Response `200`: `{ "words": [...] }`, the account's whole list afterwards. A
-word already in the account keeps its date. Items that are malformed or not
-dictionary words are skipped, and so are words beyond the limit of 5,000.
+Response `200`: `{ "words": [...], "exported": {...} }`, the account's whole
+list and marks afterwards. A word already in the account keeps its date. Items
+that are malformed or not dictionary words are skipped, and so are words beyond
+the limit of 5,000.
+
+### Exported marks
+
+`exported` maps a word to when it was last exported to a file from the Saved
+page, in milliseconds: `{ "книга": 1794400500000 }`. Signed out, the browser
+keeps the marks in `localStorage`; signed in, the account holds them.
+
+`POST /api/saved/exported` with `{ "words": ["книга", "небокрай"] }` marks
+those words with the server's time. Only words in the account's list are
+marked; others are skipped without an error. A mark stays when its word is
+later removed from the list, so `exported` can name words that `words` does
+not, and a word saved again is still marked. When two marks meet (a merge, a
+second export), the later date is kept.
 
 ### `POST /api/words/summary`
 
@@ -322,15 +339,48 @@ Response `200`:
 ```json
 {
   "words": [
-    { "word": "книга", "headword": "кни́га", "glosses": ["book (elevated)"] },
-    { "word": "небокрай", "headword": "небокра́й", "glosses": ["horizon (part of the sky which appears to meet the earth in the distance)", "synonym of не́бо n (nébo, “sky”)"] }
+    { "word": "книга", "headword": "кни́га", "pos": "noun", "glosses": ["book (elevated)"] },
+    { "word": "небокрай", "headword": "небокра́й", "pos": "noun", "glosses": ["horizon (part of the sky which appears to meet the earth in the distance)", "synonym of не́бо n (nébo, “sky”)"] }
   ]
 }
 ```
 
 In the order asked. A word with no entry is left out. `word` must be the exact
 spelling (`Київ`, not `київ`). A spelling with several entries is summarised
-by its most common one. `glosses` holds the first meanings, at most three.
+by its most common one. `pos` is that entry's part of speech, as in a search
+result. `glosses` holds the first meanings, at most three.
+
+### `POST /api/words/cards`
+
+What the Saved page's Export menu puts on a flashcard (`src/lib/export.ts`
+builds the Anki text file, the CSV and the JSON from it in the browser). Like
+the summary, it changes nothing.
+
+Body: `{ "words": ["калина", "небокрай"] }`, at most 500 words.
+
+Response `200`:
+
+```json
+{
+  "words": [
+    {
+      "word": "калина",
+      "headword": "кали́на",
+      "glosses": ["viburnum, guelder rose (shrub or berries)"],
+      "pos": "noun",
+      "tags": ["feminine", "inanimate"],
+      "ipa": "[kɐˈɫɪnɐ]",
+      "example": { "uk": "…", "en": "…", "tatoeba_id": 123456 }
+    }
+  ]
+}
+```
+
+The same words, in the same order and chosen by the same rules as
+`/api/words/summary`, with the entry's part of speech, grammar tags and IPA
+(`null` if it has none). `example` is the entry's first Tatoeba sentence, or
+`null`; credit it with a link to `https://tatoeba.org/sentences/show/<tatoeba_id>`.
+Nothing in the answer comes from VESUM.
 
 ### Signing in and out
 
@@ -347,9 +397,9 @@ These are pages the browser visits, not JSON endpoints.
 | Status | Body | When |
 |---|---|---|
 | `400` | `{ "error": "invalid_json" }` | The body is not JSON. |
-| `400` | `{ "error": "invalid_words" }` | `/api/words/summary`: `words` is not a list, or has more than 500 items. |
+| `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary`, 1 MB for `/api/saved/merge`. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 1 MB for `/api/saved/merge`. |
 | `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. |
 | `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when the list already holds 5,000 words. |

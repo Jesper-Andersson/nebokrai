@@ -47,7 +47,7 @@ const fail = (status: number, error: string) => Response.json({ error }, { statu
 // The longest report is 2,000 characters of message, about 6 KB as Ukrainian text in JSON.
 const MAX_BODY = 16 * 1024;
 
-export const POST: RequestHandler = async ({ request, platform, locals, getClientAddress }) => {
+export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	const parsed = await readJson(request, MAX_BODY);
 	if (parsed instanceof Response) return parsed;
 	if (!parsed || typeof parsed !== 'object') return fail(400, 'invalid_json');
@@ -75,7 +75,7 @@ export const POST: RequestHandler = async ({ request, platform, locals, getClien
 	let pos: string | null = null;
 	const asked = Number(body.entry);
 	if (Number.isInteger(asked) && asked > 0) {
-		const { db } = await getDatabases(platform);
+		const { db } = await getDatabases();
 		const [row] = await db.all<{ id: number; word: string; pos: string }>(
 			'SELECT id, word, pos FROM entries WHERE id = ?',
 			[asked]
@@ -83,7 +83,7 @@ export const POST: RequestHandler = async ({ request, platform, locals, getClien
 		if (row) ({ id: entryId, word, pos } = row);
 	}
 
-	const id = await saveReport(platform, {
+	const id = await saveReport({
 		kind,
 		message,
 		email,

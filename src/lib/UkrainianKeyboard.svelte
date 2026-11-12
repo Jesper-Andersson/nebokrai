@@ -389,10 +389,10 @@
 		padding: 0;
 		border: 1px solid var(--border);
 		border-bottom-width: 2px;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		background: var(--surface);
 		color: var(--ink);
-		font-family: var(--font-headword);
+		font-family: var(--font-text);
 		font-size: 1.15rem;
 		font-weight: 700;
 		line-height: 1;
@@ -412,11 +412,6 @@
 		translate: 0 1px;
 		border-bottom-width: 1px;
 		background: var(--border);
-	}
-
-	.key:focus-visible {
-		outline: 3px solid #5b8fd6;
-		outline-offset: 1px;
 	}
 
 	.shift,
@@ -465,9 +460,9 @@
 	}
 
 	.held {
-		border-color: #5b8fd6;
-		background: #5b8fd6;
-		color: #ffffff;
+		border-color: var(--accent);
+		background: var(--accent);
+		color: var(--accent-ink);
 	}
 
 	.held .alt {
@@ -488,9 +483,9 @@
 
 	.shift[aria-pressed='true'],
 	.physical[aria-pressed='true'] {
-		border-color: #5b8fd6;
-		background: #5b8fd6;
-		color: #ffffff;
+		border-color: var(--accent);
+		background: var(--accent);
+		color: var(--accent-ink);
 	}
 
 	@media (max-width: 520px) {

@@ -1,0 +1,8 @@
+# Security headers for files Cloudflare serves as they are: scripts, styles,
+# fonts, words.json. Pages and API answers get theirs in src/hooks.server.ts,
+# which this file does not reach. `npm run build` adds the cache rules for
+# /_app/ below these.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

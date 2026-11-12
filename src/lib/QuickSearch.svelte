@@ -4,14 +4,15 @@
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
 	import { goto } from '$app/navigation';
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { LookupResult, Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import Grammar from './Grammar.svelte';
+	import Headword from './Headword.svelte';
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
-	import Stressed from './Stressed.svelte';
 
 	let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -78,8 +79,8 @@
 {#snippet row(entry: Entry)}
 	{@const noPage = 'vesum_only' in entry && entry.vesum_only === true}
 	<Command.Item class="ui-quick-item" value={key(entry)} disabled={noPage} onSelect={() => go(entry)}>
-		<span class="ui-quick-word" lang="uk"><Stressed text={entry.headword} /></span>
-		<span class="ui-quick-pos">{posLabel(m, entry.pos)}</span>
+		<Headword text={entry.headword} size="sm" />
+		<Grammar pos={entry.pos} inline />
 		<span class="ui-quick-gloss">{noPage ? m.card.noEntry : entry.glosses.slice(0, 2).join('; ')}</span>
 	</Command.Item>
 {/snippet}
@@ -154,7 +155,7 @@
 		translate: -50% 0;
 		overflow: hidden;
 		border: 1px solid var(--border);
-		border-radius: 16px;
+		border-radius: var(--radius-lg);
 		background: var(--surface);
 		box-shadow: var(--shadow-pop);
 		color: var(--ink);
@@ -181,7 +182,7 @@
 		outline: none;
 		background: none;
 		color: var(--ink);
-		font-size: 1.05rem;
+		font-size: var(--text-lg);
 	}
 
 	:global(.ui-quick-input::placeholder) {
@@ -201,7 +202,7 @@
 		align-items: baseline;
 		gap: 0 0.6rem;
 		padding: 0.5rem 0.65rem;
-		border-radius: 9px;
+		border-radius: var(--radius-md);
 		cursor: pointer;
 	}
 
@@ -214,18 +215,6 @@
 		cursor: default;
 	}
 
-	:global(.ui-quick-word) {
-		font-family: var(--font-headword);
-		font-size: 1.15rem;
-		font-weight: 800;
-	}
-
-	:global(.ui-quick-pos) {
-		color: var(--muted);
-		font-size: 0.78rem;
-		font-weight: 600;
-	}
-
 	:global(.ui-quick-gloss) {
 		overflow: hidden;
 		color: var(--ink-2);
@@ -236,7 +225,7 @@
 	:global(.ui-quick-heading) {
 		padding: 0.6rem 0.65rem 0.25rem;
 		color: var(--muted);
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 		font-weight: 700;
 	}
 
@@ -256,7 +245,7 @@
 		border-top: 1px solid var(--border);
 		background: var(--surface-2);
 		color: var(--muted);
-		font-size: 0.78rem;
+		font-size: var(--text-xs);
 	}
 
 	/* A phone has no arrow keys or Esc to explain */
@@ -269,7 +258,7 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		:global(.ui-quick[data-state='open']) {
-			animation: ui-quick-in 0.16s ease-out;
+			animation: ui-quick-in var(--duration) ease-out;
 		}
 	}
 

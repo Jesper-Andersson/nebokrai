@@ -3,8 +3,8 @@
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import Headword from './Headword.svelte';
 	import Icon from './Icon.svelte';
-	import Stressed from './Stressed.svelte';
 	import { useToasts } from './toasts.ts';
 
 	const settings = useSettings();
@@ -17,7 +17,9 @@
 		<div {...toast.content} class="toast">
 			<p>
 				<span {...toast.title}>{toast.data.title}</span>
-				<b {...toast.description} lang="uk"><Stressed text={toast.data.headword} /></b>
+				{#if toast.data.headword}
+					<span {...toast.description}><Headword text={toast.data.headword} size="sm" tag="b" /></span>
+				{/if}
 			</p>
 			{#if toast.data.undo}
 				<button
@@ -63,11 +65,11 @@
 		gap: 0.4rem;
 		padding: 0.45rem 0.45rem 0.45rem 0.9rem;
 		border: 1px solid var(--border);
-		border-radius: 12px;
+		border-radius: var(--radius-md);
 		background: var(--surface);
 		box-shadow: var(--shadow-pop);
 		color: var(--ink);
-		font-size: 0.92rem;
+		font-size: var(--text-sm);
 	}
 
 	p {
@@ -80,16 +82,10 @@
 		margin: 0;
 	}
 
-	b {
-		font-family: var(--font-headword);
-		font-size: 1.05rem;
-		overflow-wrap: anywhere;
-	}
-
 	.undo {
 		padding: 0.3rem 0.6rem;
 		border: 0;
-		border-radius: 8px;
+		border-radius: var(--radius-sm);
 		background: none;
 		color: var(--accent);
 		font-weight: 700;
@@ -102,11 +98,6 @@
 		}
 	}
 
-	.undo:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 1px;
-	}
-
 	@media (max-width: 520px) {
 		.toasts {
 			inset-inline: 1rem;
@@ -116,7 +107,7 @@
 
 	@media (prefers-reduced-motion: no-preference) {
 		.toast {
-			animation: toast-in 0.18s ease-out;
+			animation: toast-in var(--duration) ease-out;
 		}
 	}
 

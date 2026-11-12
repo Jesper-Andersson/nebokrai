@@ -385,14 +385,14 @@
 		color: var(--accent);
 	}
 
-	/* The streak: a flame on the upper left corner with the days written in it.
-	   The count of cards due has the upper right. */
+	/* The streak: a flame on the upper right corner with the days written in it.
+	   The count of cards due has the upper left. */
 	.flame {
 		position: absolute;
 		/* The bar is 3.5rem high and the button 2.25rem, so there is 0.6rem over
 		   the button: the flame, its flicker and its glow must fit in that. */
-		top: -0.3rem;
-		left: -0.95rem;
+		top: -0.15rem;
+		right: -0.95rem;
 		width: 1.5rem;
 		height: 1.5rem;
 		overflow: visible;
@@ -402,7 +402,7 @@
 	/* A finger's button is taller, and leaves less of the bar above it */
 	@media (pointer: coarse) {
 		.flame {
-			top: -0.05rem;
+			top: 0.1rem;
 		}
 	}
 
@@ -488,7 +488,7 @@
 	.count {
 		position: absolute;
 		top: -0.15rem;
-		right: -0.3rem;
+		left: -0.3rem;
 		min-width: 1.1rem;
 		padding: 0 0.3rem;
 		border-radius: var(--radius-pill);

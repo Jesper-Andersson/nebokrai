@@ -1,5 +1,5 @@
 // What people can report (see /report). Shared by the page and its server load.
-export const REPORT_KINDS = ['meaning', 'stress', 'forms', 'missing', 'example', 'site', 'other'] as const;
+export const REPORT_KINDS = ['meaning', 'stress', 'forms', 'missing', 'example', 'site', 'resource', 'other'] as const;
 export type ReportKind = (typeof REPORT_KINDS)[number];
 
 export const isReportKind = (value: string | null): value is ReportKind =>

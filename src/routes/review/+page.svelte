@@ -82,6 +82,9 @@
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
 	let info = $derived(current ? content.get(current.word) : undefined);
+	// An entry can give the same meaning for several senses (вони: "they" three
+	// times over): on a card it is said once.
+	let glosses = $derived([...new Set(info?.glosses)]);
 	let ahead = $derived(current ? preview(current, now) : null);
 	let canUndo = $derived(last !== null && review.canUndo(last.word));
 
@@ -455,7 +458,7 @@
 								{#if info.ipa}<span class="ipa">{info.ipa}</span>{/if}
 							</p>
 							<ol class="glosses">
-								{#each info.glosses as gloss (gloss)}<li>{gloss}</li>{/each}
+								{#each glosses as gloss, i (i)}<li>{gloss}</li>{/each}
 							</ol>
 							{#if info.example}
 								<p class="example">

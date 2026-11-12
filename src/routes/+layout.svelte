@@ -1,6 +1,7 @@
-<!-- The frame every page is drawn in: the header, the page, the footer, and the
-     corner messages. It also provides what the pages share through context:
-     the settings, the saved words and the toaster. -->
+<!-- The frame every page is drawn in: the header, the page, the footer, the
+     corner messages and the radio. It also provides what the pages share
+     through context: the settings, the saved words, the radio, the toaster
+     and the quick search. -->
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -9,6 +10,10 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
 	import Header from '#lib/Header.svelte';
+	import { provideRadio } from '#lib/radio.svelte.ts';
+	import RadioPlayer from '#lib/RadioPlayer.svelte';
+	import { provideQuickSearch } from '#lib/quick-search.svelte.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
 	import { provideSettings } from '#lib/settings.ts';
 	import Toasts from '#lib/Toasts.svelte';
@@ -25,6 +30,7 @@
 	provideSettings(settings);
 
 	let address = $derived(page.url.origin + page.url.pathname);
+	let m = $derived(messagesFor(settings.lang));
 
 	// Saved words: read from this browser once the page is running, and synced
 	// with the account when signed in (see saved.svelte.ts).
@@ -32,7 +38,16 @@
 	const saved = provideSaved(data.user?.id ?? null);
 	onMount(() => void saved.load());
 
+	// The radio's sound belongs to the frame, not to a page, so it plays on
+	// from one page to the next. It is here even while its button is hidden:
+	// a word's recording asks it to step aside (see radio.svelte.ts).
+	const radio = provideRadio();
+	onMount(() => radio.load());
+
 	provideToasts();
+
+	// The quick search lives in the header, and a page can open it too.
+	provideQuickSearch();
 </script>
 
 <svelte:head>
@@ -51,10 +66,20 @@
 	<meta property="og:url" content={address} />
 	<meta property="og:site_name" content="Nebokrai" />
 	<meta property="og:type" content="website" />
+	<!-- The picture a chat or a social network puts beside a link: one for the
+	     whole site (scripts/og-image.ts draws it), with its full address,
+	     because the networks do not resolve a relative one. The last line asks
+	     for the picture at full width instead of as a thumbnail. -->
+	<meta property="og:image" content="{page.url.origin}/og.png" />
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:alt" content={m.meta.picture} />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <Tooltip.Provider delayDuration={350}>
-	<div class="frame">
+	<div class="frame" class:with-radio={settings.radio === 'on'}>
 		<Header />
 
 		<main>
@@ -65,6 +90,11 @@
 	</div>
 
 	<Toasts />
+
+	<!-- Only for those who switched it on in the settings -->
+	{#if settings.radio === 'on'}
+		<RadioPlayer />
+	{/if}
 </Tooltip.Provider>
 
 <style>
@@ -75,10 +105,37 @@
 		min-height: 100dvh;
 	}
 
+	/* The radio's button floats over the bottom right corner. Where the
+	   window is too narrow for the button to stand beside the footer's
+	   links (under 78rem: at 80rem, 1280px, there is 8px between them), the
+	   page ends a little lower, so that scrolled to its end the footer is
+	   clear of the button. The room is taken out of the frame's height,
+	   not added to it: a page that fitted the window still does. */
+	@media (max-width: 78rem) {
+		.frame.with-radio {
+			box-sizing: border-box;
+			padding-bottom: 4.5rem;
+		}
+	}
+
 	/* No side padding here: the search page's coloured band reaches both
-	   edges of the window, so each page sets its own. */
+	   edges of the window, so each page sets its own.
+
+	   The sky under the header is painted here, not by the search page, so
+	   it is the same behind every page and does not come and go between
+	   them. Its size is fixed, whatever the page's height. */
 	main {
 		flex: 1;
 		padding-bottom: 3rem;
+		background: radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%) no-repeat;
+	}
+
+	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
+	   a photo is its brightest part, so the page colour is laid over it under
+	   the header and fades out 18rem down, about where the search page's box
+	   ends. That carries the search page's title on clouds and on blue. */
+	:global(:root[data-bg]) main {
+		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent) top / 100%
+			18rem no-repeat;
 	}
 </style>

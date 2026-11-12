@@ -52,6 +52,8 @@ const en = {
 	toast: {
 		saved: 'Saved',
 		removed: 'Removed from saved',
+		copied: 'Link copied',
+		notCopied: 'Could not copy the link',
 		undo: 'Undo',
 		dismiss: 'Dismiss'
 	},
@@ -86,7 +88,25 @@ const en = {
 		phonetic: 'Phonetic',
 		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike.',
 		background: 'Background',
-		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' }
+		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' },
+		radio: 'Radio',
+		radioHint: 'A button in the corner of the page that plays Ukrainian radio stations.'
+	},
+	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
+	radio: {
+		open: 'Radio',
+		openPlaying: (station: string) => `Radio: ${station} is playing`,
+		play: 'Play',
+		stop: 'Stop',
+		loading: 'Connecting…',
+		playing: 'On air',
+		failed: 'This station is not answering. Try again, or pick another.',
+		volume: 'Volume',
+		kinds: { talk: 'Talk', music: 'Music' },
+		site: 'The station’s site',
+		minimise: 'Minimise',
+		hide: 'Hide the radio',
+		hidden: 'Radio hidden. The settings bring it back.'
 	},
 	account: {
 		legend: 'Account',
@@ -106,7 +126,28 @@ const en = {
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
 		grammar: 'Grammar words',
-		sources: 'Sources and licences'
+		sources: 'Sources and licences',
+		common: 'Common words',
+		words: 'All words'
+	},
+	/** The pages for browsing: /common-words and /words (browse.ts). */
+	browse: {
+		commonTitle: 'The 1,000 most common Ukrainian words',
+		commonLead: 'The words you will meet most often, commonest first, each with its stress and first meaning. Follow a word for all its meanings and forms.',
+		commonSource: 'Counted in film and television subtitles, so everyday speech weighs more than books.',
+		commonPages: 'Parts of the list',
+		wordsTitle: 'All words',
+		wordsLead: 'Every word in the dictionary under its first letter, in alphabetical order.',
+		wordsCommon: 'Or start with the 1,000 most common words.',
+		letterTitle: (letter: string) => `Words beginning with ${letter}`,
+		otherTitle: 'Other entries',
+		otherLead: 'Entries that begin with no Ukrainian letter.',
+		other: 'Other',
+		alphabet: 'Letters',
+		pages: 'Pages',
+		previous: 'Previous page',
+		next: 'Next page',
+		all: 'All letters'
 	},
 	home: {
 		/** The title's first line; its last word is drawn (title-paths.ts). */
@@ -125,9 +166,15 @@ const en = {
 		play: 'Play pronunciation',
 		save: 'Save word',
 		unsave: 'Remove from saved',
+		share: 'Share this word',
 		details: 'Details',
 		genitive: 'gen.',
-		noEntry: 'A Ukrainian word with no dictionary entry yet.'
+		noEntry: 'A Ukrainian word with no dictionary entry yet.',
+		/** Before the form of the word that the search found: руки́ genitive singular */
+		formFound: 'Form found:',
+		moreForms: (n: number) => `+${n} more`,
+		/** When it is known to be a form of the word, but not which */
+		someForm: 'Your search is a form of this word.'
 	},
 	word: {
 		back: 'Back to search',
@@ -136,8 +183,22 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
+		/** On each word of an example sentence */
+		lookUp: 'Look up this word',
+		/** Above the entries of за́мок and замо́к */
+		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
 		conjugation: 'Conjugation',
+		/** Under the tables; the headword follows, then a full stop. */
+		stressMoves: 'Underlined: the stress falls on a different syllable than in',
+		stressStays: 'The stress stays on the same syllable in every form.',
+		synonyms: 'Synonyms',
+		antonyms: 'Antonyms',
+		/** The section of derived words and words of the same root */
+		family: 'Related words',
+		derived: 'Derived',
+		sameRoot: 'Same root',
+		showAll: (n: number) => `show all ${n}`,
 		etymology: 'Etymology',
 		from: 'From',
 		wiktionary: 'Wiktionary',
@@ -283,8 +344,16 @@ const en = {
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
+		commonWords: 'The 1,000 most common Ukrainian words in order of frequency, each with its stress mark, part of speech and meaning in English.',
+		words: 'Browse the whole Ukrainian–English dictionary by letter: every word in alphabetical order, each with its stress, forms and meanings.',
+		/** Ukrainian words beginning with П, from па to перев */
+		letter: (letter: string, first: string, last: string) =>
+			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
+		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
+		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
 		/** книга: meaning in English, stress and declension */
 		wordTitle: (word: string, has: WordFacts) =>
 			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
@@ -406,6 +475,8 @@ const uk: Messages = {
 	toast: {
 		saved: 'Збережено',
 		removed: 'Прибрано зі збереженого',
+		copied: 'Посилання скопійовано',
+		notCopied: 'Не вдалося скопіювати посилання',
 		undo: 'Скасувати',
 		dismiss: 'Закрити'
 	},
@@ -440,7 +511,24 @@ const uk: Messages = {
 		phonetic: 'Фонетична',
 		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком.',
 		background: 'Тло',
-		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' }
+		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' },
+		radio: 'Радіо',
+		radioHint: 'Кнопка в кутку сторінки, що вмикає українські радіостанції.'
+	},
+	radio: {
+		open: 'Радіо',
+		openPlaying: (station: string) => `Радіо: грає ${station}`,
+		play: 'Слухати',
+		stop: 'Зупинити',
+		loading: 'З’єднуємо…',
+		playing: 'В ефірі',
+		failed: 'Станція не відповідає. Спробуйте ще раз або виберіть іншу.',
+		volume: 'Гучність',
+		kinds: { talk: 'Розмовні', music: 'Музичні' },
+		site: 'Сайт станції',
+		minimise: 'Згорнути',
+		hide: 'Сховати радіо',
+		hidden: 'Радіо сховано. Повернути його можна в налаштуваннях.'
 	},
 	account: {
 		legend: 'Обліковий запис',
@@ -459,7 +547,27 @@ const uk: Messages = {
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
 		grammar: 'Граматичні терміни',
-		sources: 'Джерела й ліцензії'
+		sources: 'Джерела й ліцензії',
+		common: 'Найуживаніші слова',
+		words: 'Усі слова'
+	},
+	browse: {
+		commonTitle: '1000 найуживаніших українських слів',
+		commonLead: 'Слова, які трапляються найчастіше, від найуживанішого, з наголосом і першим значенням. Перейдіть до слова, щоб побачити всі його значення та форми.',
+		commonSource: 'Підраховано за субтитрами до фільмів і серіалів, тому розмовна мова важить більше за книжну.',
+		commonPages: 'Частини списку',
+		wordsTitle: 'Усі слова',
+		wordsLead: 'Кожне слово словника під своєю першою літерою, за абеткою.',
+		wordsCommon: 'Або почніть із 1000 найуживаніших слів.',
+		letterTitle: (letter) => `Слова на літеру ${letter}`,
+		otherTitle: 'Інші статті',
+		otherLead: 'Статті, що не починаються з української літери.',
+		other: 'Інше',
+		alphabet: 'Літери',
+		pages: 'Сторінки',
+		previous: 'Попередня сторінка',
+		next: 'Наступна сторінка',
+		all: 'Усі літери'
 	},
 	home: {
 		titlePair: 'Українсько-англійський',
@@ -477,9 +585,13 @@ const uk: Messages = {
 		play: 'Прослухати вимову',
 		save: 'Зберегти слово',
 		unsave: 'Прибрати зі збереженого',
+		share: 'Поділитися словом',
 		details: 'Докладніше',
 		genitive: 'р. в.',
-		noEntry: 'Українське слово, якого ще немає в словнику.'
+		noEntry: 'Українське слово, якого ще немає в словнику.',
+		formFound: 'Знайдена форма:',
+		moreForms: (n: number) => `ще ${n}`,
+		someForm: 'Ваш запит є формою цього слова.'
 	},
 	word: {
 		back: 'До пошуку',
@@ -488,8 +600,18 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
+		lookUp: 'Знайти це слово',
+		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
+		stressMoves: 'Підкреслено: наголос падає на інший склад, ніж у слові',
+		stressStays: 'У всіх формах наголос падає на той самий склад.',
+		synonyms: 'Синоніми',
+		antonyms: 'Антоніми',
+		family: 'Споріднені слова',
+		derived: 'Похідні',
+		sameRoot: 'Спільний корінь',
+		showAll: (n: number) => `показати всі ${n}`,
 		etymology: 'Етимологія',
 		from: 'Джерело:',
 		wiktionary: 'Вікісловник',
@@ -504,7 +626,7 @@ const uk: Messages = {
 		pron: 'Займенник', num: 'Числівник', prep: 'Прийменник', conj: 'Сполучник',
 		particle: 'Частка', intj: 'Вигук', phrase: 'Фраза',
 		suffix: 'Суфікс', prefix: 'Префікс', interfix: 'Інтерфікс', combining_form: 'Основа складних слів',
-		det: 'Означальне слово', postp: 'Післяйменник', prep_phrase: 'Прийменникове сполучення',
+		det: 'Займенник', postp: 'Післяйменник', prep_phrase: 'Прийменникове сполучення',
 		proverb: 'Прислів’я', character: 'Літера', symbol: 'Символ', punct: 'Розділовий знак'
 	},
 	forms: {
@@ -641,8 +763,14 @@ const uk: Messages = {
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
+		commonWords: '1000 найуживаніших українських слів за частотою, кожне з наголосом, частиною мови та значенням англійською.',
+		words: 'Увесь українсько-англійський словник за літерами: кожне слово за абеткою, з наголосом, формами та значеннями.',
+		letter: (letter, first, last) =>
+			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
+		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>
 			`${word}: ${listOf([
 				'значення англійською', has.stress && 'наголос',

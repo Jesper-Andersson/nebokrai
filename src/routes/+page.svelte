@@ -3,7 +3,8 @@
      day stands where the answers will. The keyboard's open and closed state
      is a Melt Collapsible. -->
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, untrack } from 'svelte';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -23,10 +24,35 @@
 	let m = $derived(messagesFor(settings.lang));
 	let word = $derived(TITLE_WORD[settings.lang]);
 
-	let query = $state('');
+	// The page can be opened with the search already made (/?q=kava): the
+	// server then sends the query and its answer along (+page.server.ts).
+	// svelte-ignore state_referenced_locally
+	let query = $state(data.query);
 	// The answer for the latest query; null while the box is empty.
-	let found = $state.raw<LookupResult | null>(null);
-	let failed = $state(false);
+	// svelte-ignore state_referenced_locally
+	let found = $state.raw<LookupResult | null>(data.found);
+	// svelte-ignore state_referenced_locally
+	let failed = $state(data.failed);
+
+	// The address follows the search box, so what is on the page can be sent
+	// to someone, and Back from a word's page returns to the same results.
+	// The address is replaced, not added to: Back must leave the search, not
+	// step through it letter by letter. Shallow: nothing is loaded for it.
+	function showInAddress(q: string) {
+		const address = q ? `/?q=${encodeURIComponent(q)}` : '/';
+		if (location.pathname + location.search === address) return;
+		void goto(address, { shallow: true, replace: true }).catch(() => {});
+	}
+
+	// Arriving here by Back or Forward, or by a link to the empty search page
+	// while a search is showing: the box takes what the address says. The page
+	// stays in place for such a visit, so the lines above do not run again.
+	afterNavigate((navigation) => {
+		// Not for showInAddress itself, whose address may already be a letter behind the box
+		if (navigation.type === 'goto' && navigation.shallow) return;
+		const asked = (new URL(location.href).searchParams.get('q') ?? '').slice(0, MAX_QUERY_LENGTH);
+		if (asked.trim() !== query.trim()) query = asked;
+	});
 
 	// Ask the server as the user types, waiting for a short pause, and drop
 	// answers to queries that have since changed.
@@ -35,10 +61,19 @@
 		if (!q) {
 			found = null;
 			failed = false;
+			showInAddress('');
+			return;
+		}
+		// Already answered: by the server when the page was opened with this
+		// query, or a moment ago, before a letter was typed and taken back.
+		if (untrack(() => found)?.query.trim() === q) {
+			failed = false;
+			showInAddress(q);
 			return;
 		}
 		const controller = new AbortController();
 		const timer = setTimeout(async () => {
+			showInAddress(q);
 			try {
 				const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: controller.signal });
 				if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -211,23 +246,22 @@
 
 <style>
 	/* Sky above, wheat below: the two colours meet behind the search box. The
-	   wheat fades out just above the hero's lower edge; centred on the edge it
-	   was cut off in a visible line. The title and the box sit high and stay
-	   put: typing must not move the box under the caret. */
+	   sky is the frame's (+layout.svelte), the same on every page; the wheat
+	   is painted here, against the box. It fades out just above the hero's
+	   lower edge; centred on the edge it was cut off in a visible line. The
+	   title and the box sit high and stay put: typing must not move the box
+	   under the caret. */
 	.hero {
 		padding: clamp(1.25rem, 4vh, 2.5rem) 1rem 1.25rem;
-		background:
-			radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%),
-			radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
+		background: radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
 		text-align: center;
 	}
 
-	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
-	   a photo is its brightest part, so the page colour is laid over it under
-	   the header and fades out by the search box. That carries the title on
-	   clouds and on blue; the title's own shadow only has to firm its edges. */
+	/* Over a photo (app.css) there is no painted wheat either. The frame lays
+	   the page colour over the top of the photo, which carries the title; the
+	   title's own shadow only has to firm its edges. */
 	:global(:root[data-bg]) .hero {
-		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent);
+		background: none;
 	}
 
 	:global(:root[data-bg]) .pair {

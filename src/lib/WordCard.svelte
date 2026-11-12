@@ -1,8 +1,12 @@
 <!-- One search result. The headword and the arrow both lead to the word's
      page; the meanings stay plain text so they can be selected and copied.
      How common the word is stands at the right end of the grammar line, as
-     it does on the word's own page. -->
+     it does on the word's own page. A result found through an inflected form
+     says which form along its lower edge:
+
+       Form found: руки́ genitive singular · ру́ки nominative, accusative, vocative plural -->
 <script lang="ts">
+	import { groupMatched } from '#lib/forms.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { Suggestion } from '#lib/search/suggest.ts';
@@ -14,6 +18,7 @@
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
 	import SaveButton from './SaveButton.svelte';
+	import Stressed from './Stressed.svelte';
 	import Tip from './Tip.svelte';
 
 	let { entry }: { entry: SearchResult | Suggestion } = $props();
@@ -23,6 +28,9 @@
 	let shown = $derived(entry.glosses.slice(0, 3));
 	// A VESUM-only word has no entry, so nothing to save or open.
 	let vesumOnly = $derived('vesum_only' in entry && entry.vesum_only === true);
+	// Present when the query was an inflected form of this word. Empty when
+	// only VESUM knew that: it tells the word, not which of its forms.
+	let matched = $derived('matched_forms' in entry && entry.matched_forms ? groupMatched(entry.matched_forms) : null);
 
 	function speak() {
 		const utterance = new SpeechSynthesisUtterance(entry.word);
@@ -72,6 +80,21 @@
 			</a>
 		</div>
 	{/if}
+
+	{#if matched}
+		<p class="found">
+			{#if matched.groups.length}
+				{m.card.formFound}
+				{#each matched.groups as group, i (group.form)}
+					{#if i}<span class="dot" aria-hidden="true">·</span>{/if}
+					<span class="form"><b lang="uk"><Stressed text={group.form} /></b> {group.labels.join('; ')}</span>
+				{/each}
+				{#if matched.more}<span class="form">{m.card.moreForms(matched.more)}</span>{/if}
+			{:else}
+				{m.card.someForm}
+			{/if}
+		</p>
+	{/if}
 </article>
 
 <style>
@@ -81,7 +104,8 @@
 		grid-template-columns: minmax(0, 18rem) minmax(0, 1fr) auto;
 		grid-template-areas:
 			'word glosses actions'
-			'meta glosses freq';
+			'meta glosses freq'
+			'found found found';
 		align-items: center;
 		gap: 0.15rem 1.25rem;
 		padding: 0.75rem 0.6rem 0.8rem 1.1rem;
@@ -147,6 +171,25 @@
 		justify-content: flex-end;
 	}
 
+	/* Which form of the word the search found: a remark along the card's lower
+	   edge, set off by a dashed rule so it is not read as one of the meanings */
+	.found {
+		grid-area: found;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 0.45rem;
+		margin: 0.45rem 0.5rem 0 0;
+		padding-top: 0.45rem;
+		border-top: 1px dashed var(--border);
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.found b {
+		color: var(--ink-2);
+		font-size: 1rem;
+	}
+
 	/* Phones: the meanings go under the word and use the card's full width */
 	@media (max-width: 600px) {
 		article {
@@ -154,7 +197,8 @@
 			grid-template-areas:
 				'word actions'
 				'meta freq'
-				'glosses glosses';
+				'glosses glosses'
+				'found found';
 			padding: 0.6rem 0.4rem 0.8rem 0.9rem;
 		}
 

@@ -19,6 +19,10 @@ How a query is matched, best first:
 
 Within each step, more common words come first.
 
+A result found through an inflected form (steps 2 and 5) says which form in
+`matched_forms`: "книги" is the genitive singular кни́ги and the nominative
+plural кни́ги of книга.
+
 VESUM fallback: if vesum.db is given (--vesum) and a Cyrillic query matches
 nothing in steps 1 and 2, the form is looked up in VESUM to find its dictionary
 word. When Wiktionary has that word, its entry is returned; when it does not,
@@ -37,6 +41,26 @@ from import_wiktionary import (KEYBOARD, TYPO_MIN, deletes, edits_apart, from_ru
 RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_form": 4, "latin_loose": 5,
         "english_mention": 6, "prefix": 7}
 KIND = {v: k for k, v in RANK.items()}
+
+
+def matched_forms(db, eid, key, cyrillic):
+    """The forms of entry `eid` that the query spells, in the order of its table.
+
+    "руки" is руки́ (genitive singular) and also ру́ки (nominative, accusative
+    and vocative plural), so there can be several, stressed differently. `key`
+    is the query as search() looked it up: plain() of a Cyrillic query, or
+    loose_latin() of a Latin one ("ruky"). The list is empty when the form came
+    from VESUM, which knows the dictionary word but not which form it is.
+    """
+    found, seen = [], set()
+    for form, spelling, tags in db.execute(
+            "SELECT form, plain, tags FROM forms WHERE entry_id=? ORDER BY id", (eid,)):
+        if (spelling if cyrillic else loose_latin(national_translit(spelling))) != key:
+            continue
+        if (form, tags) not in seen:
+            seen.add((form, tags))
+            found.append({"form": form, "tags": json.loads(tags)})
+    return found
 
 
 def search(db, query, limit=20, vesum=None):
@@ -104,9 +128,12 @@ def search(db, query, limit=20, vesum=None):
             # "good" loosely matches год ("hod"), but the user most likely means English.
             rank = RANK["latin_loose"]
         tie = common
-        results.append((rank, tie, dict(id=eid, word=word, headword=headword, pos=pos,
-                                        tags=json.loads(tags), head_forms=json.loads(head_forms),
-                                        glosses=glosses, freq_rank=freq_rank, match=KIND[rank])))
+        result = dict(id=eid, word=word, headword=headword, pos=pos,
+                      tags=json.loads(tags), head_forms=json.loads(head_forms),
+                      glosses=glosses, freq_rank=freq_rank, match=KIND[rank])
+        if rank in (RANK["form"], RANK["latin_form"]):
+            result["matched_forms"] = matched_forms(db, eid, key, cyrillic)
+        results.append((rank, tie, result))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"], r[2]["id"]))
     exact = [r[2] for r in results if r[0] <= RANK["form"]]
     rest = [r[2] for r in results if r[0] > RANK["form"]]
@@ -226,6 +253,8 @@ if __name__ == "__main__":
         extra = ", ".join(f"{'/'.join(f['tags'])} {f['form']}" for f in r["head_forms"][:2])
         rank = f"#{r['freq_rank']}" if r["freq_rank"] else "unranked"
         print(f"{r['headword']}  [{r['pos']}; {' '.join(r['tags'])}]  {rank}  {extra}")
+        for f in r.get("matched_forms", []):
+            print(f"    = {f['form']}  ({' '.join(f['tags'])})")
         for g in r["glosses"][:3]:
             print(f"    - {g}")
         for uk, en in db.execute("SELECT uk, en FROM examples WHERE entry_id=? LIMIT 1", (r["id"],)):

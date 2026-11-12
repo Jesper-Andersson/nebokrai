@@ -103,6 +103,9 @@ SPECS.num = SPECS.adj;
 const PERSONAL_PRONOUN: Spec[] = [{ title: 'Declension', tags: [], rows: CASES, columns: [['', []]] }];
 
 const CASE_TAGS = new Set(CASES.flatMap(([, tags]) => tags));
+
+/** True for the tags of a case form ("genitive"): a form of the word itself, not a word of its own. */
+export const hasCase = (tags: string[]) => tags.some((t) => CASE_TAGS.has(t));
 const PERSONS_TAGS = new Set(PERSONS.flatMap(([, tags]) => tags));
 
 // Wiktionary gives every personal pronoun (я, ти, він, себе…) one shared table.
@@ -192,4 +195,78 @@ export function formTables(
 		other.set(key, group);
 	}
 	return { tables, other: [...other.values()] };
+}
+
+// Shown elsewhere on the page (the aspect is beside the headword), or noise.
+const HIDDEN_TAGS = new Set(['imperfective', 'perfective', 'pronoun', 'personal']);
+
+const readable = (tag: string) =>
+	tag.replace('first-person', '1st person').replace('second-person', '2nd person')
+		.replace('third-person', '3rd person');
+
+// The order a form is described in: "1st person singular present",
+// "animate masculine singular". Tags not listed follow, in alphabetical order.
+const PHRASE_ORDER = [
+	'first-person', 'second-person', 'third-person', 'animate', 'inanimate',
+	'masculine', 'feminine', 'neuter', 'singular', 'plural', 'present', 'future', 'past', 'imperative'
+];
+const GENDERS = new Set(['masculine', 'feminine', 'neuter']);
+const CASE_ORDER = CASES.flatMap(([, tags]) => tags);
+
+/** The tags of a form, without its case, as a phrase: "masculine/neuter singular". */
+function phrase(tags: string[]): string {
+	const place = (t: string) => (PHRASE_ORDER.includes(t) ? PHRASE_ORDER.indexOf(t) : PHRASE_ORDER.length);
+	const ordered = tags.filter((t) => !HIDDEN_TAGS.has(t))
+		.sort((a, b) => place(a) - place(b) || (a < b ? -1 : a > b ? 1 : 0));
+	const genders = ordered.filter((t) => GENDERS.has(t));
+	return ordered
+		.filter((t) => !GENDERS.has(t) || t === genders[0])
+		.map((t) => (GENDERS.has(t) ? genders.join('/') : readable(t)))
+		.join(' ');
+}
+
+export interface MatchedForm {
+	/** With its stress: руки́ */
+	form: string;
+	/** What it is, one label per kind of form: "genitive singular" */
+	labels: string[];
+}
+
+/**
+ * What a search result says about the form that found it (`matched_forms`).
+ * One spelling is often several forms, and they may be stressed apart, so the
+ * forms are grouped by their stressed spelling, and the cases that share
+ * everything else are named together:
+ *
+ *   руки → руки́: genitive singular · ру́ки: nominative, accusative, vocative plural
+ *
+ * At most `limit` labels are given; `more` counts the rest (an adjective's
+ * доброго is six forms).
+ */
+export function groupMatched(forms: Form[], limit = 4): { groups: MatchedForm[]; more: number } {
+	const byForm = new Map<string, Map<string, string[]>>(); // form → what it is, without the case → cases
+	for (const f of forms) {
+		const kinds = byForm.get(f.form) ?? new Map<string, string[]>();
+		byForm.set(f.form, kinds);
+		const kind = phrase(f.tags.filter((t) => !CASE_TAGS.has(t)));
+		const cases = kinds.get(kind) ?? [];
+		kinds.set(kind, cases);
+		for (const t of f.tags) if (CASE_TAGS.has(t) && !cases.includes(t)) cases.push(t);
+	}
+	const groups: MatchedForm[] = [];
+	let more = 0;
+	let room = limit;
+	for (const [form, kinds] of byForm) {
+		const labels: string[] = [];
+		for (const [kind, cases] of kinds) {
+			if (room-- <= 0) {
+				more++;
+				continue;
+			}
+			const named = CASE_ORDER.filter((c) => cases.includes(c)).join(', ');
+			labels.push([named, kind].filter(Boolean).join(' '));
+		}
+		if (labels.length) groups.push({ form, labels });
+	}
+	return { groups, more };
 }

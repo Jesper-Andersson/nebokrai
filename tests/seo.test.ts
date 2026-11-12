@@ -56,6 +56,17 @@ test('the sitemap lists every word page once', { skip: !hasDb }, async () => {
 	for (const page of ['/', '/about', '/resources', '/grammar', '/support', '/sources', '/word/kalyna', '/word/knyha', '/word/kyiv']) {
 		assert.ok(urls.includes(`https://nebokrai.app${page}`), page);
 	}
+	// The pages that list the words: the common ones, and each letter's, as
+	// many as it has (п fills seven, ь one). A letter is written as a browser sends it.
+	for (const page of [
+		'/common-words', '/common-words/10', '/words', '/words/other',
+		'/words/%D0%BF', '/words/%D0%BF/7', '/words/%D1%8C'
+	]) {
+		assert.ok(urls.includes(`https://nebokrai.app${page}`), page);
+	}
+	for (const page of ['/common-words/1', '/common-words/11', '/words/%D0%BF/1', '/words/%D0%BF/8', '/words/%D1%8C/2']) {
+		assert.ok(!urls.includes(`https://nebokrai.app${page}`), page);
+	}
 	for (const page of ['/saved', '/report']) assert.ok(!urls.includes(`https://nebokrai.app${page}`), page);
 	// Nothing that would break the XML or need escaping in an address. The
 	// brackets are for the one entry spelled ")))", the smiley.

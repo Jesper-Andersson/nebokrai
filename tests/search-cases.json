@@ -36,7 +36,42 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "книги",
@@ -49,7 +84,42 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "читаю",
@@ -62,7 +132,23 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "читаю",
@@ -75,7 +161,23 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "КАЛИНА",
@@ -648,7 +750,23 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чи́тано",
+      [
+       "imperfective",
+       "impersonal",
+       "passive",
+       "past"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "читано",
@@ -661,7 +779,23 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чи́тано",
+      [
+       "imperfective",
+       "impersonal",
+       "passive",
+       "past"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м'яти",
@@ -680,7 +814,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м'яти",
@@ -699,7 +847,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м’яти",
@@ -718,7 +880,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м’яти",
@@ -737,7 +913,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "мʼяти",
@@ -756,7 +946,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "мʼяти",
@@ -775,7 +979,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м`яти",
@@ -794,7 +1012,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м`яти",
@@ -813,7 +1045,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м´яти",
@@ -832,7 +1078,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м´яти",
@@ -851,7 +1111,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м‘яти",
@@ -870,7 +1144,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "м‘яти",
@@ -889,7 +1177,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    4171,
+    [
+     [
+      "м'я́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "п`ять",
@@ -1282,7 +1584,66 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    2575,
+    [
+     [
+      "киї́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4694,
+    [
+     [
+      "-кі́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-кі́в",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4335,
+    [
+     [
+      "-кі́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-́ків",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-́ків",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "Kyiv",
@@ -1409,7 +1770,66 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    2575,
+    [
+     [
+      "киї́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4694,
+    [
+     [
+      "-кі́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-кі́в",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4335,
+    [
+     [
+      "-кі́в",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-́ків",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "-́ків",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "shchastia",
@@ -1562,7 +1982,34 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    1432,
+    [
+     [
+      "добрі́",
+      [
+       "locative",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    15121,
+    [
+     [
+      "добрі́й",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "dobryi",
@@ -1653,7 +2100,34 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    1432,
+    [
+     [
+      "добрі́",
+      [
+       "locative",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    15121,
+    [
+     [
+      "добрі́й",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "čytáty",
@@ -1672,7 +2146,56 @@
     "latin_loose"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    3294,
+    [
+     [
+      "цита́ти",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ті",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "цита́ті",
+      [
+       "locative",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "čytáty",
@@ -1691,7 +2214,56 @@
     "latin_loose"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    3294,
+    [
+     [
+      "цита́ти",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ті",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "цита́ті",
+      [
+       "locative",
+       "singular"
+      ]
+     ],
+     [
+      "цита́ти",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "good",
@@ -1818,7 +2390,21 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    6665,
+    [
+     [
+      "ход",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "good",
@@ -1945,7 +2531,21 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    6665,
+    [
+     [
+      "ход",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "dog",
@@ -3286,7 +3886,64 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7100,
+    [
+     [
+      "Інн",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "Інн",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4333,
+    [
+     [
+      "-́и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4334,
+    [
+     [
+      "-и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    30487,
+    [
+     [
+      "-и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "in",
@@ -3413,7 +4070,64 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7100,
+    [
+     [
+      "Інн",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "Інн",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4333,
+    [
+     [
+      "-́и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4334,
+    [
+     [
+      "-и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    30487,
+    [
+     [
+      "-и́н",
+      [
+       "genitive",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "water",
@@ -4910,7 +5624,61 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7264,
+    [
+     [
+      "при",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    6163,
+    [
+     [
+      "прі",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "прі",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "прі",
+      [
+       "locative",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    20883,
+    [
+     [
+      "прій",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "pry",
@@ -5037,7 +5805,61 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7264,
+    [
+     [
+      "при",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    6163,
+    [
+     [
+      "прі",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "прі",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "прі",
+      [
+       "locative",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    20883,
+    [
+     [
+      "прій",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "соловейком",
@@ -5088,7 +5910,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    15482,
+    [
+     [
+      "нездійсне́нними",
+      [
+       "instrumental",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "нездійсненними",
@@ -5101,7 +5937,21 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    15482,
+    [
+     [
+      "нездійсне́нними",
+      [
+       "instrumental",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "dobra nich",
@@ -6068,7 +6918,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "knyhy",
@@ -6081,7 +6966,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "knigi",
@@ -6094,7 +7014,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "knigi",
@@ -6107,7 +7062,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    130,
+    [
+     [
+      "кни́ги",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "кни́ги",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "chytaiu",
@@ -6120,7 +7110,23 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "chytaiu",
@@ -6133,7 +7139,23 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "chitayu",
@@ -6146,7 +7168,23 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "chitayu",
@@ -6159,7 +7197,23 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    949,
+    [
+     [
+      "чита́ю",
+      [
+       "first-person",
+       "imperfective",
+       "present",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "dobroho",
@@ -6184,7 +7238,32 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    6093,
+    [
+     [
+      "до́брого",
+      [
+       "genitive",
+       "masculine",
+       "neuter",
+       "singular"
+      ]
+     ],
+     [
+      "до́брого",
+      [
+       "accusative",
+       "animate",
+       "masculine",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "dobroho",
@@ -6209,7 +7288,32 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    6093,
+    [
+     [
+      "до́брого",
+      [
+       "genitive",
+       "masculine",
+       "neuter",
+       "singular"
+      ]
+     ],
+     [
+      "до́брого",
+      [
+       "accusative",
+       "animate",
+       "masculine",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "male",
@@ -6336,7 +7440,38 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7106,
+    [
+     [
+      "мале́",
+      [
+       "neuter",
+       "nominative",
+       "singular"
+      ]
+     ],
+     [
+      "мале́",
+      [
+       "accusative",
+       "neuter",
+       "singular"
+      ]
+     ],
+     [
+      "мале́",
+      [
+       "neuter",
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "male",
@@ -6463,7 +7598,38 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    7106,
+    [
+     [
+      "мале́",
+      [
+       "neuter",
+       "nominative",
+       "singular"
+      ]
+     ],
+     [
+      "мале́",
+      [
+       "accusative",
+       "neuter",
+       "singular"
+      ]
+     ],
+     [
+      "мале́",
+      [
+       "neuter",
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "more",
@@ -6590,7 +7756,21 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    2061,
+    [
+     [
+      "мо́ре",
+      [
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "more",
@@ -6717,7 +7897,21 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    2061,
+    [
+     [
+      "мо́ре",
+      [
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "son",
@@ -6844,7 +8038,66 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    9153,
+    [
+     [
+      "Сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "Сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4612,
+    [
+     [
+      "сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4613,
+    [
+     [
+      "сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "son",
@@ -6971,7 +8224,66 @@
     "english_mention"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    9153,
+    [
+     [
+      "Сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "Сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4612,
+    [
+     [
+      "сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ],
+   [
+    4613,
+    [
+     [
+      "сонь",
+      [
+       "genitive",
+       "plural"
+      ]
+     ],
+     [
+      "сонь",
+      [
+       "accusative",
+       "plural"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "кнегу",
@@ -7092,7 +8404,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    13512,
+    [
+     [
+      "небокра́ю",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "locative",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "nebokraiu",
@@ -7111,7 +8458,42 @@
     "latin_form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "forms": [
+   [
+    13512,
+    [
+     [
+      "небокра́ю",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "dative",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "locative",
+       "singular"
+      ]
+     ],
+     [
+      "небокра́ю",
+      [
+       "singular",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "",
@@ -7222,5 +8604,263 @@
    ]
   ],
   "suggest": []
+ },
+ {
+  "query": "руки",
+  "vesum": false,
+  "expect": [
+   [
+    803,
+    "рука",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    803,
+    [
+     [
+      "ру́ки",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "руки́",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "руки",
+  "vesum": true,
+  "expect": [
+   [
+    803,
+    "рука",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    803,
+    [
+     [
+      "ру́ки",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "руки́",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "кави",
+  "vesum": false,
+  "expect": [
+   [
+    454,
+    "кава",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    454,
+    [
+     [
+      "ка́ви",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "кави",
+  "vesum": true,
+  "expect": [
+   [
+    454,
+    "кава",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    454,
+    [
+     [
+      "ка́ви",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "ruky",
+  "vesum": false,
+  "expect": [
+   [
+    803,
+    "рука",
+    "noun",
+    "latin_form"
+   ],
+   [
+    30675,
+    "руків'я",
+    "noun",
+    "prefix"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    803,
+    [
+     [
+      "ру́ки",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "руки́",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "ruky",
+  "vesum": true,
+  "expect": [
+   [
+    803,
+    "рука",
+    "noun",
+    "latin_form"
+   ],
+   [
+    30675,
+    "руків'я",
+    "noun",
+    "prefix"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    803,
+    [
+     [
+      "ру́ки",
+      [
+       "nominative",
+       "plural"
+      ]
+     ],
+     [
+      "руки́",
+      [
+       "genitive",
+       "singular"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "accusative",
+       "plural"
+      ]
+     ],
+     [
+      "ру́ки",
+      [
+       "plural",
+       "vocative"
+      ]
+     ]
+    ]
+   ]
+  ]
  }
 ]

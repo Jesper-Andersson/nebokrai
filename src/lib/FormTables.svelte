@@ -13,10 +13,13 @@
 	import { HINTS, termOfLabel } from '#lib/grammar.ts';
 	import { formLabel, messagesFor, tagLabel } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { stressMoved } from './stress.ts';
 	import Stressed from './Stressed.svelte';
 	import Term from './Term.svelte';
 
-	let { tables }: { tables: FormTable[] } = $props();
+	// `headword` is what each form's stress is compared with; leave it out and
+	// no form is marked as moving the stress.
+	let { tables, headword = '' }: { tables: FormTable[]; headword?: string } = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -72,7 +75,7 @@
 								{#if cell.length && row.leads?.[c]}<span class="lead">{row.leads[c]}</span>{' '}{/if}
 								{#each cell as item, i}
 									<!-- {' '}: Svelte drops a space at the start of a block, and the note ran into the form -->
-									{#if i}<br />{/if}<Stressed text={item.form} />{#if item.note}{' '}<small lang={settings.lang}
+									{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}{' '}<small lang={settings.lang}
 											>{tagLabel(m, settings.lang, item.note)}</small
 										>{/if}
 								{:else}<span class="none">—</span>{/each}

@@ -49,34 +49,41 @@ const escapeHtml = (text: string) =>
 /** One field of a tab-separated line: a tab or line break inside it would start a new field or card. */
 const oneLine = (text: string) => text.replace(/[\t\r\n]+/g, ' ');
 
-const SMALL = 'style="font-size:0.8em;opacity:0.7"';
-
 /**
  * A text file for Anki's File > Import (Anki 2.1.54 or later reads the `#`
- * lines). Two columns of content, front and back, because that fits the
- * built-in Basic note type: the import needs no setup. The note type is not
- * named, since its name depends on the language Anki is set to.
+ * lines). Three columns of content: the word, its meaning, and the details
+ * (grammar, pronunciation, an example, the link back). Anki gives them to the
+ * note type's fields in order, so the built-in Basic type takes the word as
+ * the front and the meaning as the back with no setup, and a note type with a
+ * third field takes the details too.
+ *
+ * The columns are deliberately not named with `#columns:`. Anki would then
+ * match them to fields by name, and a note type whose fields are called
+ * anything else (Basic's are translated) would import empty. The note type is
+ * not named either, since its name depends on the language Anki is set to.
  *
  * The first column is a stable id per word, so importing a later export
  * updates the cards already there instead of doubling them.
  */
 export function ankiText(cards: ExportCard[], posName: (pos: string) => string): string {
-	const lines = ['#separator:tab', '#html:true', '#guid column:1', '#tags column:4', '#deck:Nebokrai'];
+	const lines = ['#separator:tab', '#html:true', '#guid column:1', '#tags column:5', '#deck:Nebokrai'];
 	for (const card of cards) {
+		const meaning = card.glosses.length === 1
+			? escapeHtml(card.glosses[0])
+			: `<ol>${card.glosses.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ol>`;
 		const grammar = [posName(card.pos), card.tags.join(', ')].filter(Boolean).join(' · ');
-		const back = [
-			`<div ${SMALL}>${escapeHtml(grammar)}</div>`,
-			card.ipa && `<div ${SMALL}>${escapeHtml(card.ipa)}</div>`,
-			card.glosses.length === 1
-				? `<div>${escapeHtml(card.glosses[0])}</div>`
-				: `<ol>${card.glosses.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ol>`,
+		const details = [
+			`<div>${escapeHtml(grammar)}</div>`,
+			card.ipa && `<div>${escapeHtml(card.ipa)}</div>`,
 			card.example &&
 				`<div><i lang="uk">${escapeHtml(card.example.uk)}</i><br>${escapeHtml(card.example.en)}</div>`,
-			`<div ${SMALL}><a href="${escapeHtml(wordUrl(card.word))}">Nebokrai</a></div>`
+			`<div><a href="${escapeHtml(wordUrl(card.word))}">Nebokrai</a></div>`
 		].filter(Boolean).join('');
 		// A tag ends at a space, and "prep_phrase" has none
 		const tags = `nebokrai ${card.pos.replace(/\s+/g, '_')}`;
-		lines.push([`nebokrai:${card.word}`, escapeHtml(card.headword), back, tags].map(oneLine).join('\t'));
+		lines.push(
+			[`nebokrai:${card.word}`, escapeHtml(card.headword), meaning, details, tags].map(oneLine).join('\t')
+		);
 	}
 	return lines.join('\n') + '\n';
 }

@@ -403,6 +403,8 @@ newest first. One list holds at most 5,000 words.
 | `POST /api/saved/exported` | yes | Mark words as exported just now. `{ "ok": true }`. |
 | `POST /api/words/summary` | no | Headword and meanings for a list of words. |
 | `POST /api/words/cards` | no | What a flashcard holds, for a list of words. |
+| `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
+| `GET /api/review/deck/<deck>` | no | The words of a ready-made review deck. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
 
 "Signed in" means the request carries the `session` cookie. The browser sends
@@ -478,6 +480,7 @@ Response `200`:
       "pos": "noun",
       "tags": ["feminine", "inanimate"],
       "ipa": "[kɐˈɫɪnɐ]",
+      "audio_url": "https://upload.wikimedia.org/wikipedia/commons/…/Uk-калина.ogg",
       "example": { "uk": "…", "en": "…", "tatoeba_id": 123456 }
     }
   ]
@@ -486,9 +489,68 @@ Response `200`:
 
 The same words, in the same order and chosen by the same rules as
 `/api/words/summary`, with the entry's part of speech, grammar tags and IPA
-(`null` if it has none). `example` is the entry's first Tatoeba sentence, or
-`null`; credit it with a link to `https://tatoeba.org/sentences/show/<tatoeba_id>`.
-Nothing in the answer comes from VESUM.
+(`null` if it has none). `audio_url` is a recording on Wikimedia Commons, or
+`null`; the review page plays it and no export uses it. `example` is the
+entry's first Tatoeba sentence, or `null`; credit it with a link to
+`https://tatoeba.org/sentences/show/<tatoeba_id>`. Nothing in the answer comes
+from VESUM.
+
+### Flashcard review
+
+The review page (`/review`) schedules flashcards in the browser with FSRS-6
+(`src/lib/review/fsrs.ts`); the server never works out a schedule. Signed out,
+the cards are kept in `localStorage`. Signed in, the account holds them too,
+and one call keeps the two in step.
+
+A card is the schedule of one word:
+
+```json
+{
+  "word": "калина", "due": 1794573000000, "stability": 2.3065, "difficulty": 2.1181,
+  "state": 2, "step": 0, "reps": 2, "lapses": 0, "added_at": 1794400000000, "last_review": 1794400200000
+}
+```
+
+Times are in milliseconds, on the browser's clock. `stability` is the number
+of days after which the chance of recalling the word has fallen to 90%,
+`difficulty` runs from 1 to 10. `state` is 1 (learning), 2 (review) or 3
+(relearning); `step` is the learning step the card is on. `reps` counts
+answers, `lapses` the times a card in review was forgotten. A word that has
+never been answered has no card.
+
+#### `POST /api/review/sync`
+
+Body: `{ "cards": [...], "since": 1794400000000, "settings": {...} }`, every
+field optional, at most 500 cards.
+
+Response `200`: `{ "cards": [...], "settings": {...}, "now": 1794400300000 }`.
+
+- `cards` sent are stored. When the account already has a card for the word,
+  the copy with the later `last_review` is kept (with the same `last_review`,
+  the one with more `reps`), so sending a card twice, or late, does no harm.
+  Malformed cards and words not in the dictionary are skipped. A
+  `last_review` later than the server's clock is taken as now. An account
+  holds at most 10,000 cards; new ones beyond that are skipped.
+- `cards` returned are the account's cards stored at or after `since`, which
+  is the `now` of an earlier answer; `0` asks for all of them. Without
+  `since` the list is empty: a browser with more than 500 cards to send
+  leaves it out of every request but the last.
+- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "updated_at": 1794400000000 }`:
+  how many new words a day, and which decks are switched on. Of the copy sent
+  and the account's, the one with the later `updated_at` is kept, and
+  returned; `null` when the account has none.
+
+A card stays when its word is removed from the saved list, as an exported
+mark does.
+
+#### `GET /api/review/deck/<deck>`
+
+`<deck>` is `common-500`, `common-1000` or `common-2000`.
+
+Response `200`: `{ "deck": "common-500", "words": ["не", "я", "в", …] }`. The
+commonest spellings in order, as `/common-words` counts them: places 1 to 500,
+501 to 1,000 and 1,001 to 2,000. Cached like a search. The `saved` deck is the
+visitor's own list and has no address here.
 
 ### Signing in and out
 
@@ -508,6 +570,7 @@ These are pages the browser visits, not JSON endpoints.
 | `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 1 MB for `/api/saved/merge`. |
-| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. |
+| `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 1 MB for `/api/saved/merge`. |
+| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry; `GET /api/review/deck/<deck>` for a deck that does not exist. |
 | `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when the list already holds 5,000 words. |

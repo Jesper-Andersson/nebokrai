@@ -160,6 +160,8 @@ export interface WordCard extends WordSummary {
 	pos: string;
 	tags: string[];
 	ipa: string | null;
+	/** A recording of the word on Wikimedia Commons, where there is one. The review page plays it; no export uses it. */
+	audio_url: string | null;
 	/** The first Tatoeba sentence that uses the word, if there is one. */
 	example: { uk: string; en: string; tatoeba_id: number } | null;
 }
@@ -184,7 +186,7 @@ export async function wordCards(db: Db, words: string[]): Promise<WordCard[]> {
 		if (!found) return [];
 		return [{
 			word: found.word, headword: found.headword, glosses: found.glosses,
-			pos: found.pos, tags: JSON.parse(found.tags), ipa: found.ipa,
+			pos: found.pos, tags: JSON.parse(found.tags), ipa: found.ipa, audio_url: found.audio_url,
 			example: examples.get(found.id) ?? null
 		}];
 	});
@@ -198,6 +200,7 @@ interface BestEntry {
 	/** A JSON list, as stored. */
 	tags: string;
 	ipa: string | null;
+	audio_url: string | null;
 	glosses: string[];
 }
 
@@ -207,7 +210,7 @@ async function bestEntries(db: Db, words: string[]): Promise<Map<string, BestEnt
 	if (!words.length) return best;
 	// One JSON parameter for the whole list: D1 binds at most 100.
 	const rows = await db.all<Omit<BestEntry, 'glosses'>>(
-		`SELECT id, word, headword, pos, tags, ipa FROM entries WHERE word IN (SELECT value FROM json_each(?))
+		`SELECT id, word, headword, pos, tags, ipa, audio_url FROM entries WHERE word IN (SELECT value FROM json_each(?))
 		 ORDER BY freq_rank IS NULL, freq_rank, id`, [JSON.stringify(words)]);
 	for (const r of rows) if (!best.has(r.word)) best.set(r.word, { ...r, glosses: [] });
 	const byId = new Map([...best.values()].map((s) => [s.id, s]));

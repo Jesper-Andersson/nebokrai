@@ -1,14 +1,17 @@
-// Accounts, sessions and saved words. They live in a private database of their
+// Accounts, sessions, saved words and review cards. They live in a private database of their
 // own, never nebokrai.db: the dictionary database is rebuilt from open data and
 // published under CC BY-SA, while these rows are personal and must survive
 // rebuilds. See user-db.ts for where that database is.
 //
 // What is stored about a person: the id their provider (Google or GitHub) gives
-// them, their display name, the words they saved and when they exported them.
-// No email, no password.
+// them, their display name, the words they saved, when they exported them and
+// how their flashcard reviews went. No email, no password.
 //
 // Nothing here imports from SvelteKit, so `npm test` can run it against an
 // in-memory SQLite database.
+import { MAX_REVIEW } from '../review/cards.ts';
+import { parseSettings, type ReviewSettings } from '../review/decks.ts';
+import type { ReviewCard } from '../review/fsrs.ts';
 import { MAX_SAVED, MAX_WORD_LENGTH, type ExportedMarks, type SavedWord } from '../saved.ts';
 
 /** The database as this file needs it: read rows, or run a statement. */
@@ -54,7 +57,32 @@ export const SCHEMA = [
 		word TEXT NOT NULL,
 		exported_at INTEGER NOT NULL,
 		PRIMARY KEY (user_id, word)
-	) WITHOUT ROWID`
+	) WITHOUT ROWID`,
+	// One flashcard's schedule (src/lib/review/fsrs.ts). Like an exported mark
+	// it outlives the word being removed from the saved list. updated_at is
+	// this server's clock, and is what another browser asks by: "what changed
+	// since I last looked"; every other time is the browser's.
+	`CREATE TABLE IF NOT EXISTS review_cards (
+		user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		word TEXT NOT NULL,
+		due INTEGER NOT NULL,
+		stability REAL NOT NULL,
+		difficulty REAL NOT NULL,
+		state INTEGER NOT NULL,
+		step INTEGER NOT NULL,
+		reps INTEGER NOT NULL,
+		lapses INTEGER NOT NULL,
+		added_at INTEGER NOT NULL,
+		last_review INTEGER NOT NULL,
+		updated_at INTEGER NOT NULL,
+		PRIMARY KEY (user_id, word)
+	) WITHOUT ROWID`,
+	// The decks switched on and the new cards a day, as JSON (ReviewSettings).
+	`CREATE TABLE IF NOT EXISTS review_settings (
+		user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+		settings TEXT NOT NULL,
+		updated_at INTEGER NOT NULL
+	)`
 ];
 
 export type Provider = 'google' | 'github';
@@ -152,7 +180,7 @@ export async function deleteSession(db: UserDb, token: string): Promise<void> {
 export async function deleteUser(db: UserDb, userId: string): Promise<void> {
 	// Spelled out rather than left to ON DELETE CASCADE, so nothing is left
 	// behind even where foreign keys are not enforced.
-	for (const table of ['exported_words', 'saved_words', 'sessions', 'identities']) {
+	for (const table of ['review_settings', 'review_cards', 'exported_words', 'saved_words', 'sessions', 'identities']) {
 		await db.run(`DELETE FROM ${table} WHERE user_id = ?`, [userId]);
 	}
 	await db.run('DELETE FROM users WHERE id = ?', [userId]);
@@ -253,4 +281,66 @@ export function parseSavedWords(value: unknown, now = Date.now()): SavedWord[] {
 		words.push({ word, saved_at: Number.isInteger(at) && at > 0 && at <= now ? at : now });
 	}
 	return words;
+}
+
+const CARD_COLUMNS = ['due', 'stability', 'difficulty', 'state', 'step', 'reps', 'lapses', 'added_at', 'last_review'];
+const CARD_VALUES = CARD_COLUMNS.map((column) => `json_extract(value, '$.${column}')`).join(', ');
+
+/**
+ * Take in the cards a browser reviewed. Of two copies of a card the one
+ * reviewed later is kept, so the same cards can arrive twice, or late from a
+ * browser that was offline, and do no harm. New cards beyond MAX_REVIEW are
+ * left out. Only dictionary words should get this far: the endpoint checks.
+ */
+export async function saveReviewCards(
+	db: UserDb, userId: string, cards: ReviewCard[], now = Date.now()
+): Promise<void> {
+	if (!cards.length) return;
+	// One JSON parameter for the whole list: D1 binds at most 100.
+	const sent = JSON.stringify(cards);
+	await db.run(
+		`INSERT INTO review_cards (user_id, word, ${CARD_COLUMNS.join(', ')}, updated_at)
+		 SELECT ?, json_extract(value, '$.word'), ${CARD_VALUES}, ? FROM json_each(?)
+		 WHERE json_extract(value, '$.word') IN (SELECT word FROM review_cards WHERE user_id = ?)
+		 ON CONFLICT (user_id, word) DO UPDATE SET
+		   ${CARD_COLUMNS.map((column) => `${column} = excluded.${column}`).join(', ')}, updated_at = excluded.updated_at
+		 WHERE excluded.last_review > review_cards.last_review
+		    OR (excluded.last_review = review_cards.last_review AND excluded.reps > review_cards.reps)`,
+		[userId, now, sent, userId]);
+	await db.run(
+		`INSERT OR IGNORE INTO review_cards (user_id, word, ${CARD_COLUMNS.join(', ')}, updated_at)
+		 SELECT ?, json_extract(value, '$.word'), ${CARD_VALUES}, ? FROM json_each(?)
+		 WHERE json_extract(value, '$.word') NOT IN (SELECT word FROM review_cards WHERE user_id = ?)
+		 LIMIT max(0, ? - (SELECT count(*) FROM review_cards WHERE user_id = ?))`,
+		[userId, now, sent, userId, MAX_REVIEW, userId]);
+}
+
+/**
+ * The account's cards that changed at or after `since` on this server's clock;
+ * all of them from 0. "At", so that a card stored in the same millisecond as
+ * the last answer is not missed: receiving a card twice costs nothing.
+ */
+export async function listReviewCards(db: UserDb, userId: string, since = 0): Promise<ReviewCard[]> {
+	return db.all<ReviewCard>(
+		`SELECT word, ${CARD_COLUMNS.join(', ')} FROM review_cards WHERE user_id = ? AND updated_at >= ? ORDER BY word`,
+		[userId, since]);
+}
+
+/** Keep the settings, unless the account already has ones changed later. */
+export async function saveReviewSettings(db: UserDb, userId: string, settings: ReviewSettings): Promise<void> {
+	await db.run(
+		`INSERT INTO review_settings (user_id, settings, updated_at) VALUES (?, ?, ?)
+		 ON CONFLICT (user_id) DO UPDATE SET settings = excluded.settings, updated_at = excluded.updated_at
+		 WHERE excluded.updated_at > review_settings.updated_at`,
+		[userId, JSON.stringify(settings), settings.updated_at]);
+}
+
+export async function getReviewSettings(db: UserDb, userId: string): Promise<ReviewSettings | null> {
+	const rows = await db.all<{ settings: string }>('SELECT settings FROM review_settings WHERE user_id = ?', [userId]);
+	try {
+		// Checked against the clock when they were stored: no need to again.
+		return rows.length ? parseSettings(JSON.parse(rows[0].settings), Infinity) : null;
+	} catch {
+		return null;
+	}
 }

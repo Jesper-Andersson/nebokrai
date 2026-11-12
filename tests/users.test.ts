@@ -3,10 +3,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { MAX_REVIEW } from '../src/lib/review/cards.ts';
+import { AGAIN, GOOD, answer, newCard } from '../src/lib/review/fsrs.ts';
 import { MAX_SAVED } from '../src/lib/saved.ts';
 import {
-	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, listExported, listSaved, markExported,
-	mergeSaved, parseExportedMarks, parseExportedWords, parseSavedWords, removeWord, saveWord, validateSession
+	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, getReviewSettings, listExported,
+	listReviewCards, listSaved, markExported, mergeSaved, parseExportedMarks, parseExportedWords, parseSavedWords,
+	removeWord, saveReviewCards, saveReviewSettings, saveWord, validateSession
 } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -91,13 +94,64 @@ test('deleting an account removes everything', async () => {
 	await saveWord(db, other, 'книга');
 	await markExported(db, user, { книга: T0 });
 	await markExported(db, other, { книга: T0 });
+	for (const who of [user, other]) {
+		await saveReviewCards(db, who, [answer(newCard('книга', T0), GOOD, T0)], T0);
+		await saveReviewSettings(db, who, { new_per_day: 5, decks: ['saved'], updated_at: T0 });
+	}
 
 	await deleteUser(db, user);
 	assert.equal(await validateSession(db, token), null);
-	for (const table of ['users', 'identities', 'saved_words', 'exported_words']) {
+	for (const table of ['users', 'identities', 'saved_words', 'exported_words', 'review_cards', 'review_settings']) {
 		assert.equal((await db.all(`SELECT 1 FROM ${table}`)).length, 1, table); // only Тарас is left
 	}
 	assert.notEqual(await findOrCreateUser(db, 'github', '42', 'Олена'), user); // a new account
+});
+
+test('review cards: the copy reviewed later is kept', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
+	const other = await findOrCreateUser(db, 'google', '7', 'Тарас');
+	const once = answer(newCard('книга', T0), GOOD, T0);
+	const twice = answer(once, GOOD, once.due);
+	const bread = answer(newCard('хліб', T0), AGAIN, T0);
+
+	await saveReviewCards(db, user, [twice, bread], T0 + 1000);
+	assert.deepEqual(await listReviewCards(db, user), [twice, bread]); // by word: к before х
+	assert.deepEqual(await listReviewCards(db, other), []);
+
+	// An older copy arriving late, from a browser that was offline, changes nothing.
+	await saveReviewCards(db, user, [once], T0 + 2000);
+	assert.deepEqual(await listReviewCards(db, user), [twice, bread]);
+	assert.deepEqual(await listReviewCards(db, user, T0 + 2000), []);
+
+	// A later review replaces the card, and only that card is new to another browser.
+	const thrice = answer(twice, GOOD, twice.due);
+	await saveReviewCards(db, user, [thrice], T0 + 3000);
+	assert.deepEqual(await listReviewCards(db, user, T0 + 2000), [thrice]);
+	assert.deepEqual(await listReviewCards(db, user, T0 + 3000), [thrice]); // "at or after"
+	assert.deepEqual(await listReviewCards(db, user, T0 + 3001), []);
+});
+
+test('review cards stop at the limit, but cards already there can still change', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
+	const card = answer(newCard('книга', T0), GOOD, T0);
+	const many = Array.from({ length: MAX_REVIEW + 5 }, (_, i) => ({ ...card, word: `слово${i}` }));
+	await saveReviewCards(db, user, many, T0);
+	assert.equal((await listReviewCards(db, user)).length, MAX_REVIEW);
+
+	await saveReviewCards(db, user, [card, answer(many[0], GOOD, card.due)], T0 + 1000);
+	assert.deepEqual((await listReviewCards(db, user, T0 + 1000)).map((c) => [c.word, c.reps]), [['слово0', 2]]);
+});
+
+test('review settings: the later change is kept', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
+	assert.equal(await getReviewSettings(db, user), null);
+	const later = { new_per_day: 20, decks: ['saved', 'common-500'], updated_at: T0 + 1000 };
+	await saveReviewSettings(db, user, later);
+	await saveReviewSettings(db, user, { new_per_day: 5, decks: ['saved'], updated_at: T0 });
+	assert.deepEqual(await getReviewSettings(db, user), later);
 });
 
 test('a list sent by a browser is read defensively', () => {

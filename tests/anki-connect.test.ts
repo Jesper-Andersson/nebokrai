@@ -10,12 +10,12 @@ import {
 import type { WordCard } from '../src/lib/search/word.ts';
 
 const kalyna: WordCard = {
-	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]',
+	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]', audio_url: null,
 	glosses: ['viburnum, guelder rose'],
 	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123 }
 };
 const kyiv: WordCard = {
-	word: 'Київ', headword: '"Ки́їв"', pos: 'name', tags: [], ipa: null,
+	word: 'Київ', headword: '"Ки́їв"', pos: 'name', tags: [], ipa: null, audio_url: null,
 	glosses: ['a <b>city</b> & "capital"', 'Kyiv'], example: null
 };
 const posName = (pos: string) => pos.toUpperCase();
@@ -113,7 +113,7 @@ test('a second send doubles nothing and updates only what changed', async () => 
 
 	// The dictionary has a new meaning for one, and there is one new word
 	const better = { ...kalyna, glosses: ['viburnum', 'guelder rose'] };
-	const kit: WordCard = { word: 'кіт', headword: 'кіт', pos: 'noun', tags: [], ipa: null, glosses: ['cat'], example: null };
+	const kit: WordCard = { word: 'кіт', headword: 'кіт', pos: 'noun', tags: [], ipa: null, audio_url: null, glosses: ['cat'], example: null };
 	assert.deepEqual(await sendToAnki([kit, better, kyiv], posName, anki.invoke), { added: 1, updated: 1, unchanged: 1 });
 	assert.equal(anki.notes.length, 3);
 	assert.equal(anki.notes[0].noteId, 1000); // the same note, so its review history stays

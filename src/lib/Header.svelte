@@ -389,12 +389,21 @@
 	   The count of cards due has the upper right. */
 	.flame {
 		position: absolute;
-		top: -0.9rem;
-		left: -0.8rem;
-		width: 1.75rem;
-		height: 1.75rem;
+		/* The bar is 3.5rem high and the button 2.25rem, so there is 0.6rem over
+		   the button: the flame, its flicker and its glow must fit in that. */
+		top: -0.3rem;
+		left: -0.95rem;
+		width: 1.5rem;
+		height: 1.5rem;
 		overflow: visible;
 		pointer-events: none;
+	}
+
+	/* A finger's button is taller, and leaves less of the bar above it */
+	@media (pointer: coarse) {
+		.flame {
+			top: -0.05rem;
+		}
 	}
 
 	/* Not yet kept today: the same flame, gone grey */

@@ -1,15 +1,22 @@
 // POST /api/report: store a "Report an issue" report (see src/lib/server/reports.ts).
 //
-// Body (JSON): { kind, message, email?, entry?, query?, page?, website? }
+// Body (JSON): { kind, message, email?, entry?, query?, page?, website?, turnstile? }
 // `website` is a honeypot: the form hides it, so only bots fill it in. They get
 // a normal-looking success and nothing is stored.
+// `turnstile` is the token of the form's bot check (src/lib/Turnstile.svelte).
+// When the server has TURNSTILE_SECRET, a report without a token Cloudflare
+// accepts gets 403 `bot_check`, and 503 `bot_check_unavailable` when
+// Cloudflare gives no verdict. The source of this site is public, so the
+// honeypot stops only bots that have not read it; the token cannot be made up.
 //
 // The word and part of speech are looked up from `entry` here rather than
 // taken from the browser. IP addresses are used only for the rate limit below,
 // in memory, and never stored.
+import { TURNSTILE_SECRET } from '$app/env/private';
 import { getDatabases } from '#lib/server/db.ts';
 import { saveReport } from '#lib/server/reports.ts';
 import { rateKey, readJson } from '#lib/server/request.ts';
+import { MAX_TOKEN, verifyTurnstile } from '#lib/server/turnstile.ts';
 import { isReportKind, stripControls } from '#lib/report.ts';
 import type { RequestHandler } from './$types';
 
@@ -18,8 +25,8 @@ const MAX_EMAIL = 254;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // At most 5 reports per 10 minutes from one address. Kept in memory, so on
-// Cloudflare it counts per server instance: a brake, not a wall. Turnstile is
-// the planned protection against real spam.
+// Cloudflare it counts per server instance: a brake, not a wall. Turnstile
+// (below) is the protection against real spam.
 const WINDOW_MS = 10 * 60 * 1000;
 const LIMIT = 5;
 const recent = new Map<string, number[]>();
@@ -63,6 +70,16 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 
 	const email = text(body.email, MAX_EMAIL);
 	if (email && !EMAIL.test(email)) return fail(400, 'invalid_email');
+
+	// Before anything is stored or mailed. A token is good for one check, so
+	// this comes after the mistakes a person can fix and send again.
+	if (TURNSTILE_SECRET) {
+		const token = typeof body.turnstile === 'string' && body.turnstile.length <= MAX_TOKEN ? body.turnstile : '';
+		if (!token) return fail(403, 'bot_check');
+		const verdict = await verifyTurnstile(token, TURNSTILE_SECRET, getClientAddress());
+		if (verdict === 'refused') return fail(403, 'bot_check');
+		if (verdict === 'unreachable') return fail(503, 'bot_check_unavailable');
+	}
 
 	// Count only reports that would be stored, so fixing a typo doesn't use up the limit.
 	// getClientAddress() is the visitor's address as Cloudflare saw it. A

@@ -17,12 +17,13 @@ export default defineConfig({
 			// data to their server. SvelteKit adds a fresh nonce for its own
 			// inline script on every page. Styles allow 'unsafe-inline' because
 			// src/app.html and Svelte's transitions use style attributes.
-			// Adding Cloudflare Turnstile will need https://challenges.cloudflare.com
-			// in script-src and in a new frame-src.
+			// https://challenges.cloudflare.com is Cloudflare Turnstile, the bot
+			// check of the report form: its script, and the frame the script draws
+			// the check in. Nothing else may be framed.
 			csp: {
 				directives: {
 					'default-src': ['self'],
-					'script-src': ['self'],
+					'script-src': ['self', 'https://challenges.cloudflare.com'],
 					'style-src': ['self', 'unsafe-inline'],
 					'font-src': ['self'],
 					// data: for small images Vite inlines; GitHub for the avatar on /about
@@ -31,6 +32,7 @@ export default defineConfig({
 					// stations, each played from its own server (src/lib/radio.ts)
 					'media-src': ['https://upload.wikimedia.org', ...RADIO_ORIGINS],
 					'connect-src': ['self'],
+					'frame-src': ['https://challenges.cloudflare.com'],
 					'object-src': ['none'],
 					'base-uri': ['self'],
 					'form-action': ['self'],

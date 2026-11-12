@@ -1,8 +1,13 @@
 // /report?entry=<id>&kind=<kind>&q=<query>
 // Links from the word page and from "No matches" fill these in, so the form
 // opens already knowing what the report is about.
+//
+// `turnstile` is the site key of the bot check, or null when the server has
+// no secret to check a token with (`npm run dev`, a copy of the site without
+// one): the form then shows no check and the endpoint asks for none.
+import { TURNSTILE_SECRET, TURNSTILE_SITE_KEY as OTHER_SITE_KEY } from '$app/env/private';
 import { getDatabases } from '#lib/server/db.ts';
-import { isReportKind, type ReportEntry } from '#lib/report.ts';
+import { TURNSTILE_SITE_KEY, isReportKind, type ReportEntry } from '#lib/report.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -18,5 +23,6 @@ export const load: PageServerLoad = async ({ url }) => {
 	}
 
 	const kind = isReportKind(askedKind) ? askedKind : entry ? 'meaning' : query ? 'missing' : null;
-	return { kind, entry, query };
+	const turnstile = TURNSTILE_SECRET ? (OTHER_SITE_KEY ?? TURNSTILE_SITE_KEY) : null;
+	return { kind, entry, query, turnstile };
 };

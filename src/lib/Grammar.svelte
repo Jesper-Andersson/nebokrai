@@ -13,9 +13,10 @@
      beginner cannot yet read; slanted, іменник keeps the letters it has
      everywhere else. -->
 <script lang="ts">
-	import { describeTags } from '#lib/forms.ts';
+	import { describeTags, hasCase } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
 	import { orderedTags } from '#lib/labels.ts';
+	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Stressed from './Stressed.svelte';
 
@@ -28,7 +29,8 @@
 	}: {
 		pos: string;
 		tags?: string[];
-		headForms?: { form: string; tags: string[] }[];
+		/** `has_entry` comes with a word's own page only (word.ts), not with a search result. */
+		headForms?: { form: string; tags: string[]; has_entry?: boolean }[];
 		brief?: boolean;
 		inline?: boolean;
 	} = $props();
@@ -49,7 +51,14 @@
 			{#each forms as f, i (i)}
 				<span class="part">
 					{brief ? m.card.genitive : describeTags(f.tags)}
-					<b lang="uk"><Stressed text={f.form} /></b>
+					<!-- A form that is a word of its own leads to it: the aspect partner
+					     прочита́ти, the diminutive ру́чка. A case form is this same word,
+					     even where its spelling happens to be another word's too. -->
+					{#if f.has_entry && !hasCase(f.tags)}
+						<a href={wordPath(f.form)}><b lang="uk"><Stressed text={f.form} /></b></a>
+					{:else}
+						<b lang="uk"><Stressed text={f.form} /></b>
+					{/if}
 				</span>
 			{/each}
 		</span>
@@ -94,6 +103,16 @@
 		width: 1.1em;
 		font-style: normal;
 		text-align: center;
+	}
+
+	a {
+		text-decoration: underline;
+		text-decoration-color: var(--border-strong);
+		text-underline-offset: 3px;
+	}
+
+	a:hover {
+		text-decoration-color: currentColor;
 	}
 
 	/* The forms are Ukrainian words to learn, not remarks about one: upright,

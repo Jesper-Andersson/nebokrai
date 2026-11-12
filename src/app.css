@@ -251,6 +251,55 @@ html {
 	scrollbar-gutter: stable;
 }
 
+/* Scrollbars: a slim pill in the page's greys on no track of its own, in
+   place of the system's bar with its arrows. Only for a mouse or trackpad:
+   a phone keeps its own bar, which lies over the page and fades away.
+   Windows' high-contrast colours keep the system bar too. */
+:root {
+	--scroll-thumb: color-mix(in srgb, var(--muted) 55%, transparent);
+	--scroll-thumb-hover: var(--muted);
+}
+
+@media (hover: hover) and (pointer: fine) and (forced-colors: none) {
+	::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
+
+	::-webkit-scrollbar-track,
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	/* The transparent border is the space around the pill: 3px each side
+	   leaves 6px of thumb, 2px leaves 8px */
+	::-webkit-scrollbar-thumb {
+		min-height: 40px;
+		border: 3px solid transparent;
+		border-radius: var(--radius-pill);
+		background: var(--scroll-thumb) padding-box;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		border-width: 2px;
+		background-color: var(--scroll-thumb-hover);
+	}
+
+	::-webkit-scrollbar-thumb:active {
+		border-width: 2px;
+		background-color: var(--ink-2);
+	}
+}
+
+/* Firefox has none of the parts above; it takes the colours only. The
+   condition keeps this from Chromium, which drops every ::-webkit-scrollbar
+   rule on an element that has scrollbar-color set. */
+@supports not selector(::-webkit-scrollbar) {
+	html {
+		scrollbar-color: var(--scroll-thumb) transparent;
+	}
+}
+
 body {
 	font-family: var(--font-text);
 	margin: 0;

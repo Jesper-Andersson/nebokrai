@@ -16,6 +16,8 @@
 		'chevron-right': '<path d="m9 6 6 6-6 6"/>',
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 		download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+		// An arrow leaving a tray: pass this on
+		share: '<path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
 		'arrow-left': '<path d="M19 12H5M11 6l-6 6 6 6"/>',
 		// The three themes: as the system has it, light, dark
 		monitor: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',

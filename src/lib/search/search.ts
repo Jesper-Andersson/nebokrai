@@ -10,7 +10,8 @@
 //   6. Latin letters, loosely spelled             kalina -> калина
 //   7. English meaning that mentions the query    good   -> добро ("good deed")
 //   8. prefix of a word, for search-as-you-type
-// Within each step, more common words come first.
+// Within each step, more common words come first. A result found through a
+// form (steps 2 and 5) says which form in `matched_forms`.
 
 import type { Db } from './db.ts';
 import { isCyrillic, looseLatin, nationalTranslit, plain } from './normalize.ts';
@@ -43,6 +44,12 @@ export interface SearchResult {
 	freq_rank: number | null;
 	/** Why this entry matched the query. */
 	match: MatchKind;
+	/**
+	 * The forms of the word that the query spells, when `match` is `form` or
+	 * `latin_form`: книги is кни́ги, genitive singular and nominative plural.
+	 * Empty when only VESUM knew the form; absent on VESUM-only results.
+	 */
+	matched_forms?: HeadForm[];
 	/** True when there is no dictionary entry, only a known spelling. */
 	vesum_only?: true;
 }
@@ -78,8 +85,11 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 
 	const stubs: SearchResult[] = []; // words only VESUM knows
 
-	if (isCyrillic(q)) {
-		const key = plain(q);
+	const cyrillic = isCyrillic(q);
+	// The query as it is looked up, which also tells which form of a word it is.
+	const key = cyrillic ? plain(q) : looseLatin(q);
+
+	if (cyrillic) {
 		add(await db.all<KeyRow>(
 			"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", [key]));
 		if (hits.size === 0 && options.vesum) {
@@ -102,7 +112,6 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		}
 	} else {
 		const words = q.toLowerCase().match(/[a-z]+(?:[-'][a-z]+)*/g) ?? [];
-		const key = looseLatin(q);
 		const oneWord = !q.includes(' ');
 		if (key && oneWord) {
 			add(await db.all<KeyRow>(
@@ -167,9 +176,45 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		a.rank - b.rank || a.tie - b.tie ||
 		compareCodePoints(a.result.word, b.result.word) || a.result.id! - b.result.id!);
 
+	// Which form of the word the query is, for results found through a form.
+	const viaForm = ranked.filter((r) => r.rank === RANK.form || r.rank === RANK.latin_form);
+	if (viaForm.length) {
+		const matched = await matchedForms(db, viaForm.map((r) => r.result.id!), key, cyrillic);
+		for (const { result } of viaForm) result.matched_forms = matched.get(result.id!) ?? [];
+	}
+
 	const exact = ranked.filter((r) => r.rank <= RANK.form).map((r) => r.result);
 	const rest = ranked.filter((r) => r.rank > RANK.form).map((r) => r.result);
 	return [...exact, ...stubs, ...rest].slice(0, limit);
+}
+
+/**
+ * The forms of each entry in `ids` that the query spells, in the order of the
+ * entry's table. "руки" is руки́ (genitive singular) and also ру́ки (nominative,
+ * accusative and vocative plural), so there can be several, stressed
+ * differently. `key` is the query as search() looked it up: plain() of a
+ * Cyrillic query, or looseLatin() of a Latin one ("ruky"). An entry found
+ * through VESUM gets no forms: VESUM knows the dictionary word but not which
+ * form it is.
+ */
+async function matchedForms(
+	db: Db, ids: number[], key: string, cyrillic: boolean
+): Promise<Map<number, HeadForm[]>> {
+	const rows = await db.all<{ entry_id: number; form: string; plain: string; tags: string }>(
+		`SELECT entry_id, form, plain, tags FROM forms
+		 WHERE entry_id IN (SELECT value FROM json_each(?)) ORDER BY id`, [JSON.stringify(ids)]);
+	const found = new Map<number, HeadForm[]>();
+	const seen = new Set<string>();
+	for (const row of rows) {
+		if ((cyrillic ? row.plain : looseLatin(nationalTranslit(row.plain))) !== key) continue;
+		const once = `${row.entry_id} ${row.form} ${row.tags}`;
+		if (seen.has(once)) continue;
+		seen.add(once);
+		const list = found.get(row.entry_id) ?? [];
+		list.push({ form: row.form, tags: JSON.parse(row.tags) });
+		found.set(row.entry_id, list);
+	}
+	return found;
 }
 
 /** Order strings the way Python does, so both searches break ties identically. */

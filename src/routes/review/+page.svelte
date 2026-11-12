@@ -356,7 +356,11 @@
 		<h1 class="ui-title">{m.pageTitle.review}</h1>
 		{#if started && current}
 			<span class="ui-badge">{m.review.left(left)}</span>
-			<button type="button" class="ui-btn stop" onclick={stop}>{m.review.end}</button>
+			<!-- Always there, so that Stop does not move when it comes and goes -->
+			<span class="session">
+				<button type="button" class="ui-btn" disabled={!canUndo} onclick={undo}>{m.review.undo}</button>
+				<button type="button" class="ui-btn" onclick={stop}>{m.review.end}</button>
+			</span>
 		{/if}
 	</header>
 
@@ -494,7 +498,6 @@
 				/>
 			</div>
 			<span class="muted touch">{m.review.swipe}</span>
-			{#if canUndo}<button type="button" class="ui-btn" onclick={undo}>{m.review.undo}</button>{/if}
 		</div>
 	{:else if current}
 		<section class="ui-card end" role="status">
@@ -536,7 +539,9 @@
 		gap: 0.6rem;
 	}
 
-	.stop {
+	.session {
+		display: flex;
+		gap: 0.5rem;
 		margin-left: auto;
 	}
 

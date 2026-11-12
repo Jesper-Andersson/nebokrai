@@ -61,6 +61,7 @@ Response `200`:
 | `glosses` | English meanings, most important first. One to dozens. |
 | `freq_rank` | 1 = most common word. `null` = too rare to rank. |
 | `match` | Why this result matched, see the next table. |
+| `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
 | `vesum_only` | Present and `true` only on VESUM-only results. |
 
 Results arrive already sorted; show them in the order given.
@@ -70,13 +71,37 @@ Results arrive already sorted; show them in the order given.
 | Value | Example | |
 |---|---|---|
 | `word` | `калина` → калина | The query is the dictionary word. |
-| `form` | `книги` → книга | The query is an inflected form. Worth showing as "form of книга". |
+| `form` | `книги` → книга | The query is an inflected form. `matched_forms` says which. |
 | `latin` | `kalyna` → калина | Latin letters in the official romanisation. |
 | `english` | `good` → добрий | One of the meanings is exactly the query. |
 | `latin_form` | `knyhy` → книга | An inflected form in Latin letters. |
 | `latin_loose` | `kalina` → калина | Latin letters, spelled approximately. |
 | `english_mention` | `good` → добро | A meaning contains the query words. |
 | `prefix` | `кал` → календар | The word starts with the query. For search-as-you-type. |
+
+### Which form was found
+
+A result whose `match` is `form` or `latin_form` carries `matched_forms`: the
+rows of the word's table that the query spells, in the order of the table,
+each with its stress and its tags (read them as in "Reading `forms`" below).
+One spelling is often several forms, and they can be stressed apart. For
+`руки` (and for `ruky`), рука answers:
+
+```json
+"matched_forms": [
+  { "form": "ру́ки", "tags": ["nominative", "plural"] },
+  { "form": "руки́", "tags": ["genitive", "singular"] },
+  { "form": "ру́ки", "tags": ["accusative", "plural"] },
+  { "form": "ру́ки", "tags": ["plural", "vocative"] }
+]
+```
+
+`groupMatched()` in `src/lib/forms.ts` turns the list into what a search card
+shows: "ру́ки nominative, accusative, vocative plural · руки́ genitive singular".
+
+The list is empty when the form was found through VESUM (next section) and the
+dictionary has the word: VESUM tells which word a form belongs to, not which
+form it is. A VESUM-only result has no `matched_forms` at all.
 
 ### VESUM-only results
 
@@ -164,9 +189,9 @@ Response `200`:
       "pos": "noun",
       "tags": ["inanimate", "masculine"],
       "head_forms": [
-        { "form": "небокра́ю", "tags": ["genitive"] },
-        { "form": "небокра́ї", "tags": ["nominative", "plural"] },
-        { "form": "небокра́їв", "tags": ["genitive", "plural"] }
+        { "form": "небокра́ю", "tags": ["genitive"], "has_entry": true },
+        { "form": "небокра́ї", "tags": ["nominative", "plural"], "has_entry": false },
+        { "form": "небокра́їв", "tags": ["genitive", "plural"], "has_entry": false }
       ],
       "roman": "nebokráj",
       "ipa": "[nebɔˈkrai̯]",
@@ -189,13 +214,18 @@ Response `200`:
       ],
       "examples": [
         { "uk": "…", "en": "…", "tatoeba_id": 0 }
+      ],
+      "relations": [
+        { "kind": "synonym", "sense_n": 1, "word": "горизо́нт", "tags": [], "has_entry": true },
+        { "kind": "synonym", "sense_n": 1, "word": "о́брій", "tags": [], "has_entry": true },
+        { "kind": "synonym", "sense_n": null, "word": "кругозі́р", "tags": [], "has_entry": true }
       ]
     }
   ]
 }
 ```
 
-(`forms` and `examples` are shortened here.)
+(`forms`, `examples` and `relations` are shortened here.)
 
 `entries` is a list because one spelling can be several words: `привіт` is a
 noun and an interjection, `стан` has five noun entries. They are ordered most
@@ -211,6 +241,34 @@ common first.
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
 | `forms` | One item per cell of the declension or conjugation table. Empty when the word does not inflect or has no table. |
 | `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. |
+| `head_forms[].has_entry` | `true` when the form is spelled like another dictionary word. Here only, not in search results. See "Words that lead to other words". |
+| `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 39% of entries. |
+
+### Words that lead to other words
+
+Each item of `relations` is one other word:
+
+| Field | Meaning |
+|---|---|
+| `kind` | `synonym`, `antonym`, `derived` (formed from this word: великий → великодушний) or `related` (of the same root: великий → Великдень). |
+| `sense_n` | The meaning it belongs to (`senses[].n`), or `null` when it belongs to the entry as a whole. |
+| `word` | The other word, with its stress mark where it is known (about 96% of them). Can be a phrase. |
+| `tags` | Remarks on the other word: its usage (`colloquial`, `rare`, `dialectal`) or its grammar (`feminine`, `perfective`). Usually empty. |
+| `has_entry` | `true` when the dictionary has that word. Link to it with `wordPath(word)`; show the rest as plain text. |
+
+They come in Wiktionary's order, a meaning's words before the entry's. A
+synonym or an antonym also appears on the other word's side: великий names
+малий, so малий names великий, with `sense_n` `null` when Wiktionary did not
+say so itself. The page shows synonyms and antonyms under their meaning and
+the other two kinds in a section of their own.
+
+`has_entry` on a head form says the same thing about a form beside the
+headword. The page links a form that has it unless the form carries a case:
+the perfective `прочита́ти` of читати is a word of its own, while a genitive
+that happens to be spelled like another word is still this word's genitive.
+
+A database built before relations were stored has no `relations` table; the
+endpoint then answers with an empty list for every entry.
 
 ### Reading `forms`
 

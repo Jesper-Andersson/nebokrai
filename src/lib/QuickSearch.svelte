@@ -1,11 +1,14 @@
 <!-- Search from any page: Ctrl+K (⌘K on a Mac) opens a Bits UI Dialog holding a
      Command list. The answers come from /api/search like the search page's,
-     so Command's own filtering is off. Enter opens the word's page. -->
+     so Command's own filtering is off. Enter opens the word's page. Whether
+     it is open, and what its box holds, is shared (quick-search.svelte.ts), so
+     that a word in an example sentence can open it with itself typed in. -->
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
 	import { goto } from '$app/navigation';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
+	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { LookupResult, Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -14,7 +17,7 @@
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
 
-	let { open = $bindable(false) }: { open?: boolean } = $props();
+	const quick = useQuickSearch();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -22,7 +25,6 @@
 	type Entry = SearchResult | Suggestion;
 	const key = (entry: Entry) => `${entry.id ?? entry.word}-${entry.pos}`;
 
-	let query = $state('');
 	let found = $state.raw<LookupResult | null>(null);
 	let failed = $state(false);
 	// The highlighted row. Set to the first answer when answers arrive, so
@@ -30,7 +32,7 @@
 	let selected = $state('');
 
 	$effect(() => {
-		const q = query.trim();
+		const q = quick.query.trim();
 		if (!q) {
 			found = null;
 			failed = false;
@@ -56,20 +58,20 @@
 		};
 	});
 
-	// Start empty each time it opens.
+	// Start empty the next time it opens, unless it is opened with a word.
 	$effect(() => {
-		if (!open) query = '';
+		if (!quick.open) quick.query = '';
 	});
 
 	function onWindowKeydown(event: KeyboardEvent) {
 		if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
 			event.preventDefault();
-			open = !open;
+			quick.open = !quick.open;
 		}
 	}
 
 	function go(entry: Entry) {
-		open = false;
+		quick.open = false;
 		void goto(wordPath(entry.word));
 	}
 </script>
@@ -85,7 +87,7 @@
 	</Command.Item>
 {/snippet}
 
-<Dialog.Root bind:open>
+<Dialog.Root bind:open={quick.open}>
 	<Dialog.Portal>
 		<Dialog.Overlay class="ui-overlay" />
 		<Dialog.Content class="ui-quick" aria-describedby={undefined}>
@@ -95,7 +97,7 @@
 					<Icon name="search" size={20} />
 					<Command.Input
 						class="ui-quick-input"
-						bind:value={query}
+						bind:value={quick.query}
 						placeholder={m.home.placeholder}
 						maxlength={MAX_QUERY_LENGTH}
 						autocapitalize="off"

@@ -14,13 +14,38 @@ export interface Sense {
 	examples: { text: string; english: string | null }[];
 }
 
+/** A key form beside the headword, as the Details page gets it. */
+export interface WordHeadForm extends HeadForm {
+	/**
+	 * True when the form is spelled like a dictionary word other than this one:
+	 * the aspect partner прочитати of читати has a page of its own, the
+	 * genitive книги of книга does not.
+	 */
+	has_entry: boolean;
+}
+
+export type RelationKind = 'synonym' | 'antonym' | 'derived' | 'related';
+
+/** Another word that an entry names. */
+export interface Relation {
+	kind: RelationKind;
+	/** The meaning it belongs to (`Sense.n`), or null for the entry as a whole. */
+	sense_n: number | null;
+	/** The other word, with its stress where it is known: мали́й */
+	word: string;
+	/** Remarks on it: ["colloquial"], ["feminine"]. Often empty. */
+	tags: string[];
+	/** True when the dictionary has that word: link to it with `wordPath(word)`. */
+	has_entry: boolean;
+}
+
 export interface WordEntry {
 	id: number;
 	word: string;
 	headword: string;
 	pos: string;
 	tags: string[];
-	head_forms: HeadForm[];
+	head_forms: WordHeadForm[];
 	roman: string | null;
 	ipa: string | null;
 	audio_url: string | null;
@@ -31,6 +56,35 @@ export interface WordEntry {
 	forms: { form: string; tags: string[] }[];
 	/** Tatoeba sentences that use the word, up to three. */
 	examples: { uk: string; en: string; tatoeba_id: number }[];
+	/** Synonyms, antonyms, derived and related words, in Wiktionary's order. Empty if it names none. */
+	relations: Relation[];
+}
+
+type RelationRow = { sense_n: number | null; kind: RelationKind; word: string; plain: string; tags: string };
+
+/** The rows of `relations` for one entry. */
+async function relationRows(db: Db, entryId: number): Promise<RelationRow[]> {
+	try {
+		return await db.all<RelationRow>(
+			'SELECT sense_n, kind, word, plain, tags FROM relations WHERE entry_id=? ORDER BY id', [entryId]);
+	} catch (err) {
+		// A database built before related words were stored has no such table.
+		// The page then shows none, so the code and the data need not be
+		// published in the same moment.
+		if (/no such table/i.test(String(err))) return [];
+		throw err;
+	}
+}
+
+/** Which of `spellings` (as `plain()` writes them) are dictionary words. */
+async function knownWords(db: Db, spellings: string[]): Promise<Set<string>> {
+	if (!spellings.length) return new Set();
+	// One JSON parameter for the whole list: D1 binds at most 100.
+	const rows = await db.all<{ key: string }>(
+		`SELECT DISTINCT key FROM search_keys
+		 WHERE kind = 'word' AND key IN (SELECT value FROM json_each(?))`,
+		[JSON.stringify([...new Set(spellings)])]);
+	return new Set(rows.map((r) => r.key));
 }
 
 export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
@@ -38,28 +92,42 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 		`SELECT id, word, headword, pos, tags, head_forms, roman, ipa, audio_url, etymology, freq_rank
 		 FROM entries WHERE id IN (SELECT entry_id FROM search_keys WHERE key = ? AND kind = 'word')
 		 ORDER BY freq_rank IS NULL, freq_rank, id`, [plain(word)]);
-	const entries: WordEntry[] = [];
+	const loaded = [];
 	for (const r of rows) {
-		const [senses, forms, examples] = await Promise.all([
+		const [senses, forms, examples, relations] = await Promise.all([
 			db.all<Record<string, any>>(
 				'SELECT n, gloss, tags, examples FROM senses WHERE entry_id=? ORDER BY n', [r.id]),
 			db.all<Record<string, any>>('SELECT form, tags FROM forms WHERE entry_id=? ORDER BY id', [r.id]),
 			db.all<WordEntry['examples'][number]>(
-				'SELECT uk, en, tatoeba_id FROM examples WHERE entry_id=? ORDER BY id', [r.id])
+				'SELECT uk, en, tatoeba_id FROM examples WHERE entry_id=? ORDER BY id', [r.id]),
+			relationRows(db, r.id)
 		]);
-		entries.push({
-			id: r.id, word: r.word, headword: r.headword, pos: r.pos,
-			tags: JSON.parse(r.tags), head_forms: JSON.parse(r.head_forms),
-			roman: r.roman, ipa: r.ipa, audio_url: r.audio_url, etymology: r.etymology,
-			freq_rank: r.freq_rank,
-			senses: senses.map((s) => ({
-				n: s.n, gloss: s.gloss, tags: JSON.parse(s.tags), examples: JSON.parse(s.examples)
-			})),
-			forms: forms.map((f) => ({ form: f.form, tags: JSON.parse(f.tags) })),
-			examples
-		});
+		loaded.push({ r, senses, forms, examples, relations, headForms: JSON.parse(r.head_forms) as HeadForm[] });
 	}
-	return entries;
+
+	// Which of the words these entries point at have a page of their own: one
+	// question for the whole page.
+	const known = await knownWords(db, loaded.flatMap((e) =>
+		[...e.relations.map((x) => x.plain), ...e.headForms.map((f) => plain(f.form))]));
+
+	return loaded.map(({ r, senses, forms, examples, relations, headForms }): WordEntry => ({
+		id: r.id, word: r.word, headword: r.headword, pos: r.pos,
+		tags: JSON.parse(r.tags),
+		head_forms: headForms.map((f) => {
+			const spelling = plain(f.form);
+			return { ...f, has_entry: spelling !== plain(r.word) && known.has(spelling) };
+		}),
+		roman: r.roman, ipa: r.ipa, audio_url: r.audio_url, etymology: r.etymology,
+		freq_rank: r.freq_rank,
+		senses: senses.map((s) => ({
+			n: s.n, gloss: s.gloss, tags: JSON.parse(s.tags), examples: JSON.parse(s.examples)
+		})),
+		forms: forms.map((f) => ({ form: f.form, tags: JSON.parse(f.tags) })),
+		examples,
+		relations: relations.map((x) => ({
+			kind: x.kind, sense_n: x.sense_n, word: x.word, tags: JSON.parse(x.tags), has_entry: known.has(x.plain)
+		}))
+	}));
 }
 
 /** What a list of words (the Saved page) shows for one word. */

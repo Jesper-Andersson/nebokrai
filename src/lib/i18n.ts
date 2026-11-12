@@ -126,7 +126,12 @@ const en = {
 		share: 'Share this word',
 		details: 'Details',
 		genitive: 'gen.',
-		noEntry: 'A Ukrainian word with no dictionary entry yet.'
+		noEntry: 'A Ukrainian word with no dictionary entry yet.',
+		/** Before the form of the word that the search found: руки́ genitive singular */
+		formFound: 'Form found:',
+		moreForms: (n: number) => `+${n} more`,
+		/** When it is known to be a form of the word, but not which */
+		someForm: 'Your search is a form of this word.'
 	},
 	word: {
 		back: 'Back to search',
@@ -135,8 +140,22 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
+		/** On each word of an example sentence */
+		lookUp: 'Look up this word',
+		/** Above the entries of за́мок and замо́к */
+		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
 		conjugation: 'Conjugation',
+		/** Under the tables; the headword follows, then a full stop. */
+		stressMoves: 'Underlined: the stress falls on a different syllable than in',
+		stressStays: 'The stress stays on the same syllable in every form.',
+		synonyms: 'Synonyms',
+		antonyms: 'Antonyms',
+		/** The section of derived words and words of the same root */
+		family: 'Related words',
+		derived: 'Derived',
+		sameRoot: 'Same root',
+		showAll: (n: number) => `show all ${n}`,
 		etymology: 'Etymology',
 		from: 'From',
 		wiktionary: 'Wiktionary',
@@ -365,7 +384,10 @@ const uk: Messages = {
 		share: 'Поділитися словом',
 		details: 'Докладніше',
 		genitive: 'р. в.',
-		noEntry: 'Українське слово, якого ще немає в словнику.'
+		noEntry: 'Українське слово, якого ще немає в словнику.',
+		formFound: 'Знайдена форма:',
+		moreForms: (n: number) => `ще ${n}`,
+		someForm: 'Ваш запит є формою цього слова.'
 	},
 	word: {
 		back: 'До пошуку',
@@ -374,8 +396,18 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
+		lookUp: 'Знайти це слово',
+		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
+		stressMoves: 'Підкреслено: наголос падає на інший склад, ніж у слові',
+		stressStays: 'У всіх формах наголос падає на той самий склад.',
+		synonyms: 'Синоніми',
+		antonyms: 'Антоніми',
+		family: 'Споріднені слова',
+		derived: 'Похідні',
+		sameRoot: 'Спільний корінь',
+		showAll: (n: number) => `показати всі ${n}`,
 		etymology: 'Етимологія',
 		from: 'Джерело:',
 		wiktionary: 'Вікісловник',

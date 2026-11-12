@@ -51,6 +51,15 @@
 		}
 	],
 
+	// Announces each new report by email (src/lib/server/reports.ts). It can
+	// only reach an address verified in Email Routing; which one is the secret
+	// REPORT_EMAIL, so the address is in no file.
+	"send_email": [
+		{
+			"name": "MAIL"
+		}
+	],
+
 	// Keep request logs and errors, to read in the dashboard or with `wrangler tail`
 	"observability": { "enabled": true }
 }

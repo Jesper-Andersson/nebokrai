@@ -53,8 +53,8 @@ when each word was last exported.
 
 ## Deploying
 
-The site runs on Cloudflare Workers, with four D1 databases. `wrangler.jsonc`
-describes all of it.
+The site runs on Cloudflare Workers, with four D1 databases and a binding
+that sends email. `wrangler.jsonc` describes all of it.
 
 | Binding | Database | Holds |
 |---|---|---|
@@ -82,6 +82,13 @@ Things to know:
   `npx wrangler secret put GITHUB_CLIENT_ID` and so on. The redirect address
   to register at each provider is `https://nebokrai.app/auth/callback/github`
   (or `/google`).
+- **A new report is announced by email.** The `send_email` binding `MAIL`
+  sends it to the address in the secret `REPORT_EMAIL`
+  (`npx wrangler secret put REPORT_EMAIL`). Cloudflare delivers only to an
+  address verified under Email Routing for `nebokrai.app`, so verify it there
+  first. The mail never carries the reporter's own address. Without the
+  secret, reports are stored and no mail is sent; to read them, see the
+  command at the top of `src/lib/server/reports.ts`.
 - **The site has one address.** `workers_dev` and `preview_urls` are off in
   `wrangler.jsonc`, so there is no `workers.dev` copy reaching the same
   databases.

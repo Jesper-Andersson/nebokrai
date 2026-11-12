@@ -60,7 +60,8 @@ const en = {
 		csv: 'CSV (spreadsheet)',
 		json: 'JSON',
 		failed: 'The export didn’t work. Please try again.',
-		ankiHint: 'In Anki, choose File › Import and pick the downloaded file.',
+		ankiHint:
+			'In Anki, choose File › Import and pick the downloaded file. Each word has three fields: the word, its meaning, and details (grammar, pronunciation, an example). A note type with two fields takes the first two.',
 		which: 'Which words',
 		scope: { all: 'All words', selected: 'Selected', fresh: 'Not exported yet' },
 		as: 'File',
@@ -294,7 +295,8 @@ const uk: Messages = {
 		csv: 'CSV (таблиця)',
 		json: 'JSON',
 		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
-		ankiHint: 'В Anki виберіть «Файл» › «Імпортувати» й укажіть завантажений файл.',
+		ankiHint:
+			'В Anki виберіть «Файл» › «Імпортувати» й укажіть завантажений файл. Кожне слово має три поля: слово, значення й подробиці (граматика, вимова, приклад). Тип нотатки з двома полями візьме перші два.',
 		which: 'Які слова',
 		scope: { all: 'Усі слова', selected: 'Вибрані', fresh: 'Ще не експортовані' },
 		as: 'Файл',

@@ -21,27 +21,26 @@ const posName = (pos: string) => pos.toUpperCase();
 
 test('Anki text file', () => {
 	const lines = ankiText([kalyna, awkward], posName).split('\n');
-	assert.deepEqual(lines.slice(0, 5), ['#separator:tab', '#html:true', '#guid column:1', '#tags column:4', '#deck:Nebokrai']);
+	assert.deepEqual(lines.slice(0, 5), ['#separator:tab', '#html:true', '#guid column:1', '#tags column:5', '#deck:Nebokrai']);
 	assert.equal(lines.length, 8); // five header lines, two cards, and the file ends with a line break
 	assert.equal(lines[7], '');
 
-	const [guid, front, back, tags] = lines[5].split('\t');
+	const [guid, word, meaning, details, tags] = lines[5].split('\t');
 	assert.equal(guid, 'nebokrai:калина');
-	assert.equal(front, 'кали́на'); // the stress mark stays
-	assert.ok(back.includes('NOUN · feminine, inanimate'));
-	assert.ok(back.includes('[kɐˈɫɪnɐ]'));
-	assert.ok(back.includes('<div>viburnum, guelder rose</div>')); // one meaning: no numbered list
-	assert.ok(back.includes('<i lang="uk">Калина цвіте.</i><br>The viburnum is in bloom.'));
-	assert.ok(back.includes('<a href="https://nebokrai.app/word/kalyna">Nebokrai</a>'));
+	assert.equal(word, 'кали́на'); // the stress mark stays
+	assert.equal(meaning, 'viburnum, guelder rose'); // one meaning: no numbered list, and nothing else in the field
+	assert.equal(details,
+		'<div>NOUN · feminine, inanimate</div><div>[kɐˈɫɪnɐ]</div>' +
+		'<div><i lang="uk">Калина цвіте.</i><br>The viburnum is in bloom.</div>' +
+		'<div><a href="https://nebokrai.app/word/kalyna">Nebokrai</a></div>');
 	assert.equal(tags, 'nebokrai noun');
 
 	const fields = lines[6].split('\t');
-	assert.equal(fields.length, 4); // the tab and the line break inside a meaning did not make new fields
+	assert.equal(fields.length, 5); // the tab and the line break inside a meaning did not make new fields
 	assert.equal(fields[1], '&quot;Ки́їв&quot;'); // never a bare quote at the start of a field
-	assert.ok(fields[2].includes('<ol><li>a &lt;b&gt;city&lt;/b&gt; &amp; &quot;capital&quot;</li><li>tab here and a new line</li></ol>'));
-	assert.ok(fields[2].includes('>NAME</div>')); // no tags: no dangling separator
-	assert.ok(!fields[2].includes('<i lang="uk">')); // no example
-	assert.ok(fields[2].includes('https://nebokrai.app/word/kyiv'));
+	assert.equal(fields[2], '<ol><li>a &lt;b&gt;city&lt;/b&gt; &amp; &quot;capital&quot;</li><li>tab here and a new line</li></ol>');
+	// No tags: no dangling separator. No pronunciation or example: no empty lines.
+	assert.equal(fields[3], '<div>NAME</div><div><a href="https://nebokrai.app/word/kyiv">Nebokrai</a></div>');
 });
 
 test('CSV', () => {

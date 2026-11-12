@@ -11,10 +11,12 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
+	import ShareButton from '#lib/ShareButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import { formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { wordPath } from '#lib/search/slug.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -91,6 +93,12 @@
 							{/snippet}
 						</Tip>
 						<SaveButton word={entry.word} headword={entry.headword} size={21} />
+						<!-- стан has five entries on one page: a shared link opens at this one -->
+						<ShareButton
+							path={wordPath(entry.word) + (data.entries.length > 1 ? `#entry-${entry.id}` : '')}
+							headword={entry.headword}
+							size={21}
+						/>
 					</div>
 				</div>
 				{#if entry.roman || entry.ipa}

@@ -67,6 +67,67 @@ const en = {
 		failed: 'The export didn’t work. Please try again.',
 		ankiHint:
 			'In Anki, choose File › Import and pick the downloaded file. Each word has three fields: the word, its meaning, and details (grammar, pronunciation, an example). A note type with two fields takes the first two.',
+		send: 'Send',
+		ankiSend: 'Anki, straight into the app',
+		ankiNeeds: 'Needs Anki open, with the AnkiConnect add-on',
+		ankiGet: 'Get AnkiConnect',
+		ankiRetry: 'Try again',
+		/** The dialog that says where a send puts the words (AnkiSettings.svelte). */
+		ankiSettings: {
+			open: 'Anki settings…',
+			title: 'Anki settings',
+			intro: 'Where “Anki, straight into the app” puts your words. Kept in this browser.',
+			deck: 'Deck',
+			deckHint: 'A name Anki doesn’t have yet makes a new deck. Write :: for a deck inside another: Languages::Ukrainian.',
+			noteType: 'Note type',
+			own: 'Nebokrai (made for these words)',
+			fields: 'What goes in each field',
+			values: { none: 'Nothing', word: 'Word', meaning: 'Meaning', details: 'Details', both: 'Meaning and details' },
+			problem: {
+				word: 'Exactly one field must hold the word: it is how a note is found again.',
+				first: 'Anki refuses a note whose first field is empty.',
+				tags: 'At least one tag is needed.'
+			},
+			ownNote: 'In a note type of your own, only notes with the first tag below count as sent from here. Cards you wrote yourself are left alone.',
+			tags: 'Tags',
+			tagsHint: 'Separated by spaces. Each note also gets its part of speech as a tag (noun, verb…).',
+			update: 'Keep sent notes up to date',
+			updateHint:
+				'When you send a word that is already in Anki and its dictionary entry has changed since, the note gets the new text. Your review progress stays. Turn this off if you edit these notes in Anki: a send would overwrite your edits.',
+			offline: 'Anki isn’t answering, so its decks and note types can’t be listed.',
+			loading: 'Asking Anki…',
+			save: 'Save',
+			cancel: 'Cancel'
+		},
+		ankiFile: 'One more step, in Anki',
+		ankiSent: {
+			title: (deck: string) => `Sent to “${deck}” in Anki`,
+			body: (added: number, updated: number, unchanged: number) =>
+				`Added: ${added} · updated: ${updated} · unchanged: ${unchanged}.`
+		},
+		ankiError: {
+			unreachable: {
+				title: 'Anki didn’t answer',
+				steps: [
+					'Open Anki on this computer.',
+					'Install the AnkiConnect add-on: Tools › Add-ons › Get Add-ons, code 2055492159. Then restart Anki.',
+					'If the browser asks whether this site may reach apps on your device, allow it.'
+				]
+			},
+			denied: {
+				title: 'Anki refused the connection',
+				body: 'Try again and choose Yes when Anki asks whether this site may connect.'
+			},
+			key: {
+				title: 'AnkiConnect wants an API key',
+				body: 'This page can’t send one. The text file works without it.'
+			},
+			setup: {
+				title: 'The Anki settings no longer fit',
+				body: 'The chosen note type is missing from Anki, or its fields have changed. Open the settings and choose again.'
+			},
+			failed: { title: 'Anki couldn’t take the words' }
+		},
 		which: 'Which words',
 		scope: { all: 'All words', selected: 'Selected', fresh: 'Not exported yet' },
 		as: 'File',
@@ -493,6 +554,66 @@ const uk: Messages = {
 		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
 		ankiHint:
 			'В Anki виберіть «Файл» › «Імпортувати» й укажіть завантажений файл. Кожне слово має три поля: слово, значення й подробиці (граматика, вимова, приклад). Тип нотатки з двома полями візьме перші два.',
+		send: 'Надіслати',
+		ankiSend: 'Anki, просто в застосунок',
+		ankiNeeds: 'Потрібен відкритий Anki з додатком AnkiConnect',
+		ankiGet: 'Отримати AnkiConnect',
+		ankiRetry: 'Спробувати ще раз',
+		ankiSettings: {
+			open: 'Налаштування Anki…',
+			title: 'Налаштування Anki',
+			intro: 'Куди «Anki, просто в застосунок» кладе ваші слова. Зберігається в цьому браузері.',
+			deck: 'Колода',
+			deckHint: 'Назва, якої в Anki ще немає, створить нову колоду. Пишіть :: для колоди всередині іншої: Мови::Українська.',
+			noteType: 'Тип нотатки',
+			own: 'Nebokrai (створений для цих слів)',
+			fields: 'Що йде в кожне поле',
+			values: { none: 'Нічого', word: 'Слово', meaning: 'Значення', details: 'Подробиці', both: 'Значення й подробиці' },
+			problem: {
+				word: 'Слово має бути рівно в одному полі: за ним нотатку знаходять знову.',
+				first: 'Anki не приймає нотатку з порожнім першим полем.',
+				tags: 'Потрібна хоча б одна мітка.'
+			},
+			ownNote: 'У вашому власному типі нотатки надісланими звідси вважаються лише нотатки з першою міткою нижче. Картки, які ви написали самі, лишаються як є.',
+			tags: 'Мітки',
+			tagsHint: 'Через пробіл. Кожна нотатка також отримує мітку з частиною мови (noun, verb…).',
+			update: 'Тримати надіслані нотатки актуальними',
+			updateHint:
+				'Коли ви надсилаєте слово, яке вже є в Anki, а його стаття у словнику відтоді змінилася, нотатка отримує новий текст. Ваш поступ у повторенні зберігається. Вимкніть, якщо редагуєте ці нотатки в Anki: надсилання перезапише ваші правки.',
+			offline: 'Anki не відповідає, тож його колоди й типи нотаток не можна показати.',
+			loading: 'Питаємо Anki…',
+			save: 'Зберегти',
+			cancel: 'Скасувати'
+		},
+		ankiFile: 'Ще один крок, в Anki',
+		ankiSent: {
+			title: (deck: string) => `Надіслано до «${deck}» в Anki`,
+			body: (added: number, updated: number, unchanged: number) =>
+				`Додано: ${added} · оновлено: ${updated} · без змін: ${unchanged}.`
+		},
+		ankiError: {
+			unreachable: {
+				title: 'Anki не відповідає',
+				steps: [
+					'Відкрийте Anki на цьому комп’ютері.',
+					'Установіть додаток AnkiConnect: «Інструменти» › «Додатки» › «Отримати додатки», код 2055492159. Потім перезапустіть Anki.',
+					'Якщо браузер спитає, чи може цей сайт звертатися до застосунків на вашому пристрої, дозвольте.'
+				]
+			},
+			denied: {
+				title: 'Anki відхилив з’єднання',
+				body: 'Спробуйте ще раз і виберіть «Так», коли Anki спитає, чи може цей сайт під’єднатися.'
+			},
+			key: {
+				title: 'AnkiConnect вимагає ключ API',
+				body: 'Ця сторінка не може його надіслати. Текстовий файл працює без нього.'
+			},
+			setup: {
+				title: 'Налаштування Anki більше не підходять',
+				body: 'Вибраного типу нотатки немає в Anki, або його поля змінилися. Відкрийте налаштування й виберіть знову.'
+			},
+			failed: { title: 'Anki не зміг прийняти слова' }
+		},
 		which: 'Які слова',
 		scope: { all: 'Усі слова', selected: 'Вибрані', fresh: 'Ще не експортовані' },
 		as: 'Файл',

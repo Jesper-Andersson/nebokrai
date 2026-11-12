@@ -68,24 +68,35 @@ const oneLine = (text: string) => text.replace(/[\t\r\n]+/g, ' ');
 export function ankiText(cards: ExportCard[], posName: (pos: string) => string): string {
 	const lines = ['#separator:tab', '#html:true', '#guid column:1', '#tags column:5', '#deck:Nebokrai'];
 	for (const card of cards) {
-		const meaning = card.glosses.length === 1
-			? escapeHtml(card.glosses[0])
-			: `<ol>${card.glosses.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ol>`;
-		const grammar = [posName(card.pos), card.tags.join(', ')].filter(Boolean).join(' · ');
-		const details = [
-			`<div>${escapeHtml(grammar)}</div>`,
-			card.ipa && `<div>${escapeHtml(card.ipa)}</div>`,
-			card.example &&
-				`<div><i lang="uk">${escapeHtml(card.example.uk)}</i><br>${escapeHtml(card.example.en)}</div>`,
-			`<div><a href="${escapeHtml(wordUrl(card.word))}">Nebokrai</a></div>`
-		].filter(Boolean).join('');
-		// A tag ends at a space, and "prep_phrase" has none
-		const tags = `nebokrai ${card.pos.replace(/\s+/g, '_')}`;
-		lines.push(
-			[`nebokrai:${card.word}`, escapeHtml(card.headword), meaning, details, tags].map(oneLine).join('\t')
-		);
+		const { word, meaning, details, tags } = ankiFields(card, posName);
+		lines.push([`nebokrai:${card.word}`, word, meaning, details, tags.join(' ')].map(oneLine).join('\t'));
 	}
 	return lines.join('\n') + '\n';
+}
+
+/** What one Anki note holds: three fields of HTML, and its tags. */
+export interface AnkiFields {
+	word: string;
+	meaning: string;
+	details: string;
+	tags: string[];
+}
+
+/** The same note whether it reaches Anki as a line of the text file or through AnkiConnect (anki-connect.ts). */
+export function ankiFields(card: WordCard, posName: (pos: string) => string): AnkiFields {
+	const meaning = card.glosses.length === 1
+		? escapeHtml(card.glosses[0])
+		: `<ol>${card.glosses.map((g) => `<li>${escapeHtml(g)}</li>`).join('')}</ol>`;
+	const grammar = [posName(card.pos), card.tags.join(', ')].filter(Boolean).join(' · ');
+	const details = [
+		`<div>${escapeHtml(grammar)}</div>`,
+		card.ipa && `<div>${escapeHtml(card.ipa)}</div>`,
+		card.example &&
+			`<div><i lang="uk">${escapeHtml(card.example.uk)}</i><br>${escapeHtml(card.example.en)}</div>`,
+		`<div><a href="${escapeHtml(wordUrl(card.word))}">Nebokrai</a></div>`
+	].filter(Boolean).join('');
+	// A tag ends at a space, and "prep_phrase" has none
+	return { word: escapeHtml(card.headword), meaning, details, tags: ['nebokrai', card.pos.replace(/\s+/g, '_')] };
 }
 
 const CSV_COLUMNS = [

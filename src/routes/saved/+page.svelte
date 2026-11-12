@@ -326,8 +326,7 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
-			<button type="button" class="ui-btn" disabled>{uk ? 'Тренувати ці слова' : 'Practise these words'}</button>
-			<span>{uk ? 'Незабаром' : 'Coming soon'}</span>
+			<a class="ui-btn" href="/review">{m.review.practise}</a>
 		</div>
 		{#if notice}
 			<div class="anki-note" data-tone={notice.tone} role="status">

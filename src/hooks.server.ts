@@ -28,10 +28,10 @@ const HEADERS: Record<string, string> = {
 	'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()'
 };
 
-// Not pages to find through a search engine: the API, a visitor's own list,
-// the report form and the sign-in addresses. static/robots.txt asks crawlers
+// Not pages to find through a search engine: the API, a visitor's own list
+// and flashcards, the report form and the sign-in addresses. static/robots.txt asks crawlers
 // not to fetch most of these; this covers the ones that are fetched anyway.
-const NOT_FOR_SEARCH = /^\/(api|saved|report|login|auth|logout)(\/|$)/;
+const NOT_FOR_SEARCH = /^\/(api|saved|review|report|login|auth|logout)(\/|$)/;
 // Nor is a search made from the address (/?q=kava): the page to find is the
 // search page itself, and the words have pages of their own.
 const isSearch = (url: URL) => url.pathname === '/' && url.searchParams.has('q');

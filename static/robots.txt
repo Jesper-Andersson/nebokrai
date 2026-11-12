@@ -1,6 +1,7 @@
 # Everything may be crawled except what is not a page to read: the API, the
 # report form (it takes parameters, so it has endless addresses) and the
 # sign-in addresses. src/hooks.server.ts also marks these and /saved "noindex".
+# /review is a visitor's own flashcards: the same for every crawler, and empty.
 # A search (/?q=kava) is not a page either: every query is an address, and
 # each one fetched is a search of the database.
 # offline.html is what the installed app shows without a connection; it says
@@ -10,6 +11,7 @@ User-agent: *
 Disallow: /?q=
 Disallow: /api/
 Disallow: /report
+Disallow: /review
 Disallow: /login/
 Disallow: /auth/
 Disallow: /logout

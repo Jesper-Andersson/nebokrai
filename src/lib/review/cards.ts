@@ -60,6 +60,17 @@ export function mergeCards(mine: Iterable<ReviewCard>, theirs: Iterable<ReviewCa
 	return merged;
 }
 
+/** A length of time as one rounded number and a unit, for a button: 10 min, 2 d, 4 mo. */
+export function span(ms: number): { n: number; unit: 'min' | 'h' | 'd' | 'mo' | 'y' } {
+	const minutes = ms / 60_000;
+	if (minutes < 60) return { n: Math.max(1, Math.round(minutes)), unit: 'min' };
+	if (minutes < 24 * 60) return { n: Math.round(minutes / 60), unit: 'h' };
+	const days = Math.round(ms / DAY);
+	if (days < 30) return { n: days, unit: 'd' };
+	if (days < 365) return { n: Math.round(days / 30), unit: 'mo' };
+	return { n: Math.round(days / 36.5) / 10, unit: 'y' };
+}
+
 /** What there is to review today. */
 export interface Plan {
 	/** Cards on a learning step, soonest first. They come back within minutes. */

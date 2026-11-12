@@ -394,7 +394,55 @@ const en = {
 		/** Tags that are no term of their own, keyed as stored. English shows them as they are. */
 		tags: {} as Record<string, string>
 	},
-	pageTitle: { resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained' },
+	review: {
+		practise: 'Practise these words',
+		practiseCommon: 'Practise these words with flashcards',
+		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
+		learning: 'Learning',
+		due: 'To review',
+		fresh: 'New',
+		start: 'Start',
+		nothingToday: 'Nothing left to review today.',
+		noWords: 'Save some words, or switch on a deck of common words, to begin.',
+		decks: 'Decks',
+		deck: {
+			saved: 'Saved words',
+			'common-500': 'Common words 1–500',
+			'common-1000': 'Common words 501–1,000',
+			'common-2000': 'Common words 1,001–2,000'
+		} as Record<string, string>,
+		progress: (started: number, total: number) => `${started} of ${total} started`,
+		newPerDay: 'New cards a day',
+		kept: 'Your reviews are kept in this browser. Sign in on the Saved page to have them on every device.',
+		keptAccount: 'Your reviews are kept in your account.',
+		show: 'Show answer',
+		again: 'Again',
+		good: 'Good',
+		keys: 'Space shows the answer. Then 1 is Again, and 2 or Space is Good.',
+		undo: 'Undo',
+		undone: 'Answer taken back',
+		openWord: 'Open in the dictionary',
+		left: (n: number) => `${n} left`,
+		end: 'Stop',
+		loading: 'Loading the cards…',
+		loadFailed: 'The cards could not be loaded. Check your connection and try again.',
+		retry: 'Try again',
+		done: 'Done for now',
+		reviewed: (n: number) => (n === 1 ? '1 card reviewed.' : `${n} cards reviewed.`),
+		next: (when: string) => `The next card is due in ${when}.`,
+		backToDecks: 'Back to the decks',
+		span: {
+			min: (n: number) => `${n} min`,
+			h: (n: number) => `${n} h`,
+			d: (n: number) => `${n} d`,
+			mo: (n: number) => `${n} mo`,
+			y: (n: number) => `${n} y`
+		}
+	},
+	pageTitle: {
+		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained',
+		review: 'Flashcards'
+	},
 	/**
 	 * What search results and link previews show for each page: its title and
 	 * a description of about 150 characters (PageMeta.svelte, seo.ts). Search
@@ -414,6 +462,7 @@ const en = {
 			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
 		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		saved: 'The words you saved, kept in this browser or in your account.',
+		review: 'Flashcards for your saved words and the commonest Ukrainian words, scheduled so that each word comes back shortly before you would forget it.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
 		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
@@ -883,7 +932,55 @@ const uk: Messages = {
 			active: 'активний стан', passive: 'пасивний стан'
 		}
 	},
-	pageTitle: { resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Граматичні терміни' },
+	review: {
+		practise: 'Тренувати ці слова',
+		practiseCommon: 'Тренувати ці слова на картках',
+		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
+		learning: 'Вивчаються',
+		due: 'Повторити',
+		fresh: 'Нові',
+		start: 'Почати',
+		nothingToday: 'На сьогодні повторювати більше нічого.',
+		noWords: 'Щоб почати, збережіть кілька слів або ввімкніть колоду найуживаніших слів.',
+		decks: 'Колоди',
+		deck: {
+			saved: 'Збережені слова',
+			'common-500': 'Найуживаніші слова 1–500',
+			'common-1000': 'Найуживаніші слова 501–1000',
+			'common-2000': 'Найуживаніші слова 1001–2000'
+		},
+		progress: (started, total) => `розпочато ${started} з ${total}`,
+		newPerDay: 'Нових карток на день',
+		kept: 'Ваші повторення зберігаються в цьому браузері. Увійдіть на сторінці «Збережене», щоб мати їх на кожному пристрої.',
+		keptAccount: 'Ваші повторення зберігаються у вашому обліковому записі.',
+		show: 'Показати відповідь',
+		again: 'Ще раз',
+		good: 'Добре',
+		keys: 'Пробіл показує відповідь. Далі 1 означає «Ще раз», а 2 або пробіл означає «Добре».',
+		undo: 'Скасувати',
+		undone: 'Відповідь скасовано',
+		openWord: 'Відкрити у словнику',
+		left: (n) => `залишилося ${n}`,
+		end: 'Зупинити',
+		loading: 'Завантаження карток…',
+		loadFailed: 'Не вдалося завантажити картки. Перевірте з’єднання і спробуйте ще раз.',
+		retry: 'Спробувати ще раз',
+		done: 'На зараз усе',
+		reviewed: (n) => `Повторено ${counted(n, 'картку', 'картки', 'карток')}.`,
+		next: (when) => `Наступна картка через ${when}.`,
+		backToDecks: 'Назад до колод',
+		span: {
+			min: (n) => `${n} хв`,
+			h: (n) => `${n} год`,
+			d: (n) => `${n} дн`,
+			mo: (n) => `${n} міс`,
+			y: (n) => `${n} р`
+		}
+	},
+	pageTitle: {
+		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Граматичні терміни',
+		review: 'Картки'
+	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
@@ -897,6 +994,7 @@ const uk: Messages = {
 			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
 		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		review: 'Картки для збережених і найуживаніших українських слів: кожне слово повертається незадовго до того, як ви його забули б.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>

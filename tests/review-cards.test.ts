@@ -4,9 +4,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { mergeCards, nextUp, parseCards, plan } from '../src/lib/review/cards.ts';
+import { mergeCards, nextUp, parseCards, plan, span } from '../src/lib/review/cards.ts';
 import { DEFAULT_SETTINGS, parseSettings } from '../src/lib/review/decks.ts';
-import { AGAIN, DAY, GOOD, MINUTE, NEW, answer, newCard, type Rating, type ReviewCard } from '../src/lib/review/fsrs.ts';
+import {
+	AGAIN, DAY, GOOD, MINUTE, NEW, REVIEW, answer, newCard, type Rating, type ReviewCard
+} from '../src/lib/review/fsrs.ts';
 
 // Midday local time: no step here crosses 04:00.
 const T0 = new Date(2026, 10, 12, 12, 0).getTime();
@@ -90,6 +92,34 @@ test('plan counts the new words already met today against the limit', () => {
 	assert.deepEqual(plan(cards, ['кіт', 'пес', 'дім'], 0, T0).fresh, []);
 	// A card met in another deck still counts.
 	assert.deepEqual(plan(cards, ['кіт'], 1, T0).fresh, []);
+});
+
+test('a session comes to an end', () => {
+	// Three new words, as the review page runs them: answer whatever is next,
+	// "Again" the first time a word is seen and "Good" after that.
+	let cards = new Map<string, ReviewCard>();
+	let now = T0;
+	const shown: string[] = [];
+	for (;;) {
+		const card = nextUp(plan(cards, ['кіт', 'пес', 'дім'], 10, now), now);
+		if (!card) break;
+		shown.push(card.word);
+		assert.ok(shown.length < 50, 'the session does not end');
+		cards = new Map(cards).set(card.word, answer(card, card.reps ? GOOD : AGAIN, now));
+		now += 5000; // five seconds a card
+	}
+	// Each word: Again, then Good on both learning steps.
+	assert.equal(shown.length, 9);
+	assert.deepEqual(shown.slice(0, 3), ['кіт', 'пес', 'дім']);
+	assert.ok([...cards.values()].every((card) => card.state === REVIEW && card.due - now > DAY / 2));
+	// A word missed on first sight is due the next day, and not before.
+	const tomorrow = plan(cards, ['кіт', 'пес', 'дім'], 10, now + DAY);
+	assert.deepEqual([tomorrow.learning.length, tomorrow.due.length, tomorrow.fresh.length], [0, 3, 0]);
+});
+
+test('span rounds a length of time to one unit', () => {
+	const spans = [MINUTE, 10 * MINUTE, 90 * MINUTE, 2 * DAY, 45 * DAY, 498 * DAY].map((ms) => span(ms));
+	assert.deepEqual(spans.map(({ n, unit }) => `${n} ${unit}`), ['1 min', '10 min', '2 h', '2 d', '2 mo', '1.4 y']);
 });
 
 test('parseSettings', () => {

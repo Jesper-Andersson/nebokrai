@@ -4,8 +4,11 @@
 import { fail, signedIn } from '#lib/server/account.ts';
 import { getDatabases } from '#lib/server/db.ts';
 import { readJson } from '#lib/server/request.ts';
-import { getReviewSettings, listReviewCards, saveReviewCards, saveReviewSettings } from '#lib/server/users.ts';
+import {
+	DEVICE, getReviewSettings, listReviewCards, listReviewDays, saveReviewCards, saveReviewDays, saveReviewSettings
+} from '#lib/server/users.ts';
 import { SYNC_MAX, parseCards } from '#lib/review/cards.ts';
+import { DAYS_MAX, parseDays } from '#lib/review/days.ts';
 import { parseSettings } from '#lib/review/decks.ts';
 import { wordSummaries } from '#lib/search/word.ts';
 import type { RequestHandler } from './$types';
@@ -16,7 +19,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	// 500 cards with the longest dictionary words come to about 190 KB.
 	const body = await readJson(request, 256 * 1024);
 	if (body instanceof Response) return body;
-	const { cards: sentCards, settings: sentSettings, since } = (body ?? {}) as Record<string, unknown>;
+	const { cards: sentCards, settings: sentSettings, since, device: sentDevice, days: sentDays } =
+		(body ?? {}) as Record<string, unknown>;
 	if (sentCards !== undefined && (!Array.isArray(sentCards) || sentCards.length > SYNC_MAX)) {
 		return fail(400, 'invalid_cards');
 	}
@@ -31,12 +35,16 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 	const settings = parseSettings(sentSettings, now);
 	if (settings?.updated_at) await saveReviewSettings(who.users, who.user.id, settings);
+	// Day counts are kept under the name the browser gives itself; without one there is nowhere to put them.
+	const device = typeof sentDevice === 'string' && DEVICE.test(sentDevice) ? sentDevice : null;
+	if (device) await saveReviewDays(who.users, who.user.id, device, parseDays(sentDays, DAYS_MAX));
 
 	// Without `since` the browser is still sending and wants nothing back yet.
 	const from = typeof since === 'number' && since >= 0 ? since : null;
 	return Response.json({
 		cards: from === null ? [] : await listReviewCards(who.users, who.user.id, from),
 		settings: await getReviewSettings(who.users, who.user.id),
+		days: from === null ? {} : await listReviewDays(who.users, who.user.id, device ?? ''),
 		now
 	});
 };

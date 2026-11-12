@@ -4,7 +4,9 @@
      signed in, in the account. A card shows the word; the answer is the same
      content as the Anki export, from /api/words/cards. Two answers only:
      "Again" and "Good". The card lies on a pile: answered, it leaves to the
-     left for "Again" and to the right for "Good", and the next one comes up. -->
+     left for "Again" and to the right for "Good", and the next one comes up.
+     A finger can send it there by swiping; the keys are Anki's. Under the
+     decks, a calendar of the reviews done each day, with the streak. -->
 <script lang="ts">
 	import { RadioGroup, Switch } from 'bits-ui';
 	import { onMount } from 'svelte';
@@ -12,11 +14,15 @@
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
+	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
 	import { COMMON_DECKS, DECK_IDS, NEW_PER_DAY, SAVED_DECK } from '#lib/review/decks.ts';
-	import { AGAIN, GOOD, answer, newCard, preview, type Grade, type ReviewCard } from '#lib/review/fsrs.ts';
+	import {
+		AGAIN, GOOD, REVIEW, answer, dayNumber, newCard, preview, type Grade, type ReviewCard
+	} from '#lib/review/fsrs.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -74,6 +80,19 @@
 	let info = $derived(current ? content.get(current.word) : undefined);
 	let ahead = $derived(current ? preview(current, now) : null);
 	let canUndo = $derived(last !== null && review.canUndo(last.word));
+
+	/** How many cards fall due on each of the days to come, for the calendar. */
+	let forecast = $derived.by(() => {
+		const today = dayNumber(now);
+		const due: DayCounts = {};
+		for (const word of new Set(words)) {
+			const card = review.cards.get(word);
+			if (!card || card.state !== REVIEW) continue;
+			const day = dayNumber(card.due);
+			if (day > today) due[keyOfDay(day)] = (due[keyOfDay(day)] ?? 0) + 1;
+		}
+		return due;
+	});
 
 	/** When the next card in the decks falls due, once today's are done. */
 	let nextDue = $derived.by(() => {
@@ -175,6 +194,66 @@
 		toaster.addToast({ data: { title: m.review.undone } });
 	}
 
+	// A finger on the card: a tap turns it, and once the answer shows, a swipe
+	// answers it, left for "Again" and right for "Good". The card follows the
+	// finger; let go past a quarter of its width and it leaves that way,
+	// short of that it springs back. Up and down still scroll the page.
+	/** How far the card has been dragged sideways, in pixels. */
+	let drag = $state(0);
+
+	function swipe(node: HTMLElement) {
+		let pointer = -1;
+		let startX = 0;
+		let startY = 0;
+		let moved = false;
+		const down = (event: PointerEvent) => {
+			if (event.pointerType === 'mouse' || leaving) return;
+			// Links and the play button keep their own taps.
+			if (event.target instanceof Element && event.target.closest('a, button')) return;
+			pointer = event.pointerId;
+			startX = event.clientX;
+			startY = event.clientY;
+			moved = false;
+		};
+		const move = (event: PointerEvent) => {
+			if (event.pointerId !== pointer || !flipped) return;
+			const dx = event.clientX - startX;
+			if (!moved) {
+				// Not yet a swipe: a small wobble, or the start of a scroll.
+				if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(event.clientY - startY)) return;
+				moved = true;
+				node.setPointerCapture(pointer);
+			}
+			drag = dx;
+		};
+		const up = (event: PointerEvent) => {
+			if (event.pointerId !== pointer) return;
+			pointer = -1;
+			if (!moved) {
+				if (!flipped && Math.abs(event.clientX - startX) < 12 && Math.abs(event.clientY - startY) < 12) flipped = true;
+				return;
+			}
+			const far = Math.abs(drag) > Math.min(110, node.offsetWidth / 4);
+			const grade = drag < 0 ? AGAIN : GOOD;
+			drag = 0;
+			if (far) give(grade);
+		};
+		const cancel = () => {
+			pointer = -1;
+			drag = 0;
+		};
+		node.addEventListener('pointerdown', down);
+		node.addEventListener('pointermove', move);
+		node.addEventListener('pointerup', up);
+		node.addEventListener('pointercancel', cancel);
+		return () => {
+			node.removeEventListener('pointerdown', down);
+			node.removeEventListener('pointermove', move);
+			node.removeEventListener('pointerup', up);
+			node.removeEventListener('pointercancel', cancel);
+		};
+	}
+
 	// The radio may be playing: it is turned down while the word sounds.
 	function play(url: string) {
 		const done = radio.duck();
@@ -184,24 +263,37 @@
 		audio.play().catch(done);
 	}
 
+	// The keys are Anki's (qt/aqt/reviewer.py), as far as they have a meaning
+	// here: Space and Enter show the answer and then give the default one, the
+	// digits answer, R and F5 play the sound again, U undoes. Anki's 2, 3 and 4
+	// are Hard, Good and Easy, all of them a card remembered: with two answers,
+	// they are all "Good". The arrows follow the way the card leaves.
 	function onkeydown(event: KeyboardEvent) {
-		if (!started || !current || !info) return;
-		if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
-			if (canUndo) {
-				event.preventDefault();
-				undo();
-			}
-			return;
+		if (!started) return;
+		const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+		const plain = !event.ctrlKey && !event.metaKey && !event.altKey;
+		// Not while typing in the quick search or another field.
+		if (event.target instanceof Element && event.target.closest('input, textarea, select, [role="dialog"]')) return;
+		// Undo works on the last screen too, where there is no card.
+		if ((plain && key === 'u') || (!plain && !event.altKey && key === 'z')) {
+			if (!canUndo) return;
+			event.preventDefault();
+			return undo();
 		}
-		if (event.ctrlKey || event.metaKey || event.altKey) return;
-		// A focused button or field handles its own keys.
-		if (event.target instanceof Element && event.target.closest('button, a, input, textarea, [role="dialog"]')) return;
-		if (event.key === ' ' || event.key === 'Enter') {
+		if (!plain || !current || !info) return;
+		if (key === 'r' || key === 'F5') {
+			if (!info.audio_url) return;
+			event.preventDefault(); // F5 would reload the page
+			return play(info.audio_url);
+		}
+		if (key === ' ' || key === 'Enter') {
+			// A focused button or link is pressed by these keys itself.
+			if (event.target instanceof Element && event.target.closest('button, a')) return;
 			event.preventDefault();
 			if (flipped) give(GOOD);
 			else flipped = true;
-		} else if (event.key === '1' || event.key === 'ArrowLeft') give(AGAIN);
-		else if (event.key === '2' || event.key === 'ArrowRight') give(GOOD);
+		} else if (key === '1' || key === 'ArrowLeft') give(AGAIN);
+		else if (key === '2' || key === '3' || key === '4' || key === 'ArrowRight') give(GOOD);
 	}
 
 	function toggleDeck(deck: string, on: boolean) {
@@ -287,12 +379,23 @@
 			</RadioGroup.Root>
 			<p class="muted">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 		</section>
+
+		{#if ready}
+			<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
+		{/if}
 	{:else if current && info}
 		<div class="pile">
 			{#if left > 2}<div class="ui-card under two"></div>{/if}
 			{#if left > 1}<div class="ui-card under one"></div>{/if}
 			{#key shown}
-				<article class="ui-card card" data-leaving={leaving}>
+				<article
+					class="ui-card card"
+					class:dragged={drag !== 0}
+					data-leaving={leaving}
+					data-toward={drag < 0 ? 'left' : drag > 0 ? 'right' : undefined}
+					style:transform={drag ? `translateX(${drag}px) rotate(${drag / 30}deg)` : undefined}
+					{@attach swipe}
+				>
 					<div class="front">
 						<Headword text={info.headword} size="lg" tag="span" />
 						{#if info.audio_url}
@@ -332,7 +435,7 @@
 				</button>
 				<button type="button" class="ui-btn ui-btn-primary answer" onclick={() => give(GOOD)}>
 					<span class="when">{label(ahead.good - now)}</span>
-					<span class="what">{m.review.good} <kbd class="ui-kbd">2</kbd><Icon name="arrow-right" size={16} /></span>
+					<span class="what">{m.review.good} <kbd class="ui-kbd">3</kbd><Icon name="arrow-right" size={16} /></span>
 				</button>
 			</div>
 		{:else}
@@ -344,6 +447,7 @@
 		{/if}
 		<p class="under">
 			<span class="muted keys">{m.review.keys}</span>
+			<span class="muted touch">{m.review.swipe}</span>
 			{#if canUndo}<button type="button" class="ui-btn" onclick={undo}>{m.review.undo}</button>{/if}
 		</p>
 	{:else if current}
@@ -497,6 +601,26 @@
 			opacity 0.26s ease-in;
 	}
 
+	/* Under a finger: it follows at once, and only sideways swipes are the
+	   card's; the page still scrolls up and down */
+	.card {
+		touch-action: pan-y;
+	}
+
+	.card.dragged {
+		transition: none;
+		cursor: grabbing;
+	}
+
+	.card[data-toward='right'] {
+		border-color: var(--accent);
+	}
+
+	.card[data-toward='left'] {
+		border-style: dashed;
+		border-color: var(--border-strong);
+	}
+
 	.card[data-leaving='left'] {
 		transform: translateX(-110%) rotate(-10deg);
 		opacity: 0;
@@ -620,15 +744,19 @@
 		min-height: 2.5rem;
 	}
 
-	/* No keyboard to speak of on a phone */
+	.touch {
+		display: none;
+	}
+
+	/* No keyboard to speak of on a phone: the hint is about fingers there */
 	@media (hover: none) {
 		.keys,
 		.answers kbd {
 			display: none;
 		}
 
-		.under {
-			justify-content: flex-end;
+		.touch {
+			display: inline;
 		}
 	}
 </style>

@@ -520,10 +520,10 @@ never been answered has no card.
 
 #### `POST /api/review/sync`
 
-Body: `{ "cards": [...], "since": 1794400000000, "settings": {...} }`, every
-field optional, at most 500 cards.
+Body: `{ "cards": [...], "since": 1794400000000, "settings": {...}, "device": "…", "days": {...} }`,
+every field optional, at most 500 cards and 400 days.
 
-Response `200`: `{ "cards": [...], "settings": {...}, "now": 1794400300000 }`.
+Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794400300000 }`.
 
 - `cards` sent are stored. When the account already has a card for the word,
   the copy with the later `last_review` is kept (with the same `last_review`,
@@ -539,6 +539,15 @@ Response `200`: `{ "cards": [...], "settings": {...}, "now": 1794400300000 }`.
   how many new words a day, and which decks are switched on. Of the copy sent
   and the account's, the one with the later `updated_at` is kept, and
   returned; `null` when the account has none.
+- `days` counts the reviews done on each day, for the review page's calendar
+  and streak: `{ "2026-11-12": 34 }`. A day is the visitor's own date, and
+  starts at 04:00. Each browser counts only its own reviews and sends them
+  under `device`, a name it makes up for itself once (a UUID; 8 to 64 letters,
+  digits, `-` or `_`). What it sends replaces what it sent before for those
+  days, so a count sent twice is counted once, and a smaller count (an answer
+  undone) is taken as it is. Days sent without a valid `device` are ignored.
+- `days` returned are the sums for the account's other browsers, without the
+  rows of `device`: the browser adds its own. Empty without `since`.
 
 A card stays when its word is removed from the saved list, as an exported
 mark does.

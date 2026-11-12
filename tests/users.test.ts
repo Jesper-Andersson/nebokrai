@@ -8,8 +8,8 @@ import { AGAIN, GOOD, answer, newCard } from '../src/lib/review/fsrs.ts';
 import { MAX_SAVED } from '../src/lib/saved.ts';
 import {
 	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, getReviewSettings, listExported,
-	listReviewCards, listSaved, markExported, mergeSaved, parseExportedMarks, parseExportedWords, parseSavedWords,
-	removeWord, saveReviewCards, saveReviewSettings, saveWord, validateSession
+	listReviewCards, listReviewDays, listSaved, markExported, mergeSaved, parseExportedMarks, parseExportedWords,
+	parseSavedWords, removeWord, saveReviewCards, saveReviewDays, saveReviewSettings, saveWord, validateSession
 } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -142,6 +142,28 @@ test('review cards stop at the limit, but cards already there can still change',
 
 	await saveReviewCards(db, user, [card, answer(many[0], GOOD, card.due)], T0 + 1000);
 	assert.deepEqual((await listReviewCards(db, user, T0 + 1000)).map((c) => [c.word, c.reps]), [['слово0', 2]]);
+});
+
+test('review days: each browser replaces its own count, and is told the others', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
+	const other = await findOrCreateUser(db, 'google', '7', 'Тарас');
+	await saveReviewDays(db, user, 'laptop-0001', { '2026-11-11': 10, '2026-11-12': 4 });
+	await saveReviewDays(db, user, 'phone-00001', { '2026-11-12': 6 });
+	assert.deepEqual(await listReviewDays(db, user), { '2026-11-11': 10, '2026-11-12': 10 });
+	assert.deepEqual(await listReviewDays(db, user, 'laptop-0001'), { '2026-11-12': 6 });
+	assert.deepEqual(await listReviewDays(db, other), {});
+
+	// Sent again, and then with one answer undone: the count is replaced, never added to.
+	await saveReviewDays(db, user, 'phone-00001', { '2026-11-12': 6 });
+	await saveReviewDays(db, user, 'phone-00001', { '2026-11-12': 5 });
+	assert.deepEqual(await listReviewDays(db, user), { '2026-11-11': 10, '2026-11-12': 9 });
+	// A day undone to nothing is no day at all.
+	await saveReviewDays(db, user, 'laptop-0001', { '2026-11-11': 0 });
+	assert.deepEqual(await listReviewDays(db, user), { '2026-11-12': 9 });
+
+	await deleteUser(db, user);
+	assert.deepEqual(await db.all('SELECT 1 FROM review_days'), []);
 });
 
 test('review settings: the later change is kept', async () => {

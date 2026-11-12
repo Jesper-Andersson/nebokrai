@@ -10,6 +10,7 @@
 // Nothing here imports from SvelteKit, so `npm test` can run it against an
 // in-memory SQLite database.
 import { MAX_REVIEW } from '../review/cards.ts';
+import type { DayCounts } from '../review/days.ts';
 import { parseSettings, type ReviewSettings } from '../review/decks.ts';
 import type { ReviewCard } from '../review/fsrs.ts';
 import { MAX_SAVED, MAX_WORD_LENGTH, type ExportedMarks, type SavedWord } from '../saved.ts';
@@ -76,6 +77,18 @@ export const SCHEMA = [
 		last_review INTEGER NOT NULL,
 		updated_at INTEGER NOT NULL,
 		PRIMARY KEY (user_id, word)
+	) WITHOUT ROWID`,
+	// How many cards were reviewed on a day, for the heatmap and the streak.
+	// One row per browser (device, a random name it gives itself): a browser
+	// sends its own count for the day and replaces its own row, so a count
+	// sent twice is still counted once, and two browsers never overwrite each
+	// other. day is the visitor's own date, "2026-11-12".
+	`CREATE TABLE IF NOT EXISTS review_days (
+		user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		day TEXT NOT NULL,
+		device TEXT NOT NULL,
+		count INTEGER NOT NULL,
+		PRIMARY KEY (user_id, day, device)
 	) WITHOUT ROWID`,
 	// The decks switched on and the new cards a day, as JSON (ReviewSettings).
 	`CREATE TABLE IF NOT EXISTS review_settings (
@@ -180,7 +193,7 @@ export async function deleteSession(db: UserDb, token: string): Promise<void> {
 export async function deleteUser(db: UserDb, userId: string): Promise<void> {
 	// Spelled out rather than left to ON DELETE CASCADE, so nothing is left
 	// behind even where foreign keys are not enforced.
-	for (const table of ['review_settings', 'review_cards', 'exported_words', 'saved_words', 'sessions', 'identities']) {
+	for (const table of ['review_settings', 'review_days', 'review_cards', 'exported_words', 'saved_words', 'sessions', 'identities']) {
 		await db.run(`DELETE FROM ${table} WHERE user_id = ?`, [userId]);
 	}
 	await db.run('DELETE FROM users WHERE id = ?', [userId]);
@@ -343,4 +356,35 @@ export async function getReviewSettings(db: UserDb, userId: string): Promise<Rev
 	} catch {
 		return null;
 	}
+}
+
+/** A browser's name for itself: a UUID, or anything as plain. */
+export const DEVICE = /^[A-Za-z0-9_-]{8,64}$/;
+/** The most day rows kept for one account: ten years of three browsers. */
+const MAX_DAY_ROWS = 11000;
+
+/**
+ * Keep a browser's own review counts for some days, replacing what it sent
+ * before for those days. New rows beyond MAX_DAY_ROWS are left out.
+ */
+export async function saveReviewDays(db: UserDb, userId: string, device: string, days: DayCounts): Promise<void> {
+	const rows = Object.entries(days).map(([day, count]) => ({ day, count }));
+	if (!rows.length) return;
+	// One JSON parameter for the whole list: D1 binds at most 100.
+	await db.run(
+		`INSERT INTO review_days (user_id, day, device, count)
+		 SELECT ?, json_extract(value, '$.day'), ?, json_extract(value, '$.count') FROM json_each(?)
+		 WHERE (SELECT count(*) FROM review_days WHERE user_id = ?) < ?
+		    OR json_extract(value, '$.day') IN (SELECT day FROM review_days WHERE user_id = ? AND device = ?)
+		 ON CONFLICT (user_id, day, device) DO UPDATE SET count = excluded.count`,
+		[userId, device, JSON.stringify(rows), userId, MAX_DAY_ROWS, userId, device]);
+}
+
+/** The account's reviews by day, summed over every browser but `exceptDevice`, which knows its own. */
+export async function listReviewDays(db: UserDb, userId: string, exceptDevice = ''): Promise<DayCounts> {
+	const rows = await db.all<{ day: string; count: number }>(
+		`SELECT day, sum(count) AS count FROM review_days WHERE user_id = ? AND device <> ? AND count > 0
+		 GROUP BY day ORDER BY day`,
+		[userId, exceptDevice]);
+	return Object.fromEntries(rows.map((r) => [r.day, r.count]));
 }

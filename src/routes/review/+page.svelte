@@ -564,15 +564,21 @@
 		/* A card leaving the pile must not widen the page */
 		overflow-x: clip;
 		display: grid;
+		/* One column, never wider than the screen: something too wide inside it
+		   wraps or shrinks instead of pushing the card past the edge */
+		grid-template-columns: minmax(0, 1fr);
 		gap: 1rem;
 		max-width: var(--prose);
 		padding-top: 1.75rem;
 	}
 
+	/* On a phone the title and Undo and Stop do not fit on one line: the
+	   buttons go to a second, on the right */
 	header {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.6rem;
+		gap: 0.5rem 0.6rem;
 	}
 
 	.session {

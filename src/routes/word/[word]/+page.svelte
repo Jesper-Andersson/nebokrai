@@ -11,10 +11,12 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
+	import Sentence from '#lib/Sentence.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import { formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { plain } from '#lib/search/normalize.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -48,6 +50,11 @@
 	}
 
 	const label = (tag: string) => tag.replace(/-/g, ' ');
+
+	// The spellings an example sentence can have this entry's word in: the word
+	// and its forms of one word (буду читати is two, and буду is not читати).
+	const ownForms = (entry: WordEntry) =>
+		new Set([entry.word, ...entry.forms.map((f) => f.form).filter((form) => !form.includes(' '))].map(plain));
 
 	// The list of entries names each headword only when they are not all the
 	// same (за́мок and замо́к, or а, А and -а behind one address).
@@ -87,6 +94,7 @@
 		     another word than я, not я with its stress moved. -->
 		{@const base = entry.pos === 'pron' ? '' : entry.headword}
 		{@const shift = stressShift(base, entry.forms.map((f) => f.form))}
+		{@const own = ownForms(entry)}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
 				<div class="title">
@@ -134,7 +142,7 @@
 								<ul class="quotes">
 									{#each sense.examples as ex}
 										<li>
-											<span lang="uk">{ex.text}</span>
+											<Sentence text={ex.text} {own} />
 											{#if ex.english}<span class="en">{ex.english}</span>{/if}
 										</li>
 									{/each}
@@ -151,7 +159,7 @@
 					<ul class="sentences">
 						{#each entry.examples as ex (ex.tatoeba_id)}
 							<li>
-								<span lang="uk">{ex.uk}</span>
+								<Sentence text={ex.uk} {own} />
 								<span class="en">{ex.en}</span>
 								<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
 									Tatoeba #{ex.tatoeba_id}

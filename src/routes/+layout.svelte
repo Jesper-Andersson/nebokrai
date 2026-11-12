@@ -1,6 +1,6 @@
 <!-- The frame every page is drawn in: the header, the page, the footer, and the
      corner messages. It also provides what the pages share through context:
-     the settings, the saved words and the toaster. -->
+     the settings, the saved words, the toaster and the quick search. -->
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -9,6 +9,7 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
 	import Header from '#lib/Header.svelte';
+	import { provideQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
 	import { provideSettings } from '#lib/settings.ts';
 	import Toasts from '#lib/Toasts.svelte';
@@ -33,6 +34,9 @@
 	onMount(() => void saved.load());
 
 	provideToasts();
+
+	// The quick search lives in the header, and a page can open it too.
+	provideQuickSearch();
 </script>
 
 <svelte:head>

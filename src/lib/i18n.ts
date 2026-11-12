@@ -132,6 +132,8 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
+		/** On each word of an example sentence */
+		lookUp: 'Look up this word',
 		/** Above the entries of за́мок and замо́к */
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
@@ -371,6 +373,7 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
+		lookUp: 'Знайти це слово',
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',

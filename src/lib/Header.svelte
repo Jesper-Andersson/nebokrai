@@ -7,6 +7,7 @@
 	import { page } from '$app/state';
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
@@ -32,7 +33,7 @@
 	// bar then draws the rule itself, unbroken.
 	let onATab = $derived(links.some((link) => current(link.href)));
 
-	let searchOpen = $state(false);
+	const quick = useQuickSearch();
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. Ctrl+K still opens the quick search there.
@@ -91,7 +92,7 @@
 			<!-- A hairline between the link to the funds and the site's own tools -->
 			<span class="divider"></span>
 			{#if !onSearchPage}
-				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
+				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (quick.open = true)}>
 					<Icon name="search" size={18} />
 					<span class="label">{m.home.placeholder}</span>
 					<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
@@ -102,7 +103,7 @@
 	</div>
 </header>
 
-<QuickSearch bind:open={searchOpen} />
+<QuickSearch />
 
 <style>
 	header {

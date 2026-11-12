@@ -1,6 +1,7 @@
-<!-- The top bar: logo, the four pages, quick search, the link to support
-     Ukraine and settings. It stays at
-     the top of the window while the page scrolls. -->
+<!-- The top bar, set like the head of a dictionary page: the four pages as
+     tabs on the left, the name in the middle, and on the right the link to
+     support Ukraine, quick search and settings. A thick rule closes it. It
+     stays at the top of the window while the page scrolls. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
@@ -29,6 +30,11 @@
 	// United24 is the Ukrainian state's own fundraising platform.
 	const SUPPORT_URL = 'https://u24.gov.ua/';
 
+	// The rule under the bar is drawn by the current page's tab. A page that is
+	// none of the four (/sources, /report, an error) has no such tab, and the
+	// bar then draws the rule itself, unbroken.
+	let onATab = $derived(links.some((link) => current(link.href)));
+
 	let searchOpen = $state(false);
 
 	// The search page has its own box right under the header: a second field
@@ -42,7 +48,7 @@
 	});
 </script>
 
-<header>
+<header class:ruled={!onATab}>
 	<div class="inner">
 		<a class="logo" href="/">
 			<!-- The same drawing as the site's icon; the wordmark beside it carries the name -->
@@ -55,16 +61,9 @@
 			{/each}
 		</nav>
 		<div class="tools">
-			{#if !onSearchPage}
-				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
-					<Icon name="search" size={18} />
-					<span class="label">{m.home.placeholder}</span>
-					<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
-				</button>
-			{/if}
-			<a class="support" href={SUPPORT_URL} rel="noopener" aria-label={m.support.label} title={m.support.hint}>
+			<a class="support" href={SUPPORT_URL} rel="noopener" title={m.support.hint}>
 				<!-- A heart in the flag's two colours, the same blue and yellow as the
-				     logo. The yellow half all but vanishes on a white button, so the
+				     logo. The yellow half all but vanishes on the light bar, so the
 				     heart is outlined, in a darker amber under the blue. -->
 				<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
 					<defs>
@@ -85,8 +84,17 @@
 						d="M12 20.5 4.6 13.1a4.9 4.9 0 0 1 6.9-6.9l.5.5.5-.5a4.9 4.9 0 0 1 6.9 6.9z"
 					/>
 				</svg>
-				<span class="label">{m.support.label}</span>
+				{m.support.label}
 			</a>
+			<!-- A hairline between the way out of the site and the site's own tools -->
+			<span class="divider"></span>
+			{#if !onSearchPage}
+				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
+					<Icon name="search" size={18} />
+					<span class="label">{m.home.placeholder}</span>
+					<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
+				</button>
+			{/if}
 			<SettingsMenu />
 		</div>
 	</div>
@@ -99,14 +107,27 @@
 		position: sticky;
 		top: 0;
 		z-index: 30;
-		border-bottom: 1px solid var(--border);
+		/* Room for the thick rule. The current tab draws it (below); the bar
+		   draws it only on a page that has no tab. */
+		border-bottom: 2px solid transparent;
 		background: var(--frame);
 		backdrop-filter: blur(14px);
 		-webkit-backdrop-filter: blur(14px);
+		/* The rule runs a window's width each way from the tab; cut it at the
+		   window's edges. `clip` only: `hidden` would cut the tab's foot too. */
+		overflow-x: clip;
 	}
 
+	header.ruled {
+		border-bottom-color: var(--ink);
+	}
+
+	/* Pages, name, tools. The outer two share what the name leaves, so the
+	   name stands in the middle of the bar; each is at least as wide as what
+	   it holds, and the name then gives way before anything is cut. */
 	.inner {
-		display: flex;
+		display: grid;
+		grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
 		align-items: center;
 		gap: 0.5rem;
 		box-sizing: border-box;
@@ -118,6 +139,8 @@
 
 	.logo {
 		display: flex;
+		grid-row: 1;
+		grid-column: 2;
 		align-items: center;
 		/* The wordmark's box has a little air on its left already */
 		gap: 0.25rem;
@@ -135,37 +158,75 @@
 
 	nav {
 		display: flex;
-		align-self: stretch;
-		margin-left: 1rem;
+		grid-row: 1;
+		grid-column: 1;
+		align-items: flex-end;
+		align-self: end;
+		justify-self: start;
+		gap: 2px;
 	}
 
-	/* The page you are on sits on a gold line: the horizon the site is named after */
+	/* The pages are tabs standing on the rule, like the thumb index cut into
+	   the edge of a printed dictionary, and lettered like the names of an
+	   entry's parts (ui-label). */
 	nav a {
 		position: relative;
 		display: flex;
 		align-items: center;
-		padding: 0 0.75rem;
+		box-sizing: border-box;
+		height: 2.5rem;
+		padding: 0 0.7rem;
+		border: 1px solid transparent;
+		border-bottom: 0;
+		border-radius: var(--radius-md) var(--radius-md) 0 0;
 		color: var(--muted);
-		font-size: 0.95rem;
-		font-weight: 600;
+		font-size: var(--text-xs);
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
 		white-space: nowrap;
 	}
 
+	/* The page you are on: an outlined tab that reaches down through the rule
+	   and is open to the page under it. The padding keeps its word level
+	   with the others. */
 	nav a[aria-current='page'] {
+		height: calc(2.5rem + 2px);
+		margin-bottom: -2px;
+		padding-bottom: 2px;
+		border-color: var(--border-strong);
 		color: var(--ink);
 	}
 
+	/* The rule, in two pieces that stop at the tab's sides. It is drawn, not
+	   a border painted over under the tab: the bar is see-through, and over a
+	   background photo there is no one colour to paint with. */
+	nav a[aria-current='page']::before {
+		content: '';
+		position: absolute;
+		right: calc(-100vw - 1px);
+		bottom: 0;
+		left: calc(-100vw - 1px);
+		height: 2px;
+		background:
+			linear-gradient(var(--ink), var(--ink)) left / 100vw 100% no-repeat,
+			linear-gradient(var(--ink), var(--ink)) right / 100vw 100% no-repeat;
+		pointer-events: none;
+	}
+
+	/* A gold line along the tab's top edge: the horizon the site is named after */
 	nav a[aria-current='page']::after {
 		content: '';
 		position: absolute;
-		inset: auto 0.75rem -1px;
+		inset: -1px 0.7rem auto;
 		height: 2px;
 		border-radius: 2px;
 		background: var(--gold);
 	}
 
 	@media (hover: hover) {
-		nav a:hover {
+		nav a:not([aria-current]):hover {
+			background: var(--surface-2);
 			color: var(--ink);
 		}
 	}
@@ -176,14 +237,56 @@
 	.support:focus-visible {
 		/* Inside the edge: the sticky header would cut a ring outside it */
 		outline-offset: -2px;
+	}
+
+	.logo:focus-visible,
+	.support:focus-visible {
 		border-radius: var(--radius-md);
 	}
 
 	.tools {
 		display: flex;
+		grid-row: 1;
+		grid-column: 3;
 		align-items: center;
+		justify-self: end;
 		gap: 0.35rem;
-		margin-left: auto;
+	}
+
+	/* The way out to United24. No frame: a box here was the heaviest thing in
+	   the bar. It keeps its words at every width; a heart alone does not say
+	   where it leads. */
+	.support {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		gap: 0.45rem;
+		box-sizing: border-box;
+		height: 2.25rem;
+		padding: 0 0.5rem;
+		color: var(--ink-2);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.support svg {
+		flex: none;
+	}
+
+	@media (hover: hover) {
+		.support:hover {
+			color: var(--ink);
+		}
+	}
+
+	.divider {
+		flex: none;
+		width: 1px;
+		height: 1.25rem;
+		margin: 0 0.3rem;
+		background: var(--border);
 	}
 
 	/* A button that looks like a search field and opens the quick search */
@@ -191,12 +294,15 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		width: 15rem;
+		box-sizing: border-box;
+		/* As wide as "Шукати слово…" and the key beside it need, and no wider:
+		   the Ukrainian tools then just fit their third of the bar */
+		width: 13rem;
 		height: 2.25rem;
 		padding: 0 0.5rem 0 0.65rem;
-		border: 1px solid var(--border);
+		border: 0;
 		border-radius: var(--radius-md);
-		background: var(--surface);
+		background: var(--surface-2);
 		color: var(--muted);
 		font-size: var(--text-sm);
 		cursor: pointer;
@@ -212,48 +318,17 @@
 
 	@media (hover: hover) {
 		.search:hover {
-			border-color: var(--border-strong);
+			color: var(--ink);
 		}
 	}
 
-	/* The way out to United24. Framed like the search field beside it and on
-	   the tools' side of the bar, so it does not read as a fifth page. */
-	.support {
-		display: flex;
-		flex: none;
-		align-items: center;
-		justify-content: center;
-		gap: 0.45rem;
-		box-sizing: border-box;
-		height: 2.25rem;
-		padding: 0 0.8rem 0 0.65rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		background: var(--surface);
-		color: var(--ink);
-		font-size: var(--text-sm);
-		font-weight: 600;
-		white-space: nowrap;
-	}
-
-	.support svg {
-		flex: none;
-	}
-
-	@media (hover: hover) {
-		.support:hover {
-			border-color: var(--border-strong);
-		}
-	}
-
-	/* Narrow windows: the search field shrinks to its icon. In Ukrainian the
-	   whole bar needs 1040px, "Підтримати Україну" being the longer label. */
-	@media (max-width: 1080px) {
+	/* Three groups in one line are a tight fit: the search field shrinks to
+	   its icon as soon as the window is narrower than the full bar. */
+	@media (max-width: 1120px) {
 		.search {
 			justify-content: center;
 			width: 2.25rem;
 			padding: 0;
-			border-color: transparent;
 			background: none;
 		}
 
@@ -263,54 +338,83 @@
 		}
 	}
 
-	/* Narrower still: the support link keeps only its heart */
-	@media (max-width: 880px) {
-		.support {
-			width: 2.25rem;
-			padding: 0;
-		}
-
-		.support .label {
-			display: none;
-		}
-	}
-
-	/* Phones: logo and tools on the first line, the four pages across the second */
-	@media (max-width: 740px) {
+	/* Narrower, and the name could no longer stand in the middle: the
+	   Ukrainian tabs, ЗБЕРЕЖЕНЕ and ПРО ПРОЄКТ among them, need about 400px
+	   on its left. Name and tools take the first line, the tabs the second. */
+	@media (max-width: 1000px) {
 		.inner {
+			display: flex;
 			flex-wrap: wrap;
 			gap: 0 0.5rem;
 			height: auto;
-			padding: 0 0.6rem;
 		}
 
 		.logo {
 			height: 3rem;
 		}
 
+		.tools {
+			margin-left: auto;
+		}
+
 		nav {
 			order: 1;
 			flex: 0 0 100%;
-			margin: 0;
-			overflow-x: auto;
-			border-top: 1px solid var(--border);
-			scrollbar-width: none;
+		}
+	}
+
+	/* Phones. The name's line has no room for "Підтримати Україну", and the
+	   words must stay, so the link takes a slim line of its own above the
+	   name. The tools' box dissolves to let it out. The tabs share the width. */
+	@media (max-width: 740px) {
+		.inner {
+			padding: 0 0.6rem;
+		}
+
+		.tools {
+			display: contents;
+		}
+
+		.logo {
+			margin-right: auto;
+		}
+
+		.support {
+			order: -1;
+			flex: 0 0 100%;
+			height: 2rem;
+			padding: 0;
+			border-bottom: 1px solid var(--border);
+			font-size: var(--text-xs);
+		}
+
+		.support svg {
+			width: 15px;
+			height: 15px;
+		}
+
+		.divider {
+			display: none;
 		}
 
 		nav a {
 			flex: 1 0 auto;
 			justify-content: center;
 			height: 2.75rem;
-			padding: 0 0.5rem;
-			font-size: clamp(0.82rem, 3.7vw, 0.95rem);
+			padding: 0 0.3rem;
+			font-size: clamp(0.6rem, 2.9vw, var(--text-xs));
+		}
+
+		nav a[aria-current='page'] {
+			height: calc(2.75rem + 2px);
+			padding-bottom: 2px;
 		}
 
 		nav a[aria-current='page']::after {
 			inset-inline: 0.5rem;
 		}
 
-		.search,
-		.support {
+		.search {
 			width: 2.75rem;
 			height: 2.75rem;
 		}

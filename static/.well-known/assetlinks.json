@@ -1,0 +1,12 @@
+[
+	{
+		"relation": ["delegate_permission/common.handle_all_urls"],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "app.nebokrai",
+			"sha256_cert_fingerprints": [
+				"82:B2:BF:1D:C6:18:21:FB:19:FB:FA:75:85:B8:C6:91:89:A0:54:A5:6B:4A:CB:74:DA:E3:54:A2:32:D0:46:0D"
+			]
+		}
+	}
+]

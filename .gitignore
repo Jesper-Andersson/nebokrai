@@ -15,6 +15,11 @@ static/words.json
 /.svelte-kit
 /build
 
+# The Android app: Bubblewrap writes the project and the builds beside
+# twa-manifest.json, which is the only file there to keep
+/android/*
+!/android/twa-manifest.json
+
 # OS
 .DS_Store
 Thumbs.db

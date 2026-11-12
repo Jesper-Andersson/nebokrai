@@ -1,0 +1,52 @@
+{
+  "packageId": "app.nebokrai",
+  "host": "nebokrai.app",
+  "name": "Nebokrai: Ukrainian dictionary",
+  "launcherName": "Nebokrai",
+  "display": "standalone",
+  "themeColor": "#F7F6F2",
+  "themeColorDark": "#0F1115",
+  "navigationColor": "#F7F6F2",
+  "navigationColorDark": "#0F1115",
+  "navigationDividerColor": "#F7F6F2",
+  "navigationDividerColorDark": "#0F1115",
+  "backgroundColor": "#F7F6F2",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://nebokrai.app/icons/icon-512.png",
+  "maskableIconUrl": "https://nebokrai.app/icons/maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "E:/Android/keys/nebokrai-upload.jks",
+    "alias": "upload"
+  },
+  "appVersionName": "1",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://nebokrai.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://nebokrai.app/",
+  "minSdkVersion": 24,
+  "orientation": "default",
+  "fingerprints": [
+    {
+      "name": "upload key",
+      "value": "82:B2:BF:1D:C6:18:21:FB:19:FB:FA:75:85:B8:C6:91:89:A0:54:A5:6B:4A:CB:74:DA:E3:54:A2:32:D0:46:0D"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "1"
+}

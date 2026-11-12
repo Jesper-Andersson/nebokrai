@@ -5,14 +5,14 @@ import { test } from 'node:test';
 import { ankiText, csv, exportFile, json, type ExportCard } from '../src/lib/export.ts';
 
 const kalyna: ExportCard = {
-	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]',
+	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]', audio_url: null,
 	glosses: ['viburnum, guelder rose'],
 	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123 },
 	saved_at: Date.UTC(2026, 10, 11, 12)
 };
 // Text that would break a file if written as it is
 const awkward: ExportCard = {
-	word: 'Київ', headword: '"Ки́їв"', pos: 'name', tags: [], ipa: null,
+	word: 'Київ', headword: '"Ки́їв"', pos: 'name', tags: [], ipa: null, audio_url: null,
 	glosses: ['a <b>city</b> & "capital"', 'tab\there\nand a new line'],
 	example: null,
 	saved_at: Date.UTC(2026, 10, 10)

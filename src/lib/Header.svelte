@@ -8,6 +8,12 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
+	import { plan } from '#lib/review/cards.ts';
+	import { keyOfDay, reviewStats } from '#lib/review/days.ts';
+	import { dayNumber } from '#lib/review/fsrs.ts';
+	import { wordsOfDeck } from '#lib/review/decks.ts';
+	import { useReview } from '#lib/review.svelte.ts';
+	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
@@ -34,6 +40,38 @@
 	let onATab = $derived(links.some((link) => current(link.href)));
 
 	const quick = useQuickSearch();
+
+	// How many flashcards are due, on the button that leads to them. Counted
+	// from what this browser holds, with no request to the account; and for a
+	// visitor who has never reviewed a card, with no request at all.
+	const review = useReview();
+	const saved = useSaved();
+	onMount(() => review.peek());
+	$effect(() => {
+		if (review.cards.size) review.fetchDecks(review.settings.decks);
+	});
+	let due = $derived.by(() => {
+		if (!review.cards.size || !saved.ready) return 0;
+		const savedWords = saved.items.map((item) => item.word);
+		const words = review.settings.decks.flatMap((deck) => wordsOfDeck(deck, savedWords, saved.lists, review.common));
+		// New words are not counted: they wait for the visitor, nothing is lost by leaving them.
+		const today = plan(review.cards, words, 0, Date.now());
+		return today.learning.length + today.due.length;
+	});
+
+	// The streak, in a flame on the same button. The flame burns once a card
+	// has been reviewed today; until then it is an outline, the streak still
+	// standing but not yet kept.
+	let streak = $derived.by(() => {
+		const today = dayNumber(Date.now());
+		return { days: reviewStats(review.days, today).streak, lit: (review.days[keyOfDay(today)] ?? 0) > 0 };
+	});
+	let cardsLabel = $derived(
+		[
+			due ? m.review.openDue(due) : m.review.open,
+			...(streak.days ? [m.review.streakDays(streak.days)] : []),
+			...(streak.days && !streak.lit ? [m.review.streakWaits] : [])
+		].join('. '));
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -104,6 +142,35 @@
 				<span class="label">{m.home.placeholder}</span>
 				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
 			</button>
+			<a
+				class="ui-icon-btn cards"
+				href="/review"
+				aria-current={current('/review') ? 'page' : undefined}
+				aria-label={cardsLabel}
+				title={cardsLabel}
+			>
+				<Icon name="cards" size={20} />
+				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
+				{#if streak.days}
+					<!-- Red at the tip and amber below, with the days written on its widest part -->
+					<svg class="flame" class:lit={streak.lit} viewBox="-2 -3 28 29" aria-hidden="true">
+						<defs>
+							<linearGradient id="ui-flame-body" x1="0" y1="0" x2="0" y2="1">
+								<stop offset="0%" style="stop-color: var(--flame-tip)" />
+								<stop offset="70%" style="stop-color: var(--flame)" />
+							</linearGradient>
+						</defs>
+						<path
+							class="body"
+							fill="url(#ui-flame-body)"
+							d="M13 1c.6 3.2 3 4.9 4.7 7.2 1.4 1.9 2.3 4 2.3 6.3A8 8 0 0 1 4 14.5c0-2.6 1.1-4.9 2.7-6.6.3 1.6 1 2.7 2.2 3.3C8.6 7.6 10 3.6 13 1z"
+						/>
+						<text x="12" y="17.5" text-anchor="middle" class:long={streak.days > 99}>
+							{Math.min(streak.days, 999)}
+						</text>
+					</svg>
+				{/if}
+			</a>
 			<SettingsMenu />
 		</div>
 	</div>
@@ -304,6 +371,121 @@
 		align-items: center;
 		justify-self: end;
 		gap: 0.35rem;
+	}
+
+	/* The way to the flashcards, with how many are due on its corner */
+	.cards {
+		position: relative;
+	}
+
+	.cards[aria-current='page'] {
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+
+	/* The streak: a flame on the upper right corner with the days written in it.
+	   The count of cards due has the upper left. */
+	.flame {
+		position: absolute;
+		/* The drawing has room of its own around the flame, for the flicker and
+		   the glow, so nothing of it is cut off: the flame is 0.25rem in from
+		   the top of this box and 0.4rem in from its right. The bar is 3.5rem
+		   high and the button 2.25rem, which leaves 0.6rem over the button.
+		   The number in the flame is level with the count's. */
+		top: -0.67rem;
+		right: -0.5rem;
+		width: 1.75rem;
+		height: 1.8125rem;
+		pointer-events: none;
+	}
+
+	/* A finger's button is taller and leaves less of the bar above it: both
+	   marks come down a little */
+	@media (pointer: coarse) {
+		.flame {
+			top: -0.55rem;
+		}
+
+		/* Named through the button, to outrank the rule for the count below */
+		.cards .count {
+			top: 0.04rem;
+		}
+	}
+
+	/* Not yet kept today: the same flame, gone grey */
+	.flame:not(.lit) .body {
+		fill: var(--surface-2);
+		stroke: var(--muted);
+		stroke-width: 1.2;
+		stroke-linejoin: round;
+	}
+
+	.flame text {
+		fill: var(--muted);
+		font-family: var(--font-text);
+		font-size: 8.5px;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.flame text.long {
+		font-size: 6px;
+	}
+
+	/* Lit: a card has been reviewed today. It glows, and it flickers,
+	   swaying from its foot. */
+	.flame.lit {
+		filter: drop-shadow(0 0 3px color-mix(in oklab, var(--flame) 70%, transparent));
+	}
+
+	.flame.lit .body {
+		stroke: none;
+		transform-box: fill-box;
+		transform-origin: 50% 100%;
+		animation: flame-sway 1.7s ease-in-out infinite alternate;
+	}
+
+	.flame.lit text {
+		fill: var(--flame-ink);
+	}
+
+	@keyframes flame-sway {
+		from {
+			transform: scale(1, 0.96) skewX(-2.5deg);
+		}
+
+		50% {
+			transform: scale(0.97, 1.04) skewX(1.5deg);
+		}
+
+		to {
+			transform: scale(1.02, 0.98) skewX(3deg);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.flame.lit .body {
+			animation: none;
+		}
+	}
+
+	.count {
+		position: absolute;
+		/* Its digit is level with the one in the flame */
+		top: -0.08rem;
+		left: -0.3rem;
+		box-sizing: border-box;
+		min-width: 1rem;
+		height: 1rem;
+		padding: 0 0.2rem;
+		border-radius: 0.3rem;
+		background: var(--accent);
+		color: var(--accent-ink);
+		font-size: 0.65rem;
+		font-weight: 700;
+		line-height: 1rem;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was

@@ -384,25 +384,31 @@ suggestion call takes a few milliseconds.
 
 ## Saved words and accounts
 
-A visitor can save words without an account: the list is then kept in the
+A visitor can save words without an account: the words are then kept in the
 browser's `localStorage` and the server is not involved. Signing in (Google or
-GitHub) moves the list to the account, so it is the same on every device. The
+GitHub) moves them to the account, so they are the same on every device. The
 browser side is `src/lib/saved.svelte.ts`, the server side
 `src/lib/server/users.ts`.
 
 A saved word is `{ "word": "книга", "saved_at": 1794400000000 }`: the `word`
-field of a search result, and when it was saved in milliseconds. Lists are
-newest first. One list holds at most 5,000 words.
+field of a search result, and when it was saved in milliseconds. Saved words
+are given newest first. One visitor can save at most 5,000 words, and can sort
+them into named [lists](#lists).
 
 | Endpoint | Signed in? | |
 |---|---|---|
-| `GET /api/saved` | yes | The account's list and its exported marks: `{ "words": [...], "exported": {...} }`. |
-| `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. |
-| `DELETE /api/saved/<word>` | yes | Remove one word. `{ "ok": true }`, also when it was not saved. |
-| `POST /api/saved/merge` | yes | Add a browser's list to the account. |
+| `GET /api/saved` | yes | The account's saved words, exported marks and lists: `{ "words": [...], "exported": {...}, "lists": [...] }`. |
+| `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. An optional body `{ "lists": ["<id>"] }` also puts it in those lists. |
+| `DELETE /api/saved/<word>` | yes | Remove one word, and take it out of every list. `{ "ok": true }`, also when it was not saved. |
+| `POST /api/saved/merge` | yes | Add a browser's saved words and lists to the account. |
 | `POST /api/saved/exported` | yes | Mark words as exported just now. `{ "ok": true }`. |
+| `PUT /api/lists/<id>` | yes | Create a list, or rename it. `{ "ok": true }`. |
+| `DELETE /api/lists/<id>` | yes | Delete a list; its words stay saved. `{ "ok": true }`, also when there was no such list. |
+| `POST /api/lists/<id>/words` | yes | Put saved words into a list, or take words out of it. `{ "ok": true }`. |
 | `POST /api/words/summary` | no | Headword and meanings for a list of words. |
 | `POST /api/words/cards` | no | What a flashcard holds, for a list of words. |
+| `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
+| `GET /api/review/deck/<deck>` | no | The words of a ready-made review deck. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
 
 "Signed in" means the request carries the `session` cookie. The browser sends
@@ -412,15 +418,52 @@ see it.
 ### `POST /api/saved/merge`
 
 Called once, on the first page load after signing in, with the words saved in
-this browser while signed out.
+this browser while signed out and the lists they were sorted into.
 
-Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }], "exported": { "книга": 1794400500000 } }`.
-`exported` is optional.
+Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }], "exported": { "книга": 1794400500000 }, "lists": [...] }`.
+`exported` and `lists` are optional; `lists` has the shape described under
+[Lists](#lists).
 
-Response `200`: `{ "words": [...], "exported": {...} }`, the account's whole
-list and marks afterwards. A word already in the account keeps its date. Items
-that are malformed or not dictionary words are skipped, and so are words beyond
-the limit of 5,000.
+Response `200`: `{ "words": [...], "exported": {...}, "lists": [...] }`, all of
+the account's saved words, marks and lists afterwards. A word already in the
+account keeps its date. Items that are malformed or not dictionary words are
+skipped, and so are words beyond the limit of 5,000.
+
+A sent list joins the account by these rules, in the order sent:
+
+- The account has a list with that `id`: the list gains the sent words and
+  keeps the account's name.
+- Otherwise, the account has a list with that name, in any letter case: the
+  sent list folds into it, so «Їжа» made on two devices becomes one list.
+- Otherwise the list is created, unless the account already has 50; then the
+  list is dropped and its words stay saved.
+
+A word is put into a list only if it is one of the account's saved words after
+the merge.
+
+### Lists
+
+A list is `{ "id": "0b9f…", "name": "Їжа", "created_at": 1794400000000, "words": ["хліб", "сир"] }`.
+Lists work like labels: a saved word can be in several lists, or in none, and
+a list holds saved words only. `GET /api/saved` gives them oldest first. One
+visitor can have at most 50. Signed out, the browser keeps its lists in
+`localStorage`; signed in, the account holds them.
+
+The browser chooses the `id` when the list is made (a UUID; 8 to 36 letters,
+digits, `_` or `-`), so a list made while signed out is still the same list
+after the merge. The rules shared by the browser and the server are in
+`src/lib/lists.ts`.
+
+`PUT /api/lists/<id>` with `{ "name": "Їжа" }` creates the list, or renames
+it if the account has a list with that id. The name is stored with spaces
+trimmed and runs of spaces collapsed, and has at most 40 characters. Two of
+one account's lists cannot have the same name, and letter case does not make
+names differ.
+
+`POST /api/lists/<id>/words` with `{ "add": ["хліб"], "remove": ["сир"] }`
+changes what is in a list; either field may be left out. Words in `add` that
+are not saved are skipped without an error, and so are words in `remove` that
+are not in the list. Removing a word from a list leaves it saved.
 
 ### Exported marks
 
@@ -478,6 +521,7 @@ Response `200`:
       "pos": "noun",
       "tags": ["feminine", "inanimate"],
       "ipa": "[kɐˈɫɪnɐ]",
+      "audio_url": "https://upload.wikimedia.org/wikipedia/commons/…/Uk-калина.ogg",
       "example": { "uk": "…", "en": "…", "tatoeba_id": 123456 }
     }
   ]
@@ -486,9 +530,81 @@ Response `200`:
 
 The same words, in the same order and chosen by the same rules as
 `/api/words/summary`, with the entry's part of speech, grammar tags and IPA
-(`null` if it has none). `example` is the entry's first Tatoeba sentence, or
-`null`; credit it with a link to `https://tatoeba.org/sentences/show/<tatoeba_id>`.
-Nothing in the answer comes from VESUM.
+(`null` if it has none). `audio_url` is a recording on Wikimedia Commons, or
+`null`; the review page plays it and no export uses it. `example` is the
+entry's first Tatoeba sentence, or `null`; credit it with a link to
+`https://tatoeba.org/sentences/show/<tatoeba_id>`. Nothing in the answer comes
+from VESUM.
+
+### Flashcard review
+
+The review page (`/review`) schedules flashcards in the browser with FSRS-6
+(`src/lib/review/fsrs.ts`); the server never works out a schedule. Signed out,
+the cards are kept in `localStorage`. Signed in, the account holds them too,
+and one call keeps the two in step.
+
+A card is the schedule of one word:
+
+```json
+{
+  "word": "калина", "due": 1794573000000, "stability": 2.3065, "difficulty": 2.1181,
+  "state": 2, "step": 0, "reps": 2, "lapses": 0, "added_at": 1794400000000, "last_review": 1794400200000
+}
+```
+
+Times are in milliseconds, on the browser's clock. `stability` is the number
+of days after which the chance of recalling the word has fallen to 90%,
+`difficulty` runs from 1 to 10. `state` is 1 (learning), 2 (review) or 3
+(relearning); `step` is the learning step the card is on. `reps` counts
+answers, `lapses` the times a card in review was forgotten. A word that has
+never been answered has no card.
+
+#### `POST /api/review/sync`
+
+Body: `{ "cards": [...], "since": 1794400000000, "settings": {...}, "device": "…", "days": {...} }`,
+every field optional, at most 500 cards and 400 days.
+
+Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794400300000 }`.
+
+- `cards` sent are stored. When the account already has a card for the word,
+  the copy with the later `last_review` is kept (with the same `last_review`,
+  the one with more `reps`), so sending a card twice, or late, does no harm.
+  Malformed cards and words not in the dictionary are skipped. A
+  `last_review` later than the server's clock is taken as now. An account
+  holds at most 10,000 cards; new ones beyond that are skipped.
+- `cards` returned are the account's cards stored at or after `since`, which
+  is the `now` of an earlier answer; `0` asks for all of them. Without
+  `since` the list is empty: a browser with more than 500 cards to send
+  leaves it out of every request but the last.
+- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "updated_at": 1794400000000 }`:
+  how many new words a day, and which decks are switched on. A deck is
+  `saved` (every saved word), `list:<id>` (one of the visitor's lists, by the
+  list's id; at most 50 are kept) or a deck of common words. Whether a list
+  still exists is not checked here: a deleted list is a deck with no words,
+  and the browser drops it the next time the decks are changed. Of the copy sent
+  and the account's, the one with the later `updated_at` is kept, and
+  returned; `null` when the account has none.
+- `days` counts the reviews done on each day, for the review page's calendar
+  and streak: `{ "2026-11-12": 34 }`. A day is the visitor's own date, and
+  starts at 04:00. Each browser counts only its own reviews and sends them
+  under `device`, a name it makes up for itself once (a UUID; 8 to 64 letters,
+  digits, `-` or `_`). What it sends replaces what it sent before for those
+  days, so a count sent twice is counted once, and a smaller count (an answer
+  undone) is taken as it is. Days sent without a valid `device` are ignored.
+- `days` returned are the sums for the account's other browsers, without the
+  rows of `device`: the browser adds its own. Empty without `since`.
+
+A card stays when its word is removed from the saved list, as an exported
+mark does.
+
+#### `GET /api/review/deck/<deck>`
+
+`<deck>` is `common-500`, `common-1000` or `common-2000`.
+
+Response `200`: `{ "deck": "common-500", "words": ["не", "я", "в", …] }`. The
+commonest spellings in order, as `/common-words` counts them: places 1 to 500,
+501 to 1,000 and 1,001 to 2,000. Cached like a search. The `saved` deck is the
+visitor's own list and has no address here.
 
 ### Signing in and out
 
@@ -505,9 +621,12 @@ These are pages the browser visits, not JSON endpoints.
 | Status | Body | When |
 |---|---|---|
 | `400` | `{ "error": "invalid_json" }` | The body is not JSON. |
-| `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. |
+| `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. `POST /api/lists/<id>/words`: `add` or `remove` is not a list, or has more than 5,000 items. |
+| `400` | `{ "error": "invalid_list" }` | `PUT /api/lists/<id>`: the id does not have the shape above, or the name is empty or longer than 40 characters. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 1 MB for `/api/saved/merge`. |
-| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. |
-| `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when the list already holds 5,000 words. |
+| `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/lists/<id>/words`. |
+| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |
+| `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when 5,000 words are already saved. `PUT /api/lists/<id>` for a new list when the account already has 50. |
+| `409` | `{ "error": "name_taken" }` | `PUT /api/lists/<id>` when another of the account's lists has that name. |

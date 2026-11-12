@@ -4,11 +4,16 @@
      menu (Bits UI DropdownMenu) downloads all of the list, the ticked words or
      the words not exported before, as a file built in src/lib/export.ts from
      /api/words/cards. The same menu sends them straight into Anki through
-     AnkiConnect (src/lib/anki-connect.ts). -->
+     AnkiConnect (src/lib/anki-connect.ts). With lists (src/lib/lists.ts), a
+     row of chips above the words shows one list at a time, and the export
+     then takes its words from the list in view. -->
 <script lang="ts">
 	import { DropdownMenu } from 'bits-ui';
+	import { untrack } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { listPath } from '#lib/lists.ts';
 	import AccountPanel from '#lib/AccountPanel.svelte';
 	import AnkiSettingsDialog from '#lib/AnkiSettings.svelte';
 	import {
@@ -21,9 +26,10 @@
 	import { wordPath } from '#lib/search/slug.ts';
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
+	import ListPicker from '#lib/ListPicker.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { SUMMARY_MAX } from '#lib/saved.ts';
+	import { MAX_LIST_NAME, SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import type { WordCard, WordSummary } from '#lib/search/word.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -62,27 +68,86 @@
 
 	const formats: ExportFormat[] = ['anki', 'csv', 'json'];
 
+	// The list in view, by its id; null shows every saved word. It is the
+	// page's address (/saved?list=…), so the "Saved to Їжа" message can link
+	// to a list and Back returns to the one before. Looked up each time, so a
+	// list deleted in another tab falls back to all the words.
+	let filter = $derived(page.url.searchParams.get('list'));
+	let current = $derived(saved.lists.find((list) => list.id === filter) ?? null);
+	// The words on the page: everything below (ticks, the export) works on these.
+	let shown = $derived.by(() => {
+		if (!current) return saved.items;
+		const inList = new Set(current.words);
+		return saved.items.filter((item) => inList.has(item.word));
+	});
+
 	// Which words an export takes: all of them, the ticked ones, or the ones
 	// this browser has not exported before (saved.svelte.ts remembers those).
 	type Scope = 'all' | 'selected' | 'fresh';
 	const scopes: Scope[] = ['all', 'selected', 'fresh'];
 	let scope = $state<Scope>('all');
 	const ticked = new SvelteSet<string>();
-	// From the list, so a word removed while ticked is not counted
-	let selected = $derived(saved.items.filter((item) => ticked.has(item.word)));
-	let fresh = $derived(saved.items.filter((item) => saved.exportedAt(item.word) === undefined));
-	const inScope = (s: Scope) => (s === 'selected' ? selected : s === 'fresh' ? fresh : saved.items);
+	// From the words shown, so a word removed while ticked is not counted
+	let selected = $derived(shown.filter((item) => ticked.has(item.word)));
+	let fresh = $derived(shown.filter((item) => saved.exportedAt(item.word) === undefined));
+	const inScope = (s: Scope) => (s === 'selected' ? selected : s === 'fresh' ? fresh : shown);
 
 	// The likeliest wish each time the menu opens: the ticked words if there
 	// are any, else what is new since the last export, else everything.
 	function onMenuOpen(open: boolean) {
 		if (!open) return;
-		scope = selected.length ? 'selected' : fresh.length && fresh.length < saved.items.length ? 'fresh' : 'all';
+		scope = selected.length ? 'selected' : fresh.length && fresh.length < shown.length ? 'fresh' : 'all';
 	}
 
 	function tickAll(all: boolean) {
-		if (all) for (const item of saved.items) ticked.add(item.word);
+		if (all) for (const item of shown) ticked.add(item.word);
 		else ticked.clear();
+	}
+
+	let renaming = $state(false);
+	let newName = $state('');
+	let nameTaken = $state(false);
+
+	function view(id: string | null) {
+		void goto(id === null ? '/saved' : listPath(id), { reset: false });
+	}
+
+	// Whichever way the list in view changes (a chip, a link, Back): a tick on
+	// a word that is no longer on the page would be exported unseen.
+	$effect(() => {
+		void filter;
+		untrack(() => {
+			ticked.clear();
+			renaming = false;
+		});
+	});
+
+	function startRenaming() {
+		newName = current?.name ?? '';
+		nameTaken = false;
+		renaming = true;
+	}
+
+	function rename(event: SubmitEvent) {
+		event.preventDefault();
+		if (!current) return;
+		const result = saved.renameList(current.id, newName);
+		nameTaken = result === 'taken';
+		if (result === 'ok') renaming = false;
+	}
+
+	// At once, with Undo in the message, as removing a word is: the words stay saved either way.
+	function deleteCurrent() {
+		const gone = current && saved.deleteList(current.id);
+		if (!gone) return;
+		view(null);
+		toaster.addToast({ data: { title: m.lists.deleted(gone.name), undo: () => void saved.restoreList(gone) } });
+	}
+
+	// The rename box opens ready to be typed over
+	function focusAll(node: HTMLInputElement) {
+		node.focus();
+		node.select();
 	}
 
 	const dateFormat = $derived(
@@ -240,55 +305,103 @@
 			<a class="ui-btn" href="/">{m.nav.dictionary}</a>
 		</div>
 	{:else if saved.ready}
-		<label class="select-all">
-			<input
-				type="checkbox"
-				checked={selected.length === saved.items.length}
-				indeterminate={selected.length > 0 && selected.length < saved.items.length}
-				onchange={(event) => tickAll(event.currentTarget.checked)}
-			/>
-			{m.export.selectAll}
-			{#if selected.length}<span>· {m.export.selectedCount(selected.length)}</span>{/if}
-		</label>
-		<ul class="ui-card list">
-			{#each saved.items as item (item.word)}
-				{@const summary = summaries.get(item.word)}
-				{@const exportedAt = saved.exportedAt(item.word)}
-				<li>
+		{#if saved.lists.length}
+			<div class="lists" role="group" aria-label={m.lists.heading}>
+				<button type="button" class="ui-chip" aria-pressed={!current} onclick={() => view(null)}>
+					{m.lists.all} <span class="count">{saved.items.length}</span>
+				</button>
+				{#each saved.lists as list (list.id)}
+					<button type="button" class="ui-chip" aria-pressed={current?.id === list.id} onclick={() => view(list.id)}>
+						{list.name} <span class="count">{list.words.length}</span>
+					</button>
+				{/each}
+			</div>
+		{/if}
+		{#if current && renaming}
+			<form class="list-tools" onsubmit={rename}>
+				<input
+					class="ui-field"
+					type="text"
+					maxlength={MAX_LIST_NAME}
+					autocomplete="off"
+					aria-label={m.lists.name}
+					bind:value={newName}
+					oninput={() => (nameTaken = false)}
+					use:focusAll
+				/>
+				<button type="submit" class="ui-btn ui-btn-primary" disabled={!newName.trim()}>{m.lists.save}</button>
+				<button type="button" class="ui-btn" onclick={() => (renaming = false)}>{m.lists.cancel}</button>
+				{#if nameTaken}<p class="problem" role="alert">{m.lists.taken}</p>{/if}
+			</form>
+		{:else if current}
+			<div class="list-tools">
+				<button type="button" class="ui-btn" onclick={startRenaming}>{m.lists.rename}</button>
+				<button type="button" class="ui-btn" onclick={deleteCurrent}>{m.lists.delete}</button>
+			</div>
+		{/if}
+
+		{#if !shown.length}
+			<p class="no-words">{m.lists.empty}</p>
+		{:else}
+			<div class="toolbar">
+				<label class="select-all">
 					<input
 						type="checkbox"
-						aria-label={m.export.select(item.word)}
-						checked={ticked.has(item.word)}
-						onchange={(event) => (event.currentTarget.checked ? ticked.add(item.word) : ticked.delete(item.word))}
+						checked={selected.length === shown.length}
+						indeterminate={selected.length > 0 && selected.length < shown.length}
+						onchange={(event) => tickAll(event.currentTarget.checked)}
 					/>
-					<Headword text={summary?.headword ?? item.word} size="sm" href={wordPath(item.word)} />
-					<!-- As a dictionary runs an entry on: the word, what it is, what it means -->
-					<span class="glosses">
-						{#if summary}<Grammar pos={summary.pos} inline /> {summary.glosses.join('; ')}{/if}
-					</span>
-					<span class="end">
-						{#if exportedAt !== undefined}
-							<span class="exported" title={m.export.exportedOn(dateFormat.format(exportedAt))}>
-								<Icon name="check" size={16} />
-								<span class="ui-sr-only">{m.export.exported}</span>
-							</span>
-						{/if}
-						<SaveButton word={item.word} headword={summary?.headword ?? item.word} />
-					</span>
-				</li>
-			{/each}
-		</ul>
+					{m.export.selectAll}
+					{#if selected.length}<span>· {m.export.selectedCount(selected.length)}</span>{/if}
+				</label>
+				{#if selected.length}<ListPicker variant="button" words={selected.map((item) => item.word)} />{/if}
+			</div>
+			<ul class="ui-card list">
+				{#each shown as item (item.word)}
+					{@const summary = summaries.get(item.word)}
+					{@const exportedAt = saved.exportedAt(item.word)}
+					<li>
+						<input
+							type="checkbox"
+							aria-label={m.export.select(item.word)}
+							checked={ticked.has(item.word)}
+							onchange={(event) => (event.currentTarget.checked ? ticked.add(item.word) : ticked.delete(item.word))}
+						/>
+						<Headword text={summary?.headword ?? item.word} size="sm" href={wordPath(item.word)} />
+						<!-- As a dictionary runs an entry on: the word, what it is, what it means -->
+						<span class="glosses">
+							{#if summary}<Grammar pos={summary.pos} inline /> {summary.glosses.join('; ')}{/if}
+							<!-- Its lists, other than the one in view -->
+							{#each saved.listsOf(item.word) as list (list.id)}
+								{#if list.id !== current?.id}<span class="ui-badge">{list.name}</span>{/if}
+							{/each}
+						</span>
+						<span class="end">
+							{#if exportedAt !== undefined}
+								<span class="exported" title={m.export.exportedOn(dateFormat.format(exportedAt))}>
+									<Icon name="check" size={16} />
+									<span class="ui-sr-only">{m.export.exported}</span>
+								</span>
+							{/if}
+							<SaveButton word={item.word} headword={summary?.headword ?? item.word} />
+						</span>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 
 		<div class="actions">
 			<DropdownMenu.Root onOpenChange={onMenuOpen}>
-				<DropdownMenu.Trigger class="ui-btn" disabled={exporting}>
+				<DropdownMenu.Trigger class="ui-btn" disabled={exporting || !shown.length}>
 					<Icon name="download" size={16} />
 					{exporting ? m.export.working : m.export.button}
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Portal>
 					<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
 						<DropdownMenu.RadioGroup value={scope} onValueChange={(value) => (scope = value as Scope)}>
-							<DropdownMenu.GroupHeading class="ui-menu-heading">{m.export.which}</DropdownMenu.GroupHeading>
+							<DropdownMenu.GroupHeading class="ui-menu-heading">
+								{current ? m.lists.whichIn(current.name) : m.export.which}
+							</DropdownMenu.GroupHeading>
 							{#each scopes as s (s)}
 								<!-- Stays open: the choice of file comes next -->
 								<DropdownMenu.RadioItem
@@ -326,8 +439,12 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
-			<button type="button" class="ui-btn" disabled>{uk ? 'Тренувати ці слова' : 'Practise these words'}</button>
-			<span>{uk ? 'Незабаром' : 'Coming soon'}</span>
+			<!-- Not built yet: shown so that the way it will go is visible -->
+			<button type="button" class="ui-btn" disabled>
+				{m.review.planned.list} <span class="planned">{m.review.planned.note}</span>
+			</button>
+			<!-- From a list, the review is of that list alone -->
+			<a class="ui-btn" href={current ? `/review?list=${current.id}` : '/review'}>{m.review.practise}</a>
 		</div>
 		{#if notice}
 			<div class="anki-note" data-tone={notice.tone} role="status">
@@ -431,13 +548,77 @@
 		cursor: pointer;
 	}
 
+	/* One chip for every word and one per list; the one in view is filled */
+	.lists {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.lists .ui-chip {
+		gap: 0.4rem;
+		max-width: 100%;
+		overflow-wrap: anywhere;
+		text-align: start;
+	}
+
+	/* How many words: quieter than the name, in whichever colour the chip has */
+	.count {
+		font-weight: 500;
+		opacity: 0.75;
+	}
+
+	/* What can be done to the list in view, or the box that renames it */
+	.list-tools {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.9rem;
+	}
+
+	.list-tools .ui-field {
+		width: min(18rem, 100%);
+		padding-block: 0.4rem;
+	}
+
+	.problem {
+		flex-basis: 100%;
+		color: var(--stress);
+		font-size: var(--text-sm);
+	}
+
+	.no-words {
+		max-width: 30rem;
+		color: var(--on-page);
+	}
+
+	/* "Select all" and, once a word is ticked, the button that sorts the
+	   ticked words into lists. As tall as that button from the start, so the
+	   words do not jump when it appears. */
+	.toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.4rem 1rem;
+		min-height: 2.3rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.glosses .ui-badge {
+		margin-left: 0.3rem;
+		vertical-align: 0.1em;
+	}
+
 	/* Lined up with the boxes of the list under it */
 	.select-all {
 		display: flex;
 		align-items: center;
 		gap: 1rem;
 		width: fit-content;
-		margin: 0 0 0.5rem calc(1.1rem + 1px);
+		margin: 0 0 0 calc(1.1rem + 1px);
 		color: var(--on-page);
 		font-size: var(--text-sm);
 		cursor: pointer;
@@ -465,6 +646,10 @@
 
 	.glosses {
 		color: var(--ink-2);
+	}
+
+	.planned {
+		font-weight: 400;
 	}
 
 	.actions {

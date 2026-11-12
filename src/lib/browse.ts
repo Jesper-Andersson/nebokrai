@@ -120,19 +120,39 @@ export function commonPath(page = 1): string {
  */
 const NOT_WORDS = new Set(['name', 'character', 'symbol', 'punct', 'suffix', 'prefix', 'interfix', 'combining_form']);
 
-export async function commonWords(db: Db): Promise<CommonWord[]> {
+interface Spelling {
+	id: number;
+	word: string;
+	headword: string;
+	pos: string[];
+}
+
+/** The `count` commonest spellings, each with the id of its commonest entry. */
+async function commonSpellings(db: Db, count: number): Promise<Spelling[]> {
 	const entries = await db.all<{ id: number; word: string; headword: string; pos: string }>(
 		'SELECT id, word, headword, pos FROM entries WHERE freq_rank <= ? ORDER BY freq_rank',
-		[COMMON_WORDS * 1.5]);
-	const spellings = new Map<string, { id: number; word: string; headword: string; pos: string[] }>();
+		[count * 1.5]);
+	const spellings = new Map<string, Spelling>();
 	for (const { id, word, headword, pos } of entries) {
 		if (word !== word.toLowerCase() || NOT_WORDS.has(pos)) continue;
 		const had = spellings.get(word);
 		if (!had) {
-			if (spellings.size < COMMON_WORDS) spellings.set(word, { id, word, headword, pos: [pos] });
+			if (spellings.size < count) spellings.set(word, { id, word, headword, pos: [pos] });
 		} else if (!had.pos.includes(pos)) had.pos.push(pos);
 	}
-	const list = [...spellings.values()];
+	return [...spellings.values()];
+}
+
+/**
+ * The spellings in places `from` to `to` of that list, counting from 1: what a
+ * review deck of common words holds (src/lib/review/decks.ts).
+ */
+export async function commonRange(db: Db, from: number, to: number): Promise<string[]> {
+	return (await commonSpellings(db, to)).slice(from - 1).map((spelling) => spelling.word);
+}
+
+export async function commonWords(db: Db): Promise<CommonWord[]> {
+	const list = await commonSpellings(db, COMMON_WORDS);
 	// One parameter however many ids: D1 allows a query a hundred of them
 	const glosses = await db.all<{ entry_id: number; gloss: string }>(
 		'SELECT entry_id, gloss FROM senses WHERE n = 1 AND entry_id IN (SELECT value FROM json_each(?))',

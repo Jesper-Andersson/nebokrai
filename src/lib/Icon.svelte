@@ -9,10 +9,17 @@
 		keyboard:
 			'<rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M8 16h8"/>',
 		x: '<path d="M6 6l12 12M18 6 6 18"/>',
+		// A question mark in a ring: how something works
+		help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.4M12 17h.01"/>',
+		// Two cards, one behind the other: the flashcards
+		cards: '<rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/>',
+		'arrow-right': '<path d="M5 12h14M13 6l6 6-6 6"/>',
 		// Put away, not closed for good: the radio's panel
 		minus: '<path d="M6 12h12"/>',
 		speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
 		bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+		// Three lines with a dot before each: the lists saved words are sorted into
+		list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
 		'chevron-right': '<path d="m9 6 6 6-6 6"/>',
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 		download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',

@@ -14,6 +14,7 @@
 	import RadioPlayer from '#lib/RadioPlayer.svelte';
 	import { provideQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { provideReview } from '#lib/review.svelte.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
 	import { provideSettings } from '#lib/settings.ts';
 	import Toasts from '#lib/Toasts.svelte';
@@ -36,6 +37,9 @@
 	// with the account when signed in (see saved.svelte.ts).
 	// svelte-ignore state_referenced_locally
 	const saved = provideSaved(data.user?.id ?? null);
+	// Flashcard reviews: loaded by the pages that show them, not here.
+	// svelte-ignore state_referenced_locally
+	provideReview(data.user?.id ?? null);
 	onMount(() => void saved.load());
 
 	// The radio's sound belongs to the frame, not to a page, so it plays on

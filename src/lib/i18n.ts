@@ -51,6 +51,8 @@ const en = {
 	/** The short messages in the corner of the page. */
 	toast: {
 		saved: 'Saved',
+		/** Saved straight into the default lists, whose names follow as links: "Saved to Food, Lesson 3". */
+		savedTo: 'Saved to',
 		removed: 'Removed from saved',
 		copied: 'Link copied',
 		notCopied: 'Could not copy the link',
@@ -136,6 +138,31 @@ const en = {
 		select: (word: string) => `Select ${word}`,
 		selectAll: 'Select all',
 		selectedCount: (n: number) => `${n} selected`
+	},
+	/** The lists saved words are sorted into (ListPicker.svelte and the Saved page). */
+	lists: {
+		heading: 'Lists',
+		all: 'All',
+		choose: 'Add to a list',
+		none: 'No lists yet. Name the first one.',
+		newName: 'New list',
+		create: 'Create',
+		name: 'Name',
+		rename: 'Rename',
+		save: 'Save',
+		cancel: 'Cancel',
+		delete: 'Delete list',
+		deleted: (name: string) => `List “${name}” deleted`,
+		empty: 'No words in this list yet. To add one, press the list button beside a saved word.',
+		taken: 'There is already a list with this name.',
+		full: (max: number) => `You can have up to ${max} lists.`,
+		whichIn: (name: string) => `Which words from “${name}”`,
+		/** Under the lists when the bookmark asks where a word goes: stop it asking. */
+		makeDefault: 'Use as default',
+		makeDefaultHint: 'The next words you save will go to the lists chosen above, without this prompt.',
+		defaultIs: (names: string) =>
+			names ? `New words are saved to ${names} without asking.` : 'New words are saved to no list, without asking.',
+		askAgain: 'Ask each time'
 	},
 	settings: {
 		open: 'Settings',
@@ -394,7 +421,145 @@ const en = {
 		/** Tags that are no term of their own, keyed as stored. English shows them as they are. */
 		tags: {} as Record<string, string>
 	},
-	pageTitle: { resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained' },
+	review: {
+		open: 'Flashcards',
+		help: {
+			open: 'How the flashcards work',
+			close: 'Close',
+			title: 'How the flashcards work',
+			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it.',
+			sections: [
+				{
+					heading: 'Again and Good',
+					body: [
+						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
+						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
+					]
+				},
+				{
+					heading: 'When a card comes back',
+					body: [
+						'The site uses FSRS (Free Spaced Repetition Scheduler), the same method Anki offers. For each word it keeps two numbers: how long you are likely to remember it, and how hard it is for you. Each answer updates both.',
+						'A card is shown again on the day your chance of remembering it is expected to fall to 90%. A word you know well can wait weeks or months; a hard one comes back sooner.',
+						'A new word is first seen twice within minutes, after one and then ten minutes, before its gaps are counted in days.'
+					]
+				},
+				{
+					heading: 'A day of review',
+					body: [
+						'A day starts at four in the morning, so a review just after midnight counts towards the evening before.',
+						'New cards a day limits only words you have not seen yet. Every card that is due is shown, however many there are.'
+					]
+				},
+				{
+					heading: 'Decks',
+					body: [
+						'Saved words takes every word you saved, lists included. A list can also be switched on by itself. The common-word decks hold the most frequent Ukrainian words, in order of frequency.'
+					]
+				},
+				{
+					heading: 'The streak',
+					body: [
+						'The flame shows how many days in a row you have reviewed at least one card. It is lit once you have reviewed today; a day without reviews ends the streak only when the day is over.'
+					]
+				},
+				{
+					heading: 'Where your reviews are kept',
+					body: [
+						'In this browser. Signed in, they are also kept in your account and are the same on every device.',
+						'The schedule uses the standard FSRS settings, not ones fitted to your own answers.'
+					]
+				}
+			],
+			more: 'How FSRS works in detail:',
+			moreLink: 'the algorithm, by the Open Spaced Repetition project'
+		},
+		openDue: (n: number) => `Flashcards: ${n} to review`,
+		/** Not built yet: shown greyed out, so the way it will go is visible. */
+		planned: { note: '(planned)', deck: 'Import a deck', list: 'Import into a list' },
+		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
+		streakWaits: 'Review a card today to keep it',
+		practise: 'Practise these words',
+		practiseCommon: 'Practise these words with flashcards',
+		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
+		learning: 'Learning',
+		due: 'To review',
+		fresh: 'New',
+		start: 'Start',
+		nothingToday: 'Nothing left to review today.',
+		noWords: 'Save some words, or switch on a deck of common words, to begin.',
+		decks: 'Decks',
+		deck: {
+			saved: 'Saved words',
+			'common-500': 'Common words 1–500',
+			'common-1000': 'Common words 501–1,000',
+			'common-2000': 'Common words 1,001–2,000'
+		} as Record<string, string>,
+		progress: (started: number, total: number) => `${started} of ${total} started`,
+		inSaved: 'Included in Saved words',
+		onlyList: (name: string) => `Only the list “${name}”.`,
+		allDecks: 'Practise all your decks',
+		newPerDay: 'New cards a day',
+		kept: 'Your reviews are kept in this browser. Sign in on the Saved page to have them on every device.',
+		keptAccount: 'Your reviews are kept in your account.',
+		show: 'Show answer',
+		again: 'Again',
+		good: 'Good',
+		keys: {
+			action: {
+				show: 'Show answer, then Good',
+				again: 'Again',
+				good: 'Good',
+				replay: 'Play recording',
+				undo: 'Undo'
+			},
+			hint: 'Click a key to change it.',
+			press: 'Press the new key, or Esc to keep the old one.',
+			reset: 'Back to the usual keys',
+			change: (action: string, key: string) => `${action}: ${key}. Change the key`
+		},
+		swipe: 'Tap the card for the answer, then swipe it left for Again or right for Good.',
+		heatmap: {
+			streak: 'Current streak',
+			longest: 'Longest streak',
+			average: 'Daily average',
+			learned: 'Days learned',
+			days: (n: number) => (n === 1 ? '1 day' : `${n} days`),
+			cards: (n: number) => (n === 1 ? '1 card' : `${n} cards`),
+			reviewed: (n: number, when: string) => (n === 1 ? `1 review on ${when}` : `${n} reviews on ${when}`),
+			none: (when: string) => `No reviews on ${when}`,
+			due: (n: number, when: string) => (n === 1 ? `1 card due on ${when}` : `${n} cards due on ${when}`),
+			noneDue: (when: string) => `Nothing due on ${when}`,
+			less: 'Less',
+			more: 'More',
+			dueLegend: 'Due',
+			label: (total: number, days: number) =>
+				`Reviews by day over the past eight months, and cards due in the next two: ${total} reviews on ${days} days.`
+		},
+		undo: 'Undo',
+		undone: 'Answer taken back',
+		openWord: 'Open in the dictionary',
+		left: (n: number) => `${n} left`,
+		end: 'Stop',
+		loading: 'Loading the cards…',
+		loadFailed: 'The cards could not be loaded. Check your connection and try again.',
+		retry: 'Try again',
+		done: 'Done for now',
+		reviewed: (n: number) => (n === 1 ? '1 card reviewed.' : `${n} cards reviewed.`),
+		next: (when: string) => `The next card is due in ${when}.`,
+		backToDecks: 'Back to the decks',
+		span: {
+			min: (n: number) => `${n} min`,
+			h: (n: number) => `${n} h`,
+			d: (n: number) => `${n} d`,
+			mo: (n: number) => `${n} mo`,
+			y: (n: number) => `${n} y`
+		}
+	},
+	pageTitle: {
+		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained',
+		review: 'Flashcards'
+	},
 	/**
 	 * What search results and link previews show for each page: its title and
 	 * a description of about 150 characters (PageMeta.svelte, seo.ts). Search
@@ -414,6 +579,7 @@ const en = {
 			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
 		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		saved: 'The words you saved, kept in this browser or in your account.',
+		review: 'Flashcards for your saved words and the commonest Ukrainian words, scheduled so that each word comes back shortly before you would forget it.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
 		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
@@ -540,6 +706,7 @@ const uk: Messages = {
 	},
 	toast: {
 		saved: 'Збережено',
+		savedTo: 'Збережено до:',
 		removed: 'Прибрано зі збереженого',
 		copied: 'Посилання скопійовано',
 		notCopied: 'Не вдалося скопіювати посилання',
@@ -624,6 +791,29 @@ const uk: Messages = {
 		selectAll: 'Вибрати всі',
 		// "Вибрано: 5" needs no plural form of its own
 		selectedCount: (n: number) => `Вибрано: ${n}`
+	},
+	lists: {
+		heading: 'Списки',
+		all: 'Усі',
+		choose: 'Додати до списку',
+		none: 'Списків ще немає. Назвіть перший.',
+		newName: 'Новий список',
+		create: 'Створити',
+		name: 'Назва',
+		rename: 'Перейменувати',
+		save: 'Зберегти',
+		cancel: 'Скасувати',
+		delete: 'Видалити список',
+		deleted: (name: string) => `Список «${name}» видалено`,
+		empty: 'У цьому списку ще немає слів. Щоб додати слово, натисніть кнопку списків біля збереженого слова.',
+		taken: 'Список із такою назвою вже є.',
+		full: (max: number) => `Можна мати до ${max} списків.`,
+		whichIn: (name: string) => `Які слова зі списку «${name}»`,
+		makeDefault: 'Зробити типовим',
+		makeDefaultHint: 'Наступні збережені слова потраплятимуть до вибраних вище списків без цього запиту.',
+		defaultIs: (names: string) =>
+			names ? `Нові слова зберігаються до: ${names}, без запиту.` : 'Нові слова зберігаються без списку, без запиту.',
+		askAgain: 'Питати щоразу'
 	},
 	settings: {
 		open: 'Налаштування',
@@ -883,7 +1073,144 @@ const uk: Messages = {
 			active: 'активний стан', passive: 'пасивний стан'
 		}
 	},
-	pageTitle: { resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Граматичні терміни' },
+	review: {
+		open: 'Картки',
+		help: {
+			open: 'Як працюють картки',
+			close: 'Закрити',
+			title: 'Як працюють картки',
+			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його.',
+			sections: [
+				{
+					heading: '«Ще раз» і «Добре»',
+					body: [
+						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
+						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
+					]
+				},
+				{
+					heading: 'Коли картка повертається',
+					body: [
+						'Сайт використовує FSRS (Free Spaced Repetition Scheduler), той самий метод, що пропонує Anki. Для кожного слова він зберігає два числа: як довго ви, найімовірніше, його пам’ятатимете і наскільки воно для вас складне. Кожна відповідь змінює обидва.',
+						'Картка з’являється знову того дня, коли ймовірність, що ви її згадаєте, має знизитися до 90%. Добре відоме слово може чекати тижні чи місяці, складне повертається раніше.',
+						'Нове слово спершу показується двічі за кілька хвилин, через одну, а потім через десять хвилин, і лише після того проміжки рахуються днями.'
+					]
+				},
+				{
+					heading: 'День повторень',
+					body: [
+						'День починається о четвертій ранку, тож повторення одразу після півночі зараховується до попереднього вечора.',
+						'«Нових карток на день» обмежує лише слова, яких ви ще не бачили. Усі картки, яким настав час, показуються, скільки б їх не було.'
+					]
+				},
+				{
+					heading: 'Колоди',
+					body: [
+						'«Збережені слова» охоплюють усі збережені слова разом зі списками. Список можна ввімкнути й окремо. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти.'
+					]
+				},
+				{
+					heading: 'Серія',
+					body: [
+						'Вогник показує, скільки днів поспіль ви повторили хоча б одну картку. Він горить, коли ви вже повторювали сьогодні; день без повторень обриває серію лише тоді, коли закінчиться.'
+					]
+				},
+				{
+					heading: 'Де зберігаються ваші повторення',
+					body: [
+						'У цьому браузері. Якщо ви ввійшли, вони зберігаються й у вашому обліковому записі та однакові на всіх пристроях.',
+						'Розклад використовує стандартні налаштування FSRS, а не підібрані під ваші власні відповіді.'
+					]
+				}
+			],
+			more: 'Докладніше про FSRS:',
+			moreLink: 'алгоритм від проєкту Open Spaced Repetition (англійською)'
+		},
+		planned: { note: '(заплановано)', deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
+		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
+		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
+		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',
+		practise: 'Тренувати ці слова',
+		practiseCommon: 'Тренувати ці слова на картках',
+		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
+		learning: 'Вивчаються',
+		due: 'Повторити',
+		fresh: 'Нові',
+		start: 'Почати',
+		nothingToday: 'На сьогодні повторювати більше нічого.',
+		noWords: 'Щоб почати, збережіть кілька слів або ввімкніть колоду найуживаніших слів.',
+		decks: 'Колоди',
+		deck: {
+			saved: 'Збережені слова',
+			'common-500': 'Найуживаніші слова 1–500',
+			'common-1000': 'Найуживаніші слова 501–1000',
+			'common-2000': 'Найуживаніші слова 1001–2000'
+		},
+		progress: (started, total) => `розпочато ${started} з ${total}`,
+		inSaved: 'Входить до збережених слів',
+		onlyList: (name) => `Лише список «${name}».`,
+		allDecks: 'Тренувати всі колоди',
+		newPerDay: 'Нових карток на день',
+		kept: 'Ваші повторення зберігаються в цьому браузері. Увійдіть на сторінці «Збережене», щоб мати їх на кожному пристрої.',
+		keptAccount: 'Ваші повторення зберігаються у вашому обліковому записі.',
+		show: 'Показати відповідь',
+		again: 'Ще раз',
+		good: 'Добре',
+		keys: {
+			action: {
+				show: 'Показати відповідь, далі «Добре»',
+				again: 'Ще раз',
+				good: 'Добре',
+				replay: 'Відтворити запис',
+				undo: 'Скасувати'
+			},
+			hint: 'Клацніть клавішу, щоб змінити її.',
+			press: 'Натисніть нову клавішу або Esc, щоб залишити стару.',
+			reset: 'Повернути звичні клавіші',
+			change: (action, key) => `${action}: ${key}. Змінити клавішу`
+		},
+		swipe: 'Торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).',
+		heatmap: {
+			streak: 'Поточна серія',
+			longest: 'Найдовша серія',
+			average: 'У середньому за день',
+			learned: 'Днів із заняттями',
+			days: (n) => counted(n, 'день', 'дні', 'днів'),
+			cards: (n) => (Number.isInteger(n) ? counted(n, 'картка', 'картки', 'карток') : `${n} картки`),
+			reviewed: (n, when) => `${counted(n, 'повторення', 'повторення', 'повторень')}: ${when}`,
+			none: (when) => `Без повторень: ${when}`,
+			due: (n, when) => `${counted(n, 'картка', 'картки', 'карток')} на повторення: ${when}`,
+			noneDue: (when) => `Нічого на повторення: ${when}`,
+			less: 'Менше',
+			more: 'Більше',
+			dueLegend: 'Заплановано',
+			label: (total, days) =>
+				`Повторення за днями за останні вісім місяців і картки на наступні два: повторень ${total}, днів ${days}.`
+		},
+		undo: 'Скасувати',
+		undone: 'Відповідь скасовано',
+		openWord: 'Відкрити у словнику',
+		left: (n) => `залишилося ${n}`,
+		end: 'Зупинити',
+		loading: 'Завантаження карток…',
+		loadFailed: 'Не вдалося завантажити картки. Перевірте з’єднання і спробуйте ще раз.',
+		retry: 'Спробувати ще раз',
+		done: 'На зараз усе',
+		reviewed: (n) => `Повторено ${counted(n, 'картку', 'картки', 'карток')}.`,
+		next: (when) => `Наступна картка через ${when}.`,
+		backToDecks: 'Назад до колод',
+		span: {
+			min: (n) => `${n} хв`,
+			h: (n) => `${n} год`,
+			d: (n) => `${n} дн`,
+			mo: (n) => `${n} міс`,
+			y: (n) => `${n} р`
+		}
+	},
+	pageTitle: {
+		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Граматичні терміни',
+		review: 'Картки'
+	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
@@ -897,6 +1224,7 @@ const uk: Messages = {
 			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
 		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		review: 'Картки для збережених і найуживаніших українських слів: кожне слово повертається незадовго до того, як ви його забули б.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>

@@ -36,7 +36,7 @@
 	metaTitle={data.page > 1 ? `${m.browse.commonTitle}: ${range(data.page)}` : m.browse.commonTitle}
 	description={m.meta.commonWords}
 >
-	<p class="lead">{m.browse.commonLead}</p>
+	<p class="lead">{m.browse.commonLead} <a href="/review">{m.review.practiseCommon}</a>.</p>
 	{@render pager()}
 
 	<ol class="words" start={data.first}>

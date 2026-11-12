@@ -17,7 +17,12 @@
 	{#each toaster.toasts as toast (toast.id)}
 		<div {...toast.content} class="toast">
 			<p>
-				<span {...toast.title}>{toast.data.title}</span>
+				<span {...toast.title}>
+					{toast.data.title}
+					{#each toast.data.lists ?? [] as list, i (list.href)}
+						{#if i}{', '}{/if}<a href={list.href} onclick={() => toast.removeSelf()}>{list.name}</a>
+					{/each}
+				</span>
 				{#if toast.data.headword}
 					<span {...toast.description}><Headword text={toast.data.headword} size="sm" tag="b" /></span>
 				{/if}
@@ -88,6 +93,13 @@
 		gap: 0 0.45rem;
 		min-width: 0;
 		margin: 0;
+	}
+
+	/* A list the word went into: opens it on the Saved page */
+	a {
+		color: var(--accent);
+		font-weight: 700;
+		overflow-wrap: anywhere;
 	}
 
 	.undo {

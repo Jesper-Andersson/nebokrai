@@ -1,7 +1,10 @@
 # Everything may be crawled except what is not a page to read: the API, the
 # report form (it takes parameters, so it has endless addresses) and the
 # sign-in addresses. src/hooks.server.ts also marks these and /saved "noindex".
+# A search (/?q=kava) is not a page either: every query is an address, and
+# each one fetched is a search of the database.
 User-agent: *
+Disallow: /?q=
 Disallow: /api/
 Disallow: /report
 Disallow: /login/

@@ -24,6 +24,23 @@ jobs:
         with:
           # Don't leave the token in .git/config for later steps to read
           persist-credentials: false
+          # The secret scan below reads every commit, not only the newest
+          fetch-depth: 0
+
+      # A key or token committed by mistake stays in the history for good, so
+      # the whole history is scanned on every run. The download is checked
+      # against the release's published SHA-256 before it runs. Dependabot
+      # does not see this pin: raise the version and the checksum together.
+      - name: Secret scan
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tar.gz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --verbose .
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:

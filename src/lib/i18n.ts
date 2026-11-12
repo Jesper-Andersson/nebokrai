@@ -475,6 +475,8 @@ const en = {
 			moreLink: 'the algorithm, by the Open Spaced Repetition project'
 		},
 		openDue: (n: number) => `Flashcards: ${n} to review`,
+		/** Not built yet: shown greyed out, so the way it will go is visible. */
+		planned: { note: '(planned)', deck: 'Import a deck', list: 'Import into a list' },
 		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
 		streakWaits: 'Review a card today to keep it',
 		practise: 'Practise these words',
@@ -1124,6 +1126,7 @@ const uk: Messages = {
 			more: 'Докладніше про FSRS:',
 			moreLink: 'алгоритм від проєкту Open Spaced Repetition (англійською)'
 		},
+		planned: { note: '(заплановано)', deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
 		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
 		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',

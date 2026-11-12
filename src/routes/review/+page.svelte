@@ -439,6 +439,10 @@
 					</li>
 				{/each}
 			</ul>
+			<!-- Not built yet: shown so that the way it will go is visible -->
+			<button type="button" class="ui-btn planned" disabled>
+				{m.review.planned.deck} <span>{m.review.planned.note}</span>
+			</button>
 
 			<h2 class="ui-label" id="new-per-day">{m.review.newPerDay}</h2>
 			<RadioGroup.Root
@@ -651,6 +655,14 @@
 	.options li :global(.ui-switch) {
 		grid-row: 1 / span 2;
 		grid-column: 2;
+	}
+
+	.planned {
+		justify-self: start;
+	}
+
+	.planned span {
+		font-weight: 400;
 	}
 
 	.options :global(.ui-segmented) {

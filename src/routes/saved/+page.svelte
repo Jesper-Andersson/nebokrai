@@ -439,6 +439,10 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
+			<!-- Not built yet: shown so that the way it will go is visible -->
+			<button type="button" class="ui-btn" disabled>
+				{m.review.planned.list} <span class="planned">{m.review.planned.note}</span>
+			</button>
 			<!-- From a list, the review is of that list alone -->
 			<a class="ui-btn" href={current ? `/review?list=${current.id}` : '/review'}>{m.review.practise}</a>
 		</div>
@@ -642,6 +646,10 @@
 
 	.glosses {
 		color: var(--ink-2);
+	}
+
+	.planned {
+		font-weight: 400;
 	}
 
 	.actions {

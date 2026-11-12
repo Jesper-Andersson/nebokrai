@@ -69,28 +69,6 @@ export const RESOURCES: Resource[] = [
 		checked: '2026-11-12'
 	},
 	{
-		name: 'Introduction to Ukrainian language and culture',
-		url: 'https://www.open.edu/openlearn/languages/introduction-ukrainian-language-and-culture/content-section-overview',
-		en: 'A free 25-hour short course from the Open University.',
-		uk: 'Безкоштовний короткий курс Відкритого університету на 25 годин.',
-		kind: 'course',
-		levels: ['beginner'],
-		cost: 'free',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'Duolingo',
-		url: 'https://www.duolingo.com/course/uk/en/Learn-Ukrainian',
-		en: 'A game-like app course in short daily lessons.',
-		uk: 'Курс у застосунку у формі гри, короткими щоденними уроками.',
-		kind: 'course',
-		levels: ['beginner'],
-		cost: 'freemium',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
-	{
 		name: 'Speak Ukrainian',
 		url: 'https://speakua.com/',
 		en: 'An online school with free video lessons, a level test and a mini course; full courses are paid.',
@@ -98,17 +76,6 @@ export const RESOURCES: Resource[] = [
 		kind: 'course',
 		levels: ['beginner', 'intermediate'],
 		cost: 'freemium',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'Pimsleur',
-		url: 'https://www.pimsleur.com/learn-ukrainian/',
-		en: 'An audio course for speaking and listening; one lesson is free.',
-		uk: 'Аудіокурс для розмовної мови й слухання; один урок безкоштовний.',
-		kind: 'course',
-		levels: ['beginner'],
-		cost: 'paid',
 		explainedIn: 'en',
 		checked: '2026-11-12'
 	},
@@ -160,28 +127,6 @@ export const RESOURCES: Resource[] = [
 		explainedIn: 'uk',
 		checked: '2026-11-12'
 	},
-	{
-		name: 'Радіо Свобода',
-		url: 'https://www.radiosvoboda.org/',
-		en: 'News and reporting in Ukrainian from Radio Free Europe/Radio Liberty.',
-		uk: 'Новини й репортажі українською від Радіо Вільна Європа / Радіо Свобода.',
-		kind: 'reading',
-		levels: UPPER,
-		cost: 'free',
-		explainedIn: 'uk',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'Takflix',
-		url: 'https://takflix.com/en',
-		en: 'A legal online cinema for Ukrainian films, with an English interface.',
-		uk: 'Легальний онлайн-кінотеатр українського кіно з англомовним інтерфейсом.',
-		kind: 'reading',
-		levels: UPPER,
-		cost: 'paid',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
 
 	// Dictionaries and reference
 	{
@@ -202,39 +147,6 @@ export const RESOURCES: Resource[] = [
 		uk: 'Тлумачення, синоніми, наголоси й словозміна українською.',
 		kind: 'dictionary',
 		levels: UPPER,
-		cost: 'free',
-		explainedIn: 'uk',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'e2u.org.ua',
-		url: 'https://e2u.org.ua/',
-		en: 'Nineteen English–Ukrainian general and terminology dictionaries behind one search.',
-		uk: 'Дев’ятнадцять англійсько-українських загальних і термінологічних словників з одним пошуком.',
-		kind: 'dictionary',
-		levels: UPPER,
-		cost: 'free',
-		explainedIn: 'uk',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'Словник української мови у 20 томах',
-		url: 'https://sum20ua.com/',
-		en: 'The new 20-volume academic dictionary of Ukrainian; volumes 1 to 16 are online.',
-		uk: 'Новий академічний словник української мови у 20 томах; онлайн доступні томи 1–16.',
-		kind: 'dictionary',
-		levels: ['advanced'],
-		cost: 'free',
-		explainedIn: 'uk',
-		checked: '2026-11-12'
-	},
-	{
-		name: 'Український правопис',
-		url: 'https://mova.gov.ua/diyalnist-i-proyekti/termini/pravopys-ukrainskoi-movy',
-		en: 'The official spelling and punctuation rules, published by the state language commission.',
-		uk: 'Офіційні правила правопису й пунктуації від Національної комісії зі стандартів державної мови.',
-		kind: 'dictionary',
-		levels: ['advanced'],
 		cost: 'free',
 		explainedIn: 'uk',
 		checked: '2026-11-12'
@@ -264,17 +176,6 @@ export const RESOURCES: Resource[] = [
 		checked: '2026-11-12'
 	},
 	{
-		name: 'Forvo',
-		url: 'https://forvo.com/languages/uk/',
-		en: 'Pronunciations recorded by native speakers.',
-		uk: 'Вимова, записана носіями мови.',
-		kind: 'tool',
-		levels: ALL,
-		cost: 'free',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
-	{
 		name: 'Anki',
 		url: 'https://apps.ankiweb.net/',
 		en: 'Spaced-repetition flashcards, free except on iPhone. Your saved words here can be exported to it.',
@@ -292,6 +193,28 @@ export const RESOURCES: Resource[] = [
 		uk: 'Тисячі речень із пропусками, щоб учити слова в контексті.',
 		kind: 'tool',
 		levels: ALL,
+		cost: 'freemium',
+		explainedIn: 'en',
+		checked: '2026-11-12'
+	},
+	{
+		name: 'Readlang',
+		url: 'https://readlang.com/',
+		en: 'A reader for web pages and texts: click a word to translate it, then review it as a flashcard.',
+		uk: 'Читання вебсторінок і текстів: клацніть слово, щоб перекласти, а потім повторюйте його на картках.',
+		kind: 'tool',
+		levels: ALL,
+		cost: 'freemium',
+		explainedIn: 'en',
+		checked: '2026-11-12'
+	},
+	{
+		name: 'Language Reactor',
+		url: 'https://www.languagereactor.com/',
+		en: 'A browser extension that adds dual subtitles and a pop-up dictionary to Netflix and YouTube.',
+		uk: 'Розширення для браузера, що додає подвійні субтитри й спливний словник до Netflix і YouTube.',
+		kind: 'tool',
+		levels: UPPER,
 		cost: 'freemium',
 		explainedIn: 'en',
 		checked: '2026-11-12'
@@ -341,19 +264,6 @@ export const RESOURCES: Resource[] = [
 		kind: 'community',
 		levels: ALL,
 		cost: 'free',
-		explainedIn: 'en',
-		checked: '2026-11-12'
-	},
-
-	// Books
-	{
-		name: 'Ukrainian: A Comprehensive Grammar',
-		url: 'https://www.routledge.com/Ukrainian-A-Comprehensive-Grammar/Press-Pugh/p/book/9780415150309',
-		en: 'A reference grammar by Ian Press and Stefan Pugh (Routledge, 1999); older than the 2019 spelling.',
-		uk: 'Довідкова граматика (Ian Press, Stefan Pugh; Routledge, 1999); старша за правопис 2019 року.',
-		kind: 'book',
-		levels: UPPER,
-		cost: 'paid',
 		explainedIn: 'en',
 		checked: '2026-11-12'
 	}

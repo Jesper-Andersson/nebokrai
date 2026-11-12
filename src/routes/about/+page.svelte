@@ -12,6 +12,9 @@
 	let m = $derived(messagesFor(settings.lang));
 
 	const EMAIL = 'contact@nebokrai.app';
+	// A search's address, less the word: what a browser or a reading tool is
+	// given to look words up here (static/opensearch.xml names the same one).
+	const SEARCH = 'https://nebokrai.app/?q=';
 	// Voluntary help with the hosting bill. It must never buy anything on the
 	// site: the VESUM data keeps Nebokrai non-commercial.
 	const KOFI = 'https://ko-fi.com/jesperandersson0';
@@ -34,6 +37,31 @@
 			<li>Знаходити слово за будь-якою його формою: <i lang="uk">книги</i> веде до <i lang="uk">книга</i>.</li>
 			<li>Бачити наголос, відмінювання й дієвідмінювання та приклади речень.</li>
 			<li>Дізнатися, наскільки вживане слово.</li>
+		</ul>
+
+		<h2>Nebokrai в інших програмах</h2>
+		<ul>
+			<li>
+				<b>Адресний рядок браузера.</b> Після відвідин сайту браузер може шукати в Nebokrai просто з
+				адресного рядка. У Firefox клацніть правою кнопкою на адресному рядку й виберіть «Додати
+				"Nebokrai"». У Chrome та Edge увімкніть Nebokrai в налаштуваннях пошукових систем, серед
+				пошуку на сайтах.
+			</li>
+			<li>
+				<b>Посилання на пошук.</b> Кожен пошук має адресу, якою можна поділитися або яку можна
+				зберегти в закладках: <code>{SEARCH}kava</code>.
+			</li>
+			<li>
+				<b>Інструменти для читання.</b> Якщо інструмент дозволяє додати власний словник, вкажіть ту
+				саму адресу з його позначкою на місці слова: у Readlang це
+				<code>{SEARCH}{'{{query}}'}</code>, у Language Reactor — <code>{SEARCH}WORD</code>. Nebokrai
+				не відкривається всередині інших сайтів, тож у Readlang скористайтеся кнопкою «Open in new
+				window».
+			</li>
+			<li>
+				<b>Anki.</b> Збережені слова можна експортувати як файл для Anki на сторінці
+				<a href="/saved">Збережені слова</a>.
+			</li>
 		</ul>
 
 		<h2>Звідки слова</h2>
@@ -85,6 +113,30 @@
 			<li>See how common a word is.</li>
 		</ul>
 
+		<h2>Using Nebokrai from elsewhere</h2>
+		<ul>
+			<li>
+				<b>Your browser’s address bar.</b> Once you have visited the site, your browser can search
+				Nebokrai straight from its address bar. In Firefox, right-click the address bar and choose
+				Add “Nebokrai”. In Chrome and Edge, turn Nebokrai on in the search engine settings, under
+				site search.
+			</li>
+			<li>
+				<b>A link to a search.</b> Every search has an address you can share or bookmark:
+				<code>{SEARCH}kava</code>.
+			</li>
+			<li>
+				<b>Reading tools.</b> If a tool lets you add a dictionary of your own, give it the same
+				address with its placeholder where the word goes: in Readlang that is
+				<code>{SEARCH}{'{{query}}'}</code>, in Language Reactor <code>{SEARCH}WORD</code>. Nebokrai
+				does not open inside other sites, so in Readlang use “Open in new window”.
+			</li>
+			<li>
+				<b>Anki.</b> Export your saved words as an Anki file from the
+				<a href="/saved">Saved words</a> page.
+			</li>
+		</ul>
+
 		<h2>Where the words come from</h2>
 		<p>
 			The dictionary is built from open data made by volunteers: Wiktionary, Tatoeba and others. See
@@ -130,5 +182,16 @@
 
 	li + li {
 		margin-top: 0.25rem;
+	}
+
+	/* An address to copy: kept whole where it fits, broken anywhere on a phone
+	   rather than pushing the page wider than the screen */
+	code {
+		padding: 0.1rem 0.35rem;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		font-size: 0.9em;
+		overflow-wrap: anywhere;
 	}
 </style>

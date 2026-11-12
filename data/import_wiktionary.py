@@ -10,11 +10,13 @@ Usage:
                     and eng_sentences.tsv.bz2 from downloads.tatoeba.org
 
 Input:  kaikki.org-dictionary-Ukrainian.jsonl (English Wiktionary, CC BY-SA)
-Output: a SQLite database with five tables:
+Output: a SQLite database with six tables:
 
     entries      one row per dictionary word (lemma) and part of speech
     senses       the English meanings of an entry
     forms        every inflected form of an entry (declension / conjugation)
+    relations    the other words an entry names: synonyms, antonyms, derived
+                 and related words
     search_keys  normalised lookup keys pointing at entries
     examples     example sentences with translations (from Tatoeba)
 
@@ -61,6 +63,15 @@ CREATE TABLE forms (
     plain     TEXT NOT NULL,        -- without stress, lowercase: калини
     tags      TEXT NOT NULL         -- JSON list: ["genitive","singular"]
 );
+CREATE TABLE relations (
+    id        INTEGER PRIMARY KEY,
+    entry_id  INTEGER NOT NULL REFERENCES entries(id),
+    sense_n   INTEGER,              -- the meaning it belongs to (senses.n); NULL = the whole entry
+    kind      TEXT NOT NULL,        -- synonym | antonym | derived | related
+    word      TEXT NOT NULL,        -- the other word, with stress where it is known: мали́й
+    plain     TEXT NOT NULL,        -- its lookup form: малий
+    tags      TEXT NOT NULL         -- JSON list: ["colloquial"]
+);
 CREATE TABLE examples (
     id          INTEGER PRIMARY KEY,
     entry_id    INTEGER NOT NULL REFERENCES entries(id),
@@ -80,6 +91,7 @@ CREATE INDEX entries_word ON entries(word);
 CREATE INDEX senses_entry ON senses(entry_id, n);
 CREATE INDEX forms_entry ON forms(entry_id);
 CREATE INDEX forms_plain ON forms(plain);
+CREATE INDEX relations_entry ON relations(entry_id);
 CREATE INDEX search_key ON search_keys(key, kind);
 CREATE INDEX examples_entry ON examples(entry_id);
 CREATE INDEX entries_rank ON entries(freq_rank);
@@ -220,6 +232,86 @@ TOKEN = re.compile(r"[\u0400-\u04FF]+(?:['’ʼ-][\u0400-\u04FF]+)*")
 NOT_VOCABULARY = ("character", "symbol", "punct", "suffix", "prefix", "interfix", "combining_form")
 
 
+# Wiktionary's lists of other words, on an entry or on one of its meanings, and
+# what each is called in `relations`. Coordinate terms are left out: a few
+# hundred entries carry tens of thousands of them (every month under січень,
+# every country under Україна), which is a list to browse, not a word's kin.
+RELATIONS = {"synonyms": "synonym", "antonyms": "antonym", "derived": "derived", "related": "related"}
+BOTH_WAYS = ("synonym", "antonym")
+RELATION_NOISE = {"synonym", "synonym-of"}  # says again what `kind` says
+
+
+def related_words(source, sense_n):
+    """Rows for `relations` from the lists on an entry (sense_n None) or on one
+    of its meanings: (sense_n, kind, word, plain, tags)."""
+    rows = []
+    for field, kind in RELATIONS.items():
+        for item in source.get(field) or []:
+            # A few come with their romanisation attached, "мольфар (molʹfar)", or
+            # with a gender or aspect mark in Latin letters: "не́бо n", "сі́яти impf"
+            word = re.sub(r"\s*\([^)]*\)$", "", unicodedata.normalize("NFC", (item.get("word") or "").strip()))
+            word = re.sub(r"(?:\s+[A-Za-z.:-]+)+$", "", word)
+            if not TOKEN.search(word):  # a note or a Latin-letter term, not a Ukrainian word
+                continue
+            tags = [t for t in item.get("tags") or [] if t not in NOISE_TAGS and t not in RELATION_NOISE]
+            rows.append((sense_n, kind, word, plain(word), json.dumps(tags, ensure_ascii=False)))
+    return rows
+
+
+def finish_relations(db):
+    """Two passes over `relations` that need every entry to be there.
+
+    Stress: Wiktionary writes some related words without a stress mark
+    (красивий). Where exactly one headword has that spelling, the word takes
+    its stress (краси́вий).
+
+    Both ways: a synonym or an antonym holds in both directions, but often only
+    one side says so: великий names малий as its antonym, and малий should name
+    великий. The other side gets the link too, when the spelling it points at
+    has exactly one entry of the same part of speech; with two, there is no
+    telling which was meant. Such a link belongs to the whole entry, since the
+    meaning it would hang on is not known.
+    """
+    headwords = collections.defaultdict(set)   # plain spelling -> its headwords
+    entries = collections.defaultdict(list)    # plain spelling -> (id, pos)
+    own = {}                                    # id -> (plain spelling, pos, headword)
+    for eid, word, headword, pos in db.execute("SELECT id, word, headword, pos FROM entries"):
+        key = plain(word)
+        headwords[key].add(headword)
+        entries[key].append((eid, pos))
+        own[eid] = (key, pos, headword)
+
+    stressed = []
+    for rid, word, key in db.execute("SELECT id, word, plain FROM relations"):
+        if STRESS in word:
+            continue
+        found = headwords.get(key, ())
+        if len(found) == 1:
+            (headword,) = found
+            # The same letters and capitals, with the stress added
+            if STRESS in headword and strip_stress(headword) == word:
+                stressed.append((headword, rid))
+    db.executemany("UPDATE relations SET word=? WHERE id=?", stressed)
+
+    marks = ",".join("?" * len(BOTH_WAYS))
+    have = set(db.execute(f"SELECT entry_id, kind, plain FROM relations WHERE kind IN ({marks})", BOTH_WAYS))
+    back = []
+    for eid, kind, key in db.execute(
+            f"SELECT entry_id, kind, plain FROM relations WHERE kind IN ({marks}) ORDER BY id", BOTH_WAYS).fetchall():
+        source, pos, headword = own[eid]
+        targets = [t for t, target_pos in entries.get(key, ()) if target_pos == pos]
+        if len(targets) != 1 or targets[0] == eid or (targets[0], kind, source) in have:
+            continue
+        have.add((targets[0], kind, source))
+        back.append((targets[0], None, kind, headword, source, "[]"))
+    db.executemany("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,?,?,?,?,?)", back)
+
+    stats = {f"relations_{kind}": n for kind, n in db.execute(
+        "SELECT kind, COUNT(*) FROM relations GROUP BY kind ORDER BY kind")}
+    stats.update(relations_stress_added=len(stressed), relations_backward=len(back))
+    return stats
+
+
 def form_index(db):
     """Map every known spelling (dictionary word or inflected form) to its entries."""
     index = collections.defaultdict(set)
@@ -328,6 +420,7 @@ def add_tatoeba(db, index, folder, per_entry=3):
 def build(src, dst, freq=None, tatoeba=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
+                     "DROP TABLE IF EXISTS relations;"
                      "DROP TABLE IF EXISTS senses; DROP TABLE IF EXISTS examples;"
                      "DROP TABLE IF EXISTS meta; DROP TABLE IF EXISTS entries;")
     db.executescript(SCHEMA)
@@ -387,6 +480,7 @@ def build(src, dst, freq=None, tatoeba=None):
 
         n = 0
         had_example = False
+        related = []
         for s in e.get("senses") or []:
             if "form_of" in s or "alt_of" in s:
                 continue
@@ -401,10 +495,24 @@ def build(src, dst, freq=None, tatoeba=None):
                        (eid, n, gloss, json.dumps(s.get("tags") or [], ensure_ascii=False),
                         json.dumps(examples, ensure_ascii=False)))
             stats["senses"] += 1
+            related += related_words(s, n)
             for w in set(re.findall(r"[a-z]+(?:[-'][a-z]+)*", gloss.lower())):
                 if len(w) > 1:
                     keys.add((w, "english"))
         stats["with_examples"] += had_example
+
+        # The other words this entry names. One named for a meaning is not
+        # repeated for the whole entry, and the entry does not name itself.
+        related += related_words(e, None)
+        seen = set()
+        for sense_n, kind, other, other_plain, other_tags in related:
+            if other_plain == plain(word) or (sense_n, kind, other_plain) in seen:
+                continue
+            if sense_n is None and any((m, kind, other_plain) in seen for m in range(1, n + 1)):
+                continue
+            seen.add((sense_n, kind, other_plain))
+            db.execute("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,?,?,?,?,?)",
+                       (eid, sense_n, kind, other, other_plain, other_tags))
 
         table = [f for f in forms if f.get("source") in ("declension", "conjugation")
                  and not (set(f.get("tags", [])) & SKIP_FORM_TAGS)]
@@ -434,6 +542,7 @@ def build(src, dst, freq=None, tatoeba=None):
                        [(k, eid, kind) for k, kind in keys if k])
 
     db.executescript(INDEXES)
+    stats.update(finish_relations(db))
     if freq or tatoeba:
         index = form_index(db)
         if freq:

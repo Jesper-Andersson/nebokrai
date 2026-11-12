@@ -3,7 +3,8 @@
      day stands where the answers will. The keyboard's open and closed state
      is a Melt Collapsible. -->
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, untrack } from 'svelte';
+	import { afterNavigate, goto } from '$app/navigation';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -23,10 +24,35 @@
 	let m = $derived(messagesFor(settings.lang));
 	let word = $derived(TITLE_WORD[settings.lang]);
 
-	let query = $state('');
+	// The page can be opened with the search already made (/?q=kava): the
+	// server then sends the query and its answer along (+page.server.ts).
+	// svelte-ignore state_referenced_locally
+	let query = $state(data.query);
 	// The answer for the latest query; null while the box is empty.
-	let found = $state.raw<LookupResult | null>(null);
-	let failed = $state(false);
+	// svelte-ignore state_referenced_locally
+	let found = $state.raw<LookupResult | null>(data.found);
+	// svelte-ignore state_referenced_locally
+	let failed = $state(data.failed);
+
+	// The address follows the search box, so what is on the page can be sent
+	// to someone, and Back from a word's page returns to the same results.
+	// The address is replaced, not added to: Back must leave the search, not
+	// step through it letter by letter. Shallow: nothing is loaded for it.
+	function showInAddress(q: string) {
+		const address = q ? `/?q=${encodeURIComponent(q)}` : '/';
+		if (location.pathname + location.search === address) return;
+		void goto(address, { shallow: true, replace: true }).catch(() => {});
+	}
+
+	// Arriving here by Back or Forward, or by a link to the empty search page
+	// while a search is showing: the box takes what the address says. The page
+	// stays in place for such a visit, so the lines above do not run again.
+	afterNavigate((navigation) => {
+		// Not for showInAddress itself, whose address may already be a letter behind the box
+		if (navigation.type === 'goto' && navigation.shallow) return;
+		const asked = (new URL(location.href).searchParams.get('q') ?? '').slice(0, MAX_QUERY_LENGTH);
+		if (asked.trim() !== query.trim()) query = asked;
+	});
 
 	// Ask the server as the user types, waiting for a short pause, and drop
 	// answers to queries that have since changed.
@@ -35,10 +61,19 @@
 		if (!q) {
 			found = null;
 			failed = false;
+			showInAddress('');
+			return;
+		}
+		// Already answered: by the server when the page was opened with this
+		// query, or a moment ago, before a letter was typed and taken back.
+		if (untrack(() => found)?.query.trim() === q) {
+			failed = false;
+			showInAddress(q);
 			return;
 		}
 		const controller = new AbortController();
 		const timer = setTimeout(async () => {
+			showInAddress(q);
 			try {
 				const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: controller.signal });
 				if (!res.ok) throw new Error(`HTTP ${res.status}`);

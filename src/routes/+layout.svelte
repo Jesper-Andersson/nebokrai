@@ -1,6 +1,6 @@
 <!-- The frame every page is drawn in: the header, the page, the footer, and the
      corner messages. It also provides what the pages share through context:
-     the settings, the saved words and the toaster. -->
+     the settings, the saved words, the toaster and the quick search. -->
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -9,6 +9,8 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
 	import Header from '#lib/Header.svelte';
+	import { provideQuickSearch } from '#lib/quick-search.svelte.ts';
+	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
 	import { provideSettings } from '#lib/settings.ts';
 	import Toasts from '#lib/Toasts.svelte';
@@ -25,6 +27,7 @@
 	provideSettings(settings);
 
 	let address = $derived(page.url.origin + page.url.pathname);
+	let m = $derived(messagesFor(settings.lang));
 
 	// Saved words: read from this browser once the page is running, and synced
 	// with the account when signed in (see saved.svelte.ts).
@@ -33,6 +36,9 @@
 	onMount(() => void saved.load());
 
 	provideToasts();
+
+	// The quick search lives in the header, and a page can open it too.
+	provideQuickSearch();
 </script>
 
 <svelte:head>
@@ -51,6 +57,16 @@
 	<meta property="og:url" content={address} />
 	<meta property="og:site_name" content="Nebokrai" />
 	<meta property="og:type" content="website" />
+	<!-- The picture a chat or a social network puts beside a link: one for the
+	     whole site (scripts/og-image.ts draws it), with its full address,
+	     because the networks do not resolve a relative one. The last line asks
+	     for the picture at full width instead of as a thumbnail. -->
+	<meta property="og:image" content="{page.url.origin}/og.png" />
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:alt" content={m.meta.picture} />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <Tooltip.Provider delayDuration={350}>

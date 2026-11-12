@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tells a browser how to search this site from its own address bar: Firefox
+     offers "Add search engine" on the page, Chrome and Edge list the site
+     under their site searches. src/app.html points every page here. -->
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+	<ShortName>Nebokrai</ShortName>
+	<Description>Ukrainian–English dictionary with stress, tables and audio</Description>
+	<InputEncoding>UTF-8</InputEncoding>
+	<Image width="32" height="32" type="image/x-icon">https://nebokrai.app/favicon.ico</Image>
+	<Url type="text/html" method="get" template="https://nebokrai.app/?q={searchTerms}" />
+</OpenSearchDescription>

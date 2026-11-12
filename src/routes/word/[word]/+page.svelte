@@ -1,7 +1,8 @@
 <!-- A word's page: for each entry of the spelling, the headword with its
-     actions, how it is said, its grammar in one italic line, the meanings,
-     example sentences, the form tables behind tabs (FormTables.svelte) and
-     the etymology. A spelling with several entries gets a list of them first. -->
+     actions, how it is said, its grammar in one italic line, the meanings
+     with their synonyms and antonyms, example sentences, the form tables
+     behind tabs (FormTables.svelte), the words related to it and the
+     etymology. A spelling with several entries gets a list of them first. -->
 <script lang="ts">
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
@@ -10,14 +11,20 @@
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import RelatedWords from '#lib/RelatedWords.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
+	import Sentence from '#lib/Sentence.svelte';
+	import ShareButton from '#lib/ShareButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import { formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { plain } from '#lib/search/normalize.ts';
+	import { wordPath } from '#lib/search/slug.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { differOnlyByStress, stressMoved, stressShift } from '#lib/stress.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -47,6 +54,23 @@
 	}
 
 	const label = (tag: string) => tag.replace(/-/g, ' ');
+
+	// The synonyms or antonyms of one meaning of an entry, or (n null) of the
+	// entry as a whole.
+	const named = (entry: WordEntry, kind: 'synonym' | 'antonym', n: number | null) =>
+		entry.relations.filter((x) => x.kind === kind && x.sense_n === n);
+
+	// The spellings an example sentence can have this entry's word in: the word
+	// and its forms of one word (буду читати is two, and буду is not читати).
+	const ownForms = (entry: WordEntry) =>
+		new Set([entry.word, ...entry.forms.map((f) => f.form).filter((form) => !form.includes(' '))].map(plain));
+
+	// The list of entries names each headword only when they are not all the
+	// same (за́мок and замо́к, or а, А and -а behind one address).
+	let varied = $derived(new Set(data.entries.map((e) => e.headword)).size > 1);
+	let stressedApart = $derived(
+		data.entries.some((a, i) => data.entries.slice(i + 1).some((b) => differOnlyByStress(a.headword, b.headword)))
+	);
 </script>
 
 <!-- A spelling with several entries is described by its most common one -->
@@ -59,10 +83,12 @@
 
 	<!-- стан is a noun five times over: say so before the first entry -->
 	{#if data.entries.length > 1}
+		{#if stressedApart}<p class="apart">{m.word.sameSpelling}</p>{/if}
 		<nav class="entries" aria-label={m.word.entries}>
 			{#each data.entries as entry, i (entry.id)}
 				<a href="#entry-{entry.id}">
 					<span class="n">{i + 1}</span>
+					{#if varied}<b lang="uk"><Stressed text={entry.headword} /></b>{/if}
 					<b>{posLabel(m, entry.pos)}</b>
 					<span class="gloss">{entry.senses[0]?.gloss ?? ''}</span>
 				</a>
@@ -73,6 +99,15 @@
 	{#each data.entries as entry (entry.id)}
 		{@const { tables, other } = formTables(entry.pos, entry.forms, entry.word)}
 		{@const playLabel = entry.audio_url ? m.word.playRecording : m.word.playVoice}
+		<!-- What each form's stress is compared with. Not for pronouns: мене́ is
+		     another word than я, not я with its stress moved. -->
+		{@const base = entry.pos === 'pron' ? '' : entry.headword}
+		{@const shift = stressShift(base, entry.forms.map((f) => f.form))}
+		{@const own = ownForms(entry)}
+		<!-- Derived words and words of the same root are shown for the entry as a
+		     whole, whichever meaning Wiktionary lists them under -->
+		{@const derived = entry.relations.filter((x) => x.kind === 'derived')}
+		{@const sameRoot = entry.relations.filter((x) => x.kind === 'related')}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
 				<div class="title">
@@ -91,6 +126,12 @@
 							{/snippet}
 						</Tip>
 						<SaveButton word={entry.word} headword={entry.headword} size={21} />
+						<!-- стан has five entries on one page: a shared link opens at this one -->
+						<ShareButton
+							path={wordPath(entry.word) + (data.entries.length > 1 ? `#entry-${entry.id}` : '')}
+							headword={entry.headword}
+							size={21}
+						/>
 					</div>
 				</div>
 				{#if entry.roman || entry.ipa}
@@ -120,15 +161,24 @@
 								<ul class="quotes">
 									{#each sense.examples as ex}
 										<li>
-											<span lang="uk">{ex.text}</span>
+											<Sentence text={ex.text} {own} />
 											{#if ex.english}<span class="en">{ex.english}</span>{/if}
 										</li>
 									{/each}
 								</ul>
 							{/if}
+							<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', sense.n)} />
+							<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', sense.n)} />
 						</li>
 					{/each}
 				</ol>
+				<!-- Those Wiktionary gives for the word, not for one of its meanings -->
+				{#if named(entry, 'synonym', null).length || named(entry, 'antonym', null).length}
+					<div class="whole">
+						<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', null)} />
+						<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', null)} />
+					</div>
+				{/if}
 			</section>
 
 			{#if entry.examples.length}
@@ -137,7 +187,7 @@
 					<ul class="sentences">
 						{#each entry.examples as ex (ex.tatoeba_id)}
 							<li>
-								<span lang="uk">{ex.uk}</span>
+								<Sentence text={ex.uk} {own} />
 								<span class="en">{ex.en}</span>
 								<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
 									Tatoeba #{ex.tatoeba_id}
@@ -151,7 +201,7 @@
 			{#if tables.length || other.length}
 				<section>
 					<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
-					{#if tables.length}<FormTables {tables} />{/if}
+					{#if tables.length}<FormTables {tables} headword={base} />{/if}
 					{#if other.length}
 						<dl class="other">
 							{#each other as group (group.label)}
@@ -159,12 +209,25 @@
 									<dt>{group.label}</dt>
 									<dd lang="uk">
 										<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
-										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} />{/each}
+										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} moved={stressMoved(base, form)} />{/each}
 									</dd>
 								</div>
 							{/each}
 						</dl>
 					{/if}
+					{#if shift === 'moves'}
+						<p class="shift">{m.word.stressMoves} <b lang="uk"><Stressed text={entry.headword} /></b>.</p>
+					{:else if shift === 'stays'}
+						<p class="shift">{m.word.stressStays}</p>
+					{/if}
+				</section>
+			{/if}
+
+			{#if derived.length || sameRoot.length}
+				<section>
+					<h2 class="ui-label">{m.word.family}</h2>
+					<RelatedWords label={m.word.derived} words={derived} limit={24} />
+					<RelatedWords label={m.word.sameRoot} words={sameRoot} limit={24} />
 				</section>
 			{/if}
 
@@ -211,6 +274,13 @@
 
 	.back a:hover {
 		color: var(--ink);
+	}
+
+	/* Stands on the page, above the list of entries */
+	.apart {
+		margin-bottom: 0.5rem;
+		color: var(--on-page);
+		font-size: var(--text-sm);
 	}
 
 	/* The entries of this spelling, as links that wrap onto more lines */
@@ -323,6 +393,14 @@
 		font-size: var(--text-lg);
 	}
 
+	/* Synonyms and antonyms of the word as a whole, under its meanings and in
+	   line with their text, past the numerals */
+	.whole {
+		margin: 0.9rem 0 0 1.75rem;
+		padding-top: 0.6rem;
+		border-top: 1px dashed var(--border);
+	}
+
 	/* A remark on a meaning, as a dictionary sets it: (figurative) skyline */
 	.tag {
 		color: var(--muted);
@@ -385,6 +463,17 @@
 
 	.other dd {
 		margin: 0;
+	}
+
+	/* What the underlines in the tables mean */
+	.shift {
+		margin-top: 0.6rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.shift b {
+		color: var(--ink-2);
 	}
 
 	.etymology {

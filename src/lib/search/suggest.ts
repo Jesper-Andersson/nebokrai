@@ -20,7 +20,7 @@ import { compareCodePoints, search, type SearchOptions, type SearchResult } from
 export type GuessKind = 'layout' | 'respelled' | 'sound' | 'typo';
 const GUESS: GuessKind[] = ['layout', 'respelled', 'sound', 'typo'];
 
-export interface Suggestion extends Omit<SearchResult, 'match' | 'id' | 'vesum_only'> {
+export interface Suggestion extends Omit<SearchResult, 'match' | 'id' | 'vesum_only' | 'matched_forms'> {
 	id: number;
 	/** How the guess was made. */
 	match: GuessKind;

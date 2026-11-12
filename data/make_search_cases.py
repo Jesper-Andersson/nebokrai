@@ -32,6 +32,8 @@ QUERIES = [
     "читайу", "добрава", "nebokraiu",
     # nothing, or nearly
     "", "   ", "qqqqzz", "ъъъ", "123", "don't",
+    # one spelling, several forms, stressed apart: руки́ (genitive singular), ру́ки (plural)
+    "руки", "кави", "ruky",
 ]
 
 if __name__ == "__main__":
@@ -42,7 +44,14 @@ if __name__ == "__main__":
         for use_vesum in (False, True):
             got = lookup(db, q, limit=20, vesum=vesum if use_vesum else None)
             brief = lambda rows: [[r["id"], r["word"], r["pos"], r["match"]] for r in rows]
-            cases.append({"query": q, "vesum": use_vesum, "expect": brief(got["results"]),
-                          "suggest": brief(got["suggestions"])})
+            case = {"query": q, "vesum": use_vesum, "expect": brief(got["results"]),
+                    "suggest": brief(got["suggestions"])}
+            # Which forms the query spells, for the results that say so. Only
+            # where there are any, so the other cases stay as they were.
+            forms = [[r["id"], [[f["form"], f["tags"]] for f in r["matched_forms"]]]
+                     for r in got["results"] if r.get("matched_forms")]
+            if forms:
+                case["forms"] = forms
+            cases.append(case)
     sys.stdout.reconfigure(encoding="utf-8")  # Windows defaults to cp1252 when redirected
     json.dump(cases, sys.stdout, ensure_ascii=False, indent=1)

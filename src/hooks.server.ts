@@ -32,11 +32,16 @@ const HEADERS: Record<string, string> = {
 // the report form and the sign-in addresses. static/robots.txt asks crawlers
 // not to fetch most of these; this covers the ones that are fetched anyway.
 const NOT_FOR_SEARCH = /^\/(api|saved|report|login|auth|logout)(\/|$)/;
+// Nor is a search made from the address (/?q=kava): the page to find is the
+// search page itself, and the words have pages of their own.
+const isSearch = (url: URL) => url.pathname === '/' && url.searchParams.has('q');
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const response = await answer({ event, resolve });
 	for (const [name, value] of Object.entries(HEADERS)) response.headers.set(name, value);
-	if (NOT_FOR_SEARCH.test(event.url.pathname)) response.headers.set('x-robots-tag', 'noindex');
+	if (NOT_FOR_SEARCH.test(event.url.pathname) || isSearch(event.url)) {
+		response.headers.set('x-robots-tag', 'noindex');
+	}
 	if (event.url.protocol === 'https:') {
 		response.headers.set('strict-transport-security', 'max-age=63072000; includeSubDomains');
 	}

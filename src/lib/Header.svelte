@@ -7,6 +7,7 @@
 	import { page } from '$app/state';
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Icon from './Icon.svelte';
 	import Logo from './Logo.svelte';
@@ -32,7 +33,7 @@
 	// bar then draws the ribbon itself, unbroken.
 	let onATab = $derived(links.some((link) => current(link.href)));
 
-	let searchOpen = $state(false);
+	const quick = useQuickSearch();
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -97,7 +98,7 @@
 				class="search"
 				class:away={onSearchPage}
 				aria-label={m.quick.open}
-				onclick={() => (searchOpen = true)}
+				onclick={() => (quick.open = true)}
 			>
 				<Icon name="search" size={18} />
 				<span class="label">{m.home.placeholder}</span>
@@ -108,7 +109,7 @@
 	</div>
 </header>
 
-<QuickSearch bind:open={searchOpen} />
+<QuickSearch />
 
 <style>
 	/* Under the bar runs a ribbon in the flag's colours, wound round a pole

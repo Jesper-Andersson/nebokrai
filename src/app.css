@@ -127,9 +127,11 @@
 	--duration: 0.15s;
 }
 
-/* Colours. Theme: <html data-theme="light|dark"> from the settings menu, or
-   the system setting when none is chosen (see hooks.server.ts). Every colour
-   is defined three times: light, dark by choice, and dark by system setting.
+/* Colours. Theme: <html data-theme="light|sepia|dark"> from the settings menu,
+   or the system setting when none is chosen (see hooks.server.ts). Every
+   colour is defined four times: light, dark by choice, dark by system
+   setting, and sepia. Sepia is only ever chosen (no system setting asks for
+   it), so it has one block.
 
    They sit on :root, not on a wrapper, because Bits UI moves popovers,
    dialogs and tooltips to the end of <body>. */
@@ -235,6 +237,43 @@
 		--pill-4-line: #7d8391;
 		color-scheme: dark;
 	}
+}
+
+/* Sepia: between the two, like the yellowed page of an old dictionary, with
+   brown ink. Cards are a shade lighter than the page and never white, which
+   is what takes the glare off. Text colours keep 4.5:1 on the page colour,
+   so they are darker than their light-theme counterparts. */
+:root[data-theme='sepia'] {
+	--bg: #e3d5b8;
+	--surface: #ecdfc6;
+	--surface-2: #d9c9a8;
+	--raised: #f1e6d0;
+	--border: #cdbb98;
+	--border-strong: #b3a07a;
+	--ink: #3b2f20;
+	--ink-2: #54452f;
+	--muted: #655740;
+	--faint: #6b5c44;
+	--accent: #2b4a7a;
+	--accent-ink: #ffffff;
+	--accent-soft: #d0d3d6;
+	--link-hover: #1a3157;
+	--gold: #a9811f;
+	--sky: rgb(91 143 214 / 0.16);
+	--wheat: rgb(190 150 70 / 0.3);
+	--scrim: rgb(59 47 32 / 0.4);
+	--wash-top: rgb(227 213 184 / 0.3);
+	--wash-bottom: rgb(227 213 184 / 0.55);
+	--shadow: 0 1px 2px rgb(59 47 32 / 0.07), 0 6px 20px rgb(59 47 32 / 0.08);
+	--shadow-pop: 0 2px 6px rgb(59 47 32 / 0.12), 0 16px 48px rgb(59 47 32 / 0.22);
+	--stress: #a8321f;
+	--play: #1a6283;
+	--logo-ink: #3b2f20;
+	--pill-1-line: #2c7338;
+	--pill-2-line: #2f629c;
+	--pill-3-line: #9c6a0e;
+	--pill-4-line: #857b66;
+	color-scheme: light;
 }
 
 /* iOS Safari enlarges text when a phone is turned sideways; keep the sizes as written.

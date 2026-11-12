@@ -82,7 +82,8 @@
 		const turnstile = api;
 		const made = turnstile.render(box, {
 			sitekey,
-			theme: settings.theme === 'system' ? 'auto' : settings.theme,
+			// Cloudflare's box knows light, dark and auto; sepia is a light theme
+			theme: settings.theme === 'system' ? 'auto' : settings.theme === 'sepia' ? 'light' : settings.theme,
 			language: settings.lang,
 			size: 'flexible',
 			callback: (fresh: string) => (token = fresh),

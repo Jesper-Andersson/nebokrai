@@ -3,7 +3,7 @@
 import { getContext, setContext } from 'svelte';
 
 export type Lang = 'en' | 'uk';
-export type Theme = 'system' | 'light' | 'dark';
+export type Theme = 'system' | 'light' | 'sepia' | 'dark';
 /** On-screen keyboard layout: standard ЙЦУКЕН, or phonetic (xkb "homophonic"). */
 export type KeyboardLayout = 'standard' | 'phonetic';
 
@@ -27,7 +27,7 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 	const background = cookie('bg');
 	return {
 		lang: cookie('lang') === 'uk' ? 'uk' : 'en',
-		theme: theme === 'light' || theme === 'dark' ? theme : 'system',
+		theme: theme === 'light' || theme === 'sepia' || theme === 'dark' ? theme : 'system',
 		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard',
 		background: background === 'field' || background === 'hills' ? background : 'plain',
 		radio: cookie('radio') === 'on' ? 'on' : 'off'

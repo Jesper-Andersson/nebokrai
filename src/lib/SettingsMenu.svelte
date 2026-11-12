@@ -23,7 +23,13 @@
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
 
-	const themes: [Theme, IconName][] = [['system', 'monitor'], ['light', 'sun'], ['dark', 'moon']];
+	// From brightest to darkest after the system's own choice
+	const themes: [Theme, IconName][] = [
+		['system', 'monitor'],
+		['light', 'sun'],
+		['sepia', 'book'],
+		['dark', 'moon']
+	];
 	// Each language is marked by two letters of its own script, not a flag: a
 	// flag names a country, and ї is written in Ukrainian alone.
 	const languages: [Lang, string, string][] = [['uk', 'Українська', 'Її'], ['en', 'English', 'Aa']];
@@ -172,14 +178,14 @@
 		font-weight: 700;
 	}
 
-	/* The theme choices: an icon over its name, in the same three columns as
-	   the background pictures under them. The name sits under the icon, not
-	   beside it, so that «Як у системі» fits. The buttons are drawn by Bits
-	   UI, so their rules are global. */
+	/* The theme choices: an icon over its name, four in a row. The name sits
+	   under the icon, not beside it, and «Як у системі» breaks into two
+	   lines; the row keeps every tile the same height. The buttons are drawn
+	   by Bits UI, so their rules are global. */
 	:global(.ui-tiles) {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
-		gap: 0.6rem;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.45rem;
 	}
 
 	:global(.ui-tile) {

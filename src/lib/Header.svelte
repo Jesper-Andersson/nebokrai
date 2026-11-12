@@ -154,7 +154,7 @@
 				{#if streak.days}
 					<!-- Two shapes: the flame, red at the tip and amber below, and a
 					     bright heart low in it for the number to stand on -->
-					<svg class="flame" class:lit={streak.lit} viewBox="0 0 24 24" aria-hidden="true">
+					<svg class="flame" class:lit={streak.lit} viewBox="-2 -3 28 29" aria-hidden="true">
 						<defs>
 							<linearGradient id="ui-flame-body" x1="0" y1="0" x2="0" y2="1">
 								<stop offset="0%" style="stop-color: var(--flame-tip)" />
@@ -389,20 +389,29 @@
 	   The count of cards due has the upper left. */
 	.flame {
 		position: absolute;
-		/* The bar is 3.5rem high and the button 2.25rem, so there is 0.6rem over
-		   the button: the flame, its flicker and its glow must fit in that. */
-		top: -0.15rem;
-		right: -0.95rem;
-		width: 1.5rem;
-		height: 1.5rem;
-		overflow: visible;
+		/* The drawing has room of its own around the flame, for the flicker and
+		   the glow, so nothing of it is cut off: the flame is 0.25rem in from
+		   the top of this box and 0.4rem in from its right. The bar is 3.5rem
+		   high and the button 2.25rem, which leaves 0.6rem over the button.
+		   The flame's middle is level with the count's, 0.25rem below the
+		   button's top edge. */
+		top: -0.67rem;
+		right: -0.5rem;
+		width: 1.75rem;
+		height: 1.8125rem;
 		pointer-events: none;
 	}
 
-	/* A finger's button is taller, and leaves less of the bar above it */
+	/* A finger's button is taller and leaves less of the bar above it: both
+	   marks come down a little */
 	@media (pointer: coarse) {
 		.flame {
-			top: 0.1rem;
+			top: -0.55rem;
+		}
+
+		/* Named through the button, to outrank the rule for the count below */
+		.cards .count {
+			top: -0.13rem;
 		}
 	}
 
@@ -487,16 +496,18 @@
 
 	.count {
 		position: absolute;
-		top: -0.15rem;
+		top: -0.25rem;
 		left: -0.3rem;
-		min-width: 1.1rem;
-		padding: 0 0.3rem;
-		border-radius: var(--radius-pill);
+		box-sizing: border-box;
+		min-width: 1rem;
+		height: 1rem;
+		padding: 0 0.2rem;
+		border-radius: 0.3rem;
 		background: var(--accent);
 		color: var(--accent-ink);
-		font-size: 0.7rem;
+		font-size: 0.65rem;
 		font-weight: 700;
-		line-height: 1.1rem;
+		line-height: 1rem;
 		text-align: center;
 		font-variant-numeric: tabular-nums;
 	}

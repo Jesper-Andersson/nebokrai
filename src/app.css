@@ -818,6 +818,14 @@ select {
 	font-variant-numeric: tabular-nums;
 }
 
+/* A second, quieter line under a choice: what it needs before it will work */
+.ui-menu-note {
+	display: block;
+	color: var(--muted);
+	font-size: var(--text-xs);
+	font-weight: 400;
+}
+
 .ui-menu-heading {
 	padding: 0.35rem 0.7rem 0.15rem;
 	color: var(--muted);

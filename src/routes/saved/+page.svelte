@@ -3,12 +3,18 @@
      headwords and meanings are then asked from /api/words/summary. The Export
      menu (Bits UI DropdownMenu) downloads all of the list, the ticked words or
      the words not exported before, as a file built in src/lib/export.ts from
-     /api/words/cards. -->
+     /api/words/cards. The same menu sends them straight into Anki through
+     AnkiConnect (src/lib/anki-connect.ts). -->
 <script lang="ts">
 	import { DropdownMenu } from 'bits-ui';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import AccountPanel from '#lib/AccountPanel.svelte';
+	import AnkiSettingsDialog from '#lib/AnkiSettings.svelte';
+	import {
+		ANKI_CONNECT_PAGE, AnkiError, DEFAULT_SETTINGS, browserInvoke, readSettings, sendToAnki, type AnkiSettings,
+		type SendResult
+	} from '#lib/anki-connect.ts';
 	import { exportFile, type ExportFormat } from '#lib/export.ts';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -83,33 +89,114 @@
 		new Intl.DateTimeFormat(uk ? 'uk' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 	);
 	let exporting = $state(false);
-	// The Anki file needs one more step from the visitor; say which, once they have it.
-	let ankiExported = $state(false);
+	// What to say under the buttons after an Anki export: the file needs one
+	// more step from the visitor, and a send has a result or a reason it failed.
+	type AnkiNote =
+		| { kind: 'file' }
+		| { kind: 'sent'; result: SendResult; deck: string }
+		| { kind: 'error'; error: AnkiError };
+	let ankiNote = $state.raw<AnkiNote | null>(null);
+	// The box that says it: a heading, then a line of text or steps to follow
+	type Notice = {
+		tone: 'ok' | 'info' | 'error';
+		title: string;
+		body?: string;
+		steps?: string[];
+		/** Offer the add-on's page, or the settings, as the way out */
+		addon?: boolean;
+		settings?: boolean;
+	};
+	let notice = $derived.by((): Notice | null => {
+		if (!ankiNote) return null;
+		if (ankiNote.kind === 'file') return { tone: 'info', title: m.export.ankiFile, body: m.export.ankiHint };
+		if (ankiNote.kind === 'sent') {
+			const { added, updated, unchanged } = ankiNote.result;
+			return { tone: 'ok', title: m.export.ankiSent.title(ankiNote.deck), body: m.export.ankiSent.body(added, updated, unchanged) };
+		}
+		const { reason, message } = ankiNote.error;
+		// Nothing answered: most likely the add-on is not there yet, so offer it
+		if (reason === 'unreachable') return { tone: 'error', ...m.export.ankiError.unreachable, addon: true };
+		if (reason === 'failed') return { tone: 'error', title: m.export.ankiError.failed.title, body: message };
+		return { tone: 'error', ...m.export.ankiError[reason], settings: reason === 'setup' };
+	});
 
-	// Ask for everything a card holds, build the file here and hand it to the
-	// browser as a download. A list that could not be fetched whole gives no
-	// file: half a deck would look like a finished one.
+	// Everything a card holds, for the words in scope. A list that could not
+	// be fetched whole throws: half a deck would look like a finished one.
+	async function cardsInScope() {
+		const items = inScope(scope);
+		const cards = new Map<string, WordCard>();
+		for (let i = 0; i < items.length; i += SUMMARY_MAX) {
+			const res = await fetch('/api/words/cards', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({ words: items.slice(i, i + SUMMARY_MAX).map((item) => item.word) })
+			});
+			if (!res.ok) throw new Error(String(res.status));
+			for (const card of (await res.json()).words as WordCard[]) cards.set(card.word, card);
+		}
+		// Saved order, newest first. A word with no entry any more is left out.
+		const rows = items.flatMap((item) => {
+			const card = cards.get(item.word);
+			return card ? [{ ...card, saved_at: item.saved_at }] : [];
+		});
+		if (!rows.length) throw new Error('nothing to export');
+		return rows;
+	}
+
+	function afterExport(words: string[]) {
+		void saved.markExported(words);
+		if (scope === 'selected') ticked.clear();
+	}
+
+	// Where a send puts the words (the deck, the note type, tags). Kept in this
+	// browser only: Anki is on this computer, so the choices belong here too.
+	const ANKI_SETTINGS_KEY = 'anki-settings';
+	let ankiSettings = $state.raw<AnkiSettings>(DEFAULT_SETTINGS);
+	let settingsOpen = $state(false);
+	$effect(() => {
+		try {
+			ankiSettings = readSettings(JSON.parse(localStorage.getItem(ANKI_SETTINGS_KEY) ?? 'null'));
+		} catch {
+			// No storage, or something else's text under the key: the defaults stand
+		}
+	});
+
+	function saveAnkiSettings(settings: AnkiSettings) {
+		ankiSettings = settings;
+		// The trouble the box was about may be gone now
+		if (ankiNote?.kind === 'error') ankiNote = null;
+		try {
+			localStorage.setItem(ANKI_SETTINGS_KEY, JSON.stringify(settings));
+		} catch {
+			// Private window: the choice lasts until the page is left
+		}
+	}
+
+	// Straight into Anki on this computer. What went wrong is said under the
+	// buttons, not in a toast: the visitor has something to do about it.
+	async function sendToAnkiApp() {
+		if (exporting) return;
+		exporting = true;
+		ankiNote = null;
+		try {
+			const rows = await cardsInScope();
+			const result = await sendToAnki(rows, (pos) => posLabel(m, pos), browserInvoke, ankiSettings);
+			ankiNote = { kind: 'sent', result, deck: ankiSettings.deck };
+			afterExport(rows.map((row) => row.word));
+		} catch (error) {
+			if (error instanceof AnkiError) ankiNote = { kind: 'error', error };
+			else toaster.addToast({ data: { title: m.export.failed } });
+		} finally {
+			exporting = false;
+		}
+	}
+
+	// Build the file here and hand it to the browser as a download.
 	async function exportAs(format: ExportFormat) {
 		if (exporting) return;
 		exporting = true;
 		try {
-			const items = inScope(scope);
-			const cards = new Map<string, WordCard>();
-			for (let i = 0; i < items.length; i += SUMMARY_MAX) {
-				const res = await fetch('/api/words/cards', {
-					method: 'POST',
-					headers: { 'content-type': 'application/json' },
-					body: JSON.stringify({ words: items.slice(i, i + SUMMARY_MAX).map((item) => item.word) })
-				});
-				if (!res.ok) throw new Error(String(res.status));
-				for (const card of (await res.json()).words as WordCard[]) cards.set(card.word, card);
-			}
-			// Saved order, newest first. A word with no entry any more is left out.
-			const rows = items.flatMap((item) => {
-				const card = cards.get(item.word);
-				return card ? [{ ...card, saved_at: item.saved_at }] : [];
-			});
-			if (!rows.length) throw new Error('nothing to export');
+			const rows = await cardsInScope();
 			const file = exportFile(format, rows, (pos) => posLabel(m, pos), new Date());
 			const url = URL.createObjectURL(new Blob([file.text], { type: file.type }));
 			const link = document.createElement('a');
@@ -118,9 +205,8 @@
 			link.click();
 			// Not at once: the browser may not have started reading the file yet.
 			setTimeout(() => URL.revokeObjectURL(url), 10_000);
-			ankiExported = format === 'anki';
-			void saved.markExported(rows.map((row) => row.word));
-			if (scope === 'selected') ticked.clear();
+			ankiNote = format === 'anki' ? { kind: 'file' } : null;
+			afterExport(rows.map((row) => row.word));
 		} catch {
 			toaster.addToast({ data: { title: m.export.failed } });
 		} finally {
@@ -225,16 +311,58 @@
 								</DropdownMenu.Item>
 							{/each}
 						</DropdownMenu.Group>
+						<DropdownMenu.Separator class="ui-menu-separator" />
+						<DropdownMenu.Group>
+							<DropdownMenu.GroupHeading class="ui-menu-heading">{m.export.send}</DropdownMenu.GroupHeading>
+							<DropdownMenu.Item class="ui-menu-item" onSelect={sendToAnkiApp}>
+								{m.export.ankiSend}
+								<span class="ui-menu-note">{m.export.ankiNeeds}</span>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item class="ui-menu-item" onSelect={() => (settingsOpen = true)}>
+								{m.export.ankiSettings.open}
+								<span class="ui-menu-note">{m.export.ankiSettings.deck}: {ankiSettings.deck}</span>
+							</DropdownMenu.Item>
+						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
 			<button type="button" class="ui-btn" disabled>{uk ? 'Тренувати ці слова' : 'Practise these words'}</button>
 			<span>{uk ? 'Незабаром' : 'Coming soon'}</span>
 		</div>
-		{#if ankiExported}
-			<p class="hint" role="status">{m.export.ankiHint}</p>
+		{#if notice}
+			<div class="anki-note" data-tone={notice.tone} role="status">
+				<span class="mark"><Icon name={notice.tone === 'error' ? 'x' : 'check'} size={14} /></span>
+				<div>
+					<p class="title">{notice.title}</p>
+					{#if notice.body}<p>{notice.body}</p>{/if}
+					{#if notice.steps}
+						<ol>
+							{#each notice.steps as step (step)}<li>{step}</li>{/each}
+						</ol>
+					{/if}
+					{#if notice.tone === 'error'}
+						<div class="note-actions">
+							{#if notice.addon}
+								<a class="ui-btn primary" href={ANKI_CONNECT_PAGE} target="_blank" rel="noopener noreferrer">
+									{m.export.ankiGet} <span aria-hidden="true">↗</span>
+								</a>
+							{/if}
+							{#if notice.settings}
+								<button type="button" class="ui-btn primary" onclick={() => (settingsOpen = true)}>
+									{m.export.ankiSettings.title}
+								</button>
+							{/if}
+							<button type="button" class="ui-btn" disabled={exporting} onclick={sendToAnkiApp}>
+								{m.export.ankiRetry}
+							</button>
+						</div>
+					{/if}
+				</div>
+			</div>
 		{/if}
 	{/if}
+
+	<AnkiSettingsDialog bind:open={settingsOpen} settings={ankiSettings} onsave={saveAnkiSettings} />
 
 	<section class="account">
 		{#if !saved.signedIn}
@@ -349,10 +477,68 @@
 		font-size: var(--text-sm);
 	}
 
-	.hint {
-		margin-top: 0.6rem;
-		color: var(--on-page);
+	/* What came of an Anki export: a card with a coloured edge and a round mark */
+	.anki-note {
+		display: flex;
+		gap: 0.75rem;
+		max-width: 38rem;
+		margin-top: 0.9rem;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--border);
+		border-left: 3px solid var(--accent);
+		border-radius: var(--radius-md);
+		background: var(--surface);
+		color: var(--ink-2);
 		font-size: var(--text-sm);
+	}
+
+	.anki-note[data-tone='error'] {
+		border-left-color: var(--stress);
+	}
+
+	.mark {
+		display: grid;
+		flex: none;
+		place-items: center;
+		width: 1.35rem;
+		height: 1.35rem;
+		border-radius: 50%;
+		background: var(--accent);
+		color: var(--accent-ink);
+	}
+
+	.anki-note[data-tone='error'] .mark {
+		background: var(--stress);
+		color: var(--surface);
+	}
+
+	.anki-note .title {
+		margin-bottom: 0.2rem;
+		color: var(--ink);
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	.anki-note ol {
+		display: grid;
+		gap: 0.25rem;
+		margin: 0.3rem 0 0;
+		padding-left: 1.2rem;
+	}
+
+	.note-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: 0.8rem;
+	}
+
+	/* The way out of the problem: the one filled button in the box */
+	.note-actions .primary {
+		border-color: var(--accent);
+		background: var(--accent);
+		color: var(--accent-ink);
+		text-decoration: none;
 	}
 
 	.notice {

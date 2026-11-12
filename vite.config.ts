@@ -31,7 +31,8 @@ export default defineConfig({
 					// Recordings of words, on Wikimedia Commons; and the radio's
 					// stations, each played from its own server (src/lib/radio.ts)
 					'media-src': ['https://upload.wikimedia.org', ...RADIO_ORIGINS],
-					'connect-src': ['self'],
+					// AnkiConnect on the visitor's own computer (src/lib/anki-connect.ts)
+					'connect-src': ['self', 'http://127.0.0.1:8765'],
 					'frame-src': ['https://challenges.cloudflare.com'],
 					'object-src': ['none'],
 					'base-uri': ['self'],

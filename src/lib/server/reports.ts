@@ -10,10 +10,18 @@
 //
 // Retention: the email is only for replying; clear it when a report is closed
 // (status leaves 'new' / 'confirmed'). IP addresses are never stored.
-import { env } from 'cloudflare:workers';
+//
+// In production each stored report is also announced by email, or nobody would
+// know to look: the `send_email` binding MAIL in wrangler.jsonc, to the address
+// in the secret REPORT_EMAIL. Cloudflare delivers only to an address verified
+// in Email Routing. Without the binding or the secret, and during
+// `npm run dev`, reports are stored and no mail is sent.
+import { env, waitUntil } from 'cloudflare:workers';
 import { dev } from '$app/env';
+import { REPORT_EMAIL } from '$app/env/private';
 import type { ReportKind } from '#lib/report.ts';
 import { openLocalWritable, type LocalWritable } from './db.ts';
+import { reportMail } from './report-mail.ts';
 
 export interface NewReport {
 	kind: ReportKind;
@@ -35,6 +43,30 @@ export interface D1Writable {
 		bind(...params: unknown[]): { run(): Promise<{ meta?: { last_row_id?: number } }> };
 		run(): Promise<unknown>;
 	};
+}
+
+/** The part of Cloudflare's `send_email` binding used here. */
+export interface Mailer {
+	send(message: {
+		to: string;
+		from: { email: string; name: string };
+		subject: string;
+		text: string;
+	}): Promise<unknown>;
+}
+
+// Any address at the site's own domain may send; nothing reads this mailbox.
+const FROM = { email: 'reports@nebokrai.app', name: 'Nebokrai' };
+
+/** Tell the site's keeper by email. A mail that fails is logged, and the report is stored all the same. */
+async function announce(report: NewReport, id: number | null): Promise<void> {
+	const mailer = env.MAIL;
+	if (!mailer || !REPORT_EMAIL) return;
+	try {
+		await mailer.send({ to: REPORT_EMAIL, from: FROM, ...reportMail(report, id) });
+	} catch (err) {
+		console.error('Report email failed:', err);
+	}
 }
 
 // status: new → confirmed → fixed_upstream | fixed_locally | wont_fix
@@ -82,7 +114,10 @@ export async function saveReport(report: NewReport): Promise<number | null> {
 			throw err;
 		}));
 		const result = await d1.prepare(INSERT).bind(...values(report)).run();
-		return result.meta?.last_row_id ?? null;
+		const id = result.meta?.last_row_id ?? null;
+		// Sent after the answer has gone out, so the visitor does not wait for it
+		waitUntil(announce(report, id));
+		return id;
 	}
 	throw new Error('No reports database: wrangler.jsonc must bind REPORTS.');
 }

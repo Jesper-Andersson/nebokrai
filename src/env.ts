@@ -9,5 +9,6 @@ export const variables = defineEnvVars({
 	GOOGLE_CLIENT_ID: { schema: optional, description: 'Google OAuth client id' },
 	GOOGLE_CLIENT_SECRET: { schema: optional, description: 'Google OAuth client secret' },
 	GITHUB_CLIENT_ID: { schema: optional, description: 'GitHub OAuth app client id' },
-	GITHUB_CLIENT_SECRET: { schema: optional, description: 'GitHub OAuth app client secret' }
+	GITHUB_CLIENT_SECRET: { schema: optional, description: 'GitHub OAuth app client secret' },
+	REPORT_EMAIL: { schema: optional, description: 'Where a new report is announced by email (production only)' }
 });

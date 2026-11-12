@@ -12,10 +12,10 @@ A Ukrainian learning site and dictionary, at [nebokrai.app](https://nebokrai.app
 | `src/lib/` | Shared components and assets. `src/lib/server/` picks the database: D1 in production, the local `nebokrai.db` during `npm run dev`. |
 | `static/` | Files served as-is. `og.png`, the picture shown beside a shared link, is drawn by `npm run og-image`, and the app icons in `icons/` by `npm run app-icons` (both need Edge or Chrome). |
 | `data/` | Scripts that build the dictionary database from open data. Start with `data/README.md`. |
-| `src/lib/search/` | The search the site will use (TypeScript). |
+| `src/lib/search/` | The search the site uses (TypeScript), a port of the reference search in `data/search.py`. |
 | `tests/` | Checks that the TypeScript search agrees with the reference search in `data/search.py`. Run with `npm test`. |
 | `docs/api.md` | What the front end asks the server and what it gets back. |
-| `docs/sources-and-licences.md` | Draft of the Sources page, and what each data licence requires. |
+| `docs/sources-and-licences.md` | The text of the Sources page, and what each data licence requires. |
 
 ## Running the site locally
 
@@ -120,3 +120,28 @@ Things to know:
   `npx wrangler d1 export nebokrai-users --remote --output=users.sql`, and the
   same for `nebokrai-reports`. The database does not answer while an export
   runs, so pick a quiet hour, and keep the files off this machine.
+
+## Licence
+
+The code is free software under the GNU Affero General Public License,
+version 3 or later (`LICENSE`). Copyright © 2026 Jesper Andersson. If you run
+a changed copy as a site, the licence asks you to offer your visitors its
+source.
+
+Some files are not the project's own and keep their own terms:
+
+| Files | Terms |
+|---|---|
+| `src/lib/assets/fixel/`, `nyght-serif-main/`, `serif/` | Fonts under the SIL Open Font License 1.1; each folder holds its licence. |
+| `src/lib/logo-paths.ts`, `src/lib/title-paths.ts` | Outlines of Caveat Bold, OFL 1.1 (`src/lib/assets/licences/Caveat-OFL.txt`). |
+| `src/lib/assets/logo-icon.svg`, `static/favicon.ico`, `static/icons/` | Hold outlines of Montserrat ExtraBold, OFL 1.1 (`src/lib/assets/licences/Montserrat-OFL.txt`). |
+| The bars' timings in `src/lib/RadioPlayer.svelte` | From SVG Loaders, MIT (`src/lib/assets/licences/SVG-Loaders-MIT.txt`). |
+| `src/lib/assets/backgrounds/` | Photos under the Unsplash and Pexels licences. |
+| `static/funds/` | Each logo belongs to its fund. No licence is given for them. |
+| `tests/search-cases.json`, and the dictionary examples in `tests/` and `docs/` | Taken from the dictionary data: Wiktionary, CC BY-SA 4.0; one Tatoeba sentence, CC BY 2.0 FR. Two rows of `search-cases.json` (`соловейко`, `книжечка`) come from VESUM, CC BY-NC-SA 4.0. |
+
+The dictionary data itself is not in this repository. The scripts in `data/`
+build it from Wiktionary, Tatoeba, FrequencyWords and VESUM, and
+`docs/sources-and-licences.md` credits each source and says what its licence
+asks. VESUM's licence is non-commercial, so a site that serves it must be
+non-commercial too.

@@ -127,6 +127,7 @@ const en = {
 		data: 'Dictionary data from Wiktionary and Tatoeba',
 		grammar: 'Grammar words',
 		sources: 'Sources and licences',
+		source: 'Source code',
 		common: 'Common words',
 		words: 'All words'
 	},
@@ -548,6 +549,7 @@ const uk: Messages = {
 		data: 'Дані словника з Вікісловника й Tatoeba',
 		grammar: 'Граматичні терміни',
 		sources: 'Джерела й ліцензії',
+		source: 'Вихідний код',
 		common: 'Найуживаніші слова',
 		words: 'Усі слова'
 	},

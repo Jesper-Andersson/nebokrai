@@ -6,7 +6,7 @@
 //
 // Caveat, Copyright 2014 The Caveat Project Authors
 // (https://github.com/googlefonts/caveat),
-// SIL Open Font License 1.1.
+// SIL Open Font License 1.1 (src/lib/assets/licences/Caveat-OFL.txt).
 
 // The box both alphabets are drawn in, the same for each so the logo keeps
 // its place when the language changes. It has room under the line of writing

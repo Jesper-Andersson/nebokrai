@@ -3,6 +3,7 @@
      The radio stations are named from the player's own list, so the two
      cannot differ. -->
 <script lang="ts">
+	import { SOURCE_URL } from '#lib/index.ts';
 	import { STATIONS } from '#lib/radio.ts';
 	import TextPage from '#lib/TextPage.svelte';
 </script>
@@ -101,6 +102,14 @@
 		under its own non-commercial licence.
 	</p>
 	<p>Nebokrai is a non-commercial project.</p>
+
+	<h2>The site’s code</h2>
+	<p>
+		The code of the site is free software under the
+		<a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License</a>,
+		version 3 or later, and is published <a href={SOURCE_URL}>on GitHub</a>. The data, fonts,
+		photos and logos keep the licences named on this page.
+	</p>
 
 	<h2>Found a mistake?</h2>
 	<p>

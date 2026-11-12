@@ -320,6 +320,21 @@ station; the visitor's browser does not.
 A `<station>` that is not in the list gets `404` with
 `{ "error": "not_found", "station": "…" }`.
 
+## Licence of the data
+
+The answers carry dictionary data, and each source keeps its own licence
+(`docs/sources-and-licences.md` has the credits in full):
+
+| What | Licence |
+|---|---|
+| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 |
+| `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
+| Results with `vesum_only: true` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
+
+A result with `match: "form"` and an empty `matched_forms` was found with
+VESUM's help, but everything in it is the Wiktionary entry.
+
 ## Errors
 
 | Status | When |

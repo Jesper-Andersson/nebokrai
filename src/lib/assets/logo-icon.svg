@@ -1,7 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 	<!-- Two flashcards: a Latin A in front, the Ukrainian ї behind. The back card
 	     is cut away around the front one so the two stay apart at 16 pixels.
-	     The letters are outlines of Montserrat ExtraBold (SIL Open Font License 1.1). -->
+	     The letters are outlines of Montserrat ExtraBold (SIL Open Font License 1.1,
+	     in licences/Montserrat-OFL.txt). -->
 	<mask id="m"><rect width="64" height="64" fill="#fff"/><rect x="2.5" y="2.5" width="43" height="45" rx="11.5" transform="rotate(-6 24 26)" fill="#000"/></mask>
 	<g mask="url(#m)"><g transform="rotate(8 40 38)"><rect x="23" y="19" width="38" height="40" rx="9" fill="#ffd500"/><path d="M25.10 0L6.10 0L6.10-54.20L25.10-54.20L25.10 0ZM24.40-60.60L24.40-60.60Q21.30-60.60 19.15-62.75Q17-64.90 17-68.40L17-68.40Q17-71.90 19.15-74.05Q21.30-76.20 24.40-76.20L24.40-76.20Q27.50-76.20 29.60-74.05Q31.70-71.90 31.70-68.40L31.70-68.40Q31.70-64.90 29.60-62.75Q27.50-60.60 24.40-60.60ZM6.90-60.60L6.90-60.60Q3.80-60.60 1.65-62.75Q-0.50-64.90-0.50-68.40L-0.50-68.40Q-0.50-71.90 1.65-74.05Q3.80-76.20 6.90-76.20L6.90-76.20Q10-76.20 12.10-74.05Q14.20-71.90 14.20-68.40L14.20-68.40Q14.20-64.90 12.10-62.75Q10-60.60 6.90-60.60Z" transform="translate(45.38 54) scale(0.36)" fill="#005bbb"/></g></g>
 	<g transform="rotate(-6 24 26)"><rect x="5" y="5" width="38" height="40" rx="9" fill="#005bbb"/><path d="M18.80 0L-1.40 0L29.50-70L49-70L80 0L59.40 0L35.20-60.30L43-60.30L18.80 0ZM59.90-13.60L15.50-13.60L20.60-28.20L54.80-28.20L59.90-13.60Z" transform="translate(10.64 37) scale(0.34)" fill="#ffffff"/></g>

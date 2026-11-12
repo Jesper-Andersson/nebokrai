@@ -3,6 +3,7 @@
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
 	import { page } from '$app/state';
+	import { SOURCE_URL } from '#lib/index.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -18,13 +19,15 @@
 
 	// Only what the header does not already link to. The first two are the
 	// ways into the dictionary without searching; from every page, they are
-	// also how a search engine comes to the word pages.
+	// also how a search engine comes to the word pages. The last is the
+	// site's own source, which its licence asks every copy to offer.
 	const links = $derived([
 		{ href: '/common-words', label: m.footer.common },
 		{ href: '/words', label: m.footer.words },
 		{ href: '/grammar', label: m.footer.grammar },
 		{ href: '/sources', label: m.footer.sources },
-		{ href: '/report', label: m.footer.report }
+		{ href: '/report', label: m.footer.report },
+		{ href: SOURCE_URL, label: m.footer.source }
 	]);
 
 	// /words is the current page on /words/п too

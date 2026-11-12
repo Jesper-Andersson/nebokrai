@@ -72,7 +72,8 @@
 <!-- Four bars that rise and fall while there is sound, each to its own beat
      like a real level meter. The beats (how high each bar goes, and how
      long its round takes) are those of "audio" in SVG Loaders, copyright (c)
-     2014 Sam Herbert, MIT licence (https://github.com/SamHerbert/SVG-Loaders).
+     2014 Sam Herbert, MIT licence (https://github.com/SamHerbert/SVG-Loaders;
+     the licence is in src/lib/assets/licences/SVG-Loaders-MIT.txt).
      That drawing moves by SVG's own <animate>, which Chrome leaves standing
      for 1.4 seconds after it is put on the page (measured 2026-11-12): the
      sound came first and the bars after. Here the same beats are CSS

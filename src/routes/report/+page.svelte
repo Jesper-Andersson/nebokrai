@@ -1,6 +1,6 @@
 <!-- "Report an issue". Sends to /api/report, which stores the report in the
-     private reports database (src/lib/server/reports.ts). Still to come: an
-     email notification, and Cloudflare Turnstile against spam. -->
+     private reports database (src/lib/server/reports.ts) and announces it by email. Still to come:
+     Cloudflare Turnstile against spam. -->
 <script lang="ts">
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';

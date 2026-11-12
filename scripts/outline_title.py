@@ -92,7 +92,7 @@ def main(path):
 //
 // Caveat, Copyright 2014 The Caveat Project Authors
 // (https://github.com/googlefonts/caveat),
-// SIL Open Font License 1.1.
+// SIL Open Font License 1.1 (src/lib/assets/licences/Caveat-OFL.txt).
 
 export const TITLE_WORD = {{
 	{entries}

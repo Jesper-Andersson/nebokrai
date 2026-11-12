@@ -1,6 +1,7 @@
-<!-- The frame every page is drawn in: the header, the page, the footer, and the
-     corner messages. It also provides what the pages share through context:
-     the settings, the saved words, the toaster and the quick search. -->
+<!-- The frame every page is drawn in: the header, the page, the footer, the
+     corner messages and the radio. It also provides what the pages share
+     through context: the settings, the saved words, the radio, the toaster
+     and the quick search. -->
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -9,6 +10,8 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
 	import Header from '#lib/Header.svelte';
+	import { provideRadio } from '#lib/radio.svelte.ts';
+	import RadioPlayer from '#lib/RadioPlayer.svelte';
 	import { provideQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { provideSaved } from '#lib/saved.svelte.ts';
@@ -34,6 +37,12 @@
 	// svelte-ignore state_referenced_locally
 	const saved = provideSaved(data.user?.id ?? null);
 	onMount(() => void saved.load());
+
+	// The radio's sound belongs to the frame, not to a page, so it plays on
+	// from one page to the next. It is here even while its button is hidden:
+	// a word's recording asks it to step aside (see radio.svelte.ts).
+	const radio = provideRadio();
+	onMount(() => radio.load());
 
 	provideToasts();
 
@@ -70,7 +79,7 @@
 </svelte:head>
 
 <Tooltip.Provider delayDuration={350}>
-	<div class="frame">
+	<div class="frame" class:with-radio={settings.radio === 'on'}>
 		<Header />
 
 		<main>
@@ -81,6 +90,11 @@
 	</div>
 
 	<Toasts />
+
+	<!-- Only for those who switched it on in the settings -->
+	{#if settings.radio === 'on'}
+		<RadioPlayer />
+	{/if}
 </Tooltip.Provider>
 
 <style>
@@ -89,6 +103,19 @@
 		flex: 1;
 		flex-direction: column;
 		min-height: 100dvh;
+	}
+
+	/* The radio's button floats over the bottom right corner. Where the
+	   window is too narrow for the button to stand beside the footer's
+	   links (under 78rem: at 80rem, 1280px, there is 8px between them), the
+	   page ends a little lower, so that scrolled to its end the footer is
+	   clear of the button. The room is taken out of the frame's height,
+	   not added to it: a page that fitted the window still does. */
+	@media (max-width: 78rem) {
+		.frame.with-radio {
+			box-sizing: border-box;
+			padding-bottom: 4.5rem;
+		}
 	}
 
 	/* No side padding here: the search page's coloured band reaches both

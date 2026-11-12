@@ -85,7 +85,25 @@ const en = {
 		phonetic: 'Phonetic',
 		layoutHint: 'Phonetic puts each letter on the Latin key that sounds alike.',
 		background: 'Background',
-		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' }
+		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' },
+		radio: 'Radio',
+		radioHint: 'A button in the corner of the page that plays Ukrainian radio stations.'
+	},
+	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
+	radio: {
+		open: 'Radio',
+		openPlaying: (station: string) => `Radio: ${station} is playing`,
+		play: 'Play',
+		stop: 'Stop',
+		loading: 'Connecting…',
+		playing: 'On air',
+		failed: 'This station is not answering. Try again, or pick another.',
+		volume: 'Volume',
+		kinds: { talk: 'Talk', music: 'Music' },
+		site: 'The station’s site',
+		minimise: 'Minimise',
+		hide: 'Hide the radio',
+		hidden: 'Radio hidden. The settings bring it back.'
 	},
 	account: {
 		legend: 'Account',
@@ -372,7 +390,24 @@ const uk: Messages = {
 		phonetic: 'Фонетична',
 		layoutHint: 'Фонетична ставить кожну літеру на латинську клавішу з подібним звуком.',
 		background: 'Тло',
-		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' }
+		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' },
+		radio: 'Радіо',
+		radioHint: 'Кнопка в кутку сторінки, що вмикає українські радіостанції.'
+	},
+	radio: {
+		open: 'Радіо',
+		openPlaying: (station: string) => `Радіо: грає ${station}`,
+		play: 'Слухати',
+		stop: 'Зупинити',
+		loading: 'З’єднуємо…',
+		playing: 'В ефірі',
+		failed: 'Станція не відповідає. Спробуйте ще раз або виберіть іншу.',
+		volume: 'Гучність',
+		kinds: { talk: 'Розмовні', music: 'Музичні' },
+		site: 'Сайт станції',
+		minimise: 'Згорнути',
+		hide: 'Сховати радіо',
+		hidden: 'Радіо сховано. Повернути його можна в налаштуваннях.'
 	},
 	account: {
 		legend: 'Обліковий запис',

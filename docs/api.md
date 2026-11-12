@@ -384,23 +384,27 @@ suggestion call takes a few milliseconds.
 
 ## Saved words and accounts
 
-A visitor can save words without an account: the list is then kept in the
+A visitor can save words without an account: the words are then kept in the
 browser's `localStorage` and the server is not involved. Signing in (Google or
-GitHub) moves the list to the account, so it is the same on every device. The
+GitHub) moves them to the account, so they are the same on every device. The
 browser side is `src/lib/saved.svelte.ts`, the server side
 `src/lib/server/users.ts`.
 
 A saved word is `{ "word": "книга", "saved_at": 1794400000000 }`: the `word`
-field of a search result, and when it was saved in milliseconds. Lists are
-newest first. One list holds at most 5,000 words.
+field of a search result, and when it was saved in milliseconds. Saved words
+are given newest first. One visitor can save at most 5,000 words, and can sort
+them into named [lists](#lists).
 
 | Endpoint | Signed in? | |
 |---|---|---|
-| `GET /api/saved` | yes | The account's list and its exported marks: `{ "words": [...], "exported": {...} }`. |
-| `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. |
-| `DELETE /api/saved/<word>` | yes | Remove one word. `{ "ok": true }`, also when it was not saved. |
-| `POST /api/saved/merge` | yes | Add a browser's list to the account. |
+| `GET /api/saved` | yes | The account's saved words, exported marks and lists: `{ "words": [...], "exported": {...}, "lists": [...] }`. |
+| `PUT /api/saved/<word>` | yes | Save one word. `{ "ok": true }`, also when it was already saved. An optional body `{ "lists": ["<id>"] }` also puts it in those lists. |
+| `DELETE /api/saved/<word>` | yes | Remove one word, and take it out of every list. `{ "ok": true }`, also when it was not saved. |
+| `POST /api/saved/merge` | yes | Add a browser's saved words and lists to the account. |
 | `POST /api/saved/exported` | yes | Mark words as exported just now. `{ "ok": true }`. |
+| `PUT /api/lists/<id>` | yes | Create a list, or rename it. `{ "ok": true }`. |
+| `DELETE /api/lists/<id>` | yes | Delete a list; its words stay saved. `{ "ok": true }`, also when there was no such list. |
+| `POST /api/lists/<id>/words` | yes | Put saved words into a list, or take words out of it. `{ "ok": true }`. |
 | `POST /api/words/summary` | no | Headword and meanings for a list of words. |
 | `POST /api/words/cards` | no | What a flashcard holds, for a list of words. |
 | `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
@@ -414,15 +418,52 @@ see it.
 ### `POST /api/saved/merge`
 
 Called once, on the first page load after signing in, with the words saved in
-this browser while signed out.
+this browser while signed out and the lists they were sorted into.
 
-Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }], "exported": { "книга": 1794400500000 } }`.
-`exported` is optional.
+Body: `{ "words": [{ "word": "книга", "saved_at": 1794400000000 }], "exported": { "книга": 1794400500000 }, "lists": [...] }`.
+`exported` and `lists` are optional; `lists` has the shape described under
+[Lists](#lists).
 
-Response `200`: `{ "words": [...], "exported": {...} }`, the account's whole
-list and marks afterwards. A word already in the account keeps its date. Items
-that are malformed or not dictionary words are skipped, and so are words beyond
-the limit of 5,000.
+Response `200`: `{ "words": [...], "exported": {...}, "lists": [...] }`, all of
+the account's saved words, marks and lists afterwards. A word already in the
+account keeps its date. Items that are malformed or not dictionary words are
+skipped, and so are words beyond the limit of 5,000.
+
+A sent list joins the account by these rules, in the order sent:
+
+- The account has a list with that `id`: the list gains the sent words and
+  keeps the account's name.
+- Otherwise, the account has a list with that name, in any letter case: the
+  sent list folds into it, so «Їжа» made on two devices becomes one list.
+- Otherwise the list is created, unless the account already has 50; then the
+  list is dropped and its words stay saved.
+
+A word is put into a list only if it is one of the account's saved words after
+the merge.
+
+### Lists
+
+A list is `{ "id": "0b9f…", "name": "Їжа", "created_at": 1794400000000, "words": ["хліб", "сир"] }`.
+Lists work like labels: a saved word can be in several lists, or in none, and
+a list holds saved words only. `GET /api/saved` gives them oldest first. One
+visitor can have at most 50. Signed out, the browser keeps its lists in
+`localStorage`; signed in, the account holds them.
+
+The browser chooses the `id` when the list is made (a UUID; 8 to 36 letters,
+digits, `_` or `-`), so a list made while signed out is still the same list
+after the merge. The rules shared by the browser and the server are in
+`src/lib/lists.ts`.
+
+`PUT /api/lists/<id>` with `{ "name": "Їжа" }` creates the list, or renames
+it if the account has a list with that id. The name is stored with spaces
+trimmed and runs of spaces collapsed, and has at most 40 characters. Two of
+one account's lists cannot have the same name, and letter case does not make
+names differ.
+
+`POST /api/lists/<id>/words` with `{ "add": ["хліб"], "remove": ["сир"] }`
+changes what is in a list; either field may be left out. Words in `add` that
+are not saved are skipped without an error, and so are words in `remove` that
+are not in the list. Removing a word from a list leaves it saved.
 
 ### Exported marks
 
@@ -576,10 +617,12 @@ These are pages the browser visits, not JSON endpoints.
 | Status | Body | When |
 |---|---|---|
 | `400` | `{ "error": "invalid_json" }` | The body is not JSON. |
-| `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. |
+| `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. `POST /api/lists/<id>/words`: `add` or `remove` is not a list, or has more than 5,000 items. |
+| `400` | `{ "error": "invalid_list" }` | `PUT /api/lists/<id>`: the id does not have the shape above, or the name is empty or longer than 40 characters. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
 | `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 1 MB for `/api/saved/merge`. |
-| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry; `GET /api/review/deck/<deck>` for a deck that does not exist. |
-| `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when the list already holds 5,000 words. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/lists/<id>/words`. |
+| `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |
+| `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when 5,000 words are already saved. `PUT /api/lists/<id>` for a new list when the account already has 50. |
+| `409` | `{ "error": "name_taken" }` | `PUT /api/lists/<id>` when another of the account's lists has that name. |

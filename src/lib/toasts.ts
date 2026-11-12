@@ -8,6 +8,8 @@ export interface ToastData {
 	title: string;
 	/** The word the message is about, with its stress mark. Absent when it is about no one word. */
 	headword?: string;
+	/** Lists named after the title, each a link that opens it: "Saved to Їжа, Урок 3". */
+	lists?: { name: string; href: string }[];
 	undo?: () => void;
 }
 

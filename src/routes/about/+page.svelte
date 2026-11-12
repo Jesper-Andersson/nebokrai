@@ -101,9 +101,10 @@
 			На Nebokrai немає реклами й відстеження. Файли cookie потрібні лише для входу й налаштувань.
 		</p>
 		<p>
-			Збережені слова зберігаються у вашому браузері. Якщо ви входите через Google або GitHub, ми
-			зберігаємо ваш ідентифікатор у цьому сервісі, ваше ім’я, збережені слова й те, які з них ви
-			експортували, щоб вони були на всіх ваших пристроях. Ми не просимо вашу електронну адресу й
+			Збережені слова та списки, у які ви їх розклали, зберігаються у вашому браузері. Якщо ви
+			входите через Google або GitHub, ми зберігаємо ваш ідентифікатор у цьому сервісі, ваше ім’я,
+			збережені слова, назви ваших списків і те, які слова ви експортували, щоб усе це було на всіх
+			ваших пристроях. Ми не просимо вашу електронну адресу й
 			ніколи не бачимо вашого пароля. «Видалити обліковий запис» у налаштуваннях одразу видаляє все
 			це.
 		</p>
@@ -211,9 +212,9 @@
 			settings.
 		</p>
 		<p>
-			Saved words are kept in your browser. If you sign in with Google or GitHub, we store that
-			service’s id for you, your name, your saved words and which of them you have exported, so that
-			they follow you to every device. We do not ask for your email address and never see your
+			Saved words, and the lists you sort them into, are kept in your browser. If you sign in with
+			Google or GitHub, we store that service’s id for you, your name, your saved words, the names
+			you give your lists and which words you have exported, so that they follow you to every device. We do not ask for your email address and never see your
 			password. “Delete account” in the settings removes all of it at once.
 		</p>
 		<p>

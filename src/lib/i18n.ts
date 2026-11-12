@@ -420,7 +420,19 @@ const en = {
 		show: 'Show answer',
 		again: 'Again',
 		good: 'Good',
-		keys: 'Space or Enter shows the answer, then answers Good. 1 is Again; 2, 3 and 4 are Good. R plays the recording, U undoes.',
+		keys: {
+			action: {
+				show: 'Show answer, then Good',
+				again: 'Again',
+				good: 'Good',
+				replay: 'Play recording',
+				undo: 'Undo'
+			},
+			hint: 'Click a key to change it.',
+			press: 'Press the new key, or Esc to keep the old one.',
+			reset: 'Back to the usual keys',
+			change: (action: string, key: string) => `${action}: ${key}. Change the key`
+		},
 		swipe: 'Tap the card for the answer, then swipe it left for Again or right for Good.',
 		heatmap: {
 			streak: 'Current streak',
@@ -978,7 +990,19 @@ const uk: Messages = {
 		show: 'Показати відповідь',
 		again: 'Ще раз',
 		good: 'Добре',
-		keys: 'Пробіл або Enter показує відповідь, а потім означає «Добре». 1 означає «Ще раз»; 2, 3 і 4 означають «Добре». R відтворює запис, U скасовує.',
+		keys: {
+			action: {
+				show: 'Показати відповідь, далі «Добре»',
+				again: 'Ще раз',
+				good: 'Добре',
+				replay: 'Відтворити запис',
+				undo: 'Скасувати'
+			},
+			hint: 'Клацніть клавішу, щоб змінити її.',
+			press: 'Натисніть нову клавішу або Esc, щоб залишити стару.',
+			reset: 'Повернути звичні клавіші',
+			change: (action, key) => `${action}: ${key}. Змінити клавішу`
+		},
 		swipe: 'Торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).',
 		heatmap: {
 			streak: 'Поточна серія',

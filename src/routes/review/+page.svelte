@@ -15,6 +15,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
+	import ReviewKeys from '#lib/ReviewKeys.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
@@ -23,6 +24,9 @@
 	import {
 		AGAIN, GOOD, REVIEW, answer, dayNumber, newCard, preview, type Grade, type ReviewCard
 	} from '#lib/review/fsrs.ts';
+	import {
+		DEFAULT_KEYS, actionFor, bindable, isDefault, keyLabel, parseBindings, rebind, type Action
+	} from '#lib/review/keys.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -153,6 +157,7 @@
 
 	function stop() {
 		started = false;
+		changing = null;
 		current = null;
 		void review.sync();
 	}
@@ -263,37 +268,71 @@
 		audio.play().catch(done);
 	}
 
-	// The keys are Anki's (qt/aqt/reviewer.py), as far as they have a meaning
-	// here: Space and Enter show the answer and then give the default one, the
-	// digits answer, R and F5 play the sound again, U undoes. Anki's 2, 3 and 4
-	// are Hard, Good and Easy, all of them a card remembered: with two answers,
-	// they are all "Good". The arrows follow the way the card leaves.
+	// The keys are Anki's (qt/aqt/reviewer.py) until the visitor changes them
+	// (src/lib/review/keys.ts): Space shows the answer and then gives the
+	// default one, 1 and 3 answer, R plays the sound again, U undoes. They are
+	// kept in this browser only: a keyboard belongs to a machine, not an account.
+	const KEYS_KEY = 'review-keys';
+	let keys = $state.raw(DEFAULT_KEYS);
+	/** The action whose key was clicked and now waits for the key to replace it. */
+	let changing = $state<Action | null>(null);
+
+	onMount(() => {
+		try {
+			keys = parseBindings(JSON.parse(localStorage.getItem(KEYS_KEY) ?? 'null'));
+		} catch {
+			// storage blocked, or not JSON: the usual keys
+		}
+	});
+
+	function setKeys(next: typeof keys) {
+		keys = next;
+		try {
+			if (isDefault(next)) localStorage.removeItem(KEYS_KEY);
+			else localStorage.setItem(KEYS_KEY, JSON.stringify(next));
+		} catch {
+			// storage blocked: the keys last until the page is closed
+		}
+	}
+
 	function onkeydown(event: KeyboardEvent) {
 		if (!started) return;
-		const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-		const plain = !event.ctrlKey && !event.metaKey && !event.altKey;
+		// A key is being chosen: this press is the choice, whatever it used to do.
+		if (changing) {
+			event.preventDefault();
+			if (event.code === 'Escape') changing = null;
+			else if (bindable(event.code)) {
+				setKeys(rebind(keys, changing, event.code));
+				changing = null;
+				// The key cap clicked still has the focus, and would swallow Space.
+				if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+			}
+			return;
+		}
 		// Not while typing in the quick search or another field.
 		if (event.target instanceof Element && event.target.closest('input, textarea, select, [role="dialog"]')) return;
+		const plain = !event.ctrlKey && !event.metaKey && !event.altKey;
+		// Ctrl+Z as everywhere else, whatever the keys are.
+		const action = plain ? actionFor(keys, event.code) : !event.altKey && event.code === 'KeyZ' ? 'undo' : null;
+		if (!action) return;
+		// A focused button or link is pressed by Space and Enter itself.
+		if ((event.code === 'Space' || event.code === 'Enter') && event.target instanceof Element
+			&& event.target.closest('button, a')) return;
+
 		// Undo works on the last screen too, where there is no card.
-		if ((plain && key === 'u') || (!plain && !event.altKey && key === 'z')) {
+		if (action === 'undo') {
 			if (!canUndo) return;
 			event.preventDefault();
 			return undo();
 		}
-		if (!plain || !current || !info) return;
-		if (key === 'r' || key === 'F5') {
-			if (!info.audio_url) return;
-			event.preventDefault(); // F5 would reload the page
-			return play(info.audio_url);
-		}
-		if (key === ' ' || key === 'Enter') {
-			// A focused button or link is pressed by these keys itself.
-			if (event.target instanceof Element && event.target.closest('button, a')) return;
-			event.preventDefault();
+		if (!current || !info) return;
+		event.preventDefault(); // Space would scroll the page, F5 reload it
+		if (action === 'replay') {
+			if (info.audio_url) play(info.audio_url);
+		} else if (action === 'show') {
 			if (flipped) give(GOOD);
 			else flipped = true;
-		} else if (key === '1' || key === 'ArrowLeft') give(AGAIN);
-		else if (key === '2' || key === '3' || key === '4' || key === 'ArrowRight') give(GOOD);
+		} else give(action === 'again' ? AGAIN : GOOD);
 	}
 
 	function toggleDeck(deck: string, on: boolean) {
@@ -431,11 +470,11 @@
 			<div class="answers">
 				<button type="button" class="ui-btn answer again" onclick={() => give(AGAIN)}>
 					<span class="when">{label(ahead.again - now)}</span>
-					<span class="what"><Icon name="arrow-left" size={16} />{m.review.again} <kbd class="ui-kbd">1</kbd></span>
+					<span class="what"><Icon name="arrow-left" size={16} />{m.review.again} <kbd class="ui-kbd">{keyLabel(keys.again)}</kbd></span>
 				</button>
 				<button type="button" class="ui-btn ui-btn-primary answer" onclick={() => give(GOOD)}>
 					<span class="when">{label(ahead.good - now)}</span>
-					<span class="what">{m.review.good} <kbd class="ui-kbd">3</kbd><Icon name="arrow-right" size={16} /></span>
+					<span class="what">{m.review.good} <kbd class="ui-kbd">{keyLabel(keys.good)}</kbd><Icon name="arrow-right" size={16} /></span>
 				</button>
 			</div>
 		{:else}
@@ -445,11 +484,18 @@
 				</button>
 			</div>
 		{/if}
-		<p class="under">
-			<span class="muted keys">{m.review.keys}</span>
+		<div class="under">
+			<div class="keys">
+				<ReviewKeys
+					{keys}
+					{changing}
+					onpick={(action) => (changing = changing === action ? null : action)}
+					onreset={() => setKeys(DEFAULT_KEYS)}
+				/>
+			</div>
 			<span class="muted touch">{m.review.swipe}</span>
 			{#if canUndo}<button type="button" class="ui-btn" onclick={undo}>{m.review.undo}</button>{/if}
-		</p>
+		</div>
 	{:else if current}
 		<section class="ui-card end" role="status">
 			{#if failed}
@@ -739,7 +785,7 @@
 	.under {
 		display: flex;
 		justify-content: space-between;
-		align-items: center;
+		align-items: flex-start;
 		gap: 0.75rem;
 		min-height: 2.5rem;
 	}

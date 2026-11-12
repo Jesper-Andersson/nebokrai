@@ -160,6 +160,12 @@
 	--shadow-pop: 0 2px 6px rgb(22 24 29 / 0.08), 0 16px 48px rgb(22 24 29 / 0.18);
 	--stress: #cf3d2e;
 	--play: #1f8ac0;
+	/* The streak's flame on the header's flashcards button: its tip, its body,
+	   the bright heart the number is written on, and the number */
+	--flame-tip: #f0541e;
+	--flame: #ffa726;
+	--flame-core: #ffe08a;
+	--flame-ink: #5a2500;
 	/* The wordmark in the header: pure white on the dark page, and the text
 	   colour on the light one, where white would not show */
 	--logo-ink: #16181d;
@@ -195,6 +201,12 @@
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	--stress: #e45f58;
 	--play: #5cb8e6;
+	/* The streak's flame on the header's flashcards button: its tip, its body,
+	   the bright heart the number is written on, and the number */
+	--flame-tip: #ff6a2b;
+	--flame: #ffb03a;
+	--flame-core: #ffe59a;
+	--flame-ink: #5a2500;
 	--logo-ink: #ffffff;
 	--pill-1-line: #4fae67;
 	--pill-2-line: #5b95d9;
@@ -230,6 +242,12 @@
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		--stress: #e45f58;
 		--play: #5cb8e6;
+		/* The streak's flame on the header's flashcards button: its tip, its body,
+		   the bright heart the number is written on, and the number */
+		--flame-tip: #ff6a2b;
+		--flame: #ffb03a;
+		--flame-core: #ffe59a;
+		--flame-ink: #5a2500;
 		--logo-ink: #ffffff;
 		--pill-1-line: #4fae67;
 		--pill-2-line: #5b95d9;
@@ -268,6 +286,12 @@
 	--shadow-pop: 0 2px 6px rgb(59 47 32 / 0.12), 0 16px 48px rgb(59 47 32 / 0.22);
 	--stress: #a8321f;
 	--play: #1a6283;
+	/* The streak's flame on the header's flashcards button: its tip, its body,
+	   the bright heart the number is written on, and the number */
+	--flame-tip: #d9481c;
+	--flame: #f09a24;
+	--flame-core: #ffdf8f;
+	--flame-ink: #5a2500;
 	--logo-ink: #3b2f20;
 	--pill-1-line: #2c7338;
 	--pill-2-line: #2f629c;

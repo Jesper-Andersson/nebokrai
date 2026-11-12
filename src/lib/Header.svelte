@@ -152,9 +152,22 @@
 				<Icon name="cards" size={20} />
 				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
 				{#if streak.days}
+					<!-- Two shapes: the flame, red at the tip and amber below, and a
+					     bright heart low in it for the number to stand on -->
 					<svg class="flame" class:lit={streak.lit} viewBox="0 0 24 24" aria-hidden="true">
-						<path d="M12 1.5c1 3.5 7 6.5 7 13a7 7 0 0 1-14 0c0-3 1.5-5 3-6.5.5 2 1.3 2.8 2 3-.2-3.5.5-7 2-9.5z" />
-						<text x="12" y="18.3" text-anchor="middle" class:long={streak.days > 99}>
+						<defs>
+							<linearGradient id="ui-flame-body" x1="0" y1="0" x2="0" y2="1">
+								<stop offset="0%" style="stop-color: var(--flame-tip)" />
+								<stop offset="70%" style="stop-color: var(--flame)" />
+							</linearGradient>
+						</defs>
+						<path
+							class="body"
+							fill="url(#ui-flame-body)"
+							d="M13 1c.6 3.2 3 4.9 4.7 7.2 1.4 1.9 2.3 4 2.3 6.3A8 8 0 0 1 4 14.5c0-2.6 1.1-4.9 2.7-6.6.3 1.6 1 2.7 2.2 3.3C8.6 7.6 10 3.6 13 1z"
+						/>
+						<path class="core" d="M12 9c3 2 5.5 4 5.5 7a5.5 5.5 0 0 1-11 0c0-3 2.5-5 5.5-7z" />
+						<text x="12" y="19" text-anchor="middle" class:long={streak.days > 99}>
 							{Math.min(streak.days, 999)}
 						</text>
 					</svg>
@@ -372,44 +385,95 @@
 		color: var(--accent);
 	}
 
-	/* The streak: a flame on the lower corner with the days written in it */
+	/* The streak: a flame on the upper left corner with the days written in it.
+	   The count of cards due has the upper right. */
 	.flame {
 		position: absolute;
-		right: -0.7rem;
-		bottom: -0.75rem;
-		width: 1.6rem;
-		height: 1.6rem;
+		top: -0.9rem;
+		left: -0.8rem;
+		width: 1.75rem;
+		height: 1.75rem;
 		overflow: visible;
 		pointer-events: none;
 	}
 
-	.flame path {
-		fill: var(--surface);
+	/* Not yet kept today: the same flame, gone grey */
+	.flame:not(.lit) .body {
+		fill: var(--surface-2);
 		stroke: var(--muted);
-		stroke-width: 1.5;
+		stroke-width: 1.2;
 		stroke-linejoin: round;
+	}
+
+	.flame:not(.lit) .core {
+		fill: var(--surface);
 	}
 
 	.flame text {
 		fill: var(--muted);
 		font-family: var(--font-text);
-		font-size: 9.5px;
+		font-size: 8.5px;
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
 	}
 
 	.flame text.long {
-		font-size: 7px;
+		font-size: 6px;
 	}
 
-	/* Lit: a card has been reviewed today */
-	.flame.lit path {
-		fill: var(--gold);
-		stroke: var(--surface);
+	/* Lit: a card has been reviewed today. It glows, and it flickers: the
+	   body sways from its foot while the heart beats a little out of step. */
+	.flame.lit {
+		filter: drop-shadow(0 0 3px color-mix(in oklab, var(--flame) 70%, transparent));
+	}
+
+	.flame.lit .body {
+		stroke: none;
+		transform-box: fill-box;
+		transform-origin: 50% 100%;
+		animation: flame-sway 1.7s ease-in-out infinite alternate;
+	}
+
+	.flame.lit .core {
+		fill: var(--flame-core);
+		transform-box: fill-box;
+		transform-origin: 50% 100%;
+		animation: flame-beat 1.1s ease-in-out infinite alternate;
 	}
 
 	.flame.lit text {
-		fill: #16181d; /* dark on the gold in every theme: the gold is never dark */
+		fill: var(--flame-ink);
+	}
+
+	@keyframes flame-sway {
+		from {
+			transform: scale(1, 0.96) skewX(-2.5deg);
+		}
+
+		50% {
+			transform: scale(0.97, 1.04) skewX(1.5deg);
+		}
+
+		to {
+			transform: scale(1.02, 0.98) skewX(3deg);
+		}
+	}
+
+	@keyframes flame-beat {
+		from {
+			transform: scale(0.94, 0.96);
+		}
+
+		to {
+			transform: scale(1.04, 1.05);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.flame.lit .body,
+		.flame.lit .core {
+			animation: none;
+		}
 	}
 
 	.count {

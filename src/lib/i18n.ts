@@ -397,6 +397,8 @@ const en = {
 	review: {
 		open: 'Flashcards',
 		openDue: (n: number) => `Flashcards: ${n} to review`,
+		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
+		streakWaits: 'Review a card today to keep it',
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
 		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
@@ -967,6 +969,8 @@ const uk: Messages = {
 	review: {
 		open: 'Картки',
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
+		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
+		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
 		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',

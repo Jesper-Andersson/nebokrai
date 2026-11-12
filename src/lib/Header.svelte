@@ -9,6 +9,8 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { plan } from '#lib/review/cards.ts';
+	import { keyOfDay, reviewStats } from '#lib/review/days.ts';
+	import { dayNumber } from '#lib/review/fsrs.ts';
 	import { SAVED_DECK } from '#lib/review/decks.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -56,6 +58,20 @@
 		const today = plan(review.cards, words, 0, Date.now());
 		return today.learning.length + today.due.length;
 	});
+
+	// The streak, in a flame on the same button. The flame burns once a card
+	// has been reviewed today; until then it is an outline, the streak still
+	// standing but not yet kept.
+	let streak = $derived.by(() => {
+		const today = dayNumber(Date.now());
+		return { days: reviewStats(review.days, today).streak, lit: (review.days[keyOfDay(today)] ?? 0) > 0 };
+	});
+	let cardsLabel = $derived(
+		[
+			due ? m.review.openDue(due) : m.review.open,
+			...(streak.days ? [m.review.streakDays(streak.days)] : []),
+			...(streak.days && !streak.lit ? [m.review.streakWaits] : [])
+		].join('. '));
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -130,11 +146,19 @@
 				class="ui-icon-btn cards"
 				href="/review"
 				aria-current={current('/review') ? 'page' : undefined}
-				aria-label={due ? m.review.openDue(due) : m.review.open}
-				title={m.review.open}
+				aria-label={cardsLabel}
+				title={cardsLabel}
 			>
 				<Icon name="cards" size={20} />
 				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
+				{#if streak.days}
+					<svg class="flame" class:lit={streak.lit} viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M12 1.5c1 3.5 7 6.5 7 13a7 7 0 0 1-14 0c0-3 1.5-5 3-6.5.5 2 1.3 2.8 2 3-.2-3.5.5-7 2-9.5z" />
+						<text x="12" y="18.3" text-anchor="middle" class:long={streak.days > 99}>
+							{Math.min(streak.days, 999)}
+						</text>
+					</svg>
+				{/if}
 			</a>
 			<SettingsMenu />
 		</div>
@@ -346,6 +370,46 @@
 	.cards[aria-current='page'] {
 		background: var(--accent-soft);
 		color: var(--accent);
+	}
+
+	/* The streak: a flame on the lower corner with the days written in it */
+	.flame {
+		position: absolute;
+		right: -0.7rem;
+		bottom: -0.75rem;
+		width: 1.6rem;
+		height: 1.6rem;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	.flame path {
+		fill: var(--surface);
+		stroke: var(--muted);
+		stroke-width: 1.5;
+		stroke-linejoin: round;
+	}
+
+	.flame text {
+		fill: var(--muted);
+		font-family: var(--font-text);
+		font-size: 9.5px;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.flame text.long {
+		font-size: 7px;
+	}
+
+	/* Lit: a card has been reviewed today */
+	.flame.lit path {
+		fill: var(--gold);
+		stroke: var(--surface);
+	}
+
+	.flame.lit text {
+		fill: #16181d; /* dark on the gold in every theme: the gold is never dark */
 	}
 
 	.count {

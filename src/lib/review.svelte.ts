@@ -20,7 +20,7 @@
 // be shared between visitors on the server).
 import { getContext, setContext } from 'svelte';
 import { SYNC_MAX, mergeCards, parseCards } from './review/cards.ts';
-import { DEFAULT_SETTINGS, SAVED_DECK, parseSettings, type ReviewSettings } from './review/decks.ts';
+import { COMMON_DECKS, DEFAULT_SETTINGS, parseSettings, type ReviewSettings } from './review/decks.ts';
 import { DAYS_MAX, addDays, dayKey, parseDays, type DayCounts } from './review/days.ts';
 import { DAY, type ReviewCard } from './review/fsrs.ts';
 
@@ -149,7 +149,8 @@ export class Review {
 	 */
 	fetchDecks(ids: readonly string[]): void {
 		for (const id of ids) {
-			if (id === SAVED_DECK || this.#asked.has(id)) continue;
+			// Saved words and their lists are this browser's own; only the common decks are on the server.
+			if (!COMMON_IDS.has(id) || this.#asked.has(id)) continue;
 			this.#asked.add(id);
 			void fetch(`/api/review/deck/${id}`)
 				.then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
@@ -306,6 +307,8 @@ export class Review {
 		}
 	}
 }
+
+const COMMON_IDS = new Set<string>(COMMON_DECKS.map((deck) => deck.id));
 
 const KEY = Symbol('review');
 

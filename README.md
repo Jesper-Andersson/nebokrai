@@ -10,7 +10,7 @@ A Ukrainian learning site and dictionary, at [nebokrai.app](https://nebokrai.app
 |---|---|
 | `src/routes/` | The site's pages (SvelteKit). |
 | `src/lib/` | Shared components and assets. `src/lib/server/` picks the database: D1 in production, the local `nebokrai.db` during `npm run dev`. |
-| `static/` | Files served as-is. |
+| `static/` | Files served as-is. `og.png`, the picture shown beside a shared link, is drawn by `npm run og-image` (needs Edge or Chrome). |
 | `data/` | Scripts that build the dictionary database from open data. Start with `data/README.md`. |
 | `src/lib/search/` | The search the site will use (TypeScript). |
 | `tests/` | Checks that the TypeScript search agrees with the reference search in `data/search.py`. Run with `npm test`. |

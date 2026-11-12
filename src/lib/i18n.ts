@@ -49,6 +49,8 @@ const en = {
 	toast: {
 		saved: 'Saved',
 		removed: 'Removed from saved',
+		copied: 'Link copied',
+		notCopied: 'Could not copy the link',
 		undo: 'Undo',
 		dismiss: 'Dismiss'
 	},
@@ -121,6 +123,7 @@ const en = {
 		play: 'Play pronunciation',
 		save: 'Save word',
 		unsave: 'Remove from saved',
+		share: 'Share this word',
 		details: 'Details',
 		genitive: 'gen.',
 		noEntry: 'A Ukrainian word with no dictionary entry yet.',
@@ -183,6 +186,8 @@ const en = {
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
+		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
 		/** книга: meaning in English, stress and declension */
 		wordTitle: (word: string, has: WordFacts) =>
 			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
@@ -304,6 +309,8 @@ const uk: Messages = {
 	toast: {
 		saved: 'Збережено',
 		removed: 'Прибрано зі збереженого',
+		copied: 'Посилання скопійовано',
+		notCopied: 'Не вдалося скопіювати посилання',
 		undo: 'Скасувати',
 		dismiss: 'Закрити'
 	},
@@ -374,6 +381,7 @@ const uk: Messages = {
 		play: 'Прослухати вимову',
 		save: 'Зберегти слово',
 		unsave: 'Прибрати зі збереженого',
+		share: 'Поділитися словом',
 		details: 'Докладніше',
 		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.',
@@ -434,6 +442,7 @@ const uk: Messages = {
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>
 			`${word}: ${listOf([
 				'значення англійською', has.stress && 'наголос',

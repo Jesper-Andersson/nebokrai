@@ -53,7 +53,7 @@ test('the sitemap lists every word page once', { skip: !hasDb }, async () => {
 	assert.ok(text.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<urlset '));
 	assert.equal(new Set(urls).size, urls.length, 'no address twice');
 	assert.ok(urls.length > 25_000 && urls.length < 50_000, `${urls.length} addresses`);
-	for (const page of ['/', '/about', '/resources', '/sources', '/word/kalyna', '/word/knyha', '/word/kyiv']) {
+	for (const page of ['/', '/about', '/resources', '/support', '/sources', '/word/kalyna', '/word/knyha', '/word/kyiv']) {
 		assert.ok(urls.includes(`https://nebokrai.app${page}`), page);
 	}
 	for (const page of ['/saved', '/report']) assert.ok(!urls.includes(`https://nebokrai.app${page}`), page);

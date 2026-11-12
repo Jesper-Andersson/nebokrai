@@ -63,6 +63,13 @@
 		by neslihan on Pexels (<a href="https://www.pexels.com/license/">Pexels Licence</a>).
 	</p>
 
+	<h2>Logos of the funds</h2>
+	<p>
+		The logos on the <a href="/support">Support Ukraine</a> page belong to the organisations they
+		stand for. Each was taken from that organisation’s own site and is shown only to say whose link
+		it is. None of the licences above covers them.
+	</p>
+
 	<h2>Using our data</h2>
 	<p>
 		The dictionary data shown on this site, apart from VESUM, is available under

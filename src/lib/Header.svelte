@@ -27,11 +27,8 @@
 	const current = (href: string) =>
 		page.url.pathname === href || (href === '/' && page.url.pathname.startsWith('/word/'));
 
-	// United24 is the Ukrainian state's own fundraising platform.
-	const SUPPORT_URL = 'https://u24.gov.ua/';
-
 	// The rule under the bar is drawn by the current page's tab. A page that is
-	// none of the four (/sources, /report, an error) has no such tab, and the
+	// none of the four (/support, /sources, /report, an error) has no such tab, and the
 	// bar then draws the rule itself, unbroken.
 	let onATab = $derived(links.some((link) => current(link.href)));
 
@@ -61,7 +58,12 @@
 			{/each}
 		</nav>
 		<div class="tools">
-			<a class="support" href={SUPPORT_URL} rel="noopener" title={m.support.hint}>
+			<a
+				class="support"
+				href="/support"
+				aria-current={current('/support') ? 'page' : undefined}
+				title={m.support.hint}
+			>
 				<!-- A heart in the flag's two colours, the same blue and yellow as the
 				     logo. The yellow half all but vanishes on the light bar, so the
 				     heart is outlined, in a darker amber under the blue. -->
@@ -86,7 +88,7 @@
 				</svg>
 				{m.support.label}
 			</a>
-			<!-- A hairline between the way out of the site and the site's own tools -->
+			<!-- A hairline between the link to the funds and the site's own tools -->
 			<span class="divider"></span>
 			{#if !onSearchPage}
 				<button type="button" class="search" aria-label={m.quick.open} onclick={() => (searchOpen = true)}>
@@ -253,9 +255,9 @@
 		gap: 0.35rem;
 	}
 
-	/* The way out to United24. No frame: a box here was the heaviest thing in
-	   the bar. It keeps its words at every width; a heart alone does not say
-	   where it leads. */
+	/* The way to /support, the funds to donate to. No frame: a box here was
+	   the heaviest thing in the bar. It keeps its words at every width; a
+	   heart alone does not say where it leads. */
 	.support {
 		display: flex;
 		flex: none;
@@ -273,6 +275,11 @@
 
 	.support svg {
 		flex: none;
+	}
+
+	/* On its own page it takes the ink of a current tab */
+	.support[aria-current='page'] {
+		color: var(--ink);
 	}
 
 	@media (hover: hover) {

@@ -34,8 +34,8 @@ function counted(n: number, one: string, few: string, many: string): string {
 
 const en = {
 	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
-	/** The header's link out to United24, the state's own fundraising platform. */
-	support: { label: 'Support Ukraine', hint: 'Donate through United24, Ukraine’s official fundraising platform' },
+	/** The header's link to /support, and that page's title. */
+	support: { label: 'Support Ukraine', hint: 'Where to donate: United24 and other funds, by what they do' },
 	/** The search that opens from the header, or with Ctrl+K. */
 	quick: {
 		open: 'Search',
@@ -160,6 +160,7 @@ const en = {
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
+		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** книга: meaning in English, stress and declension */
@@ -271,7 +272,7 @@ export type Messages = typeof en;
 
 const uk: Messages = {
 	nav: { label: 'Головне меню', dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
-	support: { label: 'Підтримати Україну', hint: 'Задонатити через United24, офіційну фандрейзингову платформу України' },
+	support: { label: 'Підтримати Україну', hint: 'Куди задонатити: United24 та інші фонди, за тим, що вони роблять' },
 	quick: {
 		open: 'Пошук',
 		title: 'Швидкий пошук',
@@ -396,6 +397,7 @@ const uk: Messages = {
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
+		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		wordTitle: (word, has) =>

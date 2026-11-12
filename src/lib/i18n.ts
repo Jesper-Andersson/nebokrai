@@ -51,6 +51,8 @@ const en = {
 	/** The short messages in the corner of the page. */
 	toast: {
 		saved: 'Saved',
+		/** Saved straight into the default lists, whose names follow as links: "Saved to Food, Lesson 3". */
+		savedTo: 'Saved to',
 		removed: 'Removed from saved',
 		copied: 'Link copied',
 		notCopied: 'Could not copy the link',
@@ -136,6 +138,31 @@ const en = {
 		select: (word: string) => `Select ${word}`,
 		selectAll: 'Select all',
 		selectedCount: (n: number) => `${n} selected`
+	},
+	/** The lists saved words are sorted into (ListPicker.svelte and the Saved page). */
+	lists: {
+		heading: 'Lists',
+		all: 'All',
+		choose: 'Add to a list',
+		none: 'No lists yet. Name the first one.',
+		newName: 'New list',
+		create: 'Create',
+		name: 'Name',
+		rename: 'Rename',
+		save: 'Save',
+		cancel: 'Cancel',
+		delete: 'Delete list',
+		deleted: (name: string) => `List “${name}” deleted`,
+		empty: 'No words in this list yet. To add one, press the list button beside a saved word.',
+		taken: 'There is already a list with this name.',
+		full: (max: number) => `You can have up to ${max} lists.`,
+		whichIn: (name: string) => `Which words from “${name}”`,
+		/** Under the lists when the bookmark asks where a word goes: stop it asking. */
+		makeDefault: 'Use as default',
+		makeDefaultHint: 'The next words you save will go to the lists chosen above, without this prompt.',
+		defaultIs: (names: string) =>
+			names ? `New words are saved to ${names} without asking.` : 'New words are saved to no list, without asking.',
+		askAgain: 'Ask each time'
 	},
 	settings: {
 		open: 'Settings',
@@ -540,6 +567,7 @@ const uk: Messages = {
 	},
 	toast: {
 		saved: 'Збережено',
+		savedTo: 'Збережено до:',
 		removed: 'Прибрано зі збереженого',
 		copied: 'Посилання скопійовано',
 		notCopied: 'Не вдалося скопіювати посилання',
@@ -624,6 +652,29 @@ const uk: Messages = {
 		selectAll: 'Вибрати всі',
 		// "Вибрано: 5" needs no plural form of its own
 		selectedCount: (n: number) => `Вибрано: ${n}`
+	},
+	lists: {
+		heading: 'Списки',
+		all: 'Усі',
+		choose: 'Додати до списку',
+		none: 'Списків ще немає. Назвіть перший.',
+		newName: 'Новий список',
+		create: 'Створити',
+		name: 'Назва',
+		rename: 'Перейменувати',
+		save: 'Зберегти',
+		cancel: 'Скасувати',
+		delete: 'Видалити список',
+		deleted: (name: string) => `Список «${name}» видалено`,
+		empty: 'У цьому списку ще немає слів. Щоб додати слово, натисніть кнопку списків біля збереженого слова.',
+		taken: 'Список із такою назвою вже є.',
+		full: (max: number) => `Можна мати до ${max} списків.`,
+		whichIn: (name: string) => `Які слова зі списку «${name}»`,
+		makeDefault: 'Зробити типовим',
+		makeDefaultHint: 'Наступні збережені слова потраплятимуть до вибраних вище списків без цього запиту.',
+		defaultIs: (names: string) =>
+			names ? `Нові слова зберігаються до: ${names}, без запиту.` : 'Нові слова зберігаються без списку, без запиту.',
+		askAgain: 'Питати щоразу'
 	},
 	settings: {
 		open: 'Налаштування',

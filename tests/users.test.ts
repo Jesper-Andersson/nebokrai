@@ -3,10 +3,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { MAX_SAVED } from '../src/lib/saved.ts';
+import { MAX_LISTS, MAX_SAVED } from '../src/lib/saved.ts';
 import {
-	SESSION_MS, createSession, deleteSession, deleteUser, findOrCreateUser, listExported, listSaved, markExported,
-	mergeSaved, parseExportedMarks, parseExportedWords, parseSavedWords, removeWord, saveWord, validateSession
+	SESSION_MS, addToLists, createSession, deleteList, deleteSession, deleteUser, findOrCreateUser, hasList,
+	listExported, listLists, listSaved, markExported, mergeLists, mergeSaved, parseExportedMarks, parseExportedWords,
+	parseSavedWords, parseWords, putList, removeFromList, removeWord, saveWord, validateSession
 } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -91,10 +92,14 @@ test('deleting an account removes everything', async () => {
 	await saveWord(db, other, 'книга');
 	await markExported(db, user, { книга: T0 });
 	await markExported(db, other, { книга: T0 });
+	for (const who of [user, other]) {
+		await putList(db, who, 'list-read', 'Читання');
+		await addToLists(db, who, [['list-read', 'книга']]);
+	}
 
 	await deleteUser(db, user);
 	assert.equal(await validateSession(db, token), null);
-	for (const table of ['users', 'identities', 'saved_words', 'exported_words']) {
+	for (const table of ['users', 'identities', 'saved_words', 'exported_words', 'lists', 'list_words']) {
 		assert.equal((await db.all(`SELECT 1 FROM ${table}`)).length, 1, table); // only Тарас is left
 	}
 	assert.notEqual(await findOrCreateUser(db, 'github', '42', 'Олена'), user); // a new account
@@ -142,6 +147,101 @@ test('exported marks', async () => {
 	await mergeSaved(db, user, many.map((word) => ({ word, saved_at: T0 })));
 	await markExported(db, user, Object.fromEntries(many.map((word) => [word, T0 + 30])));
 	assert.equal(Object.keys(await listExported(db, user)).length, 302);
+});
+
+test('lists of saved words', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', null);
+	const other = await findOrCreateUser(db, 'github', '43', null);
+	for (const word of ['хліб', 'сир', 'іти']) await saveWord(db, user, word, T0);
+	await saveWord(db, other, 'хліб', T0);
+
+	assert.equal(await putList(db, user, 'list-food', 'Їжа', T0 + 2), 'ok');
+	assert.equal(await putList(db, user, 'list-verb', 'Дієслова', T0 + 1), 'ok');
+	assert.equal(await putList(db, other, 'list-mine', 'Їжа', T0), 'ok'); // another account may use the name
+	assert.equal(await putList(db, user, 'list-eat', 'їжа'), 'name_taken'); // in any letter case
+	assert.equal(await putList(db, user, 'list-verb', 'Їжа'), 'name_taken');
+	assert.ok(await hasList(db, user, 'list-food'));
+	assert.ok(!(await hasList(db, user, 'list-mine')));
+
+	// A word can be in several lists. Skipped: a word that is not saved, a list
+	// of another account, a list that does not exist.
+	await addToLists(db, user, [
+		['list-food', 'хліб'], ['list-food', 'сир'], ['list-verb', 'іти'], ['list-verb', 'хліб'], ['list-food', 'хліб'],
+		['list-food', 'небокрай'], ['list-mine', 'хліб'], ['list-none', 'хліб']
+	]);
+	assert.deepEqual(await listLists(db, user), [
+		{ id: 'list-verb', name: 'Дієслова', created_at: T0 + 1, words: ['хліб', 'іти'] },
+		{ id: 'list-food', name: 'Їжа', created_at: T0 + 2, words: ['сир', 'хліб'] }
+	]);
+	assert.deepEqual((await listLists(db, other)).map((l) => l.words), [[]]);
+
+	// Renaming keeps the id, the date and the words; a list may be renamed to its own name.
+	assert.equal(await putList(db, user, 'list-verb', 'Рух', T0 + 50), 'ok');
+	assert.equal(await putList(db, user, 'list-verb', 'рух', T0 + 50), 'ok');
+	assert.deepEqual((await listLists(db, user))[0], { id: 'list-verb', name: 'рух', created_at: T0 + 1, words: ['хліб', 'іти'] });
+
+	await removeFromList(db, user, 'list-verb', ['хліб', 'сир']);
+	await removeFromList(db, user, 'list-verb', []);
+	assert.deepEqual((await listLists(db, user)).map((l) => l.words), [['іти'], ['сир', 'хліб']]);
+
+	// A word that is no longer saved leaves its lists, and saving it again does not bring it back.
+	await removeWord(db, user, 'хліб');
+	await saveWord(db, user, 'хліб', T0 + 60);
+	assert.deepEqual((await listLists(db, user)).map((l) => l.words), [['іти'], ['сир']]);
+
+	// Deleting a list keeps its words saved; deleting it twice is fine.
+	await deleteList(db, user, 'list-food');
+	await deleteList(db, user, 'list-food');
+	assert.deepEqual((await listLists(db, user)).map((l) => l.id), ['list-verb']);
+	assert.equal((await listSaved(db, user)).length, 3);
+	assert.deepEqual(await db.all('SELECT 1 FROM list_words WHERE user_id = ? AND list_id = ?', [user, 'list-food']), []);
+});
+
+test('lists stop at the limit', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', null);
+	for (let i = 0; i < MAX_LISTS; i++) assert.equal(await putList(db, user, `list-${i}00`, `Урок ${i}`), 'ok');
+	assert.equal(await putList(db, user, 'list-more', 'Ще один'), 'full');
+	assert.equal(await putList(db, user, 'list-000', 'Перший урок'), 'ok'); // renaming is still allowed
+	// A merge creates none either, but a list the account has still gains its words.
+	await saveWord(db, user, 'школа');
+	const merged = await mergeLists(db, user, [
+		{ id: 'list-more', name: 'Ще один', created_at: T0, words: ['школа'] },
+		{ id: 'list-other', name: 'урок 1', created_at: T0, words: ['школа'] }
+	]);
+	assert.equal(merged.length, MAX_LISTS);
+	assert.deepEqual(merged.filter((l) => l.words.length).map((l) => l.id), ['list-100']);
+});
+
+test('merging a browser\'s lists into an account', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', null);
+	// More words than D1 allows bound parameters
+	const many = Array.from({ length: 300 }, (_, i) => `слово${String(i).padStart(3, '0')}`);
+	await mergeSaved(db, user, [...many, 'хліб', 'сир'].map((word) => ({ word, saved_at: T0 })));
+	await putList(db, user, 'list-food', 'Їжа', T0);
+	await addToLists(db, user, [['list-food', 'хліб']]);
+
+	const sent = [
+		{ id: 'list-meal', name: 'їжа', created_at: T0 + 1, words: ['сир', 'хліб', 'не збережене'] },
+		{ id: 'list-many', name: 'Урок 3', created_at: T0 + 2, words: many }
+	];
+	const merged = await mergeLists(db, user, sent);
+	assert.deepEqual(merged.map((l) => [l.id, l.name, l.words.length]),
+		[['list-food', 'Їжа', 2], ['list-many', 'Урок 3', 300]]);
+	assert.deepEqual(merged[1].words, many);
+	// The same again changes nothing, and nothing sent returns the account's lists.
+	assert.deepEqual(await mergeLists(db, user, sent), merged);
+	assert.deepEqual(await mergeLists(db, user, []), merged);
+});
+
+test('words sent for a list are read defensively', () => {
+	assert.deepEqual(parseWords(['хліб', '', 7, null, 'я'.repeat(101), 'сир', 'хліб']), ['хліб', 'сир']);
+	assert.deepEqual(parseWords([]), []);
+	for (const junk of [null, undefined, 'хліб', { хліб: 1 }, Array(MAX_SAVED + 1).fill('хліб')]) {
+		assert.equal(parseWords(junk), null);
+	}
 });
 
 test('exported marks sent by a browser are read defensively', () => {

@@ -83,10 +83,23 @@
 		overflow-wrap: anywhere;
 	}
 
+	/* A link reads as a word first: the text's own colour, over a thin line in
+	   a tint of the link colour. The full link colour would fight the red of
+	   the stress in every word of the list. Pointing at it brings the colour. */
 	a {
-		color: var(--accent);
+		color: inherit;
 		text-decoration: underline;
-		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+		text-underline-offset: 4px;
+		transition:
+			color var(--duration),
+			text-decoration-color var(--duration);
+	}
+
+	a:hover {
+		color: var(--accent);
+		text-decoration-color: currentColor;
 	}
 
 	i {

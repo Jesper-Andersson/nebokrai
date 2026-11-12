@@ -63,6 +63,11 @@
 			лише для входу й налаштувань; реклами та відстеження немає. «Видалити обліковий запис» у
 			налаштуваннях одразу видаляє все це.
 		</p>
+		<p>
+			Радіо, яке можна ввімкнути в налаштуваннях, грає просто із сервера станції: коли ви вмикаєте
+			станцію, ваш браузер з’єднується з нею, і вона бачить вашу IP-адресу, як будь-який сайт, який
+			ви відкриваєте. Доки ви не натиснули «Слухати», жодна станція нічого не отримує.
+		</p>
 
 		<h2>Контакти</h2>
 		<p>
@@ -112,6 +117,11 @@
 			We never receive your email address or password. Cookies are used only for signing in and for
 			your settings; there are no ads and no tracking. “Delete account” in the settings removes all
 			of it at once.
+		</p>
+		<p>
+			The radio you can switch on in the settings plays straight from each station’s server: when
+			you start a station, your browser connects to it, and it sees your IP address as any site you
+			visit does. Until you press Play, no station hears from you.
 		</p>
 
 		<h2>Contact</h2>

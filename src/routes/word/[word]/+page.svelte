@@ -15,6 +15,7 @@
 	import Tip from '#lib/Tip.svelte';
 	import { formTables } from '#lib/forms.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
+	import { useRadio } from '#lib/radio.svelte.ts';
 	import type { WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -23,6 +24,7 @@
 	let { data }: PageProps = $props();
 
 	const settings = useSettings();
+	const radio = useRadio();
 	let m = $derived(messagesFor(settings.lang));
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
@@ -36,12 +38,19 @@
 		return `https://commons.wikimedia.org/wiki/File:${file}`;
 	}
 
+	// The radio (RadioPlayer.svelte) may be playing: it is turned down for as
+	// long as the word sounds, so the word can be heard over it.
 	function play(entry: WordEntry) {
+		const done = radio.duck();
 		if (entry.audio_url) {
-			void new Audio(entry.audio_url).play();
+			const audio = new Audio(entry.audio_url);
+			audio.addEventListener('ended', done);
+			audio.addEventListener('error', done);
+			audio.play().catch(done);
 		} else {
 			const utterance = new SpeechSynthesisUtterance(entry.word);
 			utterance.lang = 'uk-UA';
+			utterance.onend = utterance.onerror = done;
 			speechSynthesis.speak(utterance);
 		}
 	}

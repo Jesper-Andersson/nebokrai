@@ -1,5 +1,6 @@
-<!-- Draws the messages of the page's toaster (toasts.ts) in the bottom corner.
-     Melt shows the container as a `popover`, so it sits above dialogs too. -->
+<!-- Draws the messages of the page's toaster (toasts.ts) in the bottom corner,
+     above the radio's button when that is there. Melt shows the container as
+     a `popover`, so it sits above dialogs too. -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -12,7 +13,7 @@
 	let m = $derived(messagesFor(settings.lang));
 </script>
 
-<div {...toaster.root} class="toasts">
+<div {...toaster.root} class="toasts" class:above-radio={settings.radio === 'on'}>
 	{#each toaster.toasts as toast (toast.id)}
 		<div {...toast.content} class="toast">
 			<p>
@@ -57,6 +58,13 @@
 
 	.toasts:not(:popover-open) {
 		display: none;
+	}
+
+	/* The radio's button (RadioPlayer.svelte) has this corner when it is
+	   switched on: 1rem from the edge and 3rem tall. The messages stand on
+	   top of it, at every width. */
+	.toasts.above-radio {
+		bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
 	}
 
 	.toast {

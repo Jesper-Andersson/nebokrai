@@ -12,7 +12,9 @@ reads the database directly instead of calling `/api/word`.
 | `/api/word/…` | Details page | `wordDetails()` in `word.ts` |
 
 Saved words and accounts have endpoints of their own, described at the end
-under [Saved words and accounts](#saved-words-and-accounts).
+under [Saved words and accounts](#saved-words-and-accounts). The radio has one,
+which has nothing to do with the dictionary:
+[`GET /api/radio/now/<station>`](#get-apiradionowstation).
 
 All text is UTF-8. Ukrainian words in a URL must be percent-encoded
 (`encodeURIComponent` does this).
@@ -233,6 +235,33 @@ Two forms can share the same labels. That means the cell has two variants
 
 `404` with `{ "error": "not_found", "word": "…" }`.
 
+## `GET /api/radio/now/<station>`
+
+The song a station of the radio is playing. `<station>` is an `id` from
+`STATIONS` in `src/lib/radio.ts`, for example `promin`. The route is
+`src/routes/api/radio/now/[id]/+server.ts`; the reading is `nowPlaying()` in
+`src/lib/radio-now.ts`. Used by the radio player (`src/lib/radio.svelte.ts`),
+every 20 seconds while a music station plays.
+
+```json
+{ "station": "promin", "title": "PRIANA - Молода" }
+```
+
+| Field | |
+|---|---|
+| `station` | The id asked for. |
+| `title` | What the station says is playing, usually `artist - song`, at most 150 characters. `null` when it does not say: speech, adverts, or a station that did not answer within 4 seconds. |
+
+`title` is the station's own text, shown as it is. It comes from the stream
+(the title sent to players that ask for it) or, for a station with `playlist`
+in `radio.ts`, from the list its own player reads. The server asks the
+station; the visitor's browser does not.
+
+`null` is a normal answer, not an error: the player then shows no song.
+
+A `<station>` that is not in the list gets `404` with
+`{ "error": "not_found", "station": "…" }`.
+
 ## Errors
 
 | Status | When |
@@ -240,14 +269,20 @@ Two forms can share the same labels. That means the cell has two variants
 | `400` | `limit` is not a number. |
 | `400` | `/api/search` with `q` over 100 characters. Body: `{ "error": "query_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
+| `404` | `/api/radio/now/…` for a station that is not in the list. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
 
 ## Caching
 
-Both endpoints answer the same thing to every visitor, so a `200` is sent with
+The two dictionary endpoints answer the same thing to every visitor, so a
+`200` is sent with
 `Cache-Control: public, max-age=300, s-maxage=3600` and kept in Cloudflare's
 cache for an hour (`src/lib/server/cache.ts`). Parameters other than `q` and
 `limit` are ignored and do not make a separate cache entry.
+
+`/api/radio/now/…` is kept the same way but for 15 seconds
+(`max-age=15, s-maxage=15`): a station is asked at most four times a minute in
+each Cloudflare data centre, however many people are listening.
 
 After `nebokrai.db` is rebuilt and uploaded, answers can be up to an hour old,
 with the entry ids of the previous build. Purge the cache in the Cloudflare

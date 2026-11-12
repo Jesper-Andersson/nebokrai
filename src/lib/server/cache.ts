@@ -35,8 +35,15 @@ const CACHE_CONTROL = `public, max-age=300, s-maxage=${HOUR}`;
  * `key` must be an absolute URL built only from what the answer depends on.
  * Never pass the request's own URL: extra parameters (`&x=1`, `&x=2`) would
  * each get an entry of their own and reach the database every time.
+ *
+ * `cacheControl` is for an answer that goes stale sooner than the dictionary
+ * does: the song a radio station is playing lasts seconds, not an hour.
  */
-export async function cached(key: string, produce: () => Promise<Response>): Promise<Response> {
+export async function cached(
+	key: string,
+	produce: () => Promise<Response>,
+	cacheControl: string = CACHE_CONTROL
+): Promise<Response> {
 	// Not in dev: the adapter provides a stand-in cache there, and an hour-old
 	// answer is the last thing wanted while changing the search.
 	const cache = dev ? undefined : (globalThis.caches as { default?: EdgeCache } | undefined)?.default;
@@ -52,7 +59,7 @@ export async function cached(key: string, produce: () => Promise<Response>): Pro
 
 	const response = await produce();
 	if (response.status !== 200) return response;
-	response.headers.set('cache-control', CACHE_CONTROL);
+	response.headers.set('cache-control', cacheControl);
 	// Stored after the answer has gone out, so the visitor does not wait for it.
 	waitUntil(cache.put(key, response.clone()).catch(() => {}));
 	return response;

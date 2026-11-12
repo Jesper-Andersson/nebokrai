@@ -11,11 +11,15 @@ export type KeyboardLayout = 'standard' | 'phonetic';
 export type Background = 'plain' | 'field' | 'hills';
 export const BACKGROUNDS: Background[] = ['plain', 'field', 'hills'];
 
+/** Whether the radio button is in the corner of the page (RadioPlayer.svelte). Off until the visitor asks for it. */
+export type RadioButton = 'off' | 'on';
+
 export interface Settings {
 	lang: Lang;
 	theme: Theme;
 	layout: KeyboardLayout;
 	background: Background;
+	radio: RadioButton;
 }
 
 export function readSettings(cookie: (name: string) => string | undefined): Settings {
@@ -25,7 +29,8 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 		lang: cookie('lang') === 'uk' ? 'uk' : 'en',
 		theme: theme === 'light' || theme === 'dark' ? theme : 'system',
 		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard',
-		background: background === 'field' || background === 'hills' ? background : 'plain'
+		background: background === 'field' || background === 'hills' ? background : 'plain',
+		radio: cookie('radio') === 'on' ? 'on' : 'off'
 	};
 }
 
@@ -54,6 +59,10 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 			document.cookie = `bg=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 			root.setAttribute('data-bg', value);
 		}
+	} else if (name === 'radio') {
+		// Nothing on <html>: the layout draws the button from the settings object.
+		if (value === 'on') document.cookie = `radio=on; path=/; max-age=${YEAR}; samesite=lax`;
+		else document.cookie = 'radio=; path=/; max-age=0; samesite=lax';
 	} else {
 		document.cookie = `kbd=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	}

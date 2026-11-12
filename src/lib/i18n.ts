@@ -184,12 +184,12 @@ const en = {
 		/** On the chips that choose a kind */
 		kinds: {
 			course: 'Courses', podcast: 'Podcasts', reading: 'Reading', dictionary: 'Dictionaries',
-			tool: 'Tools', tutor: 'Tutors', book: 'Books'
+			tool: 'Tools', tutor: 'Tutors', community: 'Community', book: 'Books'
 		} as Record<Kind, string>,
 		/** On a resource's own line */
 		kind: {
 			course: 'Course', podcast: 'Podcast or video', reading: 'Reading and listening',
-			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', book: 'Book'
+			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', community: 'Community', book: 'Book'
 		} as Record<Kind, string>,
 		cost: { free: 'Free', freemium: 'Free + paid', paid: 'Paid' } as Record<Cost, string>,
 		ukOnly: 'UK',
@@ -420,11 +420,11 @@ const uk: Messages = {
 		all: 'Усі',
 		kinds: {
 			course: 'Курси', podcast: 'Подкасти', reading: 'Читання', dictionary: 'Словники',
-			tool: 'Інструменти', tutor: 'Репетитори', book: 'Книжки'
+			tool: 'Інструменти', tutor: 'Репетитори', community: 'Спільноти', book: 'Книжки'
 		},
 		kind: {
 			course: 'Курс', podcast: 'Подкаст або відео', reading: 'Читання й слухання',
-			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', book: 'Книжка'
+			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', community: 'Спільнота', book: 'Книжка'
 		},
 		cost: { free: 'Безкоштовно', freemium: 'Безкоштовно + платне', paid: 'Платно' },
 		ukOnly: 'УКР',

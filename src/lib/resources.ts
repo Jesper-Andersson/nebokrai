@@ -8,7 +8,7 @@
 import { plain } from './search/normalize.ts';
 
 /** In the order the list shows them. */
-export const KINDS = ['course', 'podcast', 'reading', 'dictionary', 'tool', 'tutor', 'book'] as const;
+export const KINDS = ['course', 'podcast', 'reading', 'dictionary', 'tool', 'tutor', 'community', 'book'] as const;
 export type Kind = (typeof KINDS)[number];
 
 export const LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
@@ -147,6 +147,17 @@ export const RESOURCES: Resource[] = [
 		levels: UPPER,
 		cost: 'free',
 		explainedIn: 'en',
+		checked: '2026-11-12'
+	},
+	{
+		name: 'Суспільне Новини',
+		url: 'https://suspilne.media/',
+		en: 'News from Ukraine’s public broadcaster.',
+		uk: 'Новини від українського суспільного мовника.',
+		kind: 'reading',
+		levels: UPPER,
+		cost: 'free',
+		explainedIn: 'uk',
 		checked: '2026-11-12'
 	},
 	{
@@ -317,6 +328,19 @@ export const RESOURCES: Resource[] = [
 		kind: 'tutor',
 		levels: ALL,
 		cost: 'paid',
+		explainedIn: 'en',
+		checked: '2026-11-12'
+	},
+
+	// Community
+	{
+		name: 'r/Ukrainian',
+		url: 'https://www.reddit.com/r/Ukrainian/',
+		en: 'A Reddit community for people learning Ukrainian, a place to ask questions.',
+		uk: 'Спільнота на Reddit для тих, хто вчить українську: тут можна поставити запитання.',
+		kind: 'community',
+		levels: ALL,
+		cost: 'free',
 		explainedIn: 'en',
 		checked: '2026-11-12'
 	},

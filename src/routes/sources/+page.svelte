@@ -50,10 +50,16 @@
 
 		<dt>Recognising word forms missing from Wiktionary</dt>
 		<dd>
-			The <a href="https://github.com/brown-uk/dict_uk">Large Electronic Dictionary of Ukrainian (VESUM)</a>
-			by Andriy Rysin, Vasyl Starko and the BrUK team, available under the
+			<!-- Worded as VESUM's README asks to be cited. It gives no version
+			     number: the package we read is a snapshot that does not name one. -->
+			Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM). 2005–2022. Available
+			at: <a href="https://vesum.nlp.net.ua/">https://vesum.nlp.net.ua/</a>
+		</dd>
+		<dd>
+			By Andriy Rysin, Vasyl Starko and the BrUK team, with the data published at
+			<a href="https://github.com/brown-uk/dict_uk">brown-uk/dict_uk</a> under the
 			<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0</a>
-			licence.
+			licence. Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022.
 		</dd>
 	</dl>
 

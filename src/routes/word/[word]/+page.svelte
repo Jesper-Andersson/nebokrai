@@ -1,7 +1,8 @@
 <!-- A word's page: for each entry of the spelling, the headword with its
-     actions, how it is said, its grammar in one italic line, the meanings,
-     example sentences, the form tables behind tabs (FormTables.svelte) and
-     the etymology. A spelling with several entries gets a list of them first. -->
+     actions, how it is said, its grammar in one italic line, the meanings
+     with their synonyms and antonyms, example sentences, the form tables
+     behind tabs (FormTables.svelte), the words related to it and the
+     etymology. A spelling with several entries gets a list of them first. -->
 <script lang="ts">
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
@@ -10,6 +11,7 @@
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import RelatedWords from '#lib/RelatedWords.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import Sentence from '#lib/Sentence.svelte';
 	import Stressed from '#lib/Stressed.svelte';
@@ -50,6 +52,11 @@
 	}
 
 	const label = (tag: string) => tag.replace(/-/g, ' ');
+
+	// The synonyms or antonyms of one meaning of an entry, or (n null) of the
+	// entry as a whole.
+	const named = (entry: WordEntry, kind: 'synonym' | 'antonym', n: number | null) =>
+		entry.relations.filter((x) => x.kind === kind && x.sense_n === n);
 
 	// The spellings an example sentence can have this entry's word in: the word
 	// and its forms of one word (буду читати is two, and буду is not читати).
@@ -95,6 +102,10 @@
 		{@const base = entry.pos === 'pron' ? '' : entry.headword}
 		{@const shift = stressShift(base, entry.forms.map((f) => f.form))}
 		{@const own = ownForms(entry)}
+		<!-- Derived words and words of the same root are shown for the entry as a
+		     whole, whichever meaning Wiktionary lists them under -->
+		{@const derived = entry.relations.filter((x) => x.kind === 'derived')}
+		{@const sameRoot = entry.relations.filter((x) => x.kind === 'related')}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
 				<div class="title">
@@ -148,9 +159,18 @@
 									{/each}
 								</ul>
 							{/if}
+							<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', sense.n)} />
+							<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', sense.n)} />
 						</li>
 					{/each}
 				</ol>
+				<!-- Those Wiktionary gives for the word, not for one of its meanings -->
+				{#if named(entry, 'synonym', null).length || named(entry, 'antonym', null).length}
+					<div class="whole">
+						<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', null)} />
+						<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', null)} />
+					</div>
+				{/if}
 			</section>
 
 			{#if entry.examples.length}
@@ -192,6 +212,14 @@
 					{:else if shift === 'stays'}
 						<p class="shift">{m.word.stressStays}</p>
 					{/if}
+				</section>
+			{/if}
+
+			{#if derived.length || sameRoot.length}
+				<section>
+					<h2 class="ui-label">{m.word.family}</h2>
+					<RelatedWords label={m.word.derived} words={derived} limit={24} />
+					<RelatedWords label={m.word.sameRoot} words={sameRoot} limit={24} />
 				</section>
 			{/if}
 
@@ -355,6 +383,14 @@
 
 	.senses {
 		font-size: var(--text-lg);
+	}
+
+	/* Synonyms and antonyms of the word as a whole, under its meanings and in
+	   line with their text, past the numerals */
+	.whole {
+		margin: 0.9rem 0 0 1.75rem;
+		padding-top: 0.6rem;
+		border-top: 1px dashed var(--border);
 	}
 
 	/* A remark on a meaning, as a dictionary sets it: (figurative) skyline */

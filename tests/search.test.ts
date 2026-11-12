@@ -81,6 +81,58 @@ test('word details', { skip }, async () => {
 
 	assert.ok((await wordDetails(db, 'стан')).length > 1); // several entries, one spelling
 	assert.deepEqual(await wordDetails(db, 'qqqq'), []);
+
+	// The forms beside a headword: the aspect partner has a page, the genitive does not
+	assert.deepEqual(read.head_forms.find((f) => f.tags.includes('perfective')),
+		{ form: 'прочита́ти', tags: ['perfective'], has_entry: true });
+	assert.deepEqual(kalyna.head_forms.find((f) => f.tags.includes('genitive')),
+		{ form: 'кали́ни', tags: ['genitive'], has_entry: false });
+});
+
+test('related words', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const [big] = await wordDetails(db, 'великий');
+	const of = (kind: string) => big.relations.filter((x) => x.kind === kind);
+	// An antonym of the first meaning, as Wiktionary has it
+	assert.deepEqual(of('antonym')[0], { kind: 'antonym', sense_n: 1, word: 'мали́й', tags: [], has_entry: true });
+	// маленький names великий as its antonym, so великий names маленький too,
+	// for the entry as a whole
+	assert.deepEqual(of('antonym').find((x) => x.word === 'мале́нький'),
+		{ kind: 'antonym', sense_n: null, word: 'мале́нький', tags: [], has_entry: true });
+	assert.ok(of('derived').length > 20);
+	assert.ok(of('derived').some((x) => x.word === 'великоду́шний'));
+	assert.ok(big.relations.every((x) => x.word !== 'великий' && x.word !== 'вели́кий')); // never itself
+
+	// Wiktionary writes красивий here without its stress; the headword supplies it
+	const [pretty] = await wordDetails(db, 'гарний');
+	assert.ok(pretty.relations.some((x) => x.kind === 'synonym' && x.sense_n === 1 && x.word === 'краси́вий'));
+
+	// Every kind is one of the four, and a meaning named is a meaning the entry has
+	for (const entry of [big, pretty]) {
+		for (const x of entry.relations) {
+			assert.ok(['synonym', 'antonym', 'derived', 'related'].includes(x.kind));
+			assert.ok(x.sense_n === null || entry.senses.some((s) => s.n === x.sense_n));
+		}
+	}
+});
+
+test('a database built before related words were stored', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const old = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('FROM relations')
+				? Promise.reject(new Error('D1_ERROR: no such table: relations: SQLITE_ERROR'))
+				: db.all<T>(sql, params)
+	};
+	const [big] = await wordDetails(old, 'великий');
+	assert.deepEqual(big.relations, []);
+	assert.ok(big.senses.length > 0);
+	// Any other failure is not swallowed
+	const broken = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('FROM relations') ? Promise.reject(new Error('database is locked')) : db.all<T>(sql, params)
+	};
+	await assert.rejects(wordDetails(broken, 'великий'), /locked/);
 });
 
 test('word summaries', { skip }, async () => {

@@ -97,6 +97,9 @@ SPECS.num = SPECS.adj;
 const PERSONAL_PRONOUN: Spec[] = [{ title: 'Declension', tags: [], rows: CASES, columns: [['', []]] }];
 
 const CASE_TAGS = new Set(CASES.flatMap(([, tags]) => tags));
+
+/** True for the tags of a case form ("genitive"): a form of the word itself, not a word of its own. */
+export const hasCase = (tags: string[]) => tags.some((t) => CASE_TAGS.has(t));
 const PERSONS_TAGS = new Set(PERSONS.flatMap(([, tags]) => tags));
 
 // Wiktionary gives every personal pronoun (я, ти, він, себе…) one shared table.

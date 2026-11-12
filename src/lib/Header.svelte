@@ -152,8 +152,7 @@
 				<Icon name="cards" size={20} />
 				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
 				{#if streak.days}
-					<!-- Two shapes: the flame, red at the tip and amber below, and a
-					     bright heart low in it for the number to stand on -->
+					<!-- Red at the tip and amber below, with the days written on its widest part -->
 					<svg class="flame" class:lit={streak.lit} viewBox="-2 -3 28 29" aria-hidden="true">
 						<defs>
 							<linearGradient id="ui-flame-body" x1="0" y1="0" x2="0" y2="1">
@@ -166,8 +165,7 @@
 							fill="url(#ui-flame-body)"
 							d="M13 1c.6 3.2 3 4.9 4.7 7.2 1.4 1.9 2.3 4 2.3 6.3A8 8 0 0 1 4 14.5c0-2.6 1.1-4.9 2.7-6.6.3 1.6 1 2.7 2.2 3.3C8.6 7.6 10 3.6 13 1z"
 						/>
-						<path class="core" d="M12 9c3 2 5.5 4 5.5 7a5.5 5.5 0 0 1-11 0c0-3 2.5-5 5.5-7z" />
-						<text x="12" y="19" text-anchor="middle" class:long={streak.days > 99}>
+						<text x="12" y="17.5" text-anchor="middle" class:long={streak.days > 99}>
 							{Math.min(streak.days, 999)}
 						</text>
 					</svg>
@@ -393,8 +391,7 @@
 		   the glow, so nothing of it is cut off: the flame is 0.25rem in from
 		   the top of this box and 0.4rem in from its right. The bar is 3.5rem
 		   high and the button 2.25rem, which leaves 0.6rem over the button.
-		   The flame's middle is level with the count's, 0.25rem below the
-		   button's top edge. */
+		   The number in the flame is level with the count's. */
 		top: -0.67rem;
 		right: -0.5rem;
 		width: 1.75rem;
@@ -411,7 +408,7 @@
 
 		/* Named through the button, to outrank the rule for the count below */
 		.cards .count {
-			top: -0.13rem;
+			top: 0.04rem;
 		}
 	}
 
@@ -421,10 +418,6 @@
 		stroke: var(--muted);
 		stroke-width: 1.2;
 		stroke-linejoin: round;
-	}
-
-	.flame:not(.lit) .core {
-		fill: var(--surface);
 	}
 
 	.flame text {
@@ -439,8 +432,8 @@
 		font-size: 6px;
 	}
 
-	/* Lit: a card has been reviewed today. It glows, and it flickers: the
-	   body sways from its foot while the heart beats a little out of step. */
+	/* Lit: a card has been reviewed today. It glows, and it flickers,
+	   swaying from its foot. */
 	.flame.lit {
 		filter: drop-shadow(0 0 3px color-mix(in oklab, var(--flame) 70%, transparent));
 	}
@@ -450,13 +443,6 @@
 		transform-box: fill-box;
 		transform-origin: 50% 100%;
 		animation: flame-sway 1.7s ease-in-out infinite alternate;
-	}
-
-	.flame.lit .core {
-		fill: var(--flame-core);
-		transform-box: fill-box;
-		transform-origin: 50% 100%;
-		animation: flame-beat 1.1s ease-in-out infinite alternate;
 	}
 
 	.flame.lit text {
@@ -477,26 +463,16 @@
 		}
 	}
 
-	@keyframes flame-beat {
-		from {
-			transform: scale(0.94, 0.96);
-		}
-
-		to {
-			transform: scale(1.04, 1.05);
-		}
-	}
-
 	@media (prefers-reduced-motion: reduce) {
-		.flame.lit .body,
-		.flame.lit .core {
+		.flame.lit .body {
 			animation: none;
 		}
 	}
 
 	.count {
 		position: absolute;
-		top: -0.25rem;
+		/* Its digit is level with the one in the flame */
+		top: -0.08rem;
 		left: -0.3rem;
 		box-sizing: border-box;
 		min-width: 1rem;

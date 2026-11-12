@@ -149,6 +149,12 @@ Things to know:
   first. The mail never carries the reporter's own address. Without the
   secret, reports are stored and no mail is sent; to read them, see the
   command at the top of `src/lib/server/reports.ts`.
+- **The report form has a bot check**, Cloudflare Turnstile. The widget's
+  site key is `TURNSTILE_SITE_KEY` in `src/lib/report.ts`; its secret key is
+  the secret `TURNSTILE_SECRET` (`npx wrangler secret put TURNSTILE_SECRET`).
+  Without the secret the form shows no check and the server asks for none,
+  which is how `npm run dev` runs. The site key works on `nebokrai.app`
+  only: to try the check locally, see the test keys in `.env.example`.
 - **The site has one address.** `workers_dev` and `preview_urls` are off in
   `wrangler.jsonc`, so there is no `workers.dev` copy reaching the same
   databases.

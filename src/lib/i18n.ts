@@ -450,6 +450,9 @@ const en = {
 		sending: 'Sending…',
 		failed: 'Your report couldn’t be sent. Please try again, or email contact@nebokrai.app.',
 		tooMany: 'You’ve sent several reports in a short time. Please wait a few minutes and try again.',
+		/** The bot check (Turnstile.svelte) gave no token, or the server refused it. */
+		check: 'The check that you’re not a bot hasn’t finished. Wait for the box above to show a tick, or tick it, and send again.',
+		checkNote: 'Cloudflare Turnstile checks that a person, not a bot, is sending this.',
 		thanks: 'Thank you!',
 		thanksBody: 'We read every report.',
 		fixUpstream: 'You can also fix it at the source, so everyone gets the fix:',
@@ -867,6 +870,8 @@ const uk: Messages = {
 		sending: 'Надсилаємо…',
 		failed: 'Не вдалося надіслати звернення. Спробуйте ще раз або напишіть на contact@nebokrai.app.',
 		tooMany: 'Ви надіслали кілька звернень за короткий час. Зачекайте кілька хвилин і спробуйте ще раз.',
+		check: 'Перевірка, що ви не бот, ще не завершилася. Зачекайте, доки у віконці вище з’явиться позначка, або поставте її, і надішліть ще раз.',
+		checkNote: 'Cloudflare Turnstile перевіряє, що це надсилає людина, а не бот.',
 		thanks: 'Дякуємо!',
 		thanksBody: 'Ми читаємо кожне звернення.',
 		fixUpstream: 'Ви також можете виправити це в джерелі, щоб виправлення отримали всі:',

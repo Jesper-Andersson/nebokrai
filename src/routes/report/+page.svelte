@@ -1,10 +1,12 @@
 <!-- "Report an issue". Sends to /api/report, which stores the report in the
-     private reports database (src/lib/server/reports.ts) and announces it by email. Still to come:
-     Cloudflare Turnstile against spam. -->
+     private reports database (src/lib/server/reports.ts) and announces it by email. When the server
+     has a Turnstile secret, the form carries Cloudflare's bot check and
+     sends its token along (src/lib/Turnstile.svelte). -->
 <script lang="ts">
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import TextPage from '#lib/TextPage.svelte';
+	import Turnstile from '#lib/Turnstile.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { REPORT_KINDS, type ReportKind } from '#lib/report.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -23,7 +25,10 @@
 	let sending = $state(false);
 	let showError = $state(false);
 	// Why sending failed, if it did.
-	let failure = $state<'too_many' | 'failed' | null>(null);
+	let failure = $state<'too_many' | 'check' | 'failed' | null>(null);
+	// The bot check's token, once Cloudflare is satisfied, and the box itself
+	let token = $state<string | null>(null);
+	let check = $state<Turnstile>();
 	// Honeypot: hidden from people, so only bots fill it in.
 	let website = $state('');
 
@@ -58,21 +63,29 @@
 			showError = true;
 			return;
 		}
+		if (data.turnstile && !token) {
+			failure = 'check';
+			return;
+		}
 		sending = true;
 		failure = null;
 		try {
 			const res = await fetch('/api/report', {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ ...payload, entry: data.entry?.id ?? null, website })
+				body: JSON.stringify({ ...payload, entry: data.entry?.id ?? null, website, turnstile: token })
 			});
 			if (res.status === 429) failure = 'too_many';
+			else if (res.status === 403 && (await res.json()).error === 'bot_check') failure = 'check';
 			else if (!res.ok) failure = 'failed';
 			else sent = true;
 		} catch {
 			failure = 'failed';
 		} finally {
 			sending = false;
+			// The token went with this send and works once: whatever went
+			// wrong, the next try needs a new one
+			if (failure) check?.reset();
 		}
 	}
 
@@ -161,11 +174,20 @@
 				<label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" bind:value={website} /></label>
 			</div>
 
+			{#if data.turnstile}
+				<div class="check">
+					<Turnstile bind:this={check} bind:token sitekey={data.turnstile} />
+					<small class="muted">{m.report.checkNote}</small>
+				</div>
+			{/if}
+
 			{#if showError && (!kind || !message.trim())}
 				<p class="error" id="report-error" role="alert">{m.report.required}</p>
 			{/if}
 			{#if failure}
-				<p class="error" role="alert">{failure === 'too_many' ? m.report.tooMany : m.report.failed}</p>
+				<p class="error" role="alert">
+					{failure === 'too_many' ? m.report.tooMany : failure === 'check' ? m.report.check : m.report.failed}
+				</p>
 			{/if}
 
 			<button type="submit" class="ui-btn ui-btn-primary" disabled={sending}>
@@ -228,6 +250,11 @@
 	}
 
 	.field {
+		display: grid;
+		gap: 0.3rem;
+	}
+
+	.check {
 		display: grid;
 		gap: 0.3rem;
 	}

@@ -423,6 +423,57 @@ const en = {
 	},
 	review: {
 		open: 'Flashcards',
+		help: {
+			open: 'How the flashcards work',
+			close: 'Close',
+			title: 'How the flashcards work',
+			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it.',
+			sections: [
+				{
+					heading: 'Again and Good',
+					body: [
+						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
+						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
+					]
+				},
+				{
+					heading: 'When a card comes back',
+					body: [
+						'The site uses FSRS (Free Spaced Repetition Scheduler), the same method Anki offers. For each word it keeps two numbers: how long you are likely to remember it, and how hard it is for you. Each answer updates both.',
+						'A card is shown again on the day your chance of remembering it is expected to fall to 90%. A word you know well can wait weeks or months; a hard one comes back sooner.',
+						'A new word is first seen twice within minutes, after one and then ten minutes, before its gaps are counted in days.'
+					]
+				},
+				{
+					heading: 'A day of review',
+					body: [
+						'A day starts at four in the morning, so a review just after midnight counts towards the evening before.',
+						'New cards a day limits only words you have not seen yet. Every card that is due is shown, however many there are.'
+					]
+				},
+				{
+					heading: 'Decks',
+					body: [
+						'Saved words takes every word you saved, lists included. A list can also be switched on by itself. The common-word decks hold the most frequent Ukrainian words, in order of frequency.'
+					]
+				},
+				{
+					heading: 'The streak',
+					body: [
+						'The flame shows how many days in a row you have reviewed at least one card. It is lit once you have reviewed today; a day without reviews ends the streak only when the day is over.'
+					]
+				},
+				{
+					heading: 'Where your reviews are kept',
+					body: [
+						'In this browser. Signed in, they are also kept in your account and are the same on every device.',
+						'The schedule uses the standard FSRS settings, not ones fitted to your own answers.'
+					]
+				}
+			],
+			more: 'How FSRS works in detail:',
+			moreLink: 'the algorithm, by the Open Spaced Repetition project'
+		},
 		openDue: (n: number) => `Flashcards: ${n} to review`,
 		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
 		streakWaits: 'Review a card today to keep it',
@@ -1022,6 +1073,57 @@ const uk: Messages = {
 	},
 	review: {
 		open: 'Картки',
+		help: {
+			open: 'Як працюють картки',
+			close: 'Закрити',
+			title: 'Як працюють картки',
+			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його.',
+			sections: [
+				{
+					heading: '«Ще раз» і «Добре»',
+					body: [
+						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
+						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
+					]
+				},
+				{
+					heading: 'Коли картка повертається',
+					body: [
+						'Сайт використовує FSRS (Free Spaced Repetition Scheduler), той самий метод, що пропонує Anki. Для кожного слова він зберігає два числа: як довго ви, найімовірніше, його пам’ятатимете і наскільки воно для вас складне. Кожна відповідь змінює обидва.',
+						'Картка з’являється знову того дня, коли ймовірність, що ви її згадаєте, має знизитися до 90%. Добре відоме слово може чекати тижні чи місяці, складне повертається раніше.',
+						'Нове слово спершу показується двічі за кілька хвилин, через одну, а потім через десять хвилин, і лише після того проміжки рахуються днями.'
+					]
+				},
+				{
+					heading: 'День повторень',
+					body: [
+						'День починається о четвертій ранку, тож повторення одразу після півночі зараховується до попереднього вечора.',
+						'«Нових карток на день» обмежує лише слова, яких ви ще не бачили. Усі картки, яким настав час, показуються, скільки б їх не було.'
+					]
+				},
+				{
+					heading: 'Колоди',
+					body: [
+						'«Збережені слова» охоплюють усі збережені слова разом зі списками. Список можна ввімкнути й окремо. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти.'
+					]
+				},
+				{
+					heading: 'Серія',
+					body: [
+						'Вогник показує, скільки днів поспіль ви повторили хоча б одну картку. Він горить, коли ви вже повторювали сьогодні; день без повторень обриває серію лише тоді, коли закінчиться.'
+					]
+				},
+				{
+					heading: 'Де зберігаються ваші повторення',
+					body: [
+						'У цьому браузері. Якщо ви ввійшли, вони зберігаються й у вашому обліковому записі та однакові на всіх пристроях.',
+						'Розклад використовує стандартні налаштування FSRS, а не підібрані під ваші власні відповіді.'
+					]
+				}
+			],
+			more: 'Докладніше про FSRS:',
+			moreLink: 'алгоритм від проєкту Open Spaced Repetition (англійською)'
+		},
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
 		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
 		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',

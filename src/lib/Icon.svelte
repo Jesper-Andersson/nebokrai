@@ -9,6 +9,8 @@
 		keyboard:
 			'<rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12.5h.01M10 12.5h.01M14 12.5h.01M18 12.5h.01M8 16h8"/>',
 		x: '<path d="M6 6l12 12M18 6 6 18"/>',
+		// A question mark in a ring: how something works
+		help: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .9-1 1.6v.4M12 17h.01"/>',
 		// Two cards, one behind the other: the flashcards
 		cards: '<rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/>',
 		'arrow-right': '<path d="M5 12h14M13 6l6 6-6 6"/>',

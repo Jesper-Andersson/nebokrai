@@ -19,6 +19,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
+	import ReviewHelp from '#lib/ReviewHelp.svelte';
 	import ReviewKeys from '#lib/ReviewKeys.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
@@ -377,6 +378,7 @@
 <div class="ui-page page">
 	<header>
 		<h1 class="ui-title">{m.pageTitle.review}</h1>
+		<ReviewHelp />
 		{#if started && current}
 			<span class="ui-badge">{m.review.left(left)}</span>
 			<!-- Always there, so that Stop does not move when it comes and goes -->

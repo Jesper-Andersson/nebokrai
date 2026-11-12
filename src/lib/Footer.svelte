@@ -22,6 +22,7 @@
 	const links = $derived([
 		{ href: '/common-words', label: m.footer.common },
 		{ href: '/words', label: m.footer.words },
+		{ href: '/grammar', label: m.footer.grammar },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/report', label: m.footer.report }
 	]);

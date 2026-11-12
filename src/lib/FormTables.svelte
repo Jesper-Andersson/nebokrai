@@ -1,14 +1,21 @@
 <!-- The declension or conjugation tables of one entry. A verb has four
      (present, future, past, imperative): they share one place on the page and
      Melt Tabs chooses which is shown, so each table can be wide enough to read
-     on a phone. A single table is shown as it is. -->
+     on a phone. A single table is shown as it is.
+
+     The names of the rows and columns can be pressed for a note (Term.svelte),
+     and each has Ukrainian beside it that says the same thing: a case has the
+     question it answers (Genitive: кого? чого?), a gender its pronoun, and a
+     verb form the pronoun it goes with (я чита́ю). -->
 <script lang="ts">
 	import { Tabs } from 'melt/builders';
 	import type { FormTable } from '#lib/forms.ts';
-	import { formLabel, messagesFor } from '#lib/i18n.ts';
+	import { HINTS, termOfLabel } from '#lib/grammar.ts';
+	import { formLabel, messagesFor, tagLabel } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { stressMoved } from './stress.ts';
 	import Stressed from './Stressed.svelte';
+	import Term from './Term.svelte';
 
 	// `headword` is what each form's stress is compared with; leave it out and
 	// no form is marked as moving the stress.
@@ -21,7 +28,16 @@
 	// svelte-ignore state_referenced_locally
 	const tabs = new Tabs<string>({ value: tables[0].title });
 	let tabbed = $derived(tables.length > 1);
+
+	const GENDERS = ['Masculine', 'Feminine', 'Neuter'];
 </script>
+
+<!-- A row's or column's name, and under it the Ukrainian hint when asked for -->
+{#snippet name(label: string, hinted: boolean)}
+	{@const term = termOfLabel(label)}
+	{#if term}<Term id={term}>{formLabel(m, label)}</Term>{:else}{formLabel(m, label)}{/if}
+	{#if hinted && term && HINTS[term]}<span class="hint" lang="uk">{HINTS[term]}</span>{/if}
+{/snippet}
 
 {#if tabbed}
 	<div {...tabs.triggerList} class="tabs">
@@ -32,26 +48,36 @@
 {/if}
 
 {#each tables as table (table.title)}
+	<!-- The pronouns of an adjective's columns (він, воно, вона, вони). A noun's
+	     Singular and Plural get none: "вони" over one column alone explains nothing. -->
+	{@const gendered = table.columns.some((col) => GENDERS.includes(col))}
 	<div {...tabbed ? tabs.getContent(table.title) : {}} class="table-wrap">
 		<table>
-			<caption class:ui-sr-only={tabbed}>{formLabel(m, table.title)}</caption>
+			<!-- Read out, not shown, when the tab above already names the table -->
+			<caption class:ui-sr-only={tabbed}>
+				{#if tabbed}{formLabel(m, table.title)}{:else}{@render name(table.title, false)}{/if}
+			</caption>
 			{#if table.columns.some(Boolean)}
 				<thead>
 					<tr>
 						<td></td>
-						{#each table.columns as col}<th scope="col">{formLabel(m, col)}</th>{/each}
+						{#each table.columns as col}<th scope="col">{@render name(col, gendered)}</th>{/each}
 					</tr>
 				</thead>
 			{/if}
 			<tbody>
 				{#each table.rows as row (row.label)}
 					<tr>
-						<th scope="row">{formLabel(m, row.label)}</th>
-						{#each row.cells as cell}
+						<!-- A verb's rows have their pronouns in the cells -->
+						<th scope="row">{@render name(row.label, !row.leads)}</th>
+						{#each row.cells as cell, c}
 							<td lang="uk">
+								{#if cell.length && row.leads?.[c]}<span class="lead">{row.leads[c]}</span>{' '}{/if}
 								{#each cell as item, i}
-									{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}
-										<small>{item.note}</small>{/if}
+									<!-- {' '}: Svelte drops a space at the start of a block, and the note ran into the form -->
+									{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}{' '}<small lang={settings.lang}
+											>{tagLabel(m, settings.lang, item.note)}</small
+										>{/if}
 								{:else}<span class="none">—</span>{/each}
 							</td>
 						{/each}
@@ -167,8 +193,16 @@
 		font-weight: 600;
 	}
 
-	td small {
+	td small,
+	.lead {
 		color: var(--muted);
+		font-weight: 400;
+	}
+
+	/* Under the name it explains, and lighter: кого? чого? */
+	.hint {
+		display: block;
+		font-size: var(--text-xs);
 		font-weight: 400;
 	}
 

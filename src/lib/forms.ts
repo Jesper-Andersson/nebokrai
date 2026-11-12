@@ -2,6 +2,7 @@
 // tags, see docs/api.md "Reading forms") into tables the Details page can draw.
 // A form that fits no table cell goes into `other`, so nothing is lost when
 // Wiktionary uses an unusual layout.
+import { pronounFor, shownTags } from './grammar.ts';
 
 export interface Form {
 	form: string;
@@ -10,14 +11,19 @@ export interface Form {
 
 export interface CellItem {
 	form: string;
-	/** Short label when one cell holds variants that differ: "anim.", "inan." */
+	/** The tag that tells apart the variants one cell holds: "animate", "inanimate", "dated" */
 	note?: string;
 }
 
 export interface FormTable {
 	title: string;
 	columns: string[];
-	rows: { label: string; cells: CellItem[][] }[];
+	rows: {
+		label: string;
+		cells: CellItem[][];
+		/** A verb's pronouns, one for each cell: я beside чита́ю. Absent in a declension. */
+		leads?: (string | undefined)[];
+	}[];
 }
 
 type Axis = [label: string, tags: string[]][];
@@ -116,17 +122,15 @@ function ownPronounForms(word: string, forms: Form[]): Form[] {
 	return forms.filter((f) => identity(f) === own);
 }
 
-const NOTES: Record<string, string> = {
-	animate: 'anim.', inanimate: 'inan.', dated: 'dated', dialectal: 'dial.',
-	colloquial: 'colloq.', rare: 'rare', archaic: 'archaic'
-};
+const NOTES = new Set(['animate', 'inanimate', 'dated', 'dialectal', 'colloquial', 'rare', 'archaic']);
 
 // Participles and adverbial forms also carry "present" or "past", but they are
 // not part of the conjugation tables.
 const NOT_IN_TABLES = new Set(['adverbial', 'passive', 'impersonal', 'active', 'participle']);
 
 export interface OtherForms {
-	label: string;
+	/** What the forms have in common; grammar.ts (`otherFormLabel`) names it for a reader. */
+	tags: string[];
 	forms: string[];
 }
 
@@ -152,7 +156,7 @@ export function formTables(
 					if (!need.every((t) => f.tags.includes(t))) continue;
 					if (f.tags.some((t) => NOT_IN_TABLES.has(t))) continue;
 					used.add(f);
-					const note = f.tags.map((t) => NOTES[t]).find(Boolean);
+					const note = f.tags.find((t) => NOTES.has(t));
 					if (!items.some((i) => i.form === f.form && i.note === note)) items.push({ form: f.form, note });
 				}
 				return items;
@@ -160,28 +164,37 @@ export function formTables(
 		}));
 		// Drop columns and rows with nothing in them (Київ has no plural).
 		const keep = spec.columns.map((_, c) => rows.some((r) => r.cells[c].length));
-		const filled = rows
-			.filter((r) => r.cells.some((cell) => cell.length))
-			.map((r) => ({ label: r.label, cells: r.cells.filter((_, c) => keep[c]) }));
+		const columns = spec.columns.filter((_, c) => keep[c]);
+		const filled = spec.rows
+			.map(([, rowTags], r) => ({
+				label: rows[r].label,
+				cells: rows[r].cells.filter((_, c) => keep[c]),
+				// Only a verb's cells have someone who acts: я чита́ю, вона чита́ла
+				leads: pos === 'verb'
+					? columns.map(([, colTags]) => pronounFor([...spec.tags, ...rowTags, ...colTags]))
+					: undefined
+			}))
+			.filter((r) => r.cells.some((cell) => cell.length));
 		if (filled.length) {
 			tables.push({
 				title: spec.title,
-				columns: spec.columns.filter((_, c) => keep[c]).map(([label]) => label),
+				columns: columns.map(([label]) => label),
 				rows: filled
 			});
 		}
 	}
 
-	// Everything else, with variants that share a label grouped together.
-	const other = new Map<string, string[]>();
+	// Everything else, with variants that share their tags grouped together.
+	const other = new Map<string, OtherForms>();
 	for (const f of forms) {
 		if (used.has(f)) continue;
-		const label = describeTags(f.tags);
-		const group = other.get(label) ?? [];
-		if (!group.includes(f.form)) group.push(f.form);
-		other.set(label, group);
+		const tags = shownTags(f.tags);
+		const key = [...tags].sort().join(' ');
+		const group = other.get(key) ?? { tags, forms: [] };
+		if (!group.forms.includes(f.form)) group.forms.push(f.form);
+		other.set(key, group);
 	}
-	return { tables, other: [...other].map(([label, forms]) => ({ label, forms })) };
+	return { tables, other: [...other.values()] };
 }
 
 // Shown elsewhere on the page (the aspect is beside the headword), or noise.
@@ -190,12 +203,6 @@ const HIDDEN_TAGS = new Set(['imperfective', 'perfective', 'pronoun', 'personal'
 const readable = (tag: string) =>
 	tag.replace('first-person', '1st person').replace('second-person', '2nd person')
 		.replace('third-person', '3rd person');
-
-/** "first-person" → "1st person", for labels outside the tables. */
-export function describeTags(tags: string[]): string {
-	const shown = tags.filter((t) => !HIDDEN_TAGS.has(t));
-	return (shown.length ? shown : tags).map(readable).join(', ');
-}
 
 // The order a form is described in: "1st person singular present",
 // "animate masculine singular". Tags not listed follow, in alphabetical order.

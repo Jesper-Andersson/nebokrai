@@ -2,23 +2,29 @@
      part of speech, the grammar tags, and the forms a learner needs beside
      the headword.
 
-       іменник · masculine · inanimate · genitive небокра́ю
+       noun · masculine (він) · inanimate · genitive небокра́ю
 
-     `brief` keeps only the genitive, under a short name (a search result).
-     `inline` is the part of speech alone, as a span, to stand on the
-     headword's own line (the footer, a saved word).
+     Each grammar word can be pressed for a note on what it means (Term.svelte),
+     and a gender has its pronoun beside it: a learner who has not met
+     "masculine" knows "він".
+
+     `brief` is the line of a search result: plain text, so a list of results
+     stays quick to read and to tab through, without the animacy, and with the
+     genitive alone under a short name. `inline` is the part of speech alone,
+     as a span, to stand on the headword's own line (the footer, a saved word).
 
      The italics are the text font slanted by the browser, on purpose. A true
      Cyrillic italic changes the letters (т becomes m, и becomes u), which a
      beginner cannot yet read; slanted, іменник keeps the letters it has
      everywhere else. -->
 <script lang="ts">
-	import { describeTags, hasCase } from '#lib/forms.ts';
-	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { orderedTags } from '#lib/labels.ts';
+	import { hasCase } from '#lib/forms.ts';
+	import { entryParts, headFormLabel, termOf } from '#lib/grammar.ts';
+	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Stressed from './Stressed.svelte';
+	import Term from './Term.svelte';
 
 	let {
 		pos,
@@ -39,6 +45,8 @@
 	let m = $derived(messagesFor(settings.lang));
 	// "Noun" on a button, "noun" in a line of grammar
 	let name = $derived(posLabel(m, pos).toLocaleLowerCase(settings.lang));
+	let posTerm = $derived(termOf(pos));
+	let parts = $derived(entryParts(tags, brief));
 	let forms = $derived(brief ? headForms.filter((f) => f.tags.includes('genitive')).slice(0, 1) : headForms);
 </script>
 
@@ -47,10 +55,26 @@
 {:else}
 	<p class="grammar">
 		<span class="row">
-			{#each [name, ...orderedTags(tags)] as part, i (i)}<span class="part">{part}</span>{/each}
-			{#each forms as f, i (i)}
+			<span class="part">
+				{#if posTerm && !brief}<Term id={posTerm}>{name}</Term>{:else}{name}{/if}
+			</span>
+			{#each parts as part (part.tag)}
 				<span class="part">
-					{brief ? m.card.genitive : describeTags(f.tags)}
+					{#if part.term && !brief}<Term id={part.term} />{:else}{tagLabel(m, settings.lang, part.tag)}{/if}
+					{#if part.hint}{' '}<span lang="uk">({part.hint})</span>{/if}
+				</span>
+			{/each}
+			{#each forms as f, i (i)}
+				{@const label = headFormLabel(f.tags)}
+				{@const text = formName(m, settings.lang, label.key && m.grammar.headForms[label.key], label.extra)}
+				<span class="part">
+					{#if brief}
+						<abbr title={m.grammar.terms.genitive.name}>{m.card.genitive}</abbr>
+					{:else if label.term}
+						<Term id={label.term}>{text}</Term>
+					{:else}
+						{text}
+					{/if}
 					<!-- A form that is a word of its own leads to it: the aspect partner
 					     прочита́ти, the diminutive ру́чка. A case form is this same word,
 					     even where its spelling happens to be another word's too. -->

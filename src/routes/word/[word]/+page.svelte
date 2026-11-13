@@ -434,14 +434,22 @@
 		margin-top: 0.3rem;
 	}
 
+	/* Ruled off from one another and nothing more: the entry is the card, and
+	   a box of its own around the sentences made a card inside a card. */
 	.sentences {
 		margin: 0;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
 	}
 
 	.sentences li {
-		padding: 0.6rem 0.9rem;
+		padding: 0.6rem 0;
+	}
+
+	.sentences li:first-child {
+		padding-top: 0;
+	}
+
+	.sentences li:last-child {
+		padding-bottom: 0;
 	}
 
 	.sentences li + li {

@@ -133,11 +133,12 @@
 		}
 	}
 
+	/* A table as a book prints one: a rule under its name and hairlines between
+	   the rows, with no frame and no filled header. The entry around it is
+	   already a card. */
 	.table-wrap {
 		max-width: 100%;
 		overflow-x: auto;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
 	}
 
 	/* The `hidden` attribute of a tab that is not chosen must win over the rule above */
@@ -151,10 +152,10 @@
 		font-size: 1rem;
 	}
 
+	/* Under tabs the name is only read out, and the tabs' own rule stands here */
 	caption {
-		padding: 0.5rem 0.9rem;
-		border-bottom: 1px solid var(--border);
-		background: var(--surface-2);
+		padding: 0 0 0.4rem;
+		border-bottom: 1px solid var(--border-strong);
 		font-weight: 700;
 		text-align: left;
 	}
@@ -167,13 +168,13 @@
 		vertical-align: top;
 	}
 
-	tbody tr:last-child > * {
-		border-bottom: 0;
+	/* The first column starts at the entry's left edge, under MEANINGS and FORMS */
+	tr > :first-child {
+		padding-left: 0;
 	}
 
-	thead th,
-	thead td {
-		background: var(--surface-2);
+	tbody tr:last-child > * {
+		border-bottom: 0;
 	}
 
 	th {

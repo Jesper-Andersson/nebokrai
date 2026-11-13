@@ -4,7 +4,7 @@
      and the quick search. -->
 <script lang="ts">
 	import '../app.css';
-	import { onMount } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
 	import logoIcon from '#lib/assets/logo-icon.svg';
@@ -52,6 +52,16 @@
 
 	// The quick search lives in the header, and a page can open it too.
 	provideQuickSearch();
+
+	// In `npm run dev` only: a switch in the corner for changing the text of a
+	// page where it stands (src/lib/dev/TextEditor.svelte). Vite writes
+	// `false` in the place of import.meta.env.DEV when it builds the site, and
+	// then leaves out this line and the file it asks for. `dev` from $app/env
+	// is not enough: with it the build still shipped the file.
+	let TextEditor = $state.raw<Component | null>(null);
+	if (import.meta.env.DEV) {
+		onMount(() => void import('#lib/dev/TextEditor.svelte').then((module) => (TextEditor = module.default)));
+	}
 </script>
 
 <svelte:head>
@@ -99,6 +109,8 @@
 	{#if settings.radio === 'on'}
 		<RadioPlayer />
 	{/if}
+
+	{#if TextEditor}<TextEditor />{/if}
 </Tooltip.Provider>
 
 <style>
@@ -123,21 +135,16 @@
 	}
 
 	/* No side padding here: the search page's coloured band reaches both
-	   edges of the window, so each page sets its own.
-
-	   The sky under the header is painted here, not by the search page, so
-	   it is the same behind every page and does not come and go between
-	   them. Its size is fixed, whatever the page's height. */
+	   edges of the window, so each page sets its own. */
 	main {
 		flex: 1;
 		padding-bottom: 3rem;
-		background: radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%) no-repeat;
 	}
 
-	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
-	   a photo is its brightest part, so the page colour is laid over it under
-	   the header and fades out 18rem down, about where the search page's box
-	   ends. That carries the search page's title on clouds and on blue. */
+	/* Over a photo (app.css) the top of the photo is its brightest part, so
+	   the page colour is laid over it under the header and fades out 18rem
+	   down, about where the search page's box ends. That carries the search
+	   page's title on clouds and on blue. */
 	:global(:root[data-bg]) main {
 		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent) top / 100%
 			18rem no-repeat;

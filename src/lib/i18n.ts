@@ -179,7 +179,7 @@ const en = {
 		background: 'Background',
 		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' },
 		radio: 'Radio',
-		radioHint: 'A button in the corner of the page that plays Ukrainian radio stations.'
+		radioHint: 'Button in the corner that plays Ukrainian radio stations.'
 	},
 	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
 	radio: {
@@ -224,8 +224,8 @@ const en = {
 	/** The pages for browsing: /common-words and /words (browse.ts). */
 	browse: {
 		commonTitle: 'The 1,000 most common Ukrainian words',
-		commonLead: 'The words you will meet most often, commonest first, each with its stress and first meaning. Follow a word for all its meanings and forms.',
-		commonSource: 'Counted in film and television subtitles, so everyday speech weighs more than books.',
+		commonLead: 'The words you\'ll meet most often, with the most common listed first.',
+		commonSource: 'Counted from film and television subtitles, so everyday speech weighs more than books.',
 		commonPages: 'Parts of the list',
 		wordsTitle: 'All words',
 		wordsLead: 'Every word in the dictionary under its first letter, in alphabetical order.',
@@ -329,8 +329,8 @@ const en = {
 			words: 'Related forms',
 			usage: 'Where a word is used'
 		} as Record<Group, string>,
+		/** Said under a group's heading. The parts of speech go without. */
 		intros: {
-			pos: 'Every entry begins with the kind of word it is.',
 			gender: 'Every Ukrainian noun has one of three genders. The gender decides the endings of the words that go with the noun, and the pronoun that stands for it.',
 			animacy: 'Ukrainian grammar treats a thing differently from a living being. It decides the form in one case, the accusative.',
 			number: 'One or more than one, and the words that have only one of the two.',
@@ -338,7 +338,7 @@ const en = {
 			verbs: 'A verb’s endings show who acts and when. Most verbs come in pairs, one for the action in progress and one for the action completed.',
 			words: 'Forms made from a word that a dictionary lists beside it.',
 			usage: 'Remarks on a meaning that say where or when it is used.'
-		} as Record<Group, string>,
+		} as Partial<Record<Group, string>>,
 		caseTable: { name: 'Case', question: 'Question', example: 'Example' },
 		/** The guide's list of its sections, and the way back to it from each */
 		sections: 'Sections',
@@ -640,7 +640,7 @@ const en = {
 		back: 'Back to the letters'
 	},
 	pageTitle: {
-		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained',
+		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet'
 	},
 	/**
@@ -681,7 +681,7 @@ const en = {
 	},
 	/** The Resources page: the list itself is in resources.ts. */
 	resources: {
-		intro: 'Other good places to learn Ukrainian: courses, podcasts, dictionaries and tools.',
+		intro: 'Other good places to learn Ukrainian:',
 		filterLabel: 'Narrow the list',
 		filterPlaceholder: 'Type to narrow the list…',
 		kindLegend: 'Kind of resource',
@@ -914,7 +914,7 @@ const uk: Messages = {
 		background: 'Тло',
 		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' },
 		radio: 'Радіо',
-		radioHint: 'Кнопка в кутку сторінки, що вмикає українські радіостанції.'
+		radioHint: 'Кнопка в кутку, що вмикає українські радіостанції.'
 	},
 	radio: {
 		open: 'Радіо',
@@ -956,7 +956,7 @@ const uk: Messages = {
 	},
 	browse: {
 		commonTitle: '1000 найуживаніших українських слів',
-		commonLead: 'Слова, які трапляються найчастіше, від найуживанішого, з наголосом і першим значенням. Перейдіть до слова, щоб побачити всі його значення та форми.',
+		commonLead: 'Слова, які трапляються найчастіше: спершу найуживаніші.',
 		commonSource: 'Підраховано за субтитрами до фільмів і серіалів, тому розмовна мова важить більше за книжну.',
 		commonPages: 'Частини списку',
 		wordsTitle: 'Усі слова',
@@ -1058,7 +1058,6 @@ const uk: Messages = {
 			usage: 'Де вживається слово'
 		},
 		intros: {
-			pos: 'Кожна стаття починається з частини мови.',
 			gender: 'Кожен український іменник належить до одного з трьох родів. Від роду залежать закінчення слів, що стоять при іменнику, і займенник, який його заступає.',
 			animacy: 'Українська граматика розрізняє назви предметів і назви живих істот. Від цього залежить форма в одному відмінку, знахідному.',
 			number: 'Один чи більше ніж один, а також слова, що мають тільки одне з двох чисел.',
@@ -1368,7 +1367,7 @@ const uk: Messages = {
 		back: 'Назад до літер'
 	},
 	pageTitle: {
-		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Граматичні терміни',
+		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка'
 	},
 	meta: {
@@ -1403,7 +1402,7 @@ const uk: Messages = {
 		}
 	},
 	resources: {
-		intro: 'Інші добрі місця, де можна вчити українську: курси, подкасти, словники й інструменти.',
+		intro: 'Інші добрі місця, де можна вчити українську:',
 		filterLabel: 'Звузити список',
 		filterPlaceholder: 'Введіть, щоб звузити список…',
 		kindLegend: 'Вид ресурсу',

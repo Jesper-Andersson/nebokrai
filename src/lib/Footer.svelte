@@ -65,14 +65,13 @@
 		font-size: var(--text-sm);
 	}
 
-	/* The top edge is the header's hairline, and in the middle of it the gold
-	   of the header's current page: the horizon, lit where the sun is */
+	/* The top edge: a plain hairline in the grey of every other border */
 	footer::before {
 		content: '';
 		position: absolute;
 		inset: 0 0 auto;
 		height: 1px;
-		background: linear-gradient(90deg, var(--border) 20%, var(--gold) 50%, var(--border) 80%);
+		background: var(--border);
 	}
 
 	.inner {

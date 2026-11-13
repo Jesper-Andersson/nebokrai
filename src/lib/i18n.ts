@@ -218,7 +218,8 @@ const en = {
 		about: 'About',
 		sources: 'Sources and licences',
 		privacy: 'Privacy',
-		words: 'All words'
+		words: 'All words',
+		discord: 'Discord community'
 	},
 	/** /learn: the three pages for learning, each as a card that leads to it. */
 	learn: {
@@ -973,7 +974,8 @@ const uk: Messages = {
 		about: 'Про проєкт',
 		sources: 'Джерела й ліцензії',
 		privacy: 'Приватність',
-		words: 'Усі слова'
+		words: 'Усі слова',
+		discord: 'Спільнота в Discord'
 	},
 	learn: {
 		lead: 'Три місця, з яких можна почати, крім пошуку слова.',

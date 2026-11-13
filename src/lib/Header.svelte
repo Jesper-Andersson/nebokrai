@@ -339,29 +339,29 @@
 	   the window: fixed, the piece was cut wherever the tab happened to stand
 	   and could end in a sliver of yellow.
 
-	   It holds whole stripes only. A stripe is 14px of the ribbon's length,
-	   so the piece is as many 14px as fit over the tab's word, centred, and
-	   its ends are cut on the stripes' own slant: a square end would cut the
-	   corner off the next stripe. (Where `round()` is not known the piece is
-	   as wide as the word and may end part-way through a stripe. Stretching
-	   the stripes to fit with `background-repeat: round` was tried and left
-	   seams: the browser draws them again at the new size.) */
+	   It holds whole stripes only, and is blue at both ends. A pair of
+	   stripes is 28px of the ribbon's length, so the piece is as many pairs
+	   as fit over the tab's word and one blue stripe more, centred. It stops
+	   4px short of that stripe's end: the stripes slant, and a square end
+	   any further on would take the corner off the next yellow one. (Ends
+	   cut on the slant were tried and looked like a pair of stray strokes.
+	   Stretching the stripes to fit with `background-repeat: round` left
+	   seams: the browser draws them again at the new size. Where `round()`
+	   is not known the piece is as wide as the word and may end part-way
+	   through a stripe.) */
 	nav a[aria-current='page']::after {
-		--h: var(--ribbon-height);
 		content: '';
 		position: absolute;
 		top: -1px;
 		left: 50%;
 		width: calc(100% - 1.4rem);
-		width: calc(round(down, 100% - 1.4rem - var(--h), 14px) + var(--h));
-		height: var(--h);
+		width: calc(round(down, 100% - 1.4rem - 10px, 28px) + 10px);
+		height: var(--ribbon-height);
+		border-radius: 2px;
 		translate: -50% 0;
 		background:
 			var(--ribbon-shade) 0 0 / 100% 100% no-repeat,
-			var(--ribbon-stripes) var(--h) 0 / 28px 28px repeat;
-		/* The right end stops 0.75px short: a stripe's last quarter pixel
-		   shades into the next colour, and showed as a hairline of it */
-		clip-path: polygon(var(--h) 0, calc(100% - 0.75px) 0, calc(100% - var(--h) - 0.75px) 100%, 0 100%);
+			var(--ribbon-stripes) 0 0 / 28px 28px repeat;
 	}
 
 	@media (hover: hover) {

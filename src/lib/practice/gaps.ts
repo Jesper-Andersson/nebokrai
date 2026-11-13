@@ -1,9 +1,12 @@
-// Drawing sentences for a round of grammar practice from the `cloze` table
-// (data/import_wiktionary.py, add_cloze), and offering each with the forms to
-// choose among. Runs on D1 and on a local SQLite file alike (search/db.ts),
-// so `npm test` checks it against the real sentences.
+// Drawing sentences for a round of grammar practice, and offering each with
+// the forms to choose among. A preposition's sentences are in the `cloze`
+// table (data/import_wiktionary.py, add_cloze); a number's are made from a
+// list of nouns (numbers.ts) and the forms the dictionary has for them. Runs
+// on D1 and on a local SQLite file alike (search/db.ts), so `npm test` checks
+// it against the real sentences.
 import type { Db } from '../search/db.ts';
 import { plain } from '../search/normalize.ts';
+import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
 
@@ -14,10 +17,16 @@ const CHOICES = 4;
 const CASE_OF: Record<string, PointCase> = { gen: 'genitive', acc: 'accusative', ins: 'instrumental', loc: 'locative' };
 
 /**
- * How many sentences each grammar point has. Empty for a database built
- * before the sentences were: the page then says there is nothing to practise.
+ * How many sentences each grammar point has. A database built before the
+ * sentences were has only the numbers' points, which need none.
  */
 export async function pointCounts(db: Db): Promise<Record<string, number>> {
+	const counts = await clozeCounts(db);
+	for (const point of ['one-nom', 'few-nom', 'many-gen']) counts[point] = numberCount(point);
+	return counts;
+}
+
+async function clozeCounts(db: Db): Promise<Record<string, number>> {
 	const rows = await db.all<{ value: string }>("SELECT value FROM meta WHERE key = 'cloze_points'");
 	const counts: Record<string, number> = {};
 	try {
@@ -69,10 +78,18 @@ function shuffled<T>(items: readonly T[], random: Random): T[] {
  * reads ten rows of `cloze` and not the thousand a point may have.
  */
 export async function drawGaps(db: Db, points: readonly string[], random: Random): Promise<Gap[]> {
-	const counts = await pointCounts(db);
-	const drawn: [point: string, n: number][] = [];
+	const asked = points.slice(0, MAX_GAPS);
+	// The meta row is read only where a preposition is asked for: a round of numbers needs no sentences
+	const counts = asked.some((point) => !isNumberPoint(point)) ? await clozeCounts(db) : {};
+	const drawn: ([point: string, n: number] | NumberDraw)[] = [];
 	const taken = new Set<string>();
-	for (const point of points.slice(0, MAX_GAPS)) {
+	const counted = new Set<number>();
+	for (const point of asked) {
+		if (isNumberPoint(point)) {
+			const draw = drawNumber(point, random, counted);
+			if (draw) drawn.push(draw);
+			continue;
+		}
 		const count = counts[point];
 		if (!count) continue;
 		let n = Math.floor(random() * count);
@@ -83,18 +100,31 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	}
 	if (!drawn.length) return [];
 
-	const rows = await db.all<ClozeRow>(
-		`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id,
-		        e.word, e.headword
-		 FROM json_each(?) j
-		 CROSS JOIN cloze c ON c.point = json_extract(j.value, '$[0]') AND c.n = json_extract(j.value, '$[1]')
-		 JOIN entries e ON e.id = c.entry_id`,
-		[JSON.stringify(drawn)]
-	);
+	const sentences = drawn.filter((draw) => Array.isArray(draw));
+	const rows = sentences.length
+		? await db.all<ClozeRow>(
+				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id,
+				        e.word, e.headword
+				 FROM json_each(?) j
+				 CROSS JOIN cloze c ON c.point = json_extract(j.value, '$[0]') AND c.n = json_extract(j.value, '$[1]')
+				 JOIN entries e ON e.id = c.entry_id`,
+				[JSON.stringify(sentences)]
+			)
+		: [];
 	const found = new Map(rows.map((row) => [`${row.point} ${row.n}`, row]));
 
+	// The nouns counted: a word can have two entries (стіл, собака), tried in the dictionary's order
+	const words = [...new Set(drawn.flatMap((draw) => (Array.isArray(draw) ? [] : [draw.noun.word])))];
+	const nouns = words.length
+		? await db.all<{ id: number; word: string; headword: string }>(
+				`SELECT id, word, headword FROM entries
+				 WHERE pos = 'noun' AND word IN (SELECT value FROM json_each(?)) ORDER BY id`,
+				[JSON.stringify(words)]
+			)
+		: [];
+
 	const forms = new Map<number, FormRow[]>();
-	const ids = [...new Set(rows.map((row) => row.entry_id))];
+	const ids = [...new Set([...rows.map((row) => row.entry_id), ...nouns.map((noun) => noun.id)])];
 	for (const form of await db.all<FormRow>(
 		'SELECT entry_id, form, plain, tags FROM forms WHERE entry_id IN (SELECT value FROM json_each(?))',
 		[JSON.stringify(ids)]
@@ -105,9 +135,19 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	}
 
 	const gaps: Gap[] = [];
-	for (const [point, n] of drawn) {
-		const row = found.get(`${point} ${n}`);
-		if (row) gaps.push(gapOf(row, forms.get(row.entry_id) ?? [], random));
+	for (const draw of drawn) {
+		if (Array.isArray(draw)) {
+			const row = found.get(`${draw[0]} ${draw[1]}`);
+			if (row) gaps.push(gapOf(row, forms.get(row.entry_id) ?? [], random));
+			continue;
+		}
+		for (const noun of nouns.filter((entry) => entry.word === draw.noun.word)) {
+			const gap = numberGap(draw, noun, forms.get(noun.id) ?? [], random);
+			if (gap) {
+				gaps.push(gap);
+				break;
+			}
+		}
 	}
 	return gaps;
 }

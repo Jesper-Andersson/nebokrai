@@ -614,7 +614,14 @@ The practice page (`/practice`) asks for a noun in the case its preposition
 takes. A grammar point is a preposition with one case, named by both:
 `bez-gen` (без + genitive), `na-acc` and `na-loc` (на + accusative, на +
 locative). The points are listed in `src/lib/practice/points.ts`; the cases
-are `gen`, `acc`, `ins` and `loc`.
+are `nom`, `gen`, `acc`, `ins` and `loc`.
+
+Three points are numbers with the form of the noun they count: `one-nom`
+(1, 21, 31: the nominative singular, 21 рік), `few-nom` (2, 3, 4, 22: the
+nominative plural, 22 роки) and `many-gen` (5 to 20, 25: the genitive
+plural, 25 років). Their sentences are not found but made, from a list of
+nouns and short frames in `src/lib/practice/numbers.ts` and the forms the
+dictionary has: `У мене 5 книг.`
 
 #### `GET /api/practice?points=<point>,<point>,…`
 
@@ -660,10 +667,37 @@ Response `200`:
   typed answer found there and not right is the right word in the wrong form.
 - `number` is `singular` or `plural`.
 
+A number's sentence has the same shape, with these differences:
+
+```json
+{
+  "point": "few-nom",
+  "uk": "У мене 2 сестри.",
+  "en": "I have 2 sisters.",
+  "start": 9, "length": 6,
+  "answer": "сестри́", "also": [],
+  "number": "plural",
+  "word": "сестра", "headword": "сестра́",
+  "choices": ["сестрі́", "се́стер", "сестра́", "сестри́"],
+  "forms": ["сестра", "сестри", "сестер", "сестрі", "сестрам", "сестру", "сестрою", "сестрами", "сестрах", "сестро"],
+  "tatoeba_id": 0
+}
+```
+
+- `tatoeba_id` is `0`: the sentence is made here and has no author to credit.
+- `number` is part of what is asked, so the page does not show it.
+- `choices` are always four: beside `answer`, the forms a learner hesitates
+  among (the nominative singular and plural, the genitive singular and
+  plural), then any other.
+- After 2, 3 and 4 `answer` has the letters of the nominative plural and the
+  stress of the genitive singular (дві сестри́, два бра́ти), which is not
+  always the stress the forms table gives the plural (се́стри, брати́).
+
 Sent with `Cache-Control: no-store`: asking again must give other sentences.
 `400` with `{ "error": "bad_points", "max": 20 }` when `points` is missing,
-empty or names more than 20. An empty `gaps` means the dictionary was built
-before the sentences were (`data/README.md`, "Sentences with a gap").
+empty or names more than 20. An empty `gaps` for a preposition's point means
+the dictionary was built before the sentences were (`data/README.md`,
+"Sentences with a gap"); the numbers' points need only the dictionary.
 
 A point's schedule is a review card whose `word` is `grammar:<point>`
 (`"word": "grammar:bez-gen"`). It is worked out in the browser as a

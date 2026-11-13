@@ -7,7 +7,8 @@ import { existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
-import { POINTS, cardKey, isPointKey, pointOf } from '../src/lib/practice/points.ts';
+import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
+import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
 import { ROUND, checkAnswer, gradePoint, planRound, planWeak, ratingOf, split, stateOf, type Gap } from '../src/lib/practice/round.ts';
 import { AGAIN, DAY, GOOD, HARD, LEARNING, REVIEW, answer, newCard, type ReviewCard } from '../src/lib/review/fsrs.ts';
@@ -25,6 +26,9 @@ function seeded(seed = 1) {
 
 const NOW = Date.UTC(2026, 10, 13, 12);
 const ids = POINTS.map((point) => point.id);
+/** The points whose sentences are found in the database: the prepositions'. */
+const found = POINTS.filter((point) => !isNumber(point)).map((point) => point.id);
+const numbers = POINTS.filter(isNumber).map((point) => point.id);
 
 /** Cards for `points`, each answered "Good" until it is under review, the last time `daysAgo` days back. */
 function reviewed(points: string[], daysAgo: number): Map<string, ReviewCard> {
@@ -38,10 +42,12 @@ function reviewed(points: string[], daysAgo: number): Map<string, ReviewCard> {
 	return cards;
 }
 
-test('every point is named once, by a preposition and a case', () => {
+test('every point is named once, by a preposition or a number and a case', () => {
 	assert.equal(new Set(ids).size, ids.length);
+	assert.deepEqual(numbers, ['one-nom', 'few-nom', 'many-gen']);
 	for (const point of POINTS) {
-		assert.match(point.id, /^[a-z]+-(gen|acc|ins|loc)$/);
+		assert.equal(isNumberPoint(point.id), isNumber(point));
+		assert.match(point.id, /^[a-z]+-(nom|gen|acc|ins|loc)$/);
 		assert.equal(point.id.split('-')[1], point.case.slice(0, 3));
 		assert.equal(pointOf(point.id), point);
 	}
@@ -215,14 +221,15 @@ test('the database has sentences for exactly the points the page lists', { skip 
 	const counts = await pointCounts(openLocal('nebokrai.db'));
 	assert.deepEqual(Object.keys(counts).sort(), [...ids].sort());
 	for (const count of Object.values(counts)) assert.ok(count >= MAX_GAPS);
+	for (const id of numbers) assert.equal(counts[id], numberCount(id));
 });
 
 test('sentences are drawn in the order asked, each with its gap and four forms to choose among', { skip }, async () => {
 	const db = openLocal('nebokrai.db');
-	const asked = [...ids, 'no-such'];
+	const asked = [...found, 'no-such'];
 	for (const seed of [1, 2, 3]) {
 		const gaps = await drawGaps(db, asked.slice(0, MAX_GAPS), seeded(seed));
-		assert.deepEqual(gaps.map((gap) => gap.point), ids.slice(0, MAX_GAPS));
+		assert.deepEqual(gaps.map((gap) => gap.point), found.slice(0, MAX_GAPS));
 		for (const gap of gaps) {
 			const { word } = split(gap);
 			assert.equal(plain(word), plain(gap.answer), gap.uk);
@@ -259,4 +266,86 @@ test('the noun standing after a preposition that asks for one case of it', { ski
 		assert.equal(plain(row.uk.slice(row.start, row.start + row.length)), plain(row.form));
 		assert.match(row.uk.slice(0, row.start).toLowerCase(), /(^|[^Ѐ-ӿ])без $/);
 	}
+});
+
+// --- Numbers with nouns ---
+
+test('after two, three and four a noun is stressed as its genitive singular is', () => {
+	assert.equal(stressLike('брати́', 'бра́та'), 'бра́ти');
+	assert.equal(stressLike('се́стри', 'сестри́'), 'сестри́');
+	assert.equal(stressLike('ві́кна', 'вікна́'), 'вікна́');
+	assert.equal(stressLike('кни́ги', 'кни́ги'), 'кни́ги');
+	// One vowel: nothing to move. Not as many vowels: left alone
+	assert.equal(stressLike('дні', 'дня'), 'дні');
+	assert.equal(stressLike('дівча́та', 'ді́вчини'.slice(0, -2)), 'дівча́та');
+});
+
+test('a number is drawn with a noun it makes sense with, and no noun twice while others are left', () => {
+	const random = seeded(5);
+	for (const point of numbers) {
+		const taken = new Set<number>();
+		const words = new Set<string>();
+		for (let i = 0; i < 12; i++) {
+			const draw = drawNumber(point, random, taken)!;
+			assert.ok(draw.n >= draw.noun.min && draw.n <= draw.noun.max);
+			words.add(draw.noun.frame + ' ' + draw.noun.word);
+		}
+		assert.equal(words.size, 12);
+		assert.ok(numberCount(point) >= MAX_GAPS);
+	}
+	assert.equal(drawNumber('bez-gen', random, new Set()), null);
+});
+
+test('every counted noun is in the dictionary with the three forms the numbers ask for', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	for (const [point, numeral] of [['one-nom', '1'], ['few-nom', '3'], ['many-gen', '5']]) {
+		const once = [...new Set(COUNTED.filter((noun) => !noun.manyOnly || point === 'many-gen').map((noun) => noun.word))];
+		const seen = new Set<string>();
+		// Enough rounds of the point alone to meet every noun
+		for (let seed = 1; seed <= 60 && seen.size < once.length; seed++) {
+			for (const gap of await drawGaps(db, Array(MAX_GAPS).fill(point), seeded(seed))) {
+				seen.add(gap.word);
+				const { before, word, after } = split(gap);
+				assert.match(before, /\d+ $/, gap.uk);
+				assert.equal(after, '.');
+				assert.equal(word, gap.answer.replaceAll('\u0301', ''));
+				assert.equal(checkAnswer(gap, word), 'right');
+				assert.equal(gap.tatoeba_id, 0);
+				assert.match(gap.en, /\d/);
+				assert.equal(gap.choices.length, 4, gap.uk);
+				assert.equal(new Set(gap.choices.map(plain)).size, 4);
+				assert.deepEqual(gap.choices.filter((choice) => checkAnswer(gap, choice) === 'right'), [gap.answer]);
+				// After two and after five the noun is not as the dictionary has it: there is something to choose
+				if (point !== 'one-nom') assert.notEqual(plain(gap.answer), gap.word, gap.uk);
+				// The number ends as the point's numbers do
+				const n = Number(/\d+/.exec(gap.uk)![0]);
+				const few = n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14);
+				const one = n % 10 === 1 && n % 100 !== 11;
+				assert.equal(one ? '1' : few ? '3' : '5', numeral, gap.uk);
+			}
+		}
+		assert.deepEqual([...seen].sort(), [...once].sort(), point);
+	}
+});
+
+test('numbers ask for книга, книги and книг, and a round of them reads no sentences', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const answers: Record<string, Set<string>> = {};
+	// A round of the numbers: the nouns and their forms, two requests, and none for sentences
+	assert.equal((await drawGaps(db, numbers, seeded())).length, 3);
+	assert.equal(db.queries, 2);
+	for (let seed = 1; seed <= 20; seed++) {
+		for (const point of numbers) {
+			for (const gap of await drawGaps(db, Array(MAX_GAPS).fill(point), seeded(seed))) {
+				(answers[gap.word + ' ' + gap.point] ??= new Set()).add(gap.answer);
+			}
+		}
+	}
+	const only = (key: string) => [...(answers[key] ?? [])].join();
+	assert.equal(only('книга one-nom'), 'кни\u0301га');
+	assert.equal(only('книга few-nom'), 'кни\u0301ги');
+	assert.equal(only('книга many-gen'), 'книг');
+	assert.equal(only('брат few-nom'), 'бра\u0301ти');
+	assert.equal(only('сестра few-nom'), 'сестри\u0301');
+	assert.equal(only('рік many-gen'), 'ро\u0301ків');
 });

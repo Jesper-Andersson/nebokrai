@@ -7,6 +7,11 @@
        Кава без _____ .        цукор
        без + genitive · кого? чого? · without
 
+     A number's rule is said the same way, with whether it counts one or many:
+
+       У мене 5 _____ .        книга
+       5–20, 25… + genitive plural · кого? чого?
+
      The case can be shown before answering, and a typed answer that is the
      right word in the wrong form gets one more try with the case shown. Either
      way the sentence then counts as answered with help, not as missed. The
@@ -21,7 +26,7 @@
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import type { Point } from '#lib/practice/points.ts';
+	import { isNumber, type Point } from '#lib/practice/points.ts';
 	import { checkAnswer, split, type Gap, type Outcome } from '#lib/practice/round.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -109,7 +114,10 @@
 <!-- без + genitive · кого? чого? · without -->
 {#snippet rule()}
 	<p class="rule">
-		<span class="takes"><b lang="uk">{point.preposition}</b> + <Term id={point.case} /></span>
+		<span class="takes">
+			<b lang="uk">{point.cue}</b> + <Term id={point.case} />
+			{#if point.number}{m.practice.ofNumber[point.number]}{/if}
+		</span>
 		{#if HINTS[point.case]}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
 		<span class="meaning">{m.practice.meaning[point.id]}</span>
 	</p>
@@ -129,7 +137,7 @@
 		<p class="english" lang="en">{gap.en}</p>
 		<p class="cue">
 			<Headword text={gap.headword} size="sm" />
-			{#if gap.number === 'plural'}<span class="ui-badge">{m.practice.plural}</span>{/if}
+			{#if gap.number === 'plural' && !isNumber(point)}<span class="ui-badge">{m.practice.plural}</span>{/if}
 		</p>
 	</div>
 
@@ -209,7 +217,10 @@
 <p class="under">
 	{#if choice && !result}<span class="keys">{m.practice.keys}</span>{/if}
 	<!-- The sentence's licence asks for its author's credit: the link leads to it -->
-	<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+	<!-- A number's sentence is made here, not taken from Tatoeba: there is no one to credit -->
+	{#if gap.tatoeba_id}
+		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+	{/if}
 </p>
 
 <style>

@@ -674,7 +674,7 @@ const en = {
 	},
 	/** Grammar practice (/practice). The rules themselves are in practice/points.ts. */
 	practice: {
-		lead: 'Fill the gap in real sentences. A round is ten sentences and mixes the rules you are learning. The first rules are the prepositions and the case each one asks for.',
+		lead: 'Fill the gap in a sentence. A round is ten sentences and mixes the rules you are learning: prepositions with the case each one asks for, in real sentences, and numbers with the form of what they count.',
 		none: 'There are no sentences to practise with yet.',
 		answerLabel: 'Answer by',
 		answer: { choice: 'Selecting', type: 'Writing' },
@@ -687,6 +687,10 @@ const en = {
 		/** Starts a round of the rules held least well, and what such a round is. */
 		weak: 'Weak spots',
 		weakTitle: 'A round of the rules you hold least well',
+		/** Heads the numbers' rules on the map, as a case heads its prepositions. */
+		numbers: 'Numbers with nouns',
+		/** After the case a number asks for: "nominative plural", називний відмінок множини. */
+		ofNumber: { singular: 'singular', plural: 'plural' },
 		/** Said of a rule's row, which starts a round of that rule alone. */
 		only: 'Practise this rule alone',
 		state: { new: 'new', weak: 'shaky', learning: 'learning', known: 'known' },
@@ -715,7 +719,10 @@ const en = {
 			'nad-ins': 'above, over',
 			'mizh-ins': 'between, among',
 			'proty-gen': 'against',
-			'sered-gen': 'among, in the middle of'
+			'sered-gen': 'among, in the middle of',
+			'one-nom': 'one, and numbers that end in one: the noun as the dictionary has it',
+			'few-nom': 'two to four, and numbers that end in them: the plural',
+			'many-gen': 'five and more, and 11 to 14: the plural in the genitive'
 		} as Record<string, string>,
 		count: (n: number, total: number) => `${n} of ${total}`,
 		stop: 'Stop',
@@ -1502,7 +1509,7 @@ const uk: Messages = {
 		back: 'Назад до літер'
 	},
 	practice: {
-		lead: 'Заповнюйте пропуски у справжніх реченнях. У раунді десять речень на різні правила, які ви вивчаєте. Перші правила — прийменники та відмінок, якого вимагає кожен із них.',
+		lead: 'Заповнюйте пропуски в реченнях. У раунді десять речень на різні правила, які ви вивчаєте: прийменники з відмінком, якого вимагає кожен із них, у справжніх реченнях, і числівники з формою того, що вони рахують.',
 		none: 'Речень для вправ поки що немає.',
 		answerLabel: 'Як відповідати',
 		answer: { choice: 'Обирати', type: 'Писати' },
@@ -1513,6 +1520,8 @@ const uk: Messages = {
 		map: 'Позначка показує, наскільки добре ви тримаєте правило. Оберіть правило, щоб вправляти лише його.',
 		weak: 'Слабкі місця',
 		weakTitle: 'Раунд із правил, які ви тримаєте найгірше',
+		numbers: 'Числівники з іменниками',
+		ofNumber: { singular: 'однини', plural: 'множини' },
 		only: 'Вправляти лише це правило',
 		state: { new: 'нове', weak: 'непевне', learning: 'вивчається', known: 'засвоєне' },
 		meaning: {
@@ -1539,7 +1548,10 @@ const uk: Messages = {
 			'nad-ins': 'вище за щось',
 			'mizh-ins': 'посередині між кимось або чимось',
 			'proty-gen': 'усупереч комусь або чомусь',
-			'sered-gen': 'у колі когось, усередині чогось'
+			'sered-gen': 'у колі когось, усередині чогось',
+			'one-nom': 'один і числа, що закінчуються на один: однина, як у словнику',
+			'few-nom': 'два, три, чотири й числа, що закінчуються на них: множина',
+			'many-gen': 'п’ять і більше, а також 11–14: множина в родовому відмінку'
 		},
 		count: (n, total) => `${n} з ${total}`,
 		stop: 'Зупинити',

@@ -149,10 +149,11 @@
 				aria-label={cardsLabel}
 				title={cardsLabel}
 			>
-				<Icon name="cards" size={20} />
 				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
+				<Icon name="cards" size={20} />
 				{#if streak.days}
 					<span class="streak" class:lit={streak.lit} aria-hidden="true">
+						{Math.min(streak.days, 999)}
 						<!-- Red at the tip and amber below; the drawing has room around
 						     the flame for its flicker -->
 						<svg class="flame" viewBox="1 -2 22 26">
@@ -168,7 +169,6 @@
 								d="M13 1c.6 3.2 3 4.9 4.7 7.2 1.4 1.9 2.3 4 2.3 6.3A8 8 0 0 1 4 14.5c0-2.6 1.1-4.9 2.7-6.6.3 1.6 1 2.7 2.2 3.3C8.6 7.6 10 3.6 13 1z"
 							/>
 						</svg>
-						{Math.min(streak.days, 999)}
 					</span>
 				{/if}
 			</a>
@@ -394,8 +394,8 @@
 		gap: 0.35rem;
 	}
 
-	/* The way to the flashcards, and what waits there, read in a row: the
-	   cards, how many are due, then a flame and the days of the streak. Until
+	/* The way to the flashcards, and what waits there, read in a row: how
+	   many are due, the cards, then the days of the streak and its flame. Until
 	   2026-11-13 the count sat on the button's upper left corner and the flame,
 	   with the days written in it, on its upper right: two marks piled on one
 	   small icon, the flame hanging over the edge of the bar. Side by side
@@ -428,11 +428,8 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.1rem;
-		color: var(--muted);
-	}
-
-	.count + .streak {
 		margin-left: 0.3rem;
+		color: var(--muted);
 	}
 
 	.flame {
@@ -449,14 +446,11 @@
 		stroke-linejoin: round;
 	}
 
-	/* Lit: a card has been reviewed today. It glows, and it flickers,
-	   swaying from its foot; its figure takes the text colour. */
+	/* Lit: a card has been reviewed today. It flickers, swaying from
+	   its foot, and its figure takes the text colour. No glow round it: the
+	   colour is enough. */
 	.streak.lit {
 		color: var(--ink);
-	}
-
-	.streak.lit .flame {
-		filter: drop-shadow(0 0 3px color-mix(in oklab, var(--flame) 60%, transparent));
 	}
 
 	.streak.lit .body {

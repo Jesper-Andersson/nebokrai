@@ -1,10 +1,12 @@
-<!-- The Privacy section says what the code does. Read it again whenever
-     users.ts, oauth.ts, reports.ts or the report endpoint changes what is
-     kept, or a page starts loading something from another site. -->
+<!-- What the site is and who makes it. What it keeps about a visitor is on a
+     page of its own, /privacy. The profile picture here comes from GitHub,
+     and that page says so: tell it if this one starts loading anything else
+     from another site. -->
 <script lang="ts">
 	import GitHubCard from '#lib/GitHubCard.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import TextPage from '#lib/TextPage.svelte';
+	import { SOURCE_URL } from '#lib/index.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 
@@ -20,6 +22,7 @@
 	// Voluntary help with the hosting bill. It must never buy anything on the
 	// site: the VESUM data keeps Nebokrai non-commercial.
 	const KOFI = 'https://ko-fi.com/jesperandersson0';
+	const AGPL = 'https://www.gnu.org/licenses/agpl-3.0.html';
 </script>
 
 <TextPage title={m.pageTitle.about} description={m.meta.about}>
@@ -44,7 +47,27 @@
 			<li>Бачити наголос, відмінювання й дієвідмінювання та приклади речень.</li>
 			<li>Слухати вимову: запис, якщо він є, або комп’ютерний голос.</li>
 			<li>Дізнатися, наскільки вживане слово.</li>
-			<li>Зберігати слова й експортувати їх для Anki чи електронної таблиці.</li>
+			<li>
+				Бачити синоніми, антоніми, споріднені слова й етимологію та шукати будь-яке слово з прикладу,
+				натиснувши на нього.
+			</li>
+			<li>Набирати українською з екранної клавіатури, у стандартній або фонетичній розкладці.</li>
+			<li>
+				Зберігати слова, розкладати їх за списками й експортувати для Anki чи електронної таблиці.
+			</li>
+			<li>
+				Повторювати слова на <a href="/review">картках</a>, збережені або найуживаніші: кожна картка
+				повертається незадовго до того, як ви забули б слово.
+			</li>
+			<li>
+				Вивчити абетку з вправами, переглянути 1000 найуживаніших слів і граматичні терміни: усе це
+				на сторінці <a href="/learn">Навчання</a>.
+			</li>
+			<li>
+				Увійти через Google або GitHub, щоб збережені слова й картки були на всіх ваших пристроях.
+			</li>
+			<li>Користуватися сайтом англійською чи українською, у світлій, сепієвій або темній темі.</li>
+			<li>Слухати українське радіо під час навчання: його можна ввімкнути в налаштуваннях.</li>
 		</ul>
 
 		<h2>Nebokrai в інших програмах</h2>
@@ -68,7 +91,12 @@
 			</li>
 			<li>
 				<b>Anki.</b> Збережені слова можна експортувати як файл для Anki на сторінці
-				<a href="/saved">Збережені слова</a>.
+				<a href="/saved">Збережені слова</a> або надіслати просто в Anki, якщо він відкритий і має
+				додаток AnkiConnect.
+			</li>
+			<li>
+				<b>Телефон.</b> Nebokrai можна встановити як застосунок: у меню браузера виберіть «Додати на
+				головний екран». Словнику й далі потрібне з’єднання з інтернетом.
 			</li>
 		</ul>
 
@@ -89,6 +117,14 @@
 		</p>
 		<GitHubCard profile={data.github} />
 
+		<h2>Вихідний код</h2>
+		<p>
+			Код сайту — вільне програмне забезпечення за ліцензією
+			<a href={AGPL} rel="noopener">GNU Affero General Public License</a> версії 3 або пізнішої. Він
+			опублікований <a href={SOURCE_URL} rel="noopener">на GitHub</a>: там можна його прочитати,
+			повідомити про помилку чи запропонувати зміну.
+		</p>
+
 		<h2>Підтримати Nebokrai</h2>
 		<p>
 			Nebokrai повністю безкоштовний, без реклами й відстеження. Якщо він вам корисний, можете
@@ -97,43 +133,11 @@
 			хочете натомість допомогти Україні, дивіться: <a href="/support">Підтримати Україну</a>.
 		</p>
 
-		<h2>Приватність</h2>
-		<p>
-			На Nebokrai немає реклами й відстеження. Файли cookie потрібні лише для входу й налаштувань.
-		</p>
-		<p>
-			Збережені слова та списки, у які ви їх розклали, зберігаються у вашому браузері. Якщо ви
-			входите через Google або GitHub, ми зберігаємо ваш ідентифікатор у цьому сервісі, ваше ім’я,
-			збережені слова, назви ваших списків і те, які слова ви експортували, щоб усе це було на всіх
-			ваших пристроях. Ми не просимо вашу електронну адресу й
-			ніколи не бачимо вашого пароля. «Видалити обліковий запис» у налаштуваннях одразу видаляє все
-			це.
-		</p>
-		<p>
-			Повідомлення про помилку зберігається разом зі словом чи запитом, якого воно стосується,
-			сторінкою, з якої ви прийшли, вашими налаштуваннями мови й розкладки та назвою й версією
-			браузера, щоб ми могли знайти проблему. Електронну адресу ми зберігаємо, лише якщо ви її
-			вкажете, і видаляємо, щойно повідомлення закрито.
-		</p>
-		<p>
-			Дещо завантажується з інших сайтів, які бачать ваш запит так само, як будь-який сайт: записи
-			вимови — з Вікісховища, коли ви натискаєте кнопку відтворення, а фото профілю на цій сторінці —
-			з GitHub.
-		</p>
-		<p>
-			Сайт працює на Cloudflare, через який проходить кожен запит. Ми не зберігаємо вашу IP-адресу:
-			вона потрібна лише на кілька хвилин, щоб обмежити кількість повідомлень поспіль.
-		</p>
-		<p>
-			Радіо, яке можна ввімкнути в налаштуваннях, грає просто із сервера станції: коли ви вмикаєте
-			станцію, ваш браузер з’єднується з нею, і вона бачить вашу IP-адресу, як будь-який сайт, який
-			ви відкриваєте. Доки ви не натиснули «Слухати», жодна станція нічого не отримує.
-		</p>
-
 		<h2>Контакти</h2>
 		<p>
 			Пишіть на <a href="mailto:{EMAIL}">{EMAIL}</a>. Знайшли помилку в словнику?
-			<a href="/report">Повідомте про неї</a>.
+			<a href="/report">Повідомте про неї</a>. Що сайт зберігає про вас, а що ні, сказано на
+			сторінці <a href="/privacy">Приватність</a>.
 		</p>
 	{:else}
 		<p class="lead">
@@ -156,7 +160,23 @@
 			<li>See where the stress falls, full declension and conjugation tables and example sentences.</li>
 			<li>Hear the word: a recording where there is one, a computer voice where there is not.</li>
 			<li>See how common a word is.</li>
-			<li>Save words and export them for Anki or a spreadsheet.</li>
+			<li>
+				See a word’s synonyms, antonyms, related words and etymology, and look up any word of an
+				example sentence by pressing it.
+			</li>
+			<li>Type Ukrainian with the on-screen keyboard, in the standard or a phonetic layout.</li>
+			<li>Save words, sort them into lists and export them for Anki or a spreadsheet.</li>
+			<li>
+				Practise with <a href="/review">flashcards</a> from your saved words or the most common
+				ones: each card comes back shortly before you would forget it.
+			</li>
+			<li>
+				Learn the alphabet with a drill, browse the 1,000 most common words and look up grammar
+				words, all from the <a href="/learn">Learn</a> page.
+			</li>
+			<li>Sign in with Google or GitHub to have your saved words and flashcards on every device.</li>
+			<li>Use the site in English or Ukrainian, in a light, sepia or dark theme.</li>
+			<li>Listen to Ukrainian radio while you study: switch it on in the settings.</li>
 		</ul>
 
 		<h2>Using Nebokrai from elsewhere</h2>
@@ -179,7 +199,12 @@
 			</li>
 			<li>
 				<b>Anki.</b> Export your saved words as an Anki file from the
-				<a href="/saved">Saved words</a> page.
+				<a href="/saved">Saved words</a> page, or send them straight into Anki when it is open and
+				has the AnkiConnect add-on.
+			</li>
+			<li>
+				<b>Your phone.</b> Nebokrai can be installed as an app: choose Add to Home Screen in your
+				browser’s menu. The dictionary still needs a connection.
 			</li>
 		</ul>
 
@@ -198,6 +223,14 @@
 		</p>
 		<GitHubCard profile={data.github} />
 
+		<h2>Source code</h2>
+		<p>
+			The code of the site is free software under the
+			<a href={AGPL} rel="noopener">GNU Affero General Public License</a>, version 3 or later. It is
+			published <a href={SOURCE_URL} rel="noopener">on GitHub</a>, where you can read it, report a
+			problem or suggest a change.
+		</p>
+
 		<h2>Supporting Nebokrai</h2>
 		<p>
 			Nebokrai is completely free and has no ads or tracking. If you find it useful, you can help me cover the hosting costs
@@ -206,42 +239,11 @@
 			<a href="/support">Support Ukraine</a>.
 		</p>
 
-		<h2>Privacy</h2>
-		<p>
-			Nebokrai has no ads and no tracking. Cookies are used only for signing in and for your
-			settings.
-		</p>
-		<p>
-			Saved words, and the lists you sort them into, are kept in your browser. If you sign in with
-			Google or GitHub, we store that service’s id for you, your name, your saved words, the names
-			you give your lists and which words you have exported, so that they follow you to every device. We do not ask for your email address and never see your
-			password. “Delete account” in the settings removes all of it at once.
-		</p>
-		<p>
-			A report you send is stored with the word or search it is about, the page you came from, your
-			language and keyboard settings and your browser’s name and version, so that we can find the
-			problem. Your email address is stored only if you give it, and is deleted once the report is
-			closed.
-		</p>
-		<p>
-			Two things are loaded from other sites, which see the request as any site would: recordings
-			come from Wikimedia Commons when you press play, and the profile picture on this page comes
-			from GitHub.
-		</p>
-		<p>
-			The site runs on Cloudflare, which every request passes through. We do not store your IP
-			address: it is used only for a few minutes, to limit how many reports can be sent in a row.
-		</p>
-		<p>
-			The radio you can switch on in the settings plays straight from each station’s server: when
-			you start a station, your browser connects to it, and it sees your IP address as any site you
-			visit does. Until you press Play, no station hears from you.
-		</p>
-
 		<h2>Contact</h2>
 		<p>
 			Email <a href="mailto:{EMAIL}">{EMAIL}</a>. Found a mistake in the dictionary?
-			<a href="/report">Report an issue</a>.
+			<a href="/report">Report an issue</a>. What the site keeps about you, and what it does not,
+			is on the <a href="/privacy">Privacy</a> page.
 		</p>
 	{/if}
 </TextPage>

@@ -3,7 +3,6 @@
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
 	import { page } from '$app/state';
-	import { SOURCE_URL } from '#lib/index.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -17,18 +16,17 @@
 	const NAME = 'небокрай';
 	const HEADWORD = 'небокра́й';
 
-	// Only what the header does not already link to. The first two are the
-	// ways into the dictionary without searching; from every page, they are
-	// also how a search engine comes to the word pages. The last is the
-	// site's own source, which its licence asks every copy to offer.
+	// Only what the header does not already link to: the pages about the site,
+	// and the whole dictionary by letter, which from every page is also how a
+	// search engine comes to the word pages. The pages for learning are under
+	// the header's Learn tab, and the site's own source, which its licence
+	// asks every copy to offer, is linked from About and from Sources.
 	const links = $derived([
-		{ href: '/common-words', label: m.footer.common },
+		{ href: '/about', label: m.footer.about },
 		{ href: '/words', label: m.footer.words },
-		{ href: '/alphabet', label: m.footer.alphabet },
-		{ href: '/grammar', label: m.footer.grammar },
 		{ href: '/sources', label: m.footer.sources },
-		{ href: '/report', label: m.footer.report },
-		{ href: SOURCE_URL, label: m.footer.source }
+		{ href: '/privacy', label: m.footer.privacy },
+		{ href: '/report', label: m.footer.report }
 	]);
 
 	// /words is the current page on /words/п too

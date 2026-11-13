@@ -225,6 +225,35 @@ function phrase(tags: string[]): string {
 		.join(' ');
 }
 
+/** A cell's name among an entry's tables, for telling which are shown while the forms are covered. */
+export const cellKey = (table: string, row: string, column: number): string => `${table}|${row}|${column}`;
+
+/**
+ * What covering the forms leaves to recall (FormTables.svelte): the cells
+ * that hold a form, by their keys, and the one that stays in sight.
+ *
+ * That one is the cell of the dictionary form itself, the first whose only
+ * form is the headword: a noun's nominative singular. The other forms are
+ * made from it, and it stands at the top of the page anyway. Only the first:
+ * the accusative of a thing is spelt the same (стіл), and that is one of the
+ * forms to recall. A verb's tables do not hold the infinitive, so none is given.
+ */
+export function coverable(tables: FormTable[], headword: string): { cells: string[]; given: string | null } {
+	const cells: string[] = [];
+	let given: string | null = null;
+	for (const table of tables) {
+		for (const row of table.rows) {
+			row.cells.forEach((cell, column) => {
+				if (!cell.length) return;
+				const key = cellKey(table.title, row.label, column);
+				if (given === null && headword && cell.every((item) => item.form === headword)) given = key;
+				else cells.push(key);
+			});
+		}
+	}
+	return { cells, given };
+}
+
 export interface MatchedForm {
 	/** With its stress: руки́ */
 	form: string;

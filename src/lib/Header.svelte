@@ -25,17 +25,24 @@
 
 	const links = $derived([
 		{ href: '/', label: m.nav.dictionary },
+		{ href: '/learn', label: m.nav.learn },
 		{ href: '/resources', label: m.nav.resources },
-		{ href: '/saved', label: m.nav.saved },
-		{ href: '/about', label: m.nav.about }
+		{ href: '/saved', label: m.nav.saved }
 	]);
+
+	// The pages /learn leads to. They stay under its tab, so the way back to
+	// the others is one press away; /common-words/2 is one of them too.
+	const LEARN = ['/alphabet', '/common-words', '/grammar', '/practice'];
+	const within = (path: string) => page.url.pathname === path || page.url.pathname.startsWith(path + '/');
 
 	// A word's page belongs to the dictionary.
 	const current = (href: string) =>
-		page.url.pathname === href || (href === '/' && page.url.pathname.startsWith('/word/'));
+		page.url.pathname === href ||
+		(href === '/' && page.url.pathname.startsWith('/word/')) ||
+		(href === '/learn' && LEARN.some(within));
 
 	// The ribbon under the bar is drawn by the current page's tab. A page that is
-	// none of the four (/support, /sources, /report, an error) has no such tab, and the
+	// none of the four (/support, /about, /sources, an error) has no such tab, and the
 	// bar then draws the ribbon itself, unbroken.
 	let onATab = $derived(links.some((link) => current(link.href)));
 
@@ -582,7 +589,7 @@
 	}
 
 	/* Narrower, and the name could no longer stand in the middle: the
-	   Ukrainian tabs, ЗБЕРЕЖЕНЕ and ПРО ПРОЄКТ among them, need about 400px
+	   Ukrainian tabs, НАВЧАННЯ and ЗБЕРЕЖЕНЕ among them, need nearly 400px
 	   on its left. Name and tools take the first line, the tabs the second. */
 	@media (max-width: 1000px) {
 		.inner {

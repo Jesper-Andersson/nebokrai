@@ -36,7 +36,7 @@ function counted(n: number, one: string, few: string, many: string): string {
 }
 
 const en = {
-	nav: { label: 'Main', dictionary: 'Dictionary', resources: 'Resources', saved: 'Saved', about: 'About' },
+	nav: { label: 'Main', dictionary: 'Dictionary', learn: 'Learn', resources: 'Resources', saved: 'Saved' },
 	/** The header's link to /support, and that page's title. */
 	support: { label: 'Support Ukraine', hint: 'Where to donate: United24 and other funds, by what they do' },
 	/** The search that opens from the header, or with Ctrl+K. */
@@ -215,13 +215,35 @@ const en = {
 		nameGloss: 'horizon, literally “the sky’s edge”',
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
-		grammar: 'Grammar words',
+		about: 'About',
 		sources: 'Sources and licences',
-		source: 'Source code',
-		common: 'Common words',
+		privacy: 'Privacy',
 		words: 'All words',
-		alphabet: 'Learn the alphabet',
-		practice: 'Practise grammar'
+		discord: 'Discord community'
+	},
+	/** /learn: the four pages for learning, each as a card that leads to it. */
+	learn: {
+		lead: 'Four places to start from, besides looking a word up.',
+		alphabet: {
+			name: 'The alphabet',
+			text: 'All 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
+			go: 'Learn the letters'
+		},
+		common: {
+			name: 'Common words',
+			text: 'The 1,000 words you’ll meet most often, the most common first, each with its stress and meaning.',
+			go: 'See the list'
+		},
+		grammar: {
+			name: 'Grammar words',
+			text: 'Gender, the seven cases, verb aspect: the words a dictionary uses, each explained in a sentence or two.',
+			go: 'Open the guide'
+		},
+		practice: {
+			name: 'Grammar practice',
+			text: 'Fill the gap in real sentences with the case a preposition asks for. Ten sentences a round, and each rule comes back before you forget it.',
+			go: 'Start a round'
+		}
 	},
 	/** The pages for browsing: /common-words and /words (browse.ts). */
 	browse: {
@@ -283,6 +305,13 @@ const en = {
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
 		conjugation: 'Conjugation',
+		/** Covering the forms of a table to recall them (FormTables.svelte). */
+		cover: 'Test yourself',
+		coverHow: 'Say each form, then press its place to check.',
+		coverCount: (n: number, total: number) => `${n} of ${total} shown`,
+		coverAgain: 'Cover again',
+		/** Said of a covered place, before the names of its row and column. */
+		coverShow: 'Show the form',
 		/** Under the tables; the headword follows, then a full stop. */
 		stressMoves: 'Underlined: the stress falls on a different syllable than in',
 		stressStays: 'The stress stays on the same syllable in every form.',
@@ -710,7 +739,8 @@ const en = {
 	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
-		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice'
+		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
+		privacy: 'Privacy'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -721,6 +751,8 @@ const en = {
 		homeTitle: 'Nebokrai: Ukrainian–English dictionary with stress and declension',
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
+		learn: 'Start learning Ukrainian: the alphabet with a drill on its 33 letters, the 1,000 most common words, the grammar words explained, and grammar practice.',
+		privacy: 'What Nebokrai keeps and what it does not: no ads and no tracking, cookies only for signing in and settings, and what an account or a report stores.',
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
@@ -848,7 +880,7 @@ const en = {
 export type Messages = typeof en;
 
 const uk: Messages = {
-	nav: { label: 'Головне меню', dictionary: 'Словник', resources: 'Ресурси', saved: 'Збережене', about: 'Про проєкт' },
+	nav: { label: 'Головне меню', dictionary: 'Словник', learn: 'Навчання', resources: 'Ресурси', saved: 'Збережене' },
 	support: { label: 'Підтримати Україну', hint: 'Куди задонатити: United24 та інші фонди, за тим, що вони роблять' },
 	quick: {
 		open: 'Пошук',
@@ -1018,13 +1050,34 @@ const uk: Messages = {
 		nameGloss: 'горизонт, дослівно — «край неба»',
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
-		grammar: 'Граматичні терміни',
+		about: 'Про проєкт',
 		sources: 'Джерела й ліцензії',
-		source: 'Вихідний код',
-		common: 'Найуживаніші слова',
+		privacy: 'Приватність',
 		words: 'Усі слова',
-		alphabet: 'Вивчити абетку',
-		practice: 'Вправи з граматики'
+		discord: 'Спільнота в Discord'
+	},
+	learn: {
+		lead: 'Чотири місця, з яких можна почати, крім пошуку слова.',
+		alphabet: {
+			name: 'Абетка',
+			text: 'Усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
+			go: 'Вивчити літери'
+		},
+		common: {
+			name: 'Найуживаніші слова',
+			text: '1000 слів, які трапляються найчастіше: спершу найуживаніші, кожне з наголосом і значенням.',
+			go: 'Переглянути список'
+		},
+		grammar: {
+			name: 'Граматичні терміни',
+			text: 'Рід, сім відмінків, вид дієслова: терміни, якими користується словник, кожен пояснено одним-двома реченнями.',
+			go: 'Відкрити довідник'
+		},
+		practice: {
+			name: 'Вправи з граматики',
+			text: 'Заповнюйте пропуски у справжніх реченнях відмінком, якого вимагає прийменник. Десять речень у раунді, а кожне правило повертається, перш ніж забудеться.',
+			go: 'Почати раунд'
+		}
 	},
 	browse: {
 		commonTitle: '1000 найуживаніших українських слів',
@@ -1080,6 +1133,11 @@ const uk: Messages = {
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
+		cover: 'Перевірити себе',
+		coverHow: 'Назвіть кожну форму, а тоді натисніть на її місце, щоб перевірити.',
+		coverCount: (n, total) => `Відкрито ${n} з ${total}`,
+		coverAgain: 'Сховати знову',
+		coverShow: 'Показати форму',
 		stressMoves: 'Підкреслено: наголос падає на інший склад, ніж у слові',
 		stressStays: 'У всіх формах наголос падає на той самий склад.',
 		synonyms: 'Синоніми',
@@ -1500,12 +1558,15 @@ const uk: Messages = {
 	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
-		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики'
+		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
+		privacy: 'Приватність'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
+		learn: 'Почніть вивчати українську: абетка з вправами на всі 33 літери, 1000 найуживаніших слів, граматичні терміни з поясненнями та вправи з граматики.',
+		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й відстеження, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',

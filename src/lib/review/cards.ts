@@ -1,6 +1,7 @@
 // Review cards as they are stored and exchanged: reading them from somewhere
 // not trusted, joining two copies, and choosing what to show next. Shared by
 // the browser and the server; no imports from SvelteKit.
+import { isPointKey } from '../practice/points.ts';
 import { MAX_WORD_LENGTH } from '../saved.ts';
 import { DAY, LEARNING, RELEARNING, REVIEW, dayNumber, newCard, type CardState, type ReviewCard } from './fsrs.ts';
 
@@ -98,7 +99,8 @@ export function plan(cards: ReadonlyMap<string, ReviewCard>, words: string[], ne
 		else if (dayNumber(card.due) <= today) due.push(card);
 	}
 	let metToday = 0;
-	for (const card of cards.values()) if (dayNumber(card.added_at) === today) metToday += 1;
+	// A grammar point of /practice met today is kept among the cards too, and takes no new word's place.
+	for (const card of cards.values()) if (dayNumber(card.added_at) === today && !isPointKey(card.word)) metToday += 1;
 	const byDue = (a: ReviewCard, b: ReviewCard) => a.due - b.due;
 	return {
 		learning: learning.sort(byDue),

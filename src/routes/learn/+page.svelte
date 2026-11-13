@@ -1,8 +1,9 @@
 <!-- The pages for learning, gathered: the alphabet and its drill, the commonest
-     words, and the grammar words. They were three links in the footer until
-     2026-11-13, where a learner had to go looking for them. Each is a card
-     that is one link, headed by a specimen of what its page holds. The
-     header keeps this page's tab lit on all three (Header.svelte, LEARN). -->
+     words, the grammar words, and grammar practice. The first three were links
+     in the footer until 2026-11-13, where a learner had to go looking for
+     them. Each is a card that is one link, headed by a specimen of what its
+     page holds. The header keeps this page's tab lit on all four (Header.svelte,
+     LEARN). -->
 <script lang="ts">
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -18,11 +19,14 @@
 	let thousand = $derived(settings.lang === 'uk' ? String(COMMON_WORDS) : COMMON_WORDS.toLocaleString('en'));
 
 	// The specimens: the first letters, how many words, and the question the
-	// nominative answers (хто? що?), which is how a Ukrainian school names a case.
+	// nominative answers (хто? що?), which is how a Ukrainian school names a case;
+	// and for practice, a preposition with the gap after it that a round asks
+	// you to fill (без кого? чого? — the genitive).
 	let ways = $derived([
 		{ href: '/alphabet', specimen: 'Аа Бб Вв', ukrainian: true, ...m.learn.alphabet },
 		{ href: '/common-words', specimen: thousand, ukrainian: false, ...m.learn.common },
-		{ href: '/grammar', specimen: HINTS.nominative, ukrainian: true, ...m.learn.grammar }
+		{ href: '/grammar', specimen: HINTS.nominative, ukrainian: true, ...m.learn.grammar },
+		{ href: '/practice', specimen: 'без ___', ukrainian: true, ...m.learn.practice }
 	]);
 </script>
 
@@ -65,11 +69,12 @@
 		font-size: var(--text-lg);
 	}
 
-	/* Three across; the cards of a row are as tall as the tallest, and each
-	   keeps its link at the foot */
+	/* Two by two: four across would leave each card too narrow to read, and
+	   three across would leave the fourth alone on a row. The cards of a row
+	   are as tall as the tallest, and each keeps its link at the foot. */
 	.ways {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 1rem;
 	}
 
@@ -125,9 +130,9 @@
 		}
 	}
 
-	/* Narrower than three cards can be read in: one under another, set a
+	/* Narrower than two cards can be read in: one under another, set a
 	   little closer */
-	@media (max-width: 740px) {
+	@media (max-width: 600px) {
 		.page {
 			gap: 1rem;
 			padding-top: 1rem;

@@ -31,8 +31,8 @@
 	]);
 
 	// The pages /learn leads to. They stay under its tab, so the way back to
-	// the other two is one press away; /common-words/2 is one of them too.
-	const LEARN = ['/alphabet', '/common-words', '/grammar'];
+	// the others is one press away; /common-words/2 is one of them too.
+	const LEARN = ['/alphabet', '/common-words', '/grammar', '/practice'];
 	const within = (path: string) => page.url.pathname === path || page.url.pathname.startsWith(path + '/');
 
 	// A word's page belongs to the dictionary.

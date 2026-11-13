@@ -31,6 +31,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `forms` | inflected form (declension / conjugation cell) | 529,270 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 79,365 |
 | `examples` | Tatoeba sentence with English translation | 28,670 |
+| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,845 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
 
 Pages that only say "genitive singular of X" are skipped (29,315), because the
@@ -93,6 +94,43 @@ Up to three Tatoeba sentences per entry (11,857 entries), preferring sentences
 of about five words. A sentence is attached to every entry that has one of its
 words as a form, so a homograph can pick up a sentence meant for its twin.
 `tatoeba_id` links back to the sentence for attribution.
+
+## Sentences with a gap (`cloze`)
+
+The grammar practice (`/practice`) asks for a noun in the case its preposition
+takes: `Кава без ___ (цукор)` wants `цукру`. `add_cloze` in
+`import_wiktionary.py` finds such sentences among the same Tatoeba pairs, by a
+table written by hand (`PREPOSITIONS`): 27 spellings of 24 prepositions, each
+with the cases it takes. A grammar point is a preposition and one case,
+named `bez-gen`, `na-acc`, `na-loc` and so on.
+
+A sentence is kept only when nothing about the gap is in doubt:
+
+- the word after the preposition is a form of exactly one entry, a noun or a
+  name (`п'яти` after `біля` is the numeral, not the heel `п'ята`);
+- of the cases the preposition takes, that spelling is only one (`сестри`
+  after `у` could be genitive singular or accusative plural, so it is left);
+- the noun has more than one spelling (`метро` does not);
+- it is written with a capital only if the dictionary's word is (`Томом` is
+  the name, which has no entry, not the noun `том`).
+
+At most five sentences are kept for one noun at one point, and a point with
+fewer than 20 sentences is dropped. November 2026: 7,845 sentences at 24
+points, from 26 (`серед` + genitive) to 1,124 (`у`/`в` + locative); five points fell short
+(`крім`, `крізь`, `навколо`, `при`, `замість`). `meta.cloze_points` holds the
+count for each point, so the site can draw a sentence by its number (`n`)
+without counting.
+
+To change the points or the rules without a full build, which would give
+every entry a new id:
+
+    python3 data/add_cloze.py nebokrai.db data/raw --sample 50
+
+It makes the table again and prints 50 sentences to read through. Of 105 read
+this way in November 2026, all had the right case; two took a name for a
+common noun, which the rule about capitals now leaves out. The point's names
+are also listed in `src/lib/practice/points.ts`, and `npm test` fails when the
+two lists differ.
 
 ## How search works (`search.py`)
 

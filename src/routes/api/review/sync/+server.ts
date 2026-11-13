@@ -8,6 +8,7 @@ import {
 	DEVICE, getReviewSettings, listReviewCards, listReviewDays, saveReviewCards, saveReviewDays, saveReviewSettings
 } from '#lib/server/users.ts';
 import { SYNC_MAX, parseCards } from '#lib/review/cards.ts';
+import { isPointKey } from '#lib/practice/points.ts';
 import { DAYS_MAX, parseDays } from '#lib/review/days.ts';
 import { parseSettings } from '#lib/review/decks.ts';
 import { wordSummaries } from '#lib/search/word.ts';
@@ -28,10 +29,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const now = Date.now();
 	const sent = parseCards(sentCards ?? [], now, SYNC_MAX);
 	if (sent.length) {
-		// Only dictionary words are kept, as in POST /api/saved/merge.
+		// Only dictionary words are kept, as in POST /api/saved/merge, and the
+		// grammar points of /practice, whose schedules travel as cards too.
 		const { db } = await getDatabases();
-		const known = new Set((await wordSummaries(db, sent.map((card) => card.word))).map((s) => s.word));
-		await saveReviewCards(who.users, who.user.id, sent.filter((card) => known.has(card.word)), now);
+		const words = sent.map((card) => card.word).filter((word) => !isPointKey(word));
+		const known = new Set(words.length ? (await wordSummaries(db, words)).map((s) => s.word) : []);
+		await saveReviewCards(
+			who.users, who.user.id, sent.filter((card) => known.has(card.word) || isPointKey(card.word)), now);
 	}
 	const settings = parseSettings(sentSettings, now);
 	if (settings?.updated_at) await saveReviewSettings(who.users, who.user.id, settings);

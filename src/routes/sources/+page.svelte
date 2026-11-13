@@ -31,7 +31,11 @@
 		<dt>Audio recordings</dt>
 		<dd>
 			Hosted by <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>. Each recording has
-			its own author and licence, shown on its Commons page.
+			its own author and licence, shown on its Commons page. The letters on the
+			<a href="/alphabet">alphabet page</a> are read by
+			<a href="https://commons.wikimedia.org/wiki/Category:Ukrainian_pronunciation_of_letters_by_a_young_male_uploaded_by_Tabrus">Tabrus</a>
+			(<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>); the site plays
+			copies cut down to the letter and cleaned of noise, under the same licence.
 		</dd>
 
 		<dt>Example sentences</dt>

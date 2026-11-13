@@ -334,14 +334,16 @@
 		pointer-events: none;
 	}
 
-	/* A gold line along the tab's top edge: the horizon the site is named after */
+	/* A short piece of the same ribbon along the tab's top edge. It was a
+	   plain gold line until 2026-11-13. The stripes are fixed to the window,
+	   so they stand in line with the ribbon's under the bar. */
 	nav a[aria-current='page']::after {
 		content: '';
 		position: absolute;
 		inset: -1px 0.7rem auto;
-		height: 2px;
+		height: var(--ribbon-height);
 		border-radius: 2px;
-		background: var(--gold);
+		background: var(--ribbon);
 	}
 
 	@media (hover: hover) {

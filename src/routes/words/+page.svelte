@@ -16,7 +16,10 @@
 </script>
 
 <ListPage title={m.browse.wordsTitle} description={m.meta.words}>
-	<p class="lead">{m.browse.wordsLead} <a href={commonPath()}>{m.browse.wordsCommon}</a></p>
+	<p class="lead">
+		{m.browse.wordsLead} <a href={commonPath()}>{m.browse.wordsCommon}</a>
+		<a href="/alphabet">{m.browse.wordsAlphabet}</a>
+	</p>
 
 	<ul class="letters">
 		{#each data.letters as { letter, count, pages } (letter)}

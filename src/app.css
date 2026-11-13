@@ -151,6 +151,16 @@
 	--accent-soft: #e4edfb;
 	--link-hover: #0d3f7a;
 	--gold: #d9b755;
+	/* The flag's two colours, as in the logo: what is chosen and what starts a
+	   round on the alphabet page. `--flag` is the yellow, as a fill, and
+	   `--flag-ink` the blue, for what is written or drawn on it (a tick, a
+	   switch's knob, "Start"); `--flag-line` is an edge or a word that still
+	   shows on the page (the pure yellow all but vanishes on white);
+	   `--flag-soft` tints a card. */
+	--flag: #ffd500;
+	--flag-ink: #005bbb;
+	--flag-line: #a37a00;
+	--flag-soft: #fff5c7;
 	--scrim: rgb(22 24 29 / 0.4);
 	--wash-top: rgb(247 246 242 / 0.25);
 	--wash-bottom: rgb(247 246 242 / 0.5);
@@ -179,24 +189,28 @@
    looked like every other dark site. Text keeps the contrast it had
    (muted 6.6:1 on a card, faint 5.3:1). */
 :root[data-theme='dark'] {
-	--bg: #141210;
-	--surface: #1c1a16;
-	--surface-2: #26231d;
-	--raised: #37332a;
-	--border: #322e27;
-	--border-strong: #4b453a;
-	--ink: #f1ede4;
-	--ink-2: #d6d0c3;
-	--muted: #a69f90;
-	--faint: #958e80;
+	--bg: #131211;
+	--surface: #1b1a18;
+	--surface-2: #252320;
+	--raised: #35332e;
+	--border: #302e2a;
+	--border-strong: #48453f;
+	--ink: #f0ede7;
+	--ink-2: #d4d0c8;
+	--muted: #a39f96;
+	--faint: #928e86;
 	--accent: #8db4f0;
 	--accent-ink: #0d1a2e;
 	--accent-soft: #1b2a44;
 	--link-hover: #b5cff7;
 	--gold: #e4cb81;
+	--flag: #ffd500;
+	--flag-ink: #005bbb;
+	--flag-line: #ffd500;
+	--flag-soft: #2f2808;
 	--scrim: rgb(0 0 0 / 0.6);
-	--wash-top: rgb(20 18 16 / 0.5);
-	--wash-bottom: rgb(20 18 16 / 0.72);
+	--wash-top: rgb(19 18 17 / 0.5);
+	--wash-bottom: rgb(19 18 17 / 0.72);
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	--stress: #e8645a;
@@ -210,31 +224,35 @@
 	--pill-1-line: #4fae67;
 	--pill-2-line: #5b95d9;
 	--pill-3-line: #c9962e;
-	--pill-4-line: #8a8477;
+	--pill-4-line: #88847c;
 	color-scheme: dark;
 }
 
 /* No choice made: follow the system. Same values as above. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme]) {
-		--bg: #141210;
-		--surface: #1c1a16;
-		--surface-2: #26231d;
-		--raised: #37332a;
-		--border: #322e27;
-		--border-strong: #4b453a;
-		--ink: #f1ede4;
-		--ink-2: #d6d0c3;
-		--muted: #a69f90;
-		--faint: #958e80;
+		--bg: #131211;
+		--surface: #1b1a18;
+		--surface-2: #252320;
+		--raised: #35332e;
+		--border: #302e2a;
+		--border-strong: #48453f;
+		--ink: #f0ede7;
+		--ink-2: #d4d0c8;
+		--muted: #a39f96;
+		--faint: #928e86;
 		--accent: #8db4f0;
 		--accent-ink: #0d1a2e;
 		--accent-soft: #1b2a44;
 		--link-hover: #b5cff7;
 		--gold: #e4cb81;
+		--flag: #ffd500;
+		--flag-ink: #005bbb;
+		--flag-line: #ffd500;
+		--flag-soft: #2f2808;
 		--scrim: rgb(0 0 0 / 0.6);
-		--wash-top: rgb(20 18 16 / 0.5);
-		--wash-bottom: rgb(20 18 16 / 0.72);
+		--wash-top: rgb(19 18 17 / 0.5);
+		--wash-bottom: rgb(19 18 17 / 0.72);
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		--stress: #e8645a;
@@ -248,7 +266,7 @@
 		--pill-1-line: #4fae67;
 		--pill-2-line: #5b95d9;
 		--pill-3-line: #c9962e;
-		--pill-4-line: #8a8477;
+		--pill-4-line: #88847c;
 		color-scheme: dark;
 	}
 }
@@ -273,6 +291,10 @@
 	--accent-soft: #d0d3d6;
 	--link-hover: #1a3157;
 	--gold: #a9811f;
+	--flag: #ffd21a;
+	--flag-ink: #005bbb;
+	--flag-line: #8a6400;
+	--flag-soft: #f3dc8e;
 	--scrim: rgb(59 47 32 / 0.4);
 	--wash-top: rgb(227 213 184 / 0.3);
 	--wash-bottom: rgb(227 213 184 / 0.55);

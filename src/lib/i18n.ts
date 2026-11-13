@@ -218,7 +218,8 @@ const en = {
 		sources: 'Sources and licences',
 		source: 'Source code',
 		common: 'Common words',
-		words: 'All words'
+		words: 'All words',
+		alphabet: 'Learn the alphabet'
 	},
 	/** The pages for browsing: /common-words and /words (browse.ts). */
 	browse: {
@@ -229,6 +230,7 @@ const en = {
 		wordsTitle: 'All words',
 		wordsLead: 'Every word in the dictionary under its first letter, in alphabetical order.',
 		wordsCommon: 'Or start with the 1,000 most common words.',
+		wordsAlphabet: 'New to the letters? Learn the alphabet first.',
 		letterTitle: (letter: string) => `Words beginning with ${letter}`,
 		otherTitle: 'Other entries',
 		otherLead: 'Entries that begin with no Ukrainian letter.',
@@ -556,9 +558,90 @@ const en = {
 			y: (n: number) => `${n} y`
 		}
 	},
+	/** The alphabet trainer (/alphabet). The letters themselves are in alphabet/letters.ts. */
+	alphabet: {
+		lead: 'Learn to read Ukrainian Cyrillic. Choose the groups to practise.',
+		chosen: (n: number) => (n === 1 ? '1 letter chosen' : `${n} letters chosen`),
+		known: (n: number, total: number) => `${n} of ${total} known`,
+		start: 'Start',
+		kept: 'Your progress is kept in this browser.',
+		/** Then the speaker's name and the licence, as links, and `commons`. */
+		recordings: 'The letters are read by',
+		commons: 'on Wikimedia Commons',
+		/** The licence asks that changes be said. */
+		recordingsCut: 'Each recording has been cut down to the letter and cleaned of noise.',
+		mute: 'Mute recordings',
+		forget: 'Start over',
+		forgetConfirm: 'Forget what you have practised? Every letter becomes new again.',
+		letters: 'The letters',
+		/** The six groups, in the order they are best learnt (GROUP_IDS). */
+		group: {
+			same: { name: 'Old friends', note: 'They look and sound much as they do in English.' },
+			'false-friends': {
+				name: 'False friends',
+				note: 'They look like Latin letters and sound different.'
+			},
+			'new-shapes': { name: 'New shapes', note: 'New to the eye, familiar to the ear.' },
+			hushing: { name: 'Hushing sounds', note: 'One letter where Latin needs two or more.' },
+			iotated: { name: 'Vowels with a y', note: 'A y and a vowel in one letter, and the y by itself.' },
+			signs: { name: 'Signs', note: 'No sound of their own: they change how the letters beside them are read.' }
+		} as Record<string, { name: string; note: string }>,
+		/** Said of a letter's tile, for those who cannot see its mark. */
+		state: { new: 'not practised yet', learning: 'learning', known: 'known' },
+		/** What the soft sign and the apostrophe are called where another letter has its Latin. */
+		sign: { ь: 'soft sign', "'": 'apostrophe' } as Record<string, string>,
+		details: {
+			latin: 'Latin',
+			name: 'Name',
+			sound: 'Sound',
+			example: 'As in',
+			words: (letter: string) => `Words beginning with ${letter}`,
+			listen: 'Hear the letter',
+			close: 'Close'
+		},
+		options: 'How to practise',
+		answerLabel: 'Answer by',
+		answer: { choice: 'Selecting', type: 'Writing' },
+		directionLabel: 'You are shown',
+		direction: { read: 'Cyrillic', write: 'Latin' },
+		contentLabel: 'Practise',
+		content: { letters: 'Letters', words: 'Words', both: 'Both' },
+		sound: 'Play recording after an answer',
+		/** Shown only when words were asked for and too few can be read. */
+		wordsTooFew: (n: number) =>
+			`${n === 1 ? 'Only 1 common word' : n ? `Only ${n} common words` : 'No common word'} can be read with these letters alone, so letters will be asked. Add a group to practise words.`,
+		count: (n: number, total: number) => `${n} of ${total}`,
+		right: 'Right',
+		wrong: 'Wrong',
+		streak: 'In a row',
+		stop: 'Stop',
+		ask: {
+			letterChoice: 'Which Latin letters stand for it?',
+			letterType: 'Type it in Latin letters',
+			signChoice: 'What is this sign?',
+			wordChoice: 'How is this word read?',
+			wordType: 'Type the word in Latin letters',
+			writeChoice: 'Which letter is it?',
+			writeType: 'Type the Ukrainian letter'
+		},
+		yourAnswer: 'Your answer',
+		check: 'Check',
+		next: 'Next',
+		correct: 'Right',
+		incorrect: 'Not quite',
+		answerIs: 'The answer is',
+		keys: 'Keys 1 to 4 choose an answer; Enter goes on.',
+		done: 'Round finished',
+		score: (right: number, total: number) => `${right} of ${total} right.`,
+		best: (n: number) => `Longest run: ${n} in a row.`,
+		missed: 'To look at again',
+		allRight: 'Nothing missed.',
+		again: 'Another round',
+		back: 'Back to the letters'
+	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
-		review: 'Flashcards'
+		review: 'Flashcards', alphabet: 'Ukrainian Alphabet'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -580,6 +663,7 @@ const en = {
 		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		saved: 'The words you saved, kept in this browser or in your account.',
 		review: 'Flashcards for your saved words and the commonest Ukrainian words, scheduled so that each word comes back shortly before you would forget it.',
+		alphabet: 'Learn to read the Ukrainian alphabet: all 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
 		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
@@ -867,7 +951,8 @@ const uk: Messages = {
 		sources: 'Джерела й ліцензії',
 		source: 'Вихідний код',
 		common: 'Найуживаніші слова',
-		words: 'Усі слова'
+		words: 'Усі слова',
+		alphabet: 'Вивчити абетку'
 	},
 	browse: {
 		commonTitle: '1000 найуживаніших українських слів',
@@ -877,6 +962,7 @@ const uk: Messages = {
 		wordsTitle: 'Усі слова',
 		wordsLead: 'Кожне слово словника під своєю першою літерою, за абеткою.',
 		wordsCommon: 'Або почніть із 1000 найуживаніших слів.',
+		wordsAlphabet: 'Ще не знаєте літер? Спершу вивчіть абетку.',
 		letterTitle: (letter) => `Слова на літеру ${letter}`,
 		otherTitle: 'Інші статті',
 		otherLead: 'Статті, що не починаються з української літери.',
@@ -1206,9 +1292,83 @@ const uk: Messages = {
 			y: (n) => `${n} р`
 		}
 	},
+	alphabet: {
+		lead: 'Навчіться читати українську кирилицю. Оберіть групи для вправ.',
+		chosen: (n) => `Обрано ${counted(n, 'літеру', 'літери', 'літер')}`,
+		known: (n, total) => `Вивчено ${n} з ${total}`,
+		start: 'Почати',
+		kept: 'Ваш поступ зберігається в цьому браузері.',
+		recordings: 'Літери читає',
+		commons: 'на Вікісховищі',
+		recordingsCut: 'Кожен запис обрізано до самої літери й очищено від шуму.',
+		mute: 'Вимкнути звук записів',
+		forget: 'Почати спочатку',
+		forgetConfirm: 'Забути все, що ви вже вправляли? Кожна літера знову стане новою.',
+		letters: 'Літери',
+		group: {
+			same: { name: 'Давні знайомі', note: 'На вигляд і на слух майже такі самі, як латинські.' },
+			'false-friends': {
+				name: 'Оманливі друзі',
+				note: 'Схожі на латинські літери, а звучать інакше.'
+			},
+			'new-shapes': { name: 'Нові обриси', note: 'Нові для ока, знайомі для вуха.' },
+			hushing: { name: 'Шиплячі та Ц', note: 'Одна літера там, де латинкою треба дві або більше.' },
+			iotated: { name: 'Голосні з й', note: 'Звук й і голосний в одній літері, а ще сам звук й.' },
+			signs: { name: 'Знаки', note: 'Власного звука не мають: змінюють вимову сусідніх літер.' }
+		},
+		state: { new: 'ще не вправляли', learning: 'вивчається', known: 'вивчено' },
+		sign: { ь: 'м’який знак', "'": 'апостроф' },
+		details: {
+			latin: 'Латинкою',
+			name: 'Назва',
+			sound: 'Звук',
+			example: 'Як у слові',
+			words: (letter) => `Слова на літеру ${letter}`,
+			listen: 'Послухати літеру',
+			close: 'Закрити'
+		},
+		options: 'Як вправляти',
+		answerLabel: 'Відповідати',
+		answer: { choice: 'Вибором', type: 'Набором' },
+		directionLabel: 'Вам показують',
+		direction: { read: 'Кирилицю', write: 'Латинку' },
+		contentLabel: 'Вправляти',
+		content: { letters: 'Літери', words: 'Слова', both: 'І те, і те' },
+		sound: 'Відтворювати запис після відповіді',
+		wordsTooFew: (n) =>
+			`${n ? `Із самих цих літер можна прочитати лише ${counted(n, 'поширене слово', 'поширені слова', 'поширених слів')}` : 'Із самих цих літер не прочитати жодного поширеного слова'}, тож питатимуть літери. Додайте групу, щоб вправляти слова.`,
+		count: (n, total) => `${n} з ${total}`,
+		right: 'Правильно',
+		wrong: 'Хибно',
+		streak: 'Поспіль',
+		stop: 'Зупинити',
+		ask: {
+			letterChoice: 'Якими латинськими літерами її передають?',
+			letterType: 'Наберіть її латинкою',
+			signChoice: 'Що це за знак?',
+			wordChoice: 'Як читається це слово?',
+			wordType: 'Наберіть слово латинкою',
+			writeChoice: 'Яка це літера?',
+			writeType: 'Наберіть українську літеру'
+		},
+		yourAnswer: 'Ваша відповідь',
+		check: 'Перевірити',
+		next: 'Далі',
+		correct: 'Правильно',
+		incorrect: 'Не зовсім',
+		answerIs: 'Правильна відповідь:',
+		keys: 'Клавіші 1–4 обирають відповідь; Enter веде далі.',
+		done: 'Раунд завершено',
+		score: (right, total) => `Правильно: ${right} з ${total}.`,
+		best: (n) => `Найдовша серія: ${n} поспіль.`,
+		missed: 'Варто глянути ще раз',
+		allRight: 'Жодної помилки.',
+		again: 'Ще раунд',
+		back: 'Назад до літер'
+	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
-		review: 'Картки'
+		review: 'Картки', alphabet: 'Українська абетка'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
@@ -1224,6 +1384,7 @@ const uk: Messages = {
 		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		review: 'Картки для збережених і найуживаніших українських слів: кожне слово повертається незадовго до того, як ви його забули б.',
+		alphabet: 'Навчіться читати українську абетку: усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>

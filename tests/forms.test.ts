@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { groupMatched } from '../src/lib/forms.ts';
+import { cellKey, coverable, formTables, groupMatched } from '../src/lib/forms.ts';
 
 test('the forms a query spells, grouped for reading', () => {
 	// руки: one spelling, two stresses. The rows come in the order of the table.
@@ -45,4 +45,34 @@ test('a long list is cut short and says how much is left', () => {
 	assert.equal(groups[0].labels.length, 4);
 	assert.equal(more, 2);
 	assert.deepEqual(groupMatched(forms, 6).more, 0);
+});
+
+test('covering a table leaves the dictionary form in sight, once', () => {
+	// стіл: the accusative is spelt as the dictionary form is, and is still one to recall
+	const stil = formTables('noun', [
+		{ form: 'стіл', tags: ['nominative', 'singular'] },
+		{ form: 'стола́', tags: ['genitive', 'singular'] },
+		{ form: 'сто́лу', tags: ['genitive', 'singular'] },
+		{ form: 'стіл', tags: ['accusative', 'singular'] },
+		{ form: 'столи́', tags: ['nominative', 'plural'] }
+	], 'стіл').tables;
+	const title = stil[0].title;
+	const { cells, given } = coverable(stil, 'стіл');
+	assert.equal(given, cellKey(title, 'Nominative', 0));
+	// One cell for the two genitives, and none for the cells that hold no form
+	assert.deepEqual(cells, [
+		cellKey(title, 'Nominative', 1), cellKey(title, 'Genitive', 0), cellKey(title, 'Accusative', 0)
+	]);
+
+	// No headword to compare with (a pronoun), or a table without it (a verb): every form is covered
+	assert.equal(coverable(stil, '').given, null);
+	assert.equal(coverable(stil, '').cells.length, 4);
+	const verb = formTables('verb', [
+		{ form: 'чита́ю', tags: ['first-person', 'present', 'singular'] },
+		{ form: 'чита́єш', tags: ['second-person', 'present', 'singular'] }
+	], 'читати').tables;
+	assert.deepEqual(coverable(verb, 'чита́ти'), {
+		cells: [cellKey('Present', '1st person', 0), cellKey('Present', '2nd person', 0)], given: null
+	});
+	assert.deepEqual(coverable([], 'стіл'), { cells: [], given: null });
 });

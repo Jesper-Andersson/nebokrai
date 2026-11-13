@@ -151,8 +151,6 @@
 	--accent-soft: #e4edfb;
 	--link-hover: #0d3f7a;
 	--gold: #d9b755;
-	--sky: rgb(91 143 214 / 0.2);
-	--wheat: rgb(228 203 129 / 0.3);
 	--scrim: rgb(22 24 29 / 0.4);
 	--wash-top: rgb(247 246 242 / 0.25);
 	--wash-bottom: rgb(247 246 242 / 0.5);
@@ -175,30 +173,33 @@
 	color-scheme: light;
 }
 
+/* Dark: the field at night, not a screen. The page and its greys lean
+   towards brown, as the light theme's lean towards paper, and the blue of
+   the links and the gold stay as they are; on blue-black greys the site
+   looked like every other dark site. Text keeps the contrast it had
+   (muted 6.6:1 on a card, faint 5.3:1). */
 :root[data-theme='dark'] {
-	--bg: #0f1115;
-	--surface: #171a20;
-	--surface-2: #1f232b;
-	--raised: #2e333e;
-	--border: #2a2f39;
-	--border-strong: #3d4350;
-	--ink: #eceef3;
-	--ink-2: #cdd1da;
-	--muted: #9aa1ae;
-	--faint: #8a909c;
+	--bg: #141210;
+	--surface: #1c1a16;
+	--surface-2: #26231d;
+	--raised: #37332a;
+	--border: #322e27;
+	--border-strong: #4b453a;
+	--ink: #f1ede4;
+	--ink-2: #d6d0c3;
+	--muted: #a69f90;
+	--faint: #958e80;
 	--accent: #8db4f0;
 	--accent-ink: #0d1a2e;
 	--accent-soft: #1b2a44;
 	--link-hover: #b5cff7;
 	--gold: #e4cb81;
-	--sky: rgb(91 143 214 / 0.22);
-	--wheat: rgb(228 203 129 / 0.1);
 	--scrim: rgb(0 0 0 / 0.6);
-	--wash-top: rgb(15 17 21 / 0.5);
-	--wash-bottom: rgb(15 17 21 / 0.72);
+	--wash-top: rgb(20 18 16 / 0.5);
+	--wash-bottom: rgb(20 18 16 / 0.72);
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
-	--stress: #e45f58;
+	--stress: #e8645a;
 	--play: #5cb8e6;
 	/* The streak's flame on the header's flashcards button: its tip, its body
 	   and the number written on it */
@@ -209,36 +210,34 @@
 	--pill-1-line: #4fae67;
 	--pill-2-line: #5b95d9;
 	--pill-3-line: #c9962e;
-	--pill-4-line: #7d8391;
+	--pill-4-line: #8a8477;
 	color-scheme: dark;
 }
 
 /* No choice made: follow the system. Same values as above. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme]) {
-		--bg: #0f1115;
-		--surface: #171a20;
-		--surface-2: #1f232b;
-		--raised: #2e333e;
-		--border: #2a2f39;
-		--border-strong: #3d4350;
-		--ink: #eceef3;
-		--ink-2: #cdd1da;
-		--muted: #9aa1ae;
-		--faint: #8a909c;
+		--bg: #141210;
+		--surface: #1c1a16;
+		--surface-2: #26231d;
+		--raised: #37332a;
+		--border: #322e27;
+		--border-strong: #4b453a;
+		--ink: #f1ede4;
+		--ink-2: #d6d0c3;
+		--muted: #a69f90;
+		--faint: #958e80;
 		--accent: #8db4f0;
 		--accent-ink: #0d1a2e;
 		--accent-soft: #1b2a44;
 		--link-hover: #b5cff7;
 		--gold: #e4cb81;
-		--sky: rgb(91 143 214 / 0.22);
-		--wheat: rgb(228 203 129 / 0.1);
 		--scrim: rgb(0 0 0 / 0.6);
-		--wash-top: rgb(15 17 21 / 0.5);
-		--wash-bottom: rgb(15 17 21 / 0.72);
+		--wash-top: rgb(20 18 16 / 0.5);
+		--wash-bottom: rgb(20 18 16 / 0.72);
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
-		--stress: #e45f58;
+		--stress: #e8645a;
 		--play: #5cb8e6;
 		/* The streak's flame on the header's flashcards button: its tip, its body
 		   and the number written on it */
@@ -249,7 +248,7 @@
 		--pill-1-line: #4fae67;
 		--pill-2-line: #5b95d9;
 		--pill-3-line: #c9962e;
-		--pill-4-line: #7d8391;
+		--pill-4-line: #8a8477;
 		color-scheme: dark;
 	}
 }
@@ -274,8 +273,6 @@
 	--accent-soft: #d0d3d6;
 	--link-hover: #1a3157;
 	--gold: #a9811f;
-	--sky: rgb(91 143 214 / 0.16);
-	--wheat: rgb(190 150 70 / 0.3);
 	--scrim: rgb(59 47 32 / 0.4);
 	--wash-top: rgb(227 213 184 / 0.3);
 	--wash-bottom: rgb(227 213 184 / 0.55);

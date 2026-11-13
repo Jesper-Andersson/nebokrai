@@ -189,16 +189,16 @@
    looked like every other dark site. Text keeps the contrast it had
    (muted 6.6:1 on a card, faint 5.3:1). */
 :root[data-theme='dark'] {
-	--bg: #141210;
-	--surface: #1c1a16;
-	--surface-2: #26231d;
-	--raised: #37332a;
-	--border: #322e27;
-	--border-strong: #4b453a;
-	--ink: #f1ede4;
-	--ink-2: #d6d0c3;
-	--muted: #a69f90;
-	--faint: #958e80;
+	--bg: #131211;
+	--surface: #1b1a18;
+	--surface-2: #252320;
+	--raised: #35332e;
+	--border: #302e2a;
+	--border-strong: #48453f;
+	--ink: #f0ede7;
+	--ink-2: #d4d0c8;
+	--muted: #a39f96;
+	--faint: #928e86;
 	--accent: #8db4f0;
 	--accent-ink: #0d1a2e;
 	--accent-soft: #1b2a44;
@@ -209,8 +209,8 @@
 	--flag-line: #ffd500;
 	--flag-soft: #2f2808;
 	--scrim: rgb(0 0 0 / 0.6);
-	--wash-top: rgb(20 18 16 / 0.5);
-	--wash-bottom: rgb(20 18 16 / 0.72);
+	--wash-top: rgb(19 18 17 / 0.5);
+	--wash-bottom: rgb(19 18 17 / 0.72);
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	--stress: #e8645a;
@@ -224,23 +224,23 @@
 	--pill-1-line: #4fae67;
 	--pill-2-line: #5b95d9;
 	--pill-3-line: #c9962e;
-	--pill-4-line: #8a8477;
+	--pill-4-line: #88847c;
 	color-scheme: dark;
 }
 
 /* No choice made: follow the system. Same values as above. */
 @media (prefers-color-scheme: dark) {
 	:root:not([data-theme]) {
-		--bg: #141210;
-		--surface: #1c1a16;
-		--surface-2: #26231d;
-		--raised: #37332a;
-		--border: #322e27;
-		--border-strong: #4b453a;
-		--ink: #f1ede4;
-		--ink-2: #d6d0c3;
-		--muted: #a69f90;
-		--faint: #958e80;
+		--bg: #131211;
+		--surface: #1b1a18;
+		--surface-2: #252320;
+		--raised: #35332e;
+		--border: #302e2a;
+		--border-strong: #48453f;
+		--ink: #f0ede7;
+		--ink-2: #d4d0c8;
+		--muted: #a39f96;
+		--faint: #928e86;
 		--accent: #8db4f0;
 		--accent-ink: #0d1a2e;
 		--accent-soft: #1b2a44;
@@ -251,8 +251,8 @@
 		--flag-line: #ffd500;
 		--flag-soft: #2f2808;
 		--scrim: rgb(0 0 0 / 0.6);
-		--wash-top: rgb(20 18 16 / 0.5);
-		--wash-bottom: rgb(20 18 16 / 0.72);
+		--wash-top: rgb(19 18 17 / 0.5);
+		--wash-bottom: rgb(19 18 17 / 0.72);
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		--stress: #e8645a;
@@ -266,7 +266,7 @@
 		--pill-1-line: #4fae67;
 		--pill-2-line: #5b95d9;
 		--pill-3-line: #c9962e;
-		--pill-4-line: #8a8477;
+		--pill-4-line: #88847c;
 		color-scheme: dark;
 	}
 }

@@ -1,10 +1,14 @@
 import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { editText } from './scripts/edit-text/plugin.ts';
 import { RADIO_ORIGINS } from './src/lib/radio.ts';
 
 export default defineConfig({
 	plugins: [
+		// Click a text on a page and change it, in `npm run dev` only
+		// (scripts/edit-text/plugin.ts, src/lib/dev/TextEditor.svelte)
+		editText(),
 		sveltekit({
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.

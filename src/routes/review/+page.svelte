@@ -788,12 +788,16 @@
 		}
 	}
 
+	/* The headword takes its size from this box's width (Headword.svelte), and
+	   the play button goes under a word that needs the whole line */
 	.front {
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.25rem 0.5rem;
 		text-align: center;
+		container-type: inline-size;
 	}
 
 	/* The answer sits under the word, centred like it */

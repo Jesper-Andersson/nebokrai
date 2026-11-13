@@ -687,8 +687,26 @@ const en = {
 		/** Starts a round of the rules held least well, and what such a round is. */
 		weak: 'Weak spots',
 		weakTitle: 'A round of the rules you hold least well',
-		/** Heads the numbers' rules on the map, as a case heads its prepositions. */
-		numbers: 'Numbers with nouns',
+		/** What each lesson is about (lessons.ts), after "Lesson 3". */
+		lessons: {
+			where: 'Where something is',
+			'where-to': 'Where something goes',
+			'with-from': 'With whom and from where',
+			numbers: 'Numbers with nouns',
+			'for-about': 'For, without and about',
+			'before-after': 'Before, after and through',
+			around: 'Near, behind and between',
+			'above-below': 'Above, below and against'
+		} as Record<string, string>,
+		lessonN: (n: number) => `Lesson ${n}`,
+		/** On a lesson's heading: how many of its rules are known. */
+		knownOf: (n: number, total: number) => `${n} of ${total} known`,
+		search: 'Search the rules',
+		/** A switch: the rules already known are left off the map. */
+		hideKnown: 'Hide known',
+		noMatch: 'No rule matches that.',
+		/** Every rule is known and the known ones are hidden. */
+		allKnown: 'Every rule is known and hidden.',
 		/** After the case a number asks for: "nominative plural", називний відмінок множини. */
 		ofNumber: { singular: 'singular', plural: 'plural' },
 		/** Said of a rule's row, which starts a round of that rule alone. */
@@ -1520,7 +1538,22 @@ const uk: Messages = {
 		map: 'Позначка показує, наскільки добре ви тримаєте правило. Оберіть правило, щоб вправляти лише його.',
 		weak: 'Слабкі місця',
 		weakTitle: 'Раунд із правил, які ви тримаєте найгірше',
-		numbers: 'Числівники з іменниками',
+		lessons: {
+			where: 'Де щось є',
+			'where-to': 'Куди щось рухається',
+			'with-from': 'З ким і звідки',
+			numbers: 'Числівники з іменниками',
+			'for-about': 'Для, без і про',
+			'before-after': 'Перед, після й через',
+			around: 'Біля, за й між',
+			'above-below': 'Над, під і проти'
+		},
+		lessonN: (n) => `Урок ${n}`,
+		knownOf: (n, total) => `Засвоєно: ${n} з ${total}`,
+		search: 'Шукати серед правил',
+		hideKnown: 'Сховати засвоєні',
+		noMatch: 'Жодне правило не підходить.',
+		allKnown: 'Усі правила засвоєно й сховано.',
 		ofNumber: { singular: 'однини', plural: 'множини' },
 		only: 'Вправляти лише це правило',
 		state: { new: 'нове', weak: 'непевне', learning: 'вивчається', known: 'засвоєне' },

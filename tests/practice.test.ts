@@ -6,7 +6,9 @@
 import { existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { messagesFor } from '../src/lib/i18n.ts';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
+import { LESSONS } from '../src/lib/practice/lessons.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
@@ -51,6 +53,25 @@ test('every point is named once, by a preposition or a number and a case', () =>
 		assert.equal(point.id.split('-')[1], point.case.slice(0, 3));
 		assert.equal(pointOf(point.id), point);
 	}
+});
+
+test('the lessons hold every point once, in the order of the points', () => {
+	assert.deepEqual(LESSONS.flatMap((lesson) => lesson.points), ids);
+	assert.equal(new Set(LESSONS.map((lesson) => lesson.id)).size, LESSONS.length);
+	for (const lesson of LESSONS) {
+		assert.ok(lesson.points.length, lesson.id);
+		for (const lang of ['en', 'uk'] as const) assert.ok(messagesFor(lang).practice.lessons[lesson.id], `${lesson.id} ${lang}`);
+	}
+});
+
+test('a point keeps its id: progress is kept under it', () => {
+	// As shipped on 2026-11-13. A point may be moved to another lesson; an id taken away loses its learners' cards
+	const shipped = [
+		'u-loc', 'na-loc', 'u-acc', 'na-acc', 'z-ins', 'do-gen', 'one-nom', 'few-nom', 'many-gen', 'z-gen', 'dlia-gen',
+		'bez-gen', 'pro-acc', 'vid-gen', 'za-acc', 'za-ins', 'pislia-gen', 'pered-ins', 'bilia-gen', 'cherez-acc',
+		'po-loc', 'pid-ins', 'pid-acc', 'nad-ins', 'mizh-ins', 'proty-gen', 'sered-gen'
+	];
+	for (const id of shipped) assert.ok(pointOf(id), id);
 });
 
 test('a first round is two new points, each asked twice running and then mixed', () => {

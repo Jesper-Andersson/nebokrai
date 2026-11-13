@@ -194,6 +194,7 @@ const en = {
 		kinds: { talk: 'Talk', music: 'Music' },
 		site: 'The station’s site',
 		minimise: 'Minimise',
+		move: 'Drag to move the radio',
 		hide: 'Hide the radio',
 		hidden: 'Radio hidden. The settings bring it back.'
 	},
@@ -846,6 +847,7 @@ const uk: Messages = {
 		kinds: { talk: 'Розмовні', music: 'Музичні' },
 		site: 'Сайт станції',
 		minimise: 'Згорнути',
+		move: 'Перетягніть, щоб пересунути радіо',
 		hide: 'Сховати радіо',
 		hidden: 'Радіо сховано. Повернути його можна в налаштуваннях.'
 	},

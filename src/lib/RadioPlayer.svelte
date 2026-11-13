@@ -1,13 +1,17 @@
-<!-- The radio: a round button in the bottom corner of every page, for those who
-     switched it on in the settings. It opens a panel (a Bits UI Popover, which
-     handles Escape, clicks outside and focus) with the stations, the volume
-     and a way to put the button away again. The sound itself lives in
-     radio.svelte.ts and goes on while the visitor moves between pages.
+<!-- The radio: a round button on every page, for those who switched it on in
+     the settings. It opens a panel (a Bits UI Popover, which handles Escape,
+     clicks outside and focus) with the stations, the volume and a way to put
+     the button away again. The sound itself lives in radio.svelte.ts and goes
+     on while the visitor moves between pages.
+
+     The button stands beside the page's column on a wide window and in the
+     bottom corner on a narrow one, until it is dragged somewhere else: by
+     itself, or by the top of its open panel, which goes where the button goes.
 
      The stations are plain buttons, not a radio group: in a group the arrow
      keys choose as they move, and each choice here would ring up a station. -->
 <script lang="ts">
-	import { onDestroy, tick } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { Popover } from 'bits-ui';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
@@ -67,6 +71,116 @@
 		// Say where it went: the settings menu is not where one looks first
 		toaster.addToast({ data: { title: m.radio.hidden, undo: () => show(true) } });
 	}
+
+	// Where the button stands once it has been dragged: its middle, as shares
+	// of the window's width and height, so it keeps its place when the window
+	// changes size (the styles hold it inside the window). null: where the
+	// page puts it. Kept in this browser only, like the flashcards' keys: a
+	// screen belongs to a machine, not to an account.
+	const PLACE_KEY = 'nebokrai-radio-place';
+	let place = $state.raw<{ x: number; y: number } | null>(null);
+	/** The place is read after the page is drawn; the button waits for it, so it does not jump there. */
+	let ready = $state(false);
+	let moving = $state(false);
+	/** In the upper half of the window the panel opens downward, where the room is. */
+	let below = $state(false);
+	/** A touch screen: the open panel holds the page still (see the panel below). */
+	let coarse = $state(false);
+	let root = $state<HTMLElement | null>(null);
+
+	const share = (n: number) => Math.min(1, Math.max(0, n));
+
+	onMount(() => {
+		try {
+			const kept = JSON.parse(localStorage.getItem(PLACE_KEY) ?? 'null');
+			if (Number.isFinite(kept?.x) && Number.isFinite(kept?.y)) place = { x: share(kept.x), y: share(kept.y) };
+		} catch {
+			// storage blocked, or not JSON: where the page puts it
+		}
+		coarse = matchMedia('(pointer: coarse)').matches;
+		ready = true;
+	});
+
+	function measure() {
+		const box = root?.getBoundingClientRect();
+		if (box) below = box.top + box.height / 2 < innerHeight / 2;
+	}
+
+	// Dragging: the round button by itself, the panel by its top line. Six
+	// pixels of slack tell a drag from a press with an unsteady hand, and the
+	// press that ends a drag opens and closes nothing.
+	function mover(node: HTMLElement) {
+		let pointer = -1;
+		let startX = 0;
+		let startY = 0;
+		let from = { x: 0, y: 0 };
+		let moved = false;
+		let swallow = false;
+
+		const down = (event: PointerEvent) => {
+			if (event.button !== 0 || !root) return;
+			const target = event.target instanceof Element ? event.target : null;
+			// The buttons of the panel keep their own presses, and the song's
+			// title can be selected; the small x beside the button hides it.
+			if (target?.closest(node === root ? '.hide' : 'button, a, input, .song')) return;
+			pointer = event.pointerId;
+			startX = event.clientX;
+			startY = event.clientY;
+			moved = false;
+			const box = root.getBoundingClientRect();
+			from = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+			measure();
+			// The window hears the rest of the press: a quick hand is off a
+			// 3rem button before the button has heard it move at all.
+			addEventListener('pointermove', move);
+			addEventListener('pointerup', up);
+			addEventListener('pointercancel', up);
+		};
+		const move = (event: PointerEvent) => {
+			if (event.pointerId !== pointer) return;
+			const dx = event.clientX - startX;
+			const dy = event.clientY - startY;
+			if (!moved) {
+				if (Math.hypot(dx, dy) < 6) return;
+				moved = true;
+				moving = true;
+			}
+			place = { x: share((from.x + dx) / innerWidth), y: share((from.y + dy) / innerHeight) };
+		};
+		const release = () => {
+			removeEventListener('pointermove', move);
+			removeEventListener('pointerup', up);
+			removeEventListener('pointercancel', up);
+		};
+		const up = (event: PointerEvent) => {
+			if (event.pointerId !== pointer) return;
+			pointer = -1;
+			release();
+			if (!moved) return;
+			moving = false;
+			swallow = true;
+			setTimeout(() => (swallow = false));
+			measure();
+			try {
+				localStorage.setItem(PLACE_KEY, JSON.stringify(place));
+			} catch {
+				// storage blocked: the place lasts until the page is closed
+			}
+		};
+		const click = (event: MouseEvent) => {
+			if (!swallow) return;
+			swallow = false;
+			event.preventDefault();
+			event.stopPropagation();
+		};
+		node.addEventListener('pointerdown', down);
+		node.addEventListener('click', click, true);
+		return () => {
+			release();
+			node.removeEventListener('pointerdown', down);
+			node.removeEventListener('click', click, true);
+		};
+	}
 </script>
 
 <!-- Four bars that rise and fall while there is sound, each to its own beat
@@ -83,9 +197,28 @@
 	<span class="bars" style="--size: {height}px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
 {/snippet}
 
-<div class="radio" class:on={playing} class:connecting={radio.status === 'loading'}>
+<!-- The dock is where the layout puts the radio: between the page and the
+     footer, with no height of its own (the styles say what that is for).
+
+     The button's middle is held at least 2rem from each edge of the window,
+     whatever share was kept: a window made smaller does not lose the button -->
+<div class="dock">
+<div
+	bind:this={root}
+	class="radio"
+	class:on={playing}
+	class:connecting={radio.status === 'loading'}
+	class:ready
+	class:moving
+	style:position={place ? 'fixed' : undefined}
+	style:left={place ? `clamp(0.5rem, calc(${place.x} * 100vw - 1.5rem), calc(100vw - 4.25rem))` : undefined}
+	style:top={place ? `clamp(0.5rem, calc(${place.y} * 100dvh - 1.5rem), calc(100dvh - 3.5rem))` : undefined}
+	style:right={place ? 'auto' : undefined}
+	style:bottom={place ? 'auto' : undefined}
+	{@attach mover}
+>
 	<span class="halo" aria-hidden="true"></span>
-	<Popover.Root bind:open>
+	<Popover.Root bind:open onOpenChange={(now) => now && measure()}>
 		<Popover.Trigger
 			bind:ref={trigger}
 			class="ui-radio-btn"
@@ -100,8 +233,21 @@
 			{/if}
 		</Popover.Trigger>
 		<Popover.Portal>
-			<Popover.Content class="ui-popover ui-radio" side="top" align="end" sideOffset={10} collisionPadding={8}>
-				<div class="now">
+			<!-- While it is dragged the panel is placed anew with every frame, to
+			     stay by the button. On a touch screen the panel all but fills the
+			     window, and a finger moved on it scrolled the page behind: there
+			     the page is held still while the panel is open. With a mouse the
+			     page still scrolls under the open panel. -->
+			<Popover.Content
+				class="ui-popover ui-radio"
+				side={below ? 'bottom' : 'top'}
+				align="end"
+				sideOffset={10}
+				collisionPadding={8}
+				updatePositionStrategy={moving ? 'always' : 'optimized'}
+				preventScroll={coarse}
+			>
+				<div class="now" title={m.radio.move} {@attach mover}>
 					<button
 						type="button"
 						class="main"
@@ -198,10 +344,29 @@
 		<Icon name="x" size={12} />
 	</button>
 </div>
+</div>
 
 <style>
-	/* Under the sticky header (30) and the overlays (40): a dialog covers it.
-	   Toasts.svelte keeps its messages clear of this corner. Being fixed
+	/* In a window with no room beside the page's column, the button is in the
+	   bottom right corner of the window while the page scrolls under it, and
+	   at the end of the page it stops above the footer. That is what a sticky
+	   box of no height does, placed where the page ends and the footer begins:
+	   it holds to the window's lower edge until its own place comes into
+	   view, and the button hangs 1rem above it.
+
+	   Before 2026-11-13 the button was fixed to the corner and the page was
+	   made 4.5rem longer to keep the footer clear of it, which left the button
+	   in a band of its own under the footer.
+
+	   Under the sticky header (30) and the overlays (40): a dialog covers it. */
+	.dock {
+		position: sticky;
+		bottom: 0;
+		z-index: 20;
+		height: 0;
+	}
+
+	/* Toasts.svelte keeps its messages clear of this corner. Being placed
 	   with a z-index, it is a layer of its own, so the glow below can go
 	   behind the button without going behind the page. */
 	.radio {
@@ -214,10 +379,36 @@
 			var(--flag-yellow) 50% 94%,
 			var(--flag-blue)
 		);
-		position: fixed;
+		position: absolute;
 		right: 1rem;
 		bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-		z-index: 20;
+		z-index: 0;
+		/* A finger on the button moves the button, not the page */
+		touch-action: none;
+	}
+
+	/* Not shown until its kept place has been read (the script above) */
+	.radio:not(.ready) {
+		visibility: hidden;
+	}
+
+	/* A window with room beside the page's column (50rem, and 14rem to spare
+	   each side from 78rem up): the button stands there, level with the
+	   middle of the page, where it is on hand and over nothing. In the bottom
+	   corner it sat on the footer's line and a long way from everything. */
+	@media (min-width: 78rem) {
+		.radio {
+			position: fixed;
+			top: 45%;
+			right: auto;
+			bottom: auto;
+			left: calc(50% + var(--page) / 2 + 3rem);
+		}
+	}
+
+	.radio.moving,
+	.radio.moving :global(.ui-radio-btn) {
+		cursor: grabbing;
 	}
 
 	/* A disc in those colours behind the button, blurred into a glow. It is
@@ -354,12 +545,29 @@
 		flex-direction: column;
 		gap: 0.8rem;
 		max-height: var(--bits-floating-available-height, 80dvh);
+		/* A list scrolled to its end does not hand the rest of the swipe to
+		   the page behind */
+		overscroll-behavior: contain;
 	}
 
+	/* The panel's top line is its handle: dragged, it takes the button and
+	   the panel with it. The song's title can still be selected. */
 	.now {
 		display: flex;
 		align-items: center;
 		gap: 0.7rem;
+		cursor: grab;
+		touch-action: none;
+		user-select: none;
+	}
+
+	.now:active {
+		cursor: grabbing;
+	}
+
+	.now .song {
+		cursor: auto;
+		user-select: text;
 	}
 
 	.main {
@@ -438,6 +646,7 @@
 		margin: 0 -0.5rem;
 		padding: 2px 0.5rem;
 		overflow-y: auto;
+		overscroll-behavior: contain;
 	}
 
 	section {

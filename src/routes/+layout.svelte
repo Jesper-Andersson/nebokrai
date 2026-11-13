@@ -4,7 +4,7 @@
      and the quick search. -->
 <script lang="ts">
 	import '../app.css';
-	import { onMount } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
 	import logoIcon from '#lib/assets/logo-icon.svg';
@@ -52,6 +52,16 @@
 
 	// The quick search lives in the header, and a page can open it too.
 	provideQuickSearch();
+
+	// In `npm run dev` only: a switch in the corner for changing the text of a
+	// page where it stands (src/lib/dev/TextEditor.svelte). Vite writes
+	// `false` in the place of import.meta.env.DEV when it builds the site, and
+	// then leaves out this line and the file it asks for. `dev` from $app/env
+	// is not enough: with it the build still shipped the file.
+	let TextEditor = $state.raw<Component | null>(null);
+	if (import.meta.env.DEV) {
+		onMount(() => void import('#lib/dev/TextEditor.svelte').then((module) => (TextEditor = module.default)));
+	}
 </script>
 
 <svelte:head>
@@ -99,6 +109,8 @@
 	{#if settings.radio === 'on'}
 		<RadioPlayer />
 	{/if}
+
+	{#if TextEditor}<TextEditor />{/if}
 </Tooltip.Provider>
 
 <style>

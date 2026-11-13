@@ -51,6 +51,29 @@ D1 database bound as `USERS`, apart from the dictionary. What is stored about a
 person: the provider's id for them, their display name, their saved words, when
 each word was last exported, and the lists they sorted the words into.
 
+### Changing the site's text
+
+`npm run dev` puts an **Edit text** switch in the bottom left corner of every
+page. With it on, click any text, change it in the box that opens and press
+Save (Ctrl+Enter). The change is written into the source file the text comes
+from, `src/lib/i18n.ts` or the page it is written in, and the page updates.
+
+- A click on a link's text edits the text. Alt+click follows the link.
+- A text that is written in more than one place is offered as a choice.
+- A text with `${…}` in the box is a template: change the words around those
+  parts and leave the parts as they are.
+- Text from the dictionary data, and text a page puts together from several
+  pieces, cannot be changed this way. The box says so and offers to open the
+  page's file instead.
+
+Write in English. Every change to English text is added to
+`src/lib/i18n-todo.json` with what the text said before, and the switch shows
+how many are waiting. The Ukrainian is then brought into line from that list,
+and each entry is taken off it once done.
+
+The switch and the address it talks to (`/__edit-text`, in
+`scripts/edit-text/`) exist only in the dev server. The built site has neither.
+
 ## Installing the site as an app
 
 A phone or a desktop browser can install the site: Chrome on Android offers

@@ -25,8 +25,7 @@
 <TextPage title={m.pageTitle.about} description={m.meta.about}>
 	{#if settings.lang === 'uk'}
 		<p class="lead">
-			Nebokrai — безкоштовний українсько-англійський словник для тих, хто вивчає українську. Він
-			знаходить слово, хоч як ви його наберете, і показує наголос, форми та вимову.
+			Nebokrai — безкоштовний українсько-англійський словник для тих, хто вивчає українську.
 		</p>
 
 		<h2>Назва</h2>
@@ -34,7 +33,7 @@
 			<Headword text="Небокра́й" size="sm" tag="b" /> означає «горизонт», дослівно — «край неба».
 		</p>
 
-		<h2>Що тут можна робити</h2>
+		<h2>Що тут можна робити?</h2>
 		<ul>
 			<li>Шукати українською, латинкою (<i>pryvit</i>) або англійською (<i>hello</i>).</li>
 			<li>Знаходити слово за будь-якою його формою: <i lang="uk">книги</i> веде до <i lang="uk">книга</i>.</li>
@@ -82,18 +81,20 @@
 			Вікісловнику. Докладніше на сторінці <a href="/sources">Джерела й ліцензії</a>.
 		</p>
 
-		<h2>Хто це робить</h2>
+		<h2>Про мене</h2>
 		<p>
-			Nebokrai — некомерційний проєкт Jesper Andersson.
+			Nebokrai створив я Jesper Andersson як некомерційний проєкт. Я вивчаю українську з 2022 року і
+			створив цей сайт, бо вважав, що українська заслуговує на зручний сайт, де можна шукати слова й
+			дивитися відмінювання!
 		</p>
 		<GitHubCard profile={data.github} />
 
 		<h2>Підтримати Nebokrai</h2>
 		<p>
-			Nebokrai безкоштовний і без реклами. Якщо він вам корисний, можете допомогти покрити витрати на
-			хостинг <a href={KOFI} rel="noopener">на Ko-fi</a>. Внески добровільні й не дають жодних
-			переваг: усе на сайті лишається безкоштовним для всіх. Якщо хочете натомість допомогти Україні,
-			дивіться сторінку <a href="/support">Підтримати Україну</a>.
+			Nebokrai повністю безкоштовний, без реклами й відстеження. Якщо він вам корисний, можете
+			допомогти мені покрити витрати на хостинг <a href={KOFI} rel="noopener">на Ko-fi</a>. Внески
+			цілком добровільні й не дають жодних переваг. Усе на сайті лишається безкоштовним для всіх. Якщо
+			хочете натомість допомогти Україні, дивіться: <a href="/support">Підтримати Україну</a>.
 		</p>
 
 		<h2>Приватність</h2>
@@ -136,8 +137,7 @@
 		</p>
 	{:else}
 		<p class="lead">
-			Nebokrai is a free Ukrainian–English dictionary for people learning Ukrainian. It finds a word
-			however you type it, and shows its stress, its forms and how it sounds.
+			Nebokrai is a free Ukrainian–English dictionary for people learning Ukrainian.
 		</p>
 
 		<h2>The name</h2>
@@ -145,7 +145,7 @@
 			<Headword text="Небокра́й" size="sm" tag="b" /> means “horizon”, literally “the sky’s edge”.
 		</p>
 
-		<h2>What you can do here</h2>
+		<h2>What can you do here?</h2>
 		<ul>
 			<li>Search in Ukrainian, in Latin letters (<i>pryvit</i>) or in English (<i>hello</i>).</li>
 			<li>Find a word from any of its forms: <i lang="uk">книги</i> leads to <i lang="uk">книга</i>.</li>
@@ -153,7 +153,7 @@
 				Still find it when it is misspelt, typed by ear (<i>kniga</i>) or typed on the wrong keyboard
 				layout (<i>ghbdsn</i> for <i lang="uk">привіт</i>).
 			</li>
-			<li>See where the stress falls, full declension and conjugation tables, and example sentences.</li>
+			<li>See where the stress falls, full declension and conjugation tables and example sentences.</li>
 			<li>Hear the word: a recording where there is one, a computer voice where there is not.</li>
 			<li>See how common a word is.</li>
 			<li>Save words and export them for Anki or a spreadsheet.</li>
@@ -192,17 +192,17 @@
 			<a href="/sources">Sources and licences</a> for the credits.
 		</p>
 
-		<h2>Who makes it</h2>
+		<h2>About me</h2>
 		<p>
-			Nebokrai is a non-commercial project by Jesper Andersson.
+			Nebokrai is made by me Jesper Andersson as a non-commerical project. I have been learning Ukrainian since 2022 and created this site because I felt Ukrainian deserves a user-friendly site to look up words and declenasion!
 		</p>
 		<GitHubCard profile={data.github} />
 
 		<h2>Supporting Nebokrai</h2>
 		<p>
-			Nebokrai is free and has no ads. If you find it useful, you can help cover the hosting costs
-			<a href={KOFI} rel="noopener">on Ko-fi</a>. Donations are voluntary and unlock nothing:
-			everything on the site stays free for everyone. To give to Ukraine instead, see
+			Nebokrai is completely free and has no ads or tracking. If you find it useful, you can help me cover the hosting costs
+			<a href={KOFI} rel="noopener">on Ko-fi</a>. Donations are entirely voluntary and unlock nothing.
+			Everything on the site stays free for everyone. To give to Ukraine instead, see:
 			<a href="/support">Support Ukraine</a>.
 		</p>
 

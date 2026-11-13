@@ -154,8 +154,11 @@
 		new Map(rows.flat().flatMap((k) => (k.kind === 'letter' ? [[k.code, k] as const] : [])))
 	);
 
-	// Shift capitalises the next letter only, like a phone keyboard.
-	let shift = $state(false);
+	// Shift capitalises the next letter only, like a phone keyboard, and like
+	// one it is on when the keyboard comes up: the keys show capitals, as the
+	// caps of a real keyboard do, and the first letter typed is one. Search
+	// takes no notice of capitals, so Київ and київ find the same.
+	let shift = $state(true);
 	const cased = (letter: string) => (shift ? letter.toUpperCase() : letter);
 
 	function type(letter: string) {

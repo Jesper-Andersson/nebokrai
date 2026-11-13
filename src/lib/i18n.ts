@@ -560,7 +560,7 @@ const en = {
 	},
 	/** The alphabet trainer (/alphabet). The letters themselves are in alphabet/letters.ts. */
 	alphabet: {
-		lead: 'Learn to read Ukrainian letters. Choose the groups to practise, then answer: a letter or a word is shown, and you say how it is read in Latin letters.',
+		lead: 'Learn to read Ukrainian Cyrillic. Choose the groups to practise.',
 		chosen: (n: number) => (n === 1 ? '1 letter chosen' : `${n} letters chosen`),
 		known: (n: number, total: number) => `${n} of ${total} known`,
 		start: 'Start',
@@ -568,6 +568,9 @@ const en = {
 		/** Then the speaker's name and the licence, as links, and `commons`. */
 		recordings: 'The letters are read by',
 		commons: 'on Wikimedia Commons',
+		/** The licence asks that changes be said. */
+		recordingsCut: 'Each recording has been cut down to the letter and cleaned of noise.',
+		mute: 'Mute recordings',
 		forget: 'Start over',
 		forgetConfirm: 'Forget what you have practised? Every letter becomes new again.',
 		letters: 'The letters',
@@ -576,14 +579,13 @@ const en = {
 			same: { name: 'Old friends', note: 'They look and sound much as they do in English.' },
 			'false-friends': {
 				name: 'False friends',
-				note: 'They look like Latin letters and sound different: В is v, Н is n, Р is r.'
+				note: 'They look like Latin letters and sound different.'
 			},
 			'new-shapes': { name: 'New shapes', note: 'New to the eye, familiar to the ear.' },
-			hushing: { name: 'Hushing sounds', note: 'One letter where Latin needs two or more: Ж is zh, Щ is shch.' },
-			iotated: { name: 'Vowels with a y', note: 'A y and a vowel in one letter, and Й, the y itself.' },
+			hushing: { name: 'Hushing sounds', note: 'One letter where Latin needs two or more.' },
+			iotated: { name: 'Vowels with a y', note: 'A y and a vowel in one letter, and the y by itself.' },
 			signs: { name: 'Signs', note: 'No sound of their own: they change how the letters beside them are read.' }
 		} as Record<string, { name: string; note: string }>,
-		include: (group: string) => `Practise: ${group}`,
 		/** Said of a letter's tile, for those who cannot see its mark. */
 		state: { new: 'not practised yet', learning: 'learning', known: 'known' },
 		/** What the soft sign and the apostrophe are called where another letter has its Latin. */
@@ -599,19 +601,13 @@ const en = {
 		},
 		options: 'How to practise',
 		answerLabel: 'Answer by',
-		answer: { choice: 'Choosing', type: 'Typing' },
+		answer: { choice: 'Selecting', type: 'Writing' },
 		directionLabel: 'You are shown',
 		direction: { read: 'Cyrillic', write: 'Latin' },
-		directionNote: {
-			read: 'A Ukrainian letter or word is shown; you give its Latin letters.',
-			write: 'Latin letters are shown; you give the Ukrainian letter. Letters only.'
-		},
 		contentLabel: 'Practise',
 		content: { letters: 'Letters', words: 'Words', both: 'Both' },
-		sound: 'Play the recording after an answer',
-		wordsLoading: 'Counting the words these letters spell…',
-		wordsCount: (n: number) =>
-			n === 1 ? '1 common word can be read with these letters.' : `${n} common words can be read with these letters.`,
+		sound: 'Play recording after an answer',
+		/** Shown only when words were asked for and too few can be read. */
 		wordsTooFew: (n: number) =>
 			`${n === 1 ? 'Only 1 common word' : n ? `Only ${n} common words` : 'No common word'} can be read with these letters alone, so letters will be asked. Add a group to practise words.`,
 		count: (n: number, total: number) => `${n} of ${total}`,
@@ -645,7 +641,7 @@ const en = {
 	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'Grammar words, explained',
-		review: 'Flashcards', alphabet: 'The Ukrainian alphabet'
+		review: 'Flashcards', alphabet: 'Ukrainian Alphabet'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1298,13 +1294,15 @@ const uk: Messages = {
 		}
 	},
 	alphabet: {
-		lead: 'Навчіться читати українські літери. Оберіть групи для вправ і відповідайте: вам показують літеру або слово, а ви кажете, як це читається латинкою.',
+		lead: 'Навчіться читати українську кирилицю. Оберіть групи для вправ.',
 		chosen: (n) => `Обрано ${counted(n, 'літеру', 'літери', 'літер')}`,
 		known: (n, total) => `Вивчено ${n} з ${total}`,
 		start: 'Почати',
 		kept: 'Ваш поступ зберігається в цьому браузері.',
 		recordings: 'Літери читає',
 		commons: 'на Вікісховищі',
+		recordingsCut: 'Кожен запис обрізано до самої літери й очищено від шуму.',
+		mute: 'Вимкнути звук записів',
 		forget: 'Почати спочатку',
 		forgetConfirm: 'Забути все, що ви вже вправляли? Кожна літера знову стане новою.',
 		letters: 'Літери',
@@ -1312,14 +1310,13 @@ const uk: Messages = {
 			same: { name: 'Давні знайомі', note: 'На вигляд і на слух майже такі самі, як латинські.' },
 			'false-friends': {
 				name: 'Оманливі друзі',
-				note: 'Схожі на латинські літери, а звучать інакше: В — це v, Н — n, Р — r.'
+				note: 'Схожі на латинські літери, а звучать інакше.'
 			},
 			'new-shapes': { name: 'Нові обриси', note: 'Нові для ока, знайомі для вуха.' },
-			hushing: { name: 'Шиплячі та Ц', note: 'Одна літера там, де латинкою треба дві або більше: Ж — zh, Щ — shch.' },
-			iotated: { name: 'Голосні з й', note: 'Звук й і голосний в одній літері, а ще сама Й.' },
+			hushing: { name: 'Шиплячі та Ц', note: 'Одна літера там, де латинкою треба дві або більше.' },
+			iotated: { name: 'Голосні з й', note: 'Звук й і голосний в одній літері, а ще сам звук й.' },
 			signs: { name: 'Знаки', note: 'Власного звука не мають: змінюють вимову сусідніх літер.' }
 		},
-		include: (group) => `Вправляти: ${group}`,
 		state: { new: 'ще не вправляли', learning: 'вивчається', known: 'вивчено' },
 		sign: { ь: 'м’який знак', "'": 'апостроф' },
 		details: {
@@ -1336,15 +1333,9 @@ const uk: Messages = {
 		answer: { choice: 'Вибором', type: 'Набором' },
 		directionLabel: 'Вам показують',
 		direction: { read: 'Кирилицю', write: 'Латинку' },
-		directionNote: {
-			read: 'Показано українську літеру або слово; ви даєте латинські літери.',
-			write: 'Показано латинські літери; ви даєте українську літеру. Лише літери.'
-		},
 		contentLabel: 'Вправляти',
 		content: { letters: 'Літери', words: 'Слова', both: 'І те, і те' },
 		sound: 'Відтворювати запис після відповіді',
-		wordsLoading: 'Рахуємо слова з цих літер…',
-		wordsCount: (n) => `Із цих літер можна прочитати ${counted(n, 'поширене слово', 'поширені слова', 'поширених слів')}.`,
 		wordsTooFew: (n) =>
 			`${n ? `Із самих цих літер можна прочитати лише ${counted(n, 'поширене слово', 'поширені слова', 'поширених слів')}` : 'Із самих цих літер не прочитати жодного поширеного слова'}, тож питатимуть літери. Додайте групу, щоб вправляти слова.`,
 		count: (n, total) => `${n} з ${total}`,

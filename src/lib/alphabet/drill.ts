@@ -28,10 +28,16 @@ export interface Options {
 	content: 'letters' | 'words' | 'both';
 	/** Play the recording when a letter or word has been answered. */
 	sound: boolean;
+	/** How loud the recordings are played, from 0 to 1. */
+	volume: number;
+	/** Nothing is played, and the volume is kept for when the sound comes back. */
+	muted: boolean;
 }
 
+// Quiet to begin with: a recording that starts by itself after an answer
+// should not startle, and it is easier to turn up than to turn down in time.
 export const DEFAULT_OPTIONS: Options = {
-	groups: ['same'], answer: 'choice', direction: 'read', content: 'letters', sound: true
+	groups: ['same'], answer: 'choice', direction: 'read', content: 'letters', sound: true, volume: 0.3, muted: false
 };
 
 const oneOf = <T extends string>(value: unknown, all: readonly T[], otherwise: T): T =>
@@ -40,14 +46,16 @@ const oneOf = <T extends string>(value: unknown, all: readonly T[], otherwise: T
 /** Read the choices from storage: the default for anything missing or malformed. */
 export function parseOptions(value: unknown): Options {
 	if (!value || typeof value !== 'object') return DEFAULT_OPTIONS;
-	const { groups, answer, direction, content, sound } = value as Record<string, unknown>;
+	const { groups, answer, direction, content, sound, volume, muted } = value as Record<string, unknown>;
 	const chosen = Array.isArray(groups) ? GROUP_IDS.filter((id) => groups.includes(id)) : [];
 	return {
 		groups: chosen.length ? chosen : DEFAULT_OPTIONS.groups,
 		answer: oneOf(answer, ['choice', 'type'], DEFAULT_OPTIONS.answer),
 		direction: oneOf(direction, ['read', 'write'], DEFAULT_OPTIONS.direction),
 		content: oneOf(content, ['letters', 'words', 'both'], DEFAULT_OPTIONS.content),
-		sound: typeof sound === 'boolean' ? sound : DEFAULT_OPTIONS.sound
+		sound: typeof sound === 'boolean' ? sound : DEFAULT_OPTIONS.sound,
+		volume: typeof volume === 'number' && volume >= 0 && volume <= 1 ? volume : DEFAULT_OPTIONS.volume,
+		muted: typeof muted === 'boolean' ? muted : DEFAULT_OPTIONS.muted
 	};
 }
 

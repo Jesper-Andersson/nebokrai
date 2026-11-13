@@ -12,6 +12,7 @@ import {
 	readable, stateOf
 } from '../src/lib/alphabet/drill.ts';
 import { APOSTROPHE, GROUP_IDS, LETTERS, isSign, letterInfo, lettersOf, pair } from '../src/lib/alphabet/letters.ts';
+import { RECORDINGS } from '../src/lib/alphabet/recordings.ts';
 import { ALPHABET } from '../src/lib/browse.ts';
 import { nationalTranslit } from '../src/lib/search/normalize.ts';
 import { openLocal } from './local-db.ts';
@@ -236,9 +237,16 @@ test('a right answer moves a letter up a box, a wrong one down two', () => {
 });
 
 test('choices and progress from storage are read defensively', () => {
-	assert.deepEqual(parseOptions({ groups: ['signs', 'nope', 'same'], answer: 'type', direction: 'write', content: 'both', sound: false }),
-		{ groups: ['same', 'signs'], answer: 'type', direction: 'write', content: 'both', sound: false });
-	assert.deepEqual(parseOptions({ groups: [], answer: 'sing', sound: 'yes' }), DEFAULT_OPTIONS);
+	assert.deepEqual(
+		parseOptions({
+			groups: ['signs', 'nope', 'same'], answer: 'type', direction: 'write', content: 'both', sound: false, volume: 0.8, muted: true
+		}),
+		{ groups: ['same', 'signs'], answer: 'type', direction: 'write', content: 'both', sound: false, volume: 0.8, muted: true });
+	assert.deepEqual(parseOptions({ groups: [], answer: 'sing', sound: 'yes', volume: '1', muted: 1 }), DEFAULT_OPTIONS);
+	// Quiet until the learner turns it up; silent is a volume too, louder than full is not
+	assert.equal(DEFAULT_OPTIONS.volume, 0.3);
+	assert.equal(parseOptions({ volume: 0 }).volume, 0);
+	for (const bad of [1.5, -0.1, NaN, null]) assert.equal(parseOptions({ volume: bad }).volume, 0.3);
 	for (const bad of [null, 'x', 7, []]) assert.deepEqual(parseOptions(bad), DEFAULT_OPTIONS);
 
 	assert.deepEqual(
@@ -248,6 +256,22 @@ test('choices and progress from storage are read defensively', () => {
 		}),
 		{ ж: { box: 3, seen: 5, right: 4 }, ш: { box: 4, seen: 2, right: 2 } });
 	for (const bad of [null, 'x', 7]) assert.deepEqual(parseProgress(bad), {});
+});
+
+test('every letter but the signs has a recording, and its file is there', () => {
+	for (const { letter: l } of LETTERS) {
+		const recording = RECORDINGS[l];
+		if (isSign(l)) {
+			assert.equal(recording, undefined, l);
+			continue;
+		}
+		assert.ok(recording, l);
+		// 09-zh.mp3: the place in the alphabet tells и from й, both "y"
+		assert.match(recording.src, /^\/audio\/letters\/\d\d-[a-z]+\.mp3$/);
+		assert.ok(existsSync('static' + recording.src), recording.src);
+		// The original it was cut from, where its author and licence are
+		assert.match(recording.page, /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+	}
 });
 
 test('every example word is in the dictionary', { skip: !existsSync('nebokrai.db') && 'nebokrai.db is missing' }, async () => {

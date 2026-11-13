@@ -334,8 +334,8 @@
 	}
 
 	.option[data-is='right'] {
-		border-color: var(--accent);
-		background: var(--accent-soft);
+		border-color: var(--flag-line);
+		background: var(--flag-soft);
 		color: var(--ink);
 	}
 
@@ -359,7 +359,7 @@
 	}
 
 	.typing input[data-is='right'] {
-		border-color: var(--accent);
+		border-color: var(--flag-line);
 	}
 
 	.typing input[data-is='wrong'] {
@@ -386,7 +386,7 @@
 	}
 
 	.feedback[data-correct='true'] .verdict {
-		color: var(--accent);
+		color: var(--flag-line);
 	}
 
 	.feedback[data-correct='false'] .verdict {

@@ -203,14 +203,31 @@ To try a dump without touching the account, use `--local` in place of
 
 ## Recordings of the letters
 
-    python3 data/letter_recordings.py src/lib/alphabet/recordings.ts
+    python3 data/letter_recordings.py [--ffmpeg path/to/ffmpeg]
 
-The alphabet page (`/alphabet`) plays a recording of each letter from Wikimedia
-Commons: 32 files by one speaker (Tabrus, 2023, CC BY-SA 4.0), every letter but
-ь. The script asks the Commons API for the files of their category and writes
-the mp3 address of each into a TypeScript module; it downloads no audio and
-needs no database. It stops if a file has another author or licence, since the
-page credits them all in one line. Run it again only if the category changes.
+The alphabet page (`/alphabet`) plays a recording of each letter: 32 files by
+one speaker on Wikimedia Commons (Tabrus, 2023, CC BY-SA 4.0), every letter
+but ь. As recorded, each is about two and a half seconds long for half a second
+of letter, with a click of the lips before it or a breath after it in many, and
+the letters differ in loudness by 12 dB. So the site plays copies of its own.
+The script:
+
+1. asks the Commons API for the files of the category and keeps the originals
+   in `data/raw/letters/` (5 MB). Commons gives an unnamed script about ten
+   files and then asks it to wait ten minutes, so the first run takes about
+   half an hour; a file already there is not fetched again.
+2. finds the letter in each recording by its loudness, cuts the rest away,
+   takes the hiss down, brings every letter to the same peak and writes
+   `static/audio/letters/09-zh.mp3` and the like (about 10 KB each). It prints
+   each cut, and what it left out that was louder than a quiet room, to be
+   looked over. `CUTS` in the script sets a letter's cut by hand where the rule
+   gets it wrong.
+3. writes `src/lib/alphabet/recordings.ts`: each letter's file, and the Commons
+   page of its original, which the page links to.
+
+It needs ffmpeg and no database, and stops if a file has another author or
+licence, since the page credits them all in one line. The mp3 files and the
+module are generated and committed: change the script, not them.
 
 ## Known gaps
 

@@ -28,9 +28,10 @@ export default defineConfig({
 					'font-src': ['self'],
 					// data: for small images Vite inlines; GitHub for the avatar on /about
 					'img-src': ['self', 'data:', 'https://avatars.githubusercontent.com', 'https://github.com'],
-					// Recordings of words, on Wikimedia Commons; and the radio's
+					// The letters' recordings, the site's own (static/audio/letters);
+					// recordings of words, on Wikimedia Commons; and the radio's
 					// stations, each played from its own server (src/lib/radio.ts)
-					'media-src': ['https://upload.wikimedia.org', ...RADIO_ORIGINS],
+					'media-src': ['self', 'https://upload.wikimedia.org', ...RADIO_ORIGINS],
 					// AnkiConnect on the visitor's own computer (src/lib/anki-connect.ts)
 					'connect-src': ['self', 'http://127.0.0.1:8765'],
 					'frame-src': ['https://challenges.cloudflare.com'],

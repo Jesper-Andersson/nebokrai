@@ -15,6 +15,7 @@
 	import { onMount } from 'svelte';
 	import AlphabetDrill from '#lib/AlphabetDrill.svelte';
 	import Headword from '#lib/Headword.svelte';
+	import Icon from '#lib/Icon.svelte';
 	import LetterChart from '#lib/LetterChart.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { Alphabet } from '#lib/alphabet.svelte.ts';
@@ -119,13 +120,16 @@
 
 	/** The recording of what is asked: a letter's own, or the word's from the dictionary. */
 	function soundOf(of: Prompt): string | undefined {
-		return of.kind === 'word' ? (cards.get(of.item)?.audio_url ?? undefined) : RECORDINGS[of.item];
+		return of.kind === 'word' ? (cards.get(of.item)?.audio_url ?? undefined) : RECORDINGS[of.item]?.src;
 	}
 
 	// The radio (RadioPlayer.svelte) may be playing: it is turned down while the recording sounds.
+	// Nothing is played while muted, so the radio is left as it is too.
 	function play(url: string) {
+		if (options.muted) return;
 		const done = radio.duck();
 		const audio = new Audio(url);
+		audio.volume = options.volume;
 		audio.addEventListener('ended', done);
 		audio.addEventListener('error', done);
 		audio.play().catch(done);
@@ -171,12 +175,44 @@
 
 <PageMeta title="{m.pageTitle.alphabet} · Nebokrai" description={m.meta.alphabet} />
 
-<div class="ui-page page">
+<!-- How loud the recordings are played: beside the choices, and again over a
+     round, where a recording too loud or too quiet is noticed. In steps of a
+     hundredth, since the quiet end is where it is set. Not where the browser
+     leaves the volume to the device's own buttons (iOS). -->
+{#snippet volume()}
+	<span class="volume" class:muted={options.muted}>
+		<!-- Mutes and brings the sound back at the volume it had -->
+		<button
+			type="button"
+			class="ui-icon-btn mute"
+			aria-pressed={options.muted}
+			aria-label={m.alphabet.mute}
+			title={m.alphabet.mute}
+			onclick={() => alphabet.change({ muted: !options.muted })}
+		>
+			<Icon name={options.muted ? 'speaker-off' : 'speaker'} size={18} />
+		</button>
+		{#if radio.canSetVolume}
+			<input
+				type="range"
+				min="0"
+				max="1"
+				step="0.01"
+				aria-label={m.radio.volume}
+				value={options.volume}
+				oninput={(event) => alphabet.change({ volume: event.currentTarget.valueAsNumber, muted: false })}
+			/>
+		{/if}
+	</span>
+{/snippet}
+
+<div class="ui-page page" class:wide={stage === 'setup'}>
 	<header>
 		<h1 class="ui-title">{m.pageTitle.alphabet}</h1>
 		{#if stage === 'drill'}
 			<span class="ui-badge">{m.alphabet.count(result ? round.asked : round.asked + 1, ROUND)}</span>
 			<span class="session">
+				{@render volume()}
 				<button type="button" class="ui-btn" onclick={stop}>{m.alphabet.stop}</button>
 			</span>
 		{/if}
@@ -185,79 +221,81 @@
 	{#if stage === 'setup'}
 		<p class="lead">{m.alphabet.lead}</p>
 
-		<section class="ui-card today" aria-busy={!alphabet.ready}>
-			<p class="chosen">{m.alphabet.chosen(letters.length)}</p>
-			<p class="muted">{alphabet.ready ? m.alphabet.known(knownAmong(alphabet.progress, ALL), ALL.length) : '–'}</p>
-			<button type="button" class="ui-btn ui-btn-primary" disabled={!alphabet.ready} onclick={start}>
-				{m.alphabet.start}
-			</button>
-		</section>
-
-		<section class="ui-card options">
-			<h2 class="ui-label" id="alphabet-answer">{m.alphabet.answerLabel}</h2>
-			<RadioGroup.Root
-				class="ui-segmented"
-				orientation="horizontal"
-				aria-labelledby="alphabet-answer"
-				value={options.answer}
-				onValueChange={set('answer')}
-			>
-				<RadioGroup.Item class="ui-segment" value="choice">{m.alphabet.answer.choice}</RadioGroup.Item>
-				<RadioGroup.Item class="ui-segment" value="type">{m.alphabet.answer.type}</RadioGroup.Item>
-			</RadioGroup.Root>
-
-			<h2 class="ui-label" id="alphabet-direction">{m.alphabet.directionLabel}</h2>
-			<RadioGroup.Root
-				class="ui-segmented"
-				orientation="horizontal"
-				aria-labelledby="alphabet-direction"
-				value={options.direction}
-				onValueChange={set('direction')}
-			>
-				<RadioGroup.Item class="ui-segment" value="read">{m.alphabet.direction.read}</RadioGroup.Item>
-				<RadioGroup.Item class="ui-segment" value="write">{m.alphabet.direction.write}</RadioGroup.Item>
-			</RadioGroup.Root>
-			<p class="muted">{m.alphabet.directionNote[options.direction]}</p>
-
-			{#if options.direction === 'read'}
-				<h2 class="ui-label" id="alphabet-content">{m.alphabet.contentLabel}</h2>
-				<RadioGroup.Root
-					class="ui-segmented"
-					orientation="horizontal"
-					aria-labelledby="alphabet-content"
-					value={options.content}
-					onValueChange={set('content')}
-				>
-					<RadioGroup.Item class="ui-segment" value="letters">{m.alphabet.content.letters}</RadioGroup.Item>
-					<RadioGroup.Item class="ui-segment" value="words">{m.alphabet.content.words}</RadioGroup.Item>
-					<RadioGroup.Item class="ui-segment" value="both">{m.alphabet.content.both}</RadioGroup.Item>
-				</RadioGroup.Root>
-				<p class="muted" role="status">
-					{#if canRead === null}
-						{m.alphabet.wordsLoading}
-					{:else if canRead < MIN_WORDS && options.content !== 'letters'}
-						{m.alphabet.wordsTooFew(canRead)}
-					{:else}
-						{m.alphabet.wordsCount(canRead)}
-					{/if}
-				</p>
+		<!-- One card for everything chosen before a round, so that the letters are on the first screen -->
+		<section class="ui-card setup" aria-busy={!alphabet.ready}>
+			<div class="choices">
+				<div class="choice">
+					<h2 class="name" id="alphabet-answer">{m.alphabet.answerLabel}</h2>
+					<RadioGroup.Root
+						class="ui-segmented"
+						orientation="horizontal"
+						aria-labelledby="alphabet-answer"
+						value={options.answer}
+						onValueChange={set('answer')}
+					>
+						<RadioGroup.Item class="ui-segment" value="choice">{m.alphabet.answer.choice}</RadioGroup.Item>
+						<RadioGroup.Item class="ui-segment" value="type">{m.alphabet.answer.type}</RadioGroup.Item>
+					</RadioGroup.Root>
+				</div>
+				<div class="choice">
+					<h2 class="name" id="alphabet-direction">{m.alphabet.directionLabel}</h2>
+					<RadioGroup.Root
+						class="ui-segmented"
+						orientation="horizontal"
+						aria-labelledby="alphabet-direction"
+						value={options.direction}
+						onValueChange={set('direction')}
+					>
+						<RadioGroup.Item class="ui-segment" value="read">{m.alphabet.direction.read}</RadioGroup.Item>
+						<RadioGroup.Item class="ui-segment" value="write">{m.alphabet.direction.write}</RadioGroup.Item>
+					</RadioGroup.Root>
+				</div>
+				{#if options.direction === 'read'}
+					<div class="choice">
+						<h2 class="name" id="alphabet-content">{m.alphabet.contentLabel}</h2>
+						<RadioGroup.Root
+							class="ui-segmented"
+							orientation="horizontal"
+							aria-labelledby="alphabet-content"
+							value={options.content}
+							onValueChange={set('content')}
+						>
+							<RadioGroup.Item class="ui-segment" value="letters">{m.alphabet.content.letters}</RadioGroup.Item>
+							<RadioGroup.Item class="ui-segment" value="words">{m.alphabet.content.words}</RadioGroup.Item>
+							<RadioGroup.Item class="ui-segment" value="both">{m.alphabet.content.both}</RadioGroup.Item>
+						</RadioGroup.Root>
+					</div>
+				{/if}
+			</div>
+			<!-- Said only when words were asked for and cannot be given: otherwise a round of letters would come unexplained -->
+			{#if options.direction === 'read' && options.content !== 'letters' && canRead !== null && canRead < MIN_WORDS}
+				<p class="muted" role="status">{m.alphabet.wordsTooFew(canRead)}</p>
 			{/if}
 
-			<label class="switch">
-				<span id="alphabet-sound">{m.alphabet.sound}</span>
-				<Switch.Root
-					class="ui-switch"
-					aria-labelledby="alphabet-sound"
-					checked={options.sound}
-					onCheckedChange={(sound) => alphabet.change({ sound })}
-				>
-					<Switch.Thumb class="ui-switch-thumb" />
-				</Switch.Root>
-			</label>
+			<div class="go">
+				<label class="switch">
+					<Switch.Root
+						class="ui-switch"
+						aria-labelledby="alphabet-sound"
+						checked={options.sound}
+						onCheckedChange={(sound) => alphabet.change({ sound })}
+					>
+						<Switch.Thumb class="ui-switch-thumb" />
+					</Switch.Root>
+					<span id="alphabet-sound">{m.alphabet.sound}</span>
+				</label>
+				{@render volume()}
+				<span class="muted count">
+					{m.alphabet.chosen(letters.length)}{#if alphabet.ready}{' · '}{m.alphabet.known(knownAmong(alphabet.progress, ALL), ALL.length)}{/if}
+				</span>
+				<button type="button" class="ui-btn ui-btn-primary" disabled={!alphabet.ready} onclick={start}>
+					{m.alphabet.start}
+				</button>
+			</div>
 		</section>
 
-		<h2 class="ui-label on-page">{m.alphabet.letters}</h2>
 		<LetterChart
+			label={m.alphabet.letters}
 			progress={alphabet.progress}
 			chosen={options.groups}
 			ontoggle={toggleGroup}
@@ -268,8 +306,7 @@
 			{m.alphabet.recordings}
 			<a href={RECORDINGS_CREDIT.category}>{RECORDINGS_CREDIT.author}</a>,
 			<a href={RECORDINGS_CREDIT.licenceUrl}>{RECORDINGS_CREDIT.licence}</a>, {m.alphabet.commons}.
-		</p>
-		<p class="muted kept">
+			{m.alphabet.recordingsCut}
 			{m.alphabet.kept}
 			{#if Object.keys(alphabet.progress).length}
 				<button type="button" class="link" onclick={forget}>{m.alphabet.forget}</button>
@@ -339,6 +376,43 @@
 		padding-top: 1.75rem;
 	}
 
+	/* The letters need the room of a dictionary page: eight to a row beside their group's name */
+	.page.wide {
+		gap: 0.75rem;
+		max-width: var(--page);
+	}
+
+	/* What is switched on and what starts a round are in the flag's yellow,
+	   the logo's (--flag in app.css), not the blue of a link. The buttons and
+	   the switch are drawn by global classes, here and in the drill. */
+	.page :global(.ui-btn.ui-btn-primary) {
+		border-color: var(--flag-line);
+		background: var(--flag);
+		color: var(--flag-ink);
+	}
+
+	@media (hover: hover) {
+		.page :global(.ui-btn.ui-btn-primary:hover:not(:disabled)) {
+			border-color: var(--flag-line);
+			background: color-mix(in srgb, var(--flag) 86%, var(--flag-ink));
+		}
+	}
+
+	.page :global(.ui-switch[data-state='checked']) {
+		border-color: var(--flag-line);
+		background: var(--flag);
+	}
+
+	.page :global(.ui-switch-thumb[data-state='checked']) {
+		background: var(--flag-ink);
+	}
+
+	/* The choice made in each of the three, as Start is */
+	.setup :global(.ui-segment[data-state='checked']) {
+		background: var(--flag);
+		color: var(--flag-ink);
+	}
+
 	/* On a phone the title, the count and Stop do not fit on one line: Stop goes to the right of a second */
 	header {
 		display: flex;
@@ -371,16 +445,16 @@
 		font-size: var(--text-sm);
 	}
 
-	.today,
-	.options,
+	.setup,
 	.end {
 		display: grid;
-		gap: 1rem;
-		padding: 1.25rem;
+		gap: 0.75rem;
+		padding: 1rem 1.25rem;
 	}
 
-	.today,
 	.end {
+		gap: 1rem;
+		padding: 1.25rem;
 		justify-items: center;
 		text-align: center;
 	}
@@ -401,28 +475,73 @@
 		font-variant-numeric: tabular-nums;
 	}
 
-	.chosen {
-		font-family: var(--font-heading);
-		font-size: var(--text-lg);
-		font-weight: 700;
+	/* The three choices side by side, each under its name; on a phone they wrap */
+	/* The choices share the card's width between them, two or three abreast;
+	   on a phone each takes a line of its own */
+	.choices {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+		gap: 0.75rem 1rem;
 	}
 
-	.options :global(.ui-segmented) {
-		justify-self: start;
-		max-width: 100%;
+	.choice {
+		display: grid;
+		gap: 0.35rem;
+		min-width: 0;
+	}
+
+	/* A choice's name: as .ui-label is set, without its rule running to the edge */
+	.name {
+		color: var(--muted);
+		font-family: var(--font-text);
+		font-size: var(--text-xs);
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	/* The sound's switch on the left; what is chosen and Start on the right */
+	.go {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.6rem 1rem;
 	}
 
 	.switch {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		gap: 0.75rem;
+		gap: 0.6rem;
+		font-size: var(--text-sm);
 	}
 
-	/* A heading straight on the page, between the cards */
-	.on-page {
-		margin-top: 0.5rem;
-		color: var(--on-page);
+	/* How loud the recordings are: set as the radio's is (RadioPlayer.svelte) */
+	.volume {
+		display: flex;
+		align-items: center;
+		gap: 0.2rem;
+		color: var(--muted);
+	}
+
+	/* Not the pressed look of an icon button: the crossed speaker says it */
+	.volume .mute[aria-pressed='true'] {
+		background: none;
+		color: var(--muted);
+	}
+
+	.volume input {
+		width: 6.5rem;
+		margin: 0;
+		accent-color: var(--flag);
+	}
+
+	/* Muted: the volume stays where it was, greyed until the sound comes back */
+	.volume.muted input {
+		opacity: 0.4;
+	}
+
+	.count {
+		margin-left: auto;
 	}
 
 	.kept {

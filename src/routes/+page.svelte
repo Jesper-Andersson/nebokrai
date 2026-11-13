@@ -245,25 +245,16 @@
 {/if}
 
 <style>
-	/* Sky above, wheat below: the two colours meet behind the search box. The
-	   sky is the frame's (+layout.svelte), the same on every page; the wheat
-	   is painted here, against the box. It fades out just above the hero's
-	   lower edge; centred on the edge it was cut off in a visible line. The
-	   title and the box sit high and stay put: typing must not move the box
-	   under the caret. */
+	/* The title and the box sit high and stay put: typing must not move the
+	   box under the caret. Nothing is painted behind them. */
 	.hero {
 		padding: clamp(1.25rem, 4vh, 2.5rem) 1rem 1.25rem;
-		background: radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
 		text-align: center;
 	}
 
-	/* Over a photo (app.css) there is no painted wheat either. The frame lays
-	   the page colour over the top of the photo, which carries the title; the
-	   title's own shadow only has to firm its edges. */
-	:global(:root[data-bg]) .hero {
-		background: none;
-	}
-
+	/* Over a photo (app.css) the frame lays the page colour over the top of
+	   the photo, which carries the title; the title's own shadow only has to
+	   firm its edges. */
 	:global(:root[data-bg]) .pair {
 		color: var(--ink);
 		text-shadow: 0 1px 0.35em color-mix(in srgb, var(--bg) 65%, transparent);

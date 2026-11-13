@@ -193,6 +193,16 @@
 				<button type="button" class="ui-icon-btn" aria-label={m.home.clear} onclick={() => fill('')}>
 					<Icon name="x" />
 				</button>
+			{:else}
+				<!-- Searches to try, in the box itself while it is empty: they are
+				     what the empty line is for, and a row of their own under the box
+				     pushed the word of the day down the page -->
+				<span class="examples">
+					<span>{m.home.tryLabel}</span>
+					{#each examples as example (example)}
+						<button type="button" class="ui-chip" onclick={() => fill(example)}>{example}</button>
+					{/each}
+				</span>
 			{/if}
 			<button
 				{...keyboard.trigger}
@@ -210,19 +220,12 @@
 			{/if}
 		</div>
 	</div>
-
-	{#if !query.trim()}
-		<p class="examples">
-			<span>{m.home.tryLabel}</span>
-			{#each examples as example (example)}
-				<button type="button" class="ui-chip" onclick={() => fill(example)}>{example}</button>
-			{/each}
-		</p>
-	{/if}
 </div>
 
 {#if !query.trim()}
-	{#if data.wordOfDay}<WordOfDay entry={data.wordOfDay} />{/if}
+	{#if data.wordOfDay}
+		<div class="daily" class:with-keyboard={keyboard.open}><WordOfDay entry={data.wordOfDay} /></div>
+	{/if}
 {:else if failed}
 	<p class="note">{m.home.failed}</p>
 {:else if found}
@@ -250,9 +253,16 @@
 	   is painted here, against the box. It fades out just above the hero's
 	   lower edge; centred on the edge it was cut off in a visible line. The
 	   title and the box sit high and stay put: typing must not move the box
-	   under the caret. */
+	   under the caret.
+
+	   The wheat needs 4.5rem under the middle of the box to fade out in, and
+	   the page has only 1rem to spare there: the rest of the hero's lower
+	   padding is taken back by the margin, so what follows (the word of the
+	   day, the answers) starts 1rem under the box and lies over the fading
+	   colour. */
 	.hero {
-		padding: clamp(1.25rem, 4vh, 2.5rem) 1rem 1.25rem;
+		padding: clamp(0.75rem, 2vh, 1.25rem) 1rem 2.75rem;
+		margin-bottom: -1.75rem;
 		background: radial-gradient(34rem 6rem at 50% calc(100% - 4.5rem), var(--wheat), transparent 70%);
 		text-align: center;
 	}
@@ -276,7 +286,7 @@
 	h1 {
 		display: grid;
 		justify-items: center;
-		margin: 0 0 0.9rem;
+		margin: 0 0 0.5rem;
 	}
 
 	.pair {
@@ -346,19 +356,19 @@
 		color: var(--muted);
 	}
 
+	/* The searches to try, at the end of the empty line, before the keyboard's
+	   button. They go when a letter is typed, and the box stays as it was. */
 	.examples {
 		display: flex;
-		flex-wrap: wrap;
+		flex: none;
 		align-items: center;
-		justify-content: center;
-		gap: 0.4rem;
-		margin: 1rem 0 0;
-		color: var(--on-page);
+		gap: 0.35rem;
+		margin-right: 0.4rem;
 		font-size: var(--text-sm);
 	}
 
 	.examples span {
-		margin-right: 0.2rem;
+		margin-right: 0.15rem;
 	}
 
 	.results {
@@ -387,6 +397,47 @@
 		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 3px;
+	}
+
+	/* On a desktop the empty search page fits the window: nothing on it is
+	   worth scrolling for, and a scrollbar that moves the page an inch says
+	   something is hidden. It does as it stands in a window 940px tall or
+	   more with the keyboard open (730px with it closed). In a lower window
+	   the title is set smaller and the space over the footer is let go; lower
+	   still, the open keyboard takes the place of the word of the day, which
+	   typing a letter would put away in any case. WordOfDay.svelte drops its
+	   example sentence in the lowest windows. Phones scroll as phones do. */
+	@media (min-width: 701px) and (max-height: 960px) {
+		.word {
+			--hand: 3.3rem;
+		}
+
+		:global(main:has(> .hero)) {
+			padding-bottom: 1rem;
+		}
+	}
+
+	@media (min-width: 701px) and (max-height: 890px) {
+		.daily.with-keyboard {
+			display: none;
+		}
+	}
+
+	/* A box too narrow for the line and the four searches side by side (the
+	   Ukrainian "Спробуйте" is the longer label): they take a line of their
+	   own inside the box, under the one typed in */
+	@media (max-width: 700px) {
+		.field {
+			flex-wrap: wrap;
+		}
+
+		.examples {
+			order: 1;
+			flex: 0 0 100%;
+			flex-wrap: wrap;
+			margin: 0;
+			padding-bottom: 0.7rem;
+		}
 	}
 
 	@media (max-width: 600px) {

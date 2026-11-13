@@ -299,8 +299,8 @@
 			<Icon name="bookmark" size={28} />
 			<p>
 				{uk
-					? 'Тут поки порожньо. Натисніть закладку на картці слова, щоб зберегти його тут.'
-					: 'Nothing saved yet. Press the bookmark on a word card to keep it here.'}
+					? 'Поки нічого не збережено. Натисніть закладку біля слова, щоб зберегти його.'
+					: 'Nothing is saved yet. Press the bookmark on a word to save it.'}
 			</p>
 			<a class="ui-btn" href="/">{m.nav.dictionary}</a>
 		</div>

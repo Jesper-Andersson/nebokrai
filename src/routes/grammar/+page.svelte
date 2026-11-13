@@ -48,7 +48,7 @@
 				<h2>{m.grammar.groups[group]}</h2>
 				<a class="back" href="#sections">{m.grammar.toSections}</a>
 			</header>
-			<p class="about">{m.grammar.intros[group]}</p>
+			{#if m.grammar.intros[group]}<p class="about">{m.grammar.intros[group]}</p>{/if}
 
 			<!-- The seven at a glance, before each is told in full -->
 			{#if group === 'cases'}

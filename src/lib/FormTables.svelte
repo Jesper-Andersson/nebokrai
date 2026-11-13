@@ -6,10 +6,16 @@
      The names of the rows and columns can be pressed for a note (Term.svelte),
      and each has Ukrainian beside it that says the same thing: a case has the
      question it answers (Genitive: кого? чого?), a gender its pronoun, and a
-     verb form the pronoun it goes with (я чита́ю). -->
+     verb form the pronoun it goes with (я чита́ю).
+
+     "Test yourself" covers the forms, to recall them from the names of their
+     rows: say the form, press its place, and it is shown; pressed again, it
+     is covered again. Nothing is marked right or wrong and nothing is kept:
+     the learner is the judge. The dictionary form's own cell stays in sight
+     (coverable in forms.ts). -->
 <script lang="ts">
 	import { Tabs } from 'melt/builders';
-	import type { FormTable } from '#lib/forms.ts';
+	import { cellKey, coverable, type CellItem, type FormTable } from '#lib/forms.ts';
 	import { HINTS, termOfLabel } from '#lib/grammar.ts';
 	import { formLabel, messagesFor, tagLabel } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -30,6 +36,24 @@
 	let tabbed = $derived(tables.length > 1);
 
 	const GENDERS = ['Masculine', 'Feminine', 'Neuter'];
+
+	// --- Covering the forms ---
+
+	let covered = $state(false);
+	/** The covered cells pressed open, by their keys. Replaced, never changed in place. */
+	let shown = $state.raw<ReadonlySet<string>>(new Set());
+	let cover = $derived(coverable(tables, headword));
+
+	function toggleCover() {
+		covered = !covered;
+		shown = new Set();
+	}
+
+	function flip(key: string) {
+		const next = new Set(shown);
+		if (!next.delete(key)) next.add(key);
+		shown = next;
+	}
 </script>
 
 <!-- A row's or column's name, and under it the Ukrainian hint when asked for -->
@@ -38,6 +62,29 @@
 	{#if term}<Term id={term}>{formLabel(m, label)}</Term>{:else}{formLabel(m, label)}{/if}
 	{#if hinted && term && HINTS[term]}<span class="hint" lang="uk">{HINTS[term]}</span>{/if}
 {/snippet}
+
+<!-- The forms of one cell: one to a line, each with the note that tells it from the others -->
+{#snippet forms(cell: CellItem[])}
+	{#each cell as item, i}
+		<!-- {' '}: Svelte drops a space at the start of a block, and the note ran into the form -->
+		{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}{' '}<small lang={settings.lang}
+				>{tagLabel(m, settings.lang, item.note)}</small
+			>{/if}
+	{:else}<span class="none">—</span>{/each}
+{/snippet}
+
+{#if cover.cells.length}
+	<div class="tools">
+		<button type="button" class="ui-chip" aria-pressed={covered} onclick={toggleCover}>{m.word.cover}</button>
+		{#if covered}
+			<span class="how">{m.word.coverHow}</span>
+			<span class="count" role="status">{m.word.coverCount(shown.size, cover.cells.length)}</span>
+			{#if shown.size}
+				<button type="button" class="again" onclick={() => (shown = new Set())}>{m.word.coverAgain}</button>
+			{/if}
+		{/if}
+	</div>
+{/if}
 
 {#if tabbed}
 	<div {...tabs.triggerList} class="tabs">
@@ -71,14 +118,26 @@
 						<!-- A verb's rows have their pronouns in the cells -->
 						<th scope="row">{@render name(row.label, !row.leads)}</th>
 						{#each row.cells as cell, c}
+							{@const key = cellKey(table.title, row.label, c)}
 							<td lang="uk">
 								{#if cell.length && row.leads?.[c]}<span class="lead">{row.leads[c]}</span>{' '}{/if}
-								{#each cell as item, i}
-									<!-- {' '}: Svelte drops a space at the start of a block, and the note ran into the form -->
-									{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}{' '}<small lang={settings.lang}
-											>{tagLabel(m, settings.lang, item.note)}</small
-										>{/if}
-								{:else}<span class="none">—</span>{/each}
+								{#if covered && cell.length && key !== cover.given}
+									<!-- Stays a button once open, so that the keyboard keeps its place and it can be covered again -->
+									<button
+										type="button"
+										class="cover"
+										class:open={shown.has(key)}
+										aria-expanded={shown.has(key)}
+										aria-label={shown.has(key)
+											? undefined
+											: `${m.word.coverShow}: ${[row.label, table.columns[c]].filter(Boolean).map((label) => formLabel(m, label)).join(', ')}`}
+										onclick={() => flip(key)}
+									>
+										{#if shown.has(key)}{@render forms(cell)}{/if}
+									</button>
+								{:else}
+									{@render forms(cell)}
+								{/if}
 							</td>
 						{/each}
 					</tr>
@@ -89,6 +148,75 @@
 {/each}
 
 <style>
+	/* The switch that covers the forms, and beside it what to do and how far one has come */
+	.tools {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem 0.75rem;
+		margin-bottom: 0.6rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.count {
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	.again {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--accent);
+		font: inherit;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	/* A covered form: a place to press, the same size whatever word is under
+	   it, so that its length gives nothing away */
+	.cover {
+		display: inline-block;
+		min-width: 6rem;
+		min-height: 1.7rem;
+		margin: -0.15rem 0;
+		padding: 0.15rem 0.4rem;
+		border: 1px dashed var(--border-strong);
+		border-radius: var(--radius-sm);
+		background: var(--surface-2);
+		color: inherit;
+		font: inherit;
+		text-align: left;
+		vertical-align: top;
+		cursor: pointer;
+	}
+
+	/* Alone in its cell, it is drawn out to the left by its padding, so that a
+	   form shown starts where the table prints it. After a verb's pronoun
+	   (я, ми) it keeps its distance. */
+	.cover:first-child {
+		margin-left: -0.4rem;
+	}
+
+	/* Open: the form as the table prints it, still a button to cover it again */
+	.cover.open {
+		border-color: transparent;
+		background: none;
+	}
+
+	@media (hover: hover) {
+		.cover:hover {
+			border-color: var(--accent);
+		}
+	}
+
+	@media (pointer: coarse) {
+		.cover {
+			min-height: 2.1rem;
+		}
+	}
+
 	.tabs {
 		display: flex;
 		gap: 0.25rem;

@@ -300,6 +300,13 @@ const en = {
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
 		conjugation: 'Conjugation',
+		/** Covering the forms of a table to recall them (FormTables.svelte). */
+		cover: 'Test yourself',
+		coverHow: 'Say each form, then press its place to check.',
+		coverCount: (n: number, total: number) => `${n} of ${total} shown`,
+		coverAgain: 'Cover again',
+		/** Said of a covered place, before the names of its row and column. */
+		coverShow: 'Show the form',
 		/** Under the tables; the headword follows, then a full stop. */
 		stressMoves: 'Underlined: the stress falls on a different syllable than in',
 		stressStays: 'The stress stays on the same syllable in every form.',
@@ -1049,6 +1056,11 @@ const uk: Messages = {
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
+		cover: 'Перевірити себе',
+		coverHow: 'Назвіть кожну форму, а тоді натисніть на її місце, щоб перевірити.',
+		coverCount: (n, total) => `Відкрито ${n} з ${total}`,
+		coverAgain: 'Сховати знову',
+		coverShow: 'Показати форму',
 		stressMoves: 'Підкреслено: наголос падає на інший склад, ніж у слові',
 		stressStays: 'У всіх формах наголос падає на той самий склад.',
 		synonyms: 'Синоніми',

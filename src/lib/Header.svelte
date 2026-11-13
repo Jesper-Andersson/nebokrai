@@ -203,16 +203,16 @@
 		--ribbon-height: 3px;
 		--flag-blue: #005bbb;
 		--flag-yellow: #ffd500;
+		--ribbon-shade: linear-gradient(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 50%, rgb(0 0 0 / 0.12));
+		--ribbon-stripes: repeating-linear-gradient(
+			135deg,
+			var(--flag-blue) 0 9.65px,
+			var(--flag-yellow) 9.9px 19.55px,
+			var(--flag-blue) 19.8px
+		);
 		--ribbon:
-			linear-gradient(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 50%, rgb(0 0 0 / 0.12)) 0 0 / 100% 100%
-				no-repeat,
-			repeating-linear-gradient(
-					135deg,
-					var(--flag-blue) 0 9.65px,
-					var(--flag-yellow) 9.9px 19.55px,
-					var(--flag-blue) 19.8px
-				)
-				0 0 / 28px 28px repeat fixed;
+			var(--ribbon-shade) 0 0 / 100% 100% no-repeat,
+			var(--ribbon-stripes) 0 0 / 28px 28px repeat fixed;
 		position: sticky;
 		top: 0;
 		z-index: 30;
@@ -335,15 +335,33 @@
 	}
 
 	/* A short piece of the same ribbon along the tab's top edge. It was a
-	   plain gold line until 2026-11-13. The stripes are fixed to the window,
-	   so they stand in line with the ribbon's under the bar. */
+	   plain gold line until 2026-11-13. Its stripes are its own, not fixed to
+	   the window: fixed, the piece was cut wherever the tab happened to stand
+	   and could end in a sliver of yellow.
+
+	   It holds whole stripes only. A stripe is 14px of the ribbon's length,
+	   so the piece is as many 14px as fit over the tab's word, centred, and
+	   its ends are cut on the stripes' own slant: a square end would cut the
+	   corner off the next stripe. (Where `round()` is not known the piece is
+	   as wide as the word and may end part-way through a stripe. Stretching
+	   the stripes to fit with `background-repeat: round` was tried and left
+	   seams: the browser draws them again at the new size.) */
 	nav a[aria-current='page']::after {
+		--h: var(--ribbon-height);
 		content: '';
 		position: absolute;
-		inset: -1px 0.7rem auto;
-		height: var(--ribbon-height);
-		border-radius: 2px;
-		background: var(--ribbon);
+		top: -1px;
+		left: 50%;
+		width: calc(100% - 1.4rem);
+		width: calc(round(down, 100% - 1.4rem - var(--h), 14px) + var(--h));
+		height: var(--h);
+		translate: -50% 0;
+		background:
+			var(--ribbon-shade) 0 0 / 100% 100% no-repeat,
+			var(--ribbon-stripes) var(--h) 0 / 28px 28px repeat;
+		/* The right end stops 0.75px short: a stripe's last quarter pixel
+		   shades into the next colour, and showed as a hairline of it */
+		clip-path: polygon(var(--h) 0, calc(100% - 0.75px) 0, calc(100% - var(--h) - 0.75px) 100%, 0 100%);
 	}
 
 	@media (hover: hover) {

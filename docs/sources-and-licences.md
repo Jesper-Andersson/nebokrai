@@ -23,7 +23,10 @@ the page history.
 **Audio recordings** are hosted by
 [Wikimedia Commons](https://commons.wikimedia.org/). Each recording has its own
 author and licence, shown on its Commons page, which is linked next to the
-play button.
+play button. The letters on the alphabet page are read by
+[Tabrus](https://commons.wikimedia.org/wiki/Category:Ukrainian_pronunciation_of_letters_by_a_young_male_uploaded_by_Tabrus),
+under the
+[Creative Commons Attribution-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/).
 
 **Example sentences** come from [Tatoeba](https://tatoeba.org/) and are
 available under the
@@ -105,6 +108,7 @@ for everyone.
 |---|---|---|---|
 | Wiktionary | CC BY-SA 4.0 | Credit, link to the licence, say if changed, share derived data under the same licence | Sources page; a "Wiktionary" link on each word page |
 | Wikimedia Commons audio | per file, mostly CC BY-SA or public domain | Credit the author of each file | Link to the file's Commons page beside the play button |
+| The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence | The line under the letters on `/alphabet`; each letter's Commons page beside its play button. List: `src/lib/alphabet/recordings.ts`, made by `data/letter_recordings.py`; played from Commons, unaltered |
 | Tatoeba | CC BY 2.0 FR | Credit the author of each sentence | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored) |
 | FrequencyWords | CC BY-SA 4.0 | Credit; share-alike | Sources page |
 | VESUM | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; kept in its own database |

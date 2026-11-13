@@ -3,7 +3,7 @@
 // each letter. No Svelte, no browser and no clock: chance comes in as a
 // function, so `npm test` runs this file with chance it chose, and a timed
 // game can later be built on the same rules.
-import { misreading, reading } from './answers.ts';
+import { checkLetter, checkWord, checkWritten, misreading, reading } from './answers.ts';
 import { GROUP_IDS, type GroupId, LETTERS, isSign, letterInfo, lettersOf } from './letters.ts';
 
 /** A number from 0 up to, not including, 1: Math.random, or a test's own. */
@@ -319,4 +319,11 @@ export function choices(prompt: Prompt, direction: Options['direction'], pool: P
 /** A sign cannot be typed as Latin, so it is always answered by choosing. */
 export function byChoice(prompt: Prompt, options: Options): boolean {
 	return options.answer === 'choice' || (prompt.kind === 'letter' && isSign(prompt.item));
+}
+
+/** Whether `given` answers the prompt: the choice pressed, or what was typed. */
+export function isRight(prompt: Prompt, options: Options, given: string): boolean {
+	if (byChoice(prompt, options)) return given === answerOf(prompt);
+	if (prompt.kind === 'word') return checkWord(prompt.item, given);
+	return options.direction === 'read' ? checkLetter(prompt.item, given) : checkWritten(prompt.item, given);
 }

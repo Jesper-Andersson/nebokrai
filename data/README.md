@@ -201,6 +201,17 @@ million a month; the free plan's 100,000 a day cannot load either.
 To try a dump without touching the account, use `--local` in place of
 `--remote`; the data then goes into `.wrangler/` in the repo.
 
+## Recordings of the letters
+
+    python3 data/letter_recordings.py src/lib/alphabet/recordings.ts
+
+The alphabet page (`/alphabet`) plays a recording of each letter from Wikimedia
+Commons: 32 files by one speaker (Tabrus, 2023, CC BY-SA 4.0), every letter but
+ь. The script asks the Commons API for the files of their category and writes
+the mp3 address of each into a TypeScript module; it downloads no audio and
+needs no database. It stops if a file has another author or licence, since the
+page credits them all in one line. Run it again only if the category changes.
+
 ## Known gaps
 
 - 1,030 nouns, verbs and adjectives have no inflection table.

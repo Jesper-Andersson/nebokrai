@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import { checkLetter, checkWord, checkWritten, misreading, reading, wordPattern } from '../src/lib/alphabet/answers.ts';
 import {
 	DEFAULT_OPTIONS, MIN_WORDS, ROUND, type Options, type Prompt, type Random,
-	answerOf, byChoice, choices, finished, grade, knownAmong, newRound, next, parseOptions, parseProgress, poolFor,
+	answerOf, byChoice, choices, finished, grade, isRight, knownAmong, newRound, next, parseOptions, parseProgress, poolFor,
 	readable, stateOf
 } from '../src/lib/alphabet/drill.ts';
 import { APOSTROPHE, GROUP_IDS, LETTERS, isSign, letterInfo, lettersOf, pair } from '../src/lib/alphabet/letters.ts';
@@ -123,6 +123,19 @@ test('what the choices come to', () => {
 		{ letters: [...'аеікмот'], words: [] });
 	assert.ok(byChoice(letter('ж'), ALL) && !byChoice(letter('ж'), { ...ALL, answer: 'type' }));
 	assert.ok(byChoice(letter('ь'), { ...ALL, answer: 'type' }) && !byChoice(word('день'), { ...ALL, answer: 'type' }));
+});
+
+test('an answer is judged by how it was given', () => {
+	const typing: Options = { ...ALL, answer: 'type' };
+	// A choice is the letter itself, or the word's reading
+	assert.ok(isRight(letter('ж'), ALL, 'ж') && !isRight(letter('ж'), ALL, 'zh') && !isRight(letter('ж'), ALL, 'ш'));
+	assert.ok(isRight(word('вода'), ALL, 'voda') && !isRight(word('вода'), ALL, 'boda'));
+	// Typed: Latin for what is read, the letter for what is written
+	assert.ok(isRight(letter('ж'), typing, 'ZH') && !isRight(letter('ж'), typing, 'ж'));
+	assert.ok(isRight(letter('ж'), { ...typing, direction: 'write' }, 'Ж') && !isRight(letter('ж'), { ...typing, direction: 'write' }, 'zh'));
+	assert.ok(isRight(word('щастя'), typing, 'schastya') && !isRight(word('щастя'), typing, 'shastya'));
+	// A sign is chosen even where the rest is typed
+	assert.ok(isRight(letter('ь'), typing, 'ь') && !isRight(letter('ь'), typing, "'"));
 });
 
 test('four answers are offered, the right one among them, no two alike', () => {

@@ -24,7 +24,7 @@
 	import Term from '#lib/Term.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { POINTS, POINT_CASES, cardKey, pointOf, type Point } from '#lib/practice/points.ts';
+	import { POINTS, POINT_CASES, cardKey, isNumber, pointOf, type Point } from '#lib/practice/points.ts';
 	import { gradePoint, planRound, planWeak, stateOf, type Gap, type Outcome } from '#lib/practice/round.ts';
 	import type { ReviewCard } from '#lib/review/fsrs.ts';
 	import { useReview } from '#lib/review.svelte.ts';
@@ -207,13 +207,18 @@
 		<section class="ui-card rules">
 			<h2 class="ui-label">{m.practice.rules}</h2>
 			<p class="muted">{m.practice.map}</p>
-			{#each POINT_CASES as kase (kase)}
-				{@const points = offered.filter((point) => point.case === kase)}
+			<!-- The prepositions under their cases, then the numbers -->
+			{#each [...POINT_CASES, null] as kase (kase)}
+				{@const points = offered.filter((point) => (kase ? !isNumber(point) && point.case === kase : isNumber(point)))}
 				{#if points.length}
 					<div class="case">
 						<h3>
-							<Term id={kase}>{m.grammar.terms[kase].name}</Term>
-							{#if HINTS[kase]}<span class="question" lang="uk">{HINTS[kase]}</span>{/if}
+							{#if kase}
+								<Term id={kase}>{m.grammar.terms[kase].name}</Term>
+								{#if HINTS[kase]}<span class="question" lang="uk">{HINTS[kase]}</span>{/if}
+							{:else}
+								{m.practice.numbers}
+							{/if}
 						</h3>
 						<ul>
 							{#each points as point (point.id)}
@@ -227,7 +232,7 @@
 										disabled={!review.ready || stage === 'loading'}
 										onclick={() => start(point.id)}
 									>
-										<b lang="uk">{point.preposition}</b>
+										<b lang="uk">{point.cue}</b>
 										<span class="meaning">{m.practice.meaning[point.id]}</span>
 										<span class="state">
 											<!-- Three steps, filled as the rule is held: none new, one shaky, two learning, three known -->
@@ -261,10 +266,11 @@
 					{#each missed as [point, sentences] (point.id)}
 						<li>
 							<p class="takes">
-								<b lang="uk">{point.preposition}</b> + <Term id={point.case} />
+								<b lang="uk">{point.cue}</b> + <Term id={point.case} />
+								{#if point.number}{m.practice.ofNumber[point.number]}{/if}
 								{#if HINTS[point.case]}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
 							</p>
-							{#each sentences as g (g.tatoeba_id + ':' + g.start)}
+							{#each sentences as g (g.tatoeba_id + ':' + g.start + ':' + g.uk)}
 								<p class="pair">
 									<Headword text={g.headword} size="sm" href={wordPath(g.word)} />
 									<Icon name="arrow-right" size={16} />

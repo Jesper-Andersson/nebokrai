@@ -392,25 +392,38 @@
 	{#if !started}
 		<p class="lead">{m.review.lead}</p>
 
-		<section class="ui-card today" aria-busy={!ready}>
-			<dl>
-				<div><dt>{m.review.learning}</dt><dd>{ready ? today.learning.length : '–'}</dd></div>
-				<div><dt>{m.review.due}</dt><dd>{ready ? today.due.length : '–'}</dd></div>
-				<div><dt>{m.review.fresh}</dt><dd>{ready ? today.fresh.length : '–'}</dd></div>
-			</dl>
-			<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
-				{m.review.start}
-			</button>
-			{#if only}
-				<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
-			{/if}
-			{#if ready && !left}
-				<p class="muted">
-					{words.length ? m.review.nothingToday : m.review.noWords}
-					{#if words.length && nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
-				</p>
-			{/if}
-		</section>
+		{#if ready && !words.length}
+			<!-- No deck has a word in it: three noughts over a Start that cannot be
+			     pressed say nothing, so the way to begin is said in their place.
+			     The decks to switch on are the next thing down the page. -->
+			<section class="ui-card today begin">
+				<Icon name="cards" size={28} />
+				<p>{m.review.noWords}</p>
+				{#if only}
+					<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
+				{/if}
+			</section>
+		{:else}
+			<section class="ui-card today" aria-busy={!ready}>
+				<dl>
+					<div><dt>{m.review.learning}</dt><dd>{ready ? today.learning.length : '–'}</dd></div>
+					<div><dt>{m.review.due}</dt><dd>{ready ? today.due.length : '–'}</dd></div>
+					<div><dt>{m.review.fresh}</dt><dd>{ready ? today.fresh.length : '–'}</dd></div>
+				</dl>
+				<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
+					{m.review.start}
+				</button>
+				{#if only}
+					<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
+				{/if}
+				{#if ready && !left}
+					<p class="muted">
+						{m.review.nothingToday}
+						{#if nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
+					</p>
+				{/if}
+			</section>
+		{/if}
 
 		<section class="ui-card options">
 			<h2 class="ui-label">{m.review.decks}</h2>
@@ -440,7 +453,7 @@
 				{/each}
 			</ul>
 			<!-- Not built yet: shown so that the way it will go is visible -->
-			<button type="button" class="ui-btn planned" disabled>
+			<button type="button" class="ui-btn ui-btn-planned planned" disabled>
 				{m.review.planned.deck} <span>{m.review.planned.note}</span>
 			</button>
 
@@ -459,7 +472,9 @@
 			<p class="muted">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 		</section>
 
-		{#if ready}
+		<!-- The calendar comes with the first review: before it, every count on
+		     it is nought and every square empty -->
+		{#if ready && (Object.keys(review.days).length || Object.keys(forecast).length)}
 			<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
 		{/if}
 	{:else if current && info}
@@ -619,6 +634,22 @@
 		text-align: center;
 	}
 
+	/* Before there is a word to review: a dashed sheet, as the Saved page has
+	   before there is a word saved */
+	.begin {
+		padding-block: 2rem;
+		border-style: dashed;
+		box-shadow: none;
+		color: var(--muted);
+	}
+
+	.begin p:not(.muted) {
+		max-width: 26rem;
+		color: var(--ink-2);
+		font-size: var(--text-lg);
+		text-wrap: balance;
+	}
+
 	dl {
 		display: flex;
 		gap: 2rem;
@@ -757,12 +788,16 @@
 		}
 	}
 
+	/* The headword takes its size from this box's width (Headword.svelte), and
+	   the play button goes under a word that needs the whole line */
 	.front {
 		display: flex;
+		flex-wrap: wrap;
 		justify-content: center;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.25rem 0.5rem;
 		text-align: center;
+		container-type: inline-size;
 	}
 
 	/* The answer sits under the word, centred like it */
@@ -838,7 +873,6 @@
 
 	.when {
 		font-size: var(--text-sm);
-		font-variant-numeric: tabular-nums;
 		opacity: 0.8;
 	}
 

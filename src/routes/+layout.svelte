@@ -93,22 +93,25 @@
 </svelte:head>
 
 <Tooltip.Provider delayDuration={350}>
-	<div class="frame" class:with-radio={settings.radio === 'on'}>
+	<div class="frame">
 		<Header />
 
 		<main>
 			{@render children()}
 		</main>
 
+		<!-- Only for those who switched it on in the settings. It stands here,
+		     between the page and the footer, because that is where its button
+		     comes to rest at the end of a page: over the page's last line, never
+		     over or under the footer (RadioPlayer.svelte). It takes no room. -->
+		{#if settings.radio === 'on'}
+			<RadioPlayer />
+		{/if}
+
 		<Footer />
 	</div>
 
 	<Toasts />
-
-	<!-- Only for those who switched it on in the settings -->
-	{#if settings.radio === 'on'}
-		<RadioPlayer />
-	{/if}
 
 	{#if TextEditor}<TextEditor />{/if}
 </Tooltip.Provider>
@@ -119,19 +122,6 @@
 		flex: 1;
 		flex-direction: column;
 		min-height: 100dvh;
-	}
-
-	/* The radio's button floats over the bottom right corner. Where the
-	   window is too narrow for the button to stand beside the footer's
-	   links (under 78rem: at 80rem, 1280px, there is 8px between them), the
-	   page ends a little lower, so that scrolled to its end the footer is
-	   clear of the button. The room is taken out of the frame's height,
-	   not added to it: a page that fitted the window still does. */
-	@media (max-width: 78rem) {
-		.frame.with-radio {
-			box-sizing: border-box;
-			padding-bottom: 4.5rem;
-		}
 	}
 
 	/* No side padding here: the search page's coloured band reaches both

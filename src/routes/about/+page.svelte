@@ -83,7 +83,7 @@
 
 		<h2>Про мене</h2>
 		<p>
-			Nebokrai створив я Jesper Andersson як некомерційний проєкт. Я вивчаю українську з 2022 року і
+			Nebokrai створив я, Jesper Andersson, як некомерційний проєкт. Я вивчаю українську з 2022 року і
 			створив цей сайт, бо вважав, що українська заслуговує на зручний сайт, де можна шукати слова й
 			дивитися відмінювання!
 		</p>
@@ -194,7 +194,7 @@
 
 		<h2>About me</h2>
 		<p>
-			Nebokrai is made by me Jesper Andersson as a non-commerical project. I have been learning Ukrainian since 2022 and created this site because I felt Ukrainian deserves a user-friendly site to look up words and declenasion!
+			Nebokrai is made by me, Jesper Andersson, as a non-commercial project. I have been learning Ukrainian since 2022 and created this site because I felt Ukrainian deserves a user-friendly site to look up words and declension!
 		</p>
 		<GitHubCard profile={data.github} />
 

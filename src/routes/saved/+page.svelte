@@ -440,7 +440,7 @@
 				</DropdownMenu.Portal>
 			</DropdownMenu.Root>
 			<!-- Not built yet: shown so that the way it will go is visible -->
-			<button type="button" class="ui-btn" disabled>
+			<button type="button" class="ui-btn ui-btn-planned" disabled>
 				{m.review.planned.list} <span class="planned">{m.review.planned.note}</span>
 			</button>
 			<!-- From a list, the review is of that list alone -->

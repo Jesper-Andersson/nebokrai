@@ -4,7 +4,7 @@
      "more" link lands on its word here: the address is /grammar#genitive.
 
      It is a reference to look one word up in, not a text to read through, so
-     it is cut into sheets: the first lists the eight groups as tiles, and each
+     it is cut into sheets: the first lists the eight groups as contents, and each
      group then has a sheet of its own, with the word on the left and what it
      means on the right, as a glossary is set. -->
 <script lang="ts">
@@ -18,7 +18,7 @@
 
 	const groups = Object.keys(GROUPS) as Group[];
 
-	// "noun, verb, adjective…": what a tile says is in its group
+	// "noun, verb, adjective…": what a line of the contents says is in its group
 	let preview = $derived((group: Group) =>
 		GROUPS[group].map((id) => m.grammar.terms[id].name.toLocaleLowerCase(settings.lang)).join(', '));
 </script>
@@ -125,7 +125,7 @@
 		color: var(--muted);
 	}
 
-	/* A group's number: in the tiles and at the head of its sheet, so the eye
+	/* A group's number: in the contents and at the head of its sheet, so the eye
 	   can find "5" again after following the link */
 	.n {
 		font-family: var(--font-heading);
@@ -133,29 +133,30 @@
 		line-height: 1;
 	}
 
-	/* The eight groups as tiles: four in a row, two on a phone */
+	/* The eight groups as a table of contents, set as a book sets one: the
+	   number, the name, how many words, and under the name what they are. Two
+	   columns, read down the first and then the second (1 to 4, 5 to 8); one on
+	   a phone. A line under each, as the lists of words have. */
 	nav {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(10.25rem, 1fr));
-		gap: 0.6rem;
+		grid-template-rows: repeat(4, auto);
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
+		column-gap: 2rem;
 		margin-top: 1.25rem;
+		border-top: 1px solid var(--border);
 	}
 
 	nav a {
-		position: relative;
 		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-columns: 1.4rem minmax(0, 1fr) auto;
 		grid-template-areas:
-			'n name'
-			'words words'
-			'count count';
+			'n name count'
+			'. words words';
 		align-items: baseline;
-		gap: 0.3rem 0.5rem;
-		padding: 0.75rem 0.85rem 0.7rem;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
-		background: var(--surface);
-		transition: border-color var(--duration);
+		gap: 0.1rem 0.5rem;
+		padding: 0.6rem 0 0.65rem;
+		border-bottom: 1px solid var(--border);
 	}
 
 	nav .n {
@@ -169,53 +170,27 @@
 		line-height: 1.25;
 	}
 
-	/* What is inside, cut off after two lines */
+	/* What is inside, on one line and cut off at its end */
 	.words {
 		grid-area: words;
-		display: -webkit-box;
 		overflow: hidden;
 		color: var(--muted);
 		font-size: var(--text-sm);
 		line-height: 1.35;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		line-clamp: 2;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.count {
 		grid-area: count;
-		align-self: end;
 		color: var(--muted);
-		font-size: var(--text-xs);
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-	}
-
-	/* The gold line of the header's current page, on the tile under the pointer */
-	nav a::before {
-		content: '';
-		position: absolute;
-		inset: -1px 0.85rem auto;
-		height: 2px;
-		border-radius: 2px;
-		background: var(--gold);
-		opacity: 0;
-		transition: opacity var(--duration);
+		font-size: var(--text-sm);
 	}
 
 	@media (hover: hover) {
-		nav a:hover {
-			border-color: var(--border-strong);
+		nav a:hover b {
+			color: var(--accent);
 		}
-
-		nav a:hover::before {
-			opacity: 1;
-		}
-	}
-
-	nav a:focus-visible::before {
-		opacity: 1;
 	}
 
 	/* The head of a group's sheet: its number in a ring, its name, the way back */
@@ -388,7 +363,7 @@
 		}
 	}
 
-	/* Phones: two tiles in a row, and the meaning under its word */
+	/* Phones: the contents in one column, and the meaning under its word */
 	@media (max-width: 600px) {
 		.guide {
 			margin-top: 1rem;
@@ -399,7 +374,8 @@
 		}
 
 		nav {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-rows: none;
+			grid-auto-flow: row;
 		}
 
 		dl div {

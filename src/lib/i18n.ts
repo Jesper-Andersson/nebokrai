@@ -194,6 +194,7 @@ const en = {
 		kinds: { talk: 'Talk', music: 'Music' },
 		site: 'The station’s site',
 		minimise: 'Minimise',
+		move: 'Drag to move the radio',
 		hide: 'Hide the radio',
 		hidden: 'Radio hidden. The settings bring it back.'
 	},
@@ -497,7 +498,9 @@ const en = {
 			'common-1000': 'Common words 501–1,000',
 			'common-2000': 'Common words 1,001–2,000'
 		} as Record<string, string>,
-		progress: (started: number, total: number) => `${started} of ${total} started`,
+		// 1,000 as the deck's name writes it ("Common words 1,001–2,000")
+		progress: (started: number, total: number) =>
+			`${started.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} started`,
 		inSaved: 'Included in Saved words',
 		onlyList: (name: string) => `Only the list “${name}”.`,
 		allDecks: 'Practise all your decks',
@@ -928,6 +931,7 @@ const uk: Messages = {
 		kinds: { talk: 'Розмовні', music: 'Музичні' },
 		site: 'Сайт станції',
 		minimise: 'Згорнути',
+		move: 'Перетягніть, щоб пересунути радіо',
 		hide: 'Сховати радіо',
 		hidden: 'Радіо сховано. Повернути його можна в налаштуваннях.'
 	},

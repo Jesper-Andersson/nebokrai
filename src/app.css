@@ -91,7 +91,14 @@
 	line-gap-override: 29%;
 }
 
-/* Font roles. Components use these, never a family name. */
+/* Font roles. Components use these, never a family name.
+
+   Text in Fixel does not ask for `font-variant-numeric: tabular-nums`. Fixel's
+   tabular nought is drawn with a slash through it and the font has no switch
+   for a plain one, so "0 days" and "10 min" came out with a programmer's
+   nought beside the plain ones of "0 of 500 started". Its ordinary figures
+   differ little in width; the serif's tabular figures are plain and are used
+   for the counts on the flashcards page. */
 :root {
 	--font-text: 'Fixel Text', system-ui, sans-serif;
 	/* Page titles */
@@ -560,7 +567,6 @@ select {
 	left: 0;
 	color: var(--ink);
 	font-weight: 700;
-	font-variant-numeric: tabular-nums;
 }
 
 .ui-senses.inline {
@@ -649,6 +655,18 @@ select {
 .ui-btn:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+}
+
+/* Something not built yet, shown so that the way it will go is visible
+   (importing a deck). A greyed button reads as one that is broken or waiting
+   on something the visitor has not done; a dashed outline is how the site
+   draws what is not there yet, as on the empty Saved page. */
+.ui-btn.ui-btn-planned:disabled {
+	border-style: dashed;
+	background: none;
+	color: var(--muted);
+	opacity: 1;
+	cursor: default;
 }
 
 /* The one thing a form is for: Send */
@@ -893,7 +911,6 @@ select {
 	margin-left: auto;
 	padding-left: 1rem;
 	color: var(--muted);
-	font-variant-numeric: tabular-nums;
 }
 
 /* A second, quieter line under a choice: what it needs before it will work */

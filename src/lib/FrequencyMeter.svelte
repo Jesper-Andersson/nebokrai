@@ -40,7 +40,6 @@
 		color: var(--muted);
 		font-size: var(--text-xs);
 		font-weight: 600;
-		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
 	}
 

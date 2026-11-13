@@ -318,7 +318,6 @@
 
 	.entries .n {
 		font-weight: 700;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.entries .gloss {
@@ -347,10 +346,16 @@
 		text-decoration: underline;
 	}
 
+	/* The word and its buttons on one line. A long word on a phone has the
+	   line to itself and the buttons go under it: beside them it was left a
+	   third of the line and broke in three (кавале / рійськи / й). The
+	   headword takes its size from this box's width (Headword.svelte). */
 	.title {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 0.25rem 0.5rem;
+		container-type: inline-size;
 	}
 
 	.grammar {

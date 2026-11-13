@@ -212,7 +212,6 @@
 		margin: 0;
 		font-size: var(--text-lg);
 		font-weight: 700;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.scroll {

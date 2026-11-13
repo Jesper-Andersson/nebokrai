@@ -151,12 +151,57 @@ export async function commonRange(db: Db, from: number, to: number): Promise<str
 	return (await commonSpellings(db, to)).slice(from - 1).map((spelling) => spelling.word);
 }
 
+/** A meaning longer than this loses the explanation in brackets at its end. */
+const LIST_GLOSS = 60;
+
+/**
+ * A meaning as one line of the list of common words.
+ *
+ * Wiktionary writes a sense for the word's own page, where there is room for
+ * what case a preposition asks for and how its use differs from its
+ * neighbour's. In a list of a hundred words a line that only names the word
+ * in English reads better, and the word's page still has the rest:
+ *
+ *   "in, at [with locative] (used to express static position/location;
+ *   followed by a vowel)" is "in, at" (в),
+ *   "[with accusative]; onto (movement that reaches the top…)" is "onto" (на),
+ *   "for (2)" is "for" (для) and "one (1)" is "one" (один).
+ *
+ * A short note in brackets stays: "you (singular); thou", "not (used to
+ * negate verbs)". Empty when the sense is a note and nothing else
+ * ("[with genitive]").
+ */
+export function listGloss(gloss: string): string {
+	let text = gloss
+		// The case the word asks for
+		.replace(/\s*\[[^\]]*\]/g, '')
+		// What stood between that note and the meaning: "; onto"
+		.replace(/^[;,\s]+/, '')
+		// The number of a sense on another page, or a numeral said again in figures
+		.replace(/\s*\(\d+\)$/, '')
+		.trim();
+	if (text.length > LIST_GLOSS) {
+		// Brackets within the brackets, one deep: "(to say (something) in confidence)"
+		const short = text.replace(/\s*\((?:[^()]|\([^()]*\))*\)$/, '');
+		if (short) text = short;
+	}
+	return text;
+}
+
 export async function commonWords(db: Db): Promise<CommonWord[]> {
 	const list = await commonSpellings(db, COMMON_WORDS);
-	// One parameter however many ids: D1 allows a query a hundred of them
-	const glosses = await db.all<{ entry_id: number; gloss: string }>(
-		'SELECT entry_id, gloss FROM senses WHERE n = 1 AND entry_id IN (SELECT value FROM json_each(?))',
+	// Every sense, not the first alone: where the first is only a note on
+	// grammar, the next one is the meaning. One parameter however many ids:
+	// D1 allows a query a hundred of them.
+	const senses = await db.all<{ entry_id: number; gloss: string }>(
+		'SELECT entry_id, gloss FROM senses WHERE entry_id IN (SELECT value FROM json_each(?)) ORDER BY entry_id, n',
 		[JSON.stringify(list.map((spelling) => spelling.id))]);
-	const glossOf = new Map(glosses.map((row) => [row.entry_id, row.gloss]));
-	return list.map(({ id, word, headword, pos }) => ({ word, headword, pos, gloss: glossOf.get(id) ?? '' }));
+	const glossOf = new Map<number, string>();
+	const first = new Map<number, string>();
+	for (const { entry_id, gloss } of senses) {
+		if (!first.has(entry_id)) first.set(entry_id, gloss);
+		if (!glossOf.has(entry_id) && listGloss(gloss)) glossOf.set(entry_id, listGloss(gloss));
+	}
+	return list.map(({ id, word, headword, pos }) => (
+		{ word, headword, pos, gloss: glossOf.get(id) ?? first.get(id) ?? '' }));
 }

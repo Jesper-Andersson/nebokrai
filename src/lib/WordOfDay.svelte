@@ -64,14 +64,22 @@
 </section>
 
 <style>
+	/* Close under the search box, which is 1rem above (the hero's margin, in
+	   the search page) */
 	section {
-		margin-top: 2rem;
+		margin-top: 0.5rem;
 	}
 
 	/* The label stands straight on the page, over a photo too */
 	h2 {
-		margin-bottom: 0.6rem;
+		margin-bottom: 0.5rem;
 		color: var(--on-page);
+	}
+
+	/* No rule running from it to the edge: inside an entry the rule divides one
+	   part from the next, and here there is nothing on the line to divide */
+	h2::after {
+		content: none;
 	}
 
 	article {
@@ -160,6 +168,15 @@
 	@media (max-width: 600px) {
 		article {
 			padding: 0.9rem 1rem;
+		}
+	}
+
+	/* A low desktop window (a 768px laptop screen leaves the page some 650px):
+	   the search page is kept from scrolling (+page.svelte), and the example
+	   sentence is what the card can best do without. The word's page has it. */
+	@media (min-width: 701px) and (max-height: 690px) {
+		.example {
+			display: none;
 		}
 	}
 </style>

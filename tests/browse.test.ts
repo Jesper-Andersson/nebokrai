@@ -7,7 +7,7 @@ import { test } from 'node:test';
 
 import {
 	ALPHABET, COMMON_WORDS, OTHER, WORDS_PER_PAGE,
-	commonPath, commonWords, guideWords, letterOf, letterPath, sortWords, wordsUnder
+	commonPath, commonWords, guideWords, letterOf, letterPath, listGloss, sortWords, wordsUnder
 } from '../src/lib/browse.ts';
 import { openLocal } from './local-db.ts';
 
@@ -82,6 +82,27 @@ test('every word in the dictionary is under exactly one letter', { skip }, async
 	assert.ok(p.includes('Польща') && p.includes("п'ять"));
 	assert.ok((await wordsUnder(db, 'с')).includes('-ський'));
 	assert.ok((await wordsUnder(db, OTHER)).includes('QR-код'));
+});
+
+test('a meaning is cut to one line for the list of common words', () => {
+	// The case a preposition asks for, and the long explanation after it
+	assert.equal(
+		listGloss('in, at [with locative] (used to express static position/location; followed by a vowel)'), 'in, at');
+	assert.equal(
+		listGloss("[with accusative]; onto (movement that reaches the top of an object or place, e.g., 'Land on')"), 'onto');
+	// A number in brackets at the end
+	assert.equal(listGloss('for (2)'), 'for');
+	assert.equal(listGloss('ten (10)'), 'ten');
+	// A short note stays, brackets within brackets too
+	assert.equal(listGloss('not (used to negate verbs)'), 'not (used to negate verbs)');
+	assert.equal(
+		listGloss('to confide [with dative ‘to (someone)’] (to say (something) in confidence)'),
+		'to confide (to say (something) in confidence)');
+	// A long meaning with no brackets to lose is left whole
+	const long = 'used to indicate a physical object on which an action is taking place, or a space';
+	assert.equal(listGloss(`[with locative]; ${long}`), long);
+	// Nothing but a note: the caller takes the next sense
+	assert.equal(listGloss('[with genitive]'), '');
 });
 
 test('the commonest words, each spelling once', { skip }, async () => {

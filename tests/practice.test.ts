@@ -9,7 +9,7 @@ import test from 'node:test';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
 import { POINTS, cardKey, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
-import { ROUND, checkAnswer, gradePoint, planRound, ratingOf, split, stateOf, type Gap } from '../src/lib/practice/round.ts';
+import { ROUND, checkAnswer, gradePoint, planRound, planWeak, ratingOf, split, stateOf, type Gap } from '../src/lib/practice/round.ts';
 import { AGAIN, DAY, GOOD, HARD, LEARNING, REVIEW, answer, newCard, type ReviewCard } from '../src/lib/review/fsrs.ts';
 import { plain } from '../src/lib/search/normalize.ts';
 import { openLocal } from './local-db.ts';
@@ -159,11 +159,52 @@ test('a point kept among the flashcards is told from a word, and takes no new wo
 });
 
 test('a point is new, then learning, then known once it holds three weeks', () => {
-	assert.equal(stateOf(undefined), 'new');
+	assert.equal(stateOf(undefined, NOW), 'new');
 	const card = gradePoint('bez-gen', undefined, ['right'], NOW);
-	assert.equal(stateOf(card), 'learning');
-	assert.equal(stateOf({ ...card, state: REVIEW, stability: 5 }), 'learning');
-	assert.equal(stateOf({ ...card, state: REVIEW, stability: 30 }), 'known');
+	assert.equal(stateOf(card, NOW), 'learning');
+	assert.equal(stateOf({ ...card, state: REVIEW, stability: 5 }, NOW), 'learning');
+	assert.equal(stateOf({ ...card, state: REVIEW, stability: 30 }, NOW), 'known');
+});
+
+test('a point is shaky after a miss or help, and when left long past its day', () => {
+	// A first round with a miss, or with the case shown, and one got right unaided
+	assert.equal(stateOf(gradePoint('bez-gen', undefined, ['right', 'missed'], NOW), NOW), 'weak');
+	assert.equal(stateOf(gradePoint('bez-gen', undefined, ['helped'], NOW), NOW), 'weak');
+	assert.equal(stateOf(gradePoint('bez-gen', undefined, ['right', 'right'], NOW), NOW), 'learning');
+	// A point under review that is missed, and the same point got right in its next round
+	const held = reviewed(['bez-gen'], 0).get(cardKey('bez-gen'))!;
+	const lapsed = gradePoint('bez-gen', held, ['missed'], NOW);
+	assert.equal(stateOf(lapsed, NOW), 'weak');
+	assert.notEqual(stateOf(gradePoint('bez-gen', lapsed, ['right'], NOW), NOW), 'weak');
+	// Left alone, a point slips: on its day it is still held, long after it is not
+	assert.equal(stateOf(held, held.due), 'learning');
+	assert.equal(stateOf(held, NOW + 400 * DAY), 'weak');
+	assert.equal(stateOf({ ...held, stability: 30 }, NOW + 400 * DAY), 'weak');
+});
+
+test('a round of weak spots is the shaky points, filled up to a mix from the least held', () => {
+	assert.deepEqual(planWeak(ids, new Map(), NOW, seeded()), []);
+
+	// Six met and held, two of them missed today: those two and the least held of the rest
+	const cards = reviewed(ids.slice(0, 6), 2);
+	for (const id of ['na-loc', 'do-gen']) {
+		const card = gradePoint(id, cards.get(cardKey(id)), ['missed'], NOW);
+		cards.set(card.word, card);
+	}
+	const round = planWeak(ids, cards, NOW, seeded());
+	assert.equal(round.length, ROUND);
+	const asked = [...new Set(round)];
+	assert.equal(asked.length, 3);
+	assert.ok(asked.includes('na-loc') && asked.includes('do-gen'));
+	assert.ok(asked.every((id) => cards.has(cardKey(id))), 'nothing new is brought in');
+	for (let i = 1; i < round.length; i++) assert.notEqual(round[i], round[i - 1]);
+
+	// Many shaky ones: four at most, so each is asked more than twice
+	const slipped = reviewed(ids.slice(0, 8), 400);
+	assert.equal(new Set(planWeak(ids, slipped, NOW, seeded())).size, 4);
+
+	// One point met: the round is that point
+	assert.deepEqual(planWeak(ids, reviewed(['bez-gen'], 0), NOW, seeded()), Array(ROUND).fill('bez-gen'));
 });
 
 // --- The sentences ---

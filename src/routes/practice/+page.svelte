@@ -8,7 +8,12 @@
      Each rule is scheduled as a flashcard is (FSRS, src/lib/review/fsrs.ts)
      and kept with the flashcards (review.svelte.ts), so an account holds it
      and a sentence answered counts towards the day's reviews and the streak.
-     A round is one review of each of its rules. -->
+     A round is one review of each of its rules.
+
+     Before a round the rules are laid out as a map: a tile for each, under
+     its case, marked by how well it is held (stateOf in round.ts). A tile
+     starts a round of its rule alone, and "Weak spots" a round of the rules
+     held least well. -->
 <script lang="ts">
 	import { RadioGroup } from 'bits-ui';
 	import { onMount } from 'svelte';
@@ -20,7 +25,7 @@
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { POINTS, POINT_CASES, cardKey, pointOf, type Point } from '#lib/practice/points.ts';
-	import { gradePoint, planRound, stateOf, type Gap, type Outcome } from '#lib/practice/round.ts';
+	import { gradePoint, planRound, planWeak, stateOf, type Gap, type Outcome } from '#lib/practice/round.ts';
 	import type { ReviewCard } from '#lib/review/fsrs.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -36,6 +41,8 @@
 	/** The rules that have sentences, in the order they are best met. */
 	let offered = $derived(POINTS.filter((point) => data.sentences[point.id]));
 	let met = $derived(offered.filter((point) => review.cards.has(cardKey(point.id))).length);
+	/** When the map was last drawn: how well a rule is held depends on the day. */
+	let now = $state(Date.now());
 
 	// How to answer is this browser's to remember, as the alphabet trainer's choices are
 	const ANSWER_KEY = 'practice-answer';
@@ -62,7 +69,9 @@
 	// --- A round ---
 
 	let stage = $state<'setup' | 'loading' | 'failed' | 'round' | 'summary'>('setup');
-	/** The rule a round was asked for alone, to ask for it again. */
+	/** A round of the rules held least well, where `only` would name one rule: no rule is named so. */
+	const WEAK = 'weak';
+	/** The rule a round was asked for alone, or WEAK, to ask for the same again. */
 	let only = $state<string | undefined>();
 	let gaps = $state.raw<Gap[]>([]);
 	let outcomes = $state.raw<Outcome[]>([]);
@@ -77,7 +86,10 @@
 
 	async function start(point?: string) {
 		only = point;
-		const plan = planRound(offered.map((p) => p.id), review.cards, Date.now(), Math.random, point);
+		const ids = offered.map((p) => p.id);
+		const plan = point === WEAK
+			? planWeak(ids, review.cards, Date.now(), Math.random)
+			: planRound(ids, review.cards, Date.now(), Math.random, point);
 		if (!plan.length) return;
 		stage = 'loading';
 		const mine = ++asked;
@@ -101,6 +113,7 @@
 		asked += 1;
 		stage = 'setup';
 		result = null;
+		now = Date.now();
 	}
 
 	function answer(outcome: Outcome, given: string) {
@@ -169,6 +182,17 @@
 				{:else if review.ready}
 					<span class="muted">{m.practice.met(met, offered.length)}</span>
 				{/if}
+				{#if met && stage !== 'failed'}
+					<button
+						type="button"
+						class="ui-btn"
+						title={m.practice.weakTitle}
+						disabled={stage === 'loading'}
+						onclick={() => start(WEAK)}
+					>
+						{m.practice.weak}
+					</button>
+				{/if}
 				<button
 					type="button"
 					class="ui-btn ui-btn-primary"
@@ -182,6 +206,7 @@
 
 		<section class="ui-card rules">
 			<h2 class="ui-label">{m.practice.rules}</h2>
+			<p class="muted">{m.practice.map}</p>
 			{#each POINT_CASES as kase (kase)}
 				{@const points = offered.filter((point) => point.case === kase)}
 				{#if points.length}
@@ -192,20 +217,23 @@
 						</h3>
 						<ul>
 							{#each points as point (point.id)}
-								{@const state = review.ready ? stateOf(review.cards.get(cardKey(point.id))) : 'new'}
+								{@const state = review.ready ? stateOf(review.cards.get(cardKey(point.id)), now) : 'new'}
 								<li>
 									<button
 										type="button"
 										class="rule"
+										data-state={state}
 										title={m.practice.only}
 										disabled={!review.ready || stage === 'loading'}
 										onclick={() => start(point.id)}
 									>
 										<b lang="uk">{point.preposition}</b>
 										<span class="meaning">{m.practice.meaning[point.id]}</span>
-										<span class="state" data-state={state}>{m.practice.state[state]}</span>
-										<!-- Says the line can be pressed, where nothing hovers to say so -->
-										<span class="open"><Icon name="chevron-right" size={16} /></span>
+										<span class="state">
+											<!-- Three steps, filled as the rule is held: none new, one shaky, two learning, three known -->
+											<span class="meter" aria-hidden="true"><i></i><i></i><i></i></span>
+											{m.practice.state[state]}
+										</span>
 									</button>
 								</li>
 							{/each}
@@ -386,22 +414,46 @@
 		font-weight: 400;
 	}
 
-	/* A rule: the preposition, what it says, and how well it is held. The
-	   whole line is the button that starts a round of it. */
-	.rule {
+	/* The rules of one case, as tiles side by side: two across on a phone */
+	.case ul {
 		display: grid;
-		grid-template-columns: 6.5rem minmax(0, 1fr) auto auto;
-		align-items: baseline;
-		gap: 0.75rem;
-		width: 100%;
-		padding: 0.5rem 0.6rem;
-		border: 0;
+		grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+		gap: 0.5rem;
+	}
+
+	.case li {
+		display: grid;
+	}
+
+	/* A rule: the preposition, what it says, and how well it is held. The
+	   whole tile is the button that starts a round of it, and it takes more
+	   of the flag's yellow the better the rule is held. */
+	.rule {
+		--held: 0%;
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		align-content: start;
+		gap: 0.2rem;
+		padding: 0.6rem 0.7rem;
+		border: 1px solid var(--border);
 		border-radius: var(--radius-md);
-		background: none;
+		background: color-mix(in srgb, var(--flag) var(--held), var(--surface));
 		color: var(--ink);
 		font: inherit;
 		text-align: left;
 		cursor: pointer;
+	}
+
+	.rule[data-state='new'] {
+		border-style: dashed;
+	}
+
+	.rule[data-state='learning'] {
+		--held: 10%;
+	}
+
+	.rule[data-state='known'] {
+		--held: 24%;
 	}
 
 	.rule:disabled {
@@ -410,12 +462,14 @@
 
 	@media (hover: hover) {
 		.rule:hover:not(:disabled) {
-			background: var(--surface-2);
+			border-color: var(--border-strong);
+			background: color-mix(in srgb, var(--flag) var(--held), var(--surface-2));
 		}
 	}
 
 	.rule b {
 		font-family: var(--font-headword);
+		font-size: var(--text-lg);
 		font-weight: 800;
 	}
 
@@ -424,64 +478,34 @@
 		font-size: var(--text-sm);
 	}
 
-	/* How well a rule is held: a mark that fills as it is learnt, with the word beside it */
+	/* How well a rule is held: three steps that fill as it is learnt, with the word beside them */
 	.state {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.4rem;
-		color: var(--muted);
+		gap: 0.45rem;
+		margin-top: 0.25rem;
+		color: var(--ink-2);
 		font-size: var(--text-xs);
 		white-space: nowrap;
 	}
 
-	.state::before {
-		content: '';
-		width: 0.6rem;
-		height: 0.6rem;
+	.meter {
+		display: inline-flex;
+		gap: 2px;
+	}
+
+	.meter i {
+		width: 0.7rem;
+		height: 0.4rem;
 		border: 1px solid var(--border-strong);
-		border-radius: 50%;
+		border-radius: 2px;
 	}
 
-	.state[data-state='learning']::before {
-		border-color: var(--flag-line);
-		background: linear-gradient(to top, var(--flag) 50%, transparent 50%);
-	}
-
-	.state[data-state='known']::before {
+	.rule:is([data-state='weak'], [data-state='learning'], [data-state='known']) .meter i:first-child,
+	.rule:is([data-state='learning'], [data-state='known']) .meter i:nth-child(2),
+	.rule[data-state='known'] .meter i:nth-child(3) {
 		border-color: var(--flag-line);
 		background: var(--flag);
-	}
-
-	.open {
-		display: inline-flex;
-		align-self: center;
-		color: var(--muted);
-	}
-
-	/* On a phone the meaning goes under the preposition, and the mark stays on the right */
-	@media (max-width: 30rem) {
-		.rule {
-			grid-template-columns: minmax(0, 1fr) auto auto;
-			gap: 0.1rem 0.5rem;
-		}
-
-		.rule .meaning {
-			grid-row: 2;
-		}
-
-		.state,
-		.open {
-			grid-row: 1 / span 2;
-			align-self: center;
-		}
-
-		.state {
-			grid-column: 2;
-		}
-
-		.open {
-			grid-column: 3;
-		}
 	}
 
 	.end {

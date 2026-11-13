@@ -220,7 +220,8 @@ const en = {
 		source: 'Source code',
 		common: 'Common words',
 		words: 'All words',
-		alphabet: 'Learn the alphabet'
+		alphabet: 'Learn the alphabet',
+		practice: 'Practise grammar'
 	},
 	/** The pages for browsing: /common-words and /words (browse.ts). */
 	browse: {
@@ -642,9 +643,74 @@ const en = {
 		again: 'Another round',
 		back: 'Back to the letters'
 	},
+	/** Grammar practice (/practice). The rules themselves are in practice/points.ts. */
+	practice: {
+		lead: 'Fill the gap in real sentences. A round is ten sentences and mixes the rules you are learning. The first rules are the prepositions and the case each one asks for.',
+		none: 'There are no sentences to practise with yet.',
+		answerLabel: 'Answer by',
+		answer: { choice: 'Selecting', type: 'Writing' },
+		start: 'Start a round',
+		met: (n: number, total: number) => `${n} of ${total} rules met`,
+		kept: 'Your progress is kept with your flashcards: in this browser, and in your account when you are signed in.',
+		rules: 'The rules',
+		/** Said of a rule's row, which starts a round of that rule alone. */
+		only: 'Practise this rule alone',
+		state: { new: 'new', learning: 'learning', known: 'known' },
+		/** What each preposition says with its case, in a few words. */
+		meaning: {
+			'u-loc': 'in, at: where something is',
+			'na-loc': 'on, at: where something is',
+			'u-acc': 'into, to: where something goes; on a day',
+			'na-acc': 'onto, to: where something goes; for a time or a purpose',
+			'z-ins': 'with, together with',
+			'do-gen': 'to, up to, until',
+			'z-gen': 'from, out of, off',
+			'dlia-gen': 'for',
+			'bez-gen': 'without',
+			'pro-acc': 'about',
+			'vid-gen': 'from, since, because of',
+			'za-acc': 'for, in return for; than',
+			'za-ins': 'behind, beyond; to fetch',
+			'pislia-gen': 'after',
+			'pered-ins': 'in front of, before',
+			'bilia-gen': 'near, by',
+			'cherez-acc': 'across, through; because of; in an hour',
+			'po-loc': 'along, around, about',
+			'pid-ins': 'under: where something is',
+			'pid-acc': 'under: where something goes',
+			'nad-ins': 'above, over',
+			'mizh-ins': 'between, among',
+			'proty-gen': 'against',
+			'sered-gen': 'among, in the middle of'
+		} as Record<string, string>,
+		count: (n: number, total: number) => `${n} of ${total}`,
+		stop: 'Stop',
+		ask: { choice: 'Which form fits the gap?', type: 'Type the word in the form that fits the gap' },
+		/** Beside the word to put in, when the gap wants its plural. */
+		plural: 'plural',
+		hint: 'Show the case',
+		/** A typed answer that is the right word in another form: one more try. */
+		nudge: 'The right word, but not in this form. Try once more.',
+		yourAnswer: 'Your answer',
+		check: 'Check',
+		next: 'Next',
+		correct: 'Right',
+		helped: 'Right, with help',
+		incorrect: 'Not quite',
+		keys: 'Keys 1 to 4 choose an answer; Enter goes on.',
+		loading: 'Finding sentences…',
+		failed: 'The sentences could not be loaded.',
+		retry: 'Try again',
+		done: 'Round finished',
+		score: (right: number, total: number) => `${right} of ${total} right.`,
+		missed: 'To look at again',
+		allRight: 'Nothing missed.',
+		again: 'Another round',
+		back: 'Back to the rules'
+	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
-		review: 'Flashcards', alphabet: 'Ukrainian Alphabet'
+		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -667,6 +733,7 @@ const en = {
 		saved: 'The words you saved, kept in this browser or in your account.',
 		review: 'Flashcards for your saved words and the commonest Ukrainian words, scheduled so that each word comes back shortly before you would forget it.',
 		alphabet: 'Learn to read the Ukrainian alphabet: all 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
+		practice: 'Practise Ukrainian grammar in real sentences: fill the gap after a preposition with the right case. Ten sentences a round, and each rule returns before you forget it.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
 		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
 		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
@@ -956,7 +1023,8 @@ const uk: Messages = {
 		source: 'Вихідний код',
 		common: 'Найуживаніші слова',
 		words: 'Усі слова',
-		alphabet: 'Вивчити абетку'
+		alphabet: 'Вивчити абетку',
+		practice: 'Вправи з граматики'
 	},
 	browse: {
 		commonTitle: '1000 найуживаніших українських слів',
@@ -1370,9 +1438,69 @@ const uk: Messages = {
 		again: 'Ще раунд',
 		back: 'Назад до літер'
 	},
+	practice: {
+		lead: 'Заповнюйте пропуски у справжніх реченнях. У раунді десять речень на різні правила, які ви вивчаєте. Перші правила — прийменники та відмінок, якого вимагає кожен із них.',
+		none: 'Речень для вправ поки що немає.',
+		answerLabel: 'Як відповідати',
+		answer: { choice: 'Обирати', type: 'Писати' },
+		start: 'Почати раунд',
+		met: (n, total) => `Знайомі правила: ${n} з ${total}`,
+		kept: 'Ваш поступ зберігається разом із картками: у цьому браузері, а після входу — і в обліковому записі.',
+		rules: 'Правила',
+		only: 'Вправляти лише це правило',
+		state: { new: 'нове', learning: 'вивчається', known: 'засвоєне' },
+		meaning: {
+			'u-loc': 'місце: де?',
+			'na-loc': 'місце: де?',
+			'u-acc': 'напрямок: куди?; день тижня',
+			'na-acc': 'напрямок: куди?; час або мета',
+			'z-ins': 'разом із кимось або чимось',
+			'do-gen': 'напрямок або межа: куди? до якого часу?',
+			'z-gen': 'звідки?; з якого матеріалу чи з якої групи',
+			'dlia-gen': 'призначення: для кого? для чого?',
+			'bez-gen': 'відсутність когось або чогось',
+			'pro-acc': 'тема: про кого? про що?',
+			'vid-gen': 'джерело, початок або причина',
+			'za-acc': 'в обмін на щось, на користь когось; порівняння',
+			'za-ins': 'позаду, по той бік; по що йдуть',
+			'pislia-gen': 'пізніше за щось',
+			'pered-ins': 'попереду; раніше за щось',
+			'bilia-gen': 'поруч із чимось',
+			'cherez-acc': 'упоперек, крізь; причина; за якийсь час',
+			'po-loc': 'рух поверхнею або в межах чогось',
+			'pid-ins': 'місце внизу: де?',
+			'pid-acc': 'напрямок униз: куди?',
+			'nad-ins': 'вище за щось',
+			'mizh-ins': 'посередині між кимось або чимось',
+			'proty-gen': 'усупереч комусь або чомусь',
+			'sered-gen': 'у колі когось, усередині чогось'
+		},
+		count: (n, total) => `${n} з ${total}`,
+		stop: 'Зупинити',
+		ask: { choice: 'Яка форма пасує до пропуску?', type: 'Наберіть слово у формі, що пасує до пропуску' },
+		plural: 'множина',
+		hint: 'Показати відмінок',
+		nudge: 'Слово правильне, а форма не та. Спробуйте ще раз.',
+		yourAnswer: 'Ваша відповідь',
+		check: 'Перевірити',
+		next: 'Далі',
+		correct: 'Правильно',
+		helped: 'Правильно, з підказкою',
+		incorrect: 'Не зовсім',
+		keys: 'Клавіші 1–4 обирають відповідь; Enter веде далі.',
+		loading: 'Шукаємо речення…',
+		failed: 'Не вдалося завантажити речення.',
+		retry: 'Спробувати ще раз',
+		done: 'Раунд завершено',
+		score: (right, total) => `Правильно: ${right} з ${total}.`,
+		missed: 'Варто глянути ще раз',
+		allRight: 'Жодної помилки.',
+		again: 'Ще раунд',
+		back: 'Назад до правил'
+	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
-		review: 'Картки', alphabet: 'Українська абетка'
+		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
@@ -1389,6 +1517,7 @@ const uk: Messages = {
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
 		review: 'Картки для збережених і найуживаніших українських слів: кожне слово повертається незадовго до того, як ви його забули б.',
 		alphabet: 'Навчіться читати українську абетку: усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
+		practice: 'Вправляйте українську граматику на справжніх реченнях: заповніть пропуск після прийменника потрібним відмінком. Десять речень у раунді, а кожне правило повертається, перш ніж забудеться.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
 		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>

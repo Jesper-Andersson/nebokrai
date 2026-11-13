@@ -343,6 +343,7 @@ VESUM's help, but everything in it is the Wiktionary entry.
 | `400` | `/api/search` with `q` over 100 characters. Body: `{ "error": "query_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `404` | `/api/radio/now/…` for a station that is not in the list. |
+| `400` | `/api/practice` with no `points`, or more than 20. Body: `{ "error": "bad_points", "max": 20 }`. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
 
 ## Caching
@@ -569,7 +570,8 @@ Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794
 - `cards` sent are stored. When the account already has a card for the word,
   the copy with the later `last_review` is kept (with the same `last_review`,
   the one with more `reps`), so sending a card twice, or late, does no harm.
-  Malformed cards and words not in the dictionary are skipped. A
+  Malformed cards and words not in the dictionary are skipped; a grammar
+  point's card (below, `grammar:bez-gen`) is kept as a word's is. A
   `last_review` later than the server's clock is taken as now. An account
   holds at most 10,000 cards; new ones beyond that are skipped.
 - `cards` returned are the account's cards stored at or after `since`, which
@@ -605,6 +607,69 @@ Response `200`: `{ "deck": "common-500", "words": ["не", "я", "в", …] }`. 
 commonest spellings in order, as `/common-words` counts them: places 1 to 500,
 501 to 1,000 and 1,001 to 2,000. Cached like a search. The `saved` deck is the
 visitor's own list and has no address here.
+
+### Grammar practice
+
+The practice page (`/practice`) asks for a noun in the case its preposition
+takes. A grammar point is a preposition with one case, named by both:
+`bez-gen` (без + genitive), `na-acc` and `na-loc` (на + accusative, на +
+locative). The points are listed in `src/lib/practice/points.ts`; the cases
+are `gen`, `acc`, `ins` and `loc`.
+
+#### `GET /api/practice?points=<point>,<point>,…`
+
+One sentence for each point named, in the order named, each drawn at random
+from the point's sentences. A point named twice gets two different
+sentences. At most 20 points; a point that is unknown or has no sentences is
+passed over, so the answer can be shorter than the request.
+
+Response `200`:
+
+```json
+{
+  "gaps": [
+    {
+      "point": "bez-gen",
+      "uk": "Я не можу цього зробити без допомоги.",
+      "en": "I can't do this without help.",
+      "start": 28, "length": 8,
+      "answer": "допомо́ги", "also": [],
+      "number": "singular",
+      "word": "допомога", "headword": "допомо́га",
+      "choices": ["допомо́зі", "допомо́гу", "допомо́ги", "допомо́га"],
+      "forms": ["допомога", "допомоги", "допомог", "допомозі", "допомогам", "допомогу", "допомогою", "допомогами", "допомогах", "допомого"],
+      "tatoeba_id": 5866649
+    }
+  ]
+}
+```
+
+- `start` and `length` say where the noun stands in `uk`, in UTF-16 code
+  units (`uk.slice(start, start + length)`). `answer` is that noun with its
+  stress mark; `word` and `headword` are its dictionary form, which the page
+  shows beside the gap.
+- `choices` are up to four forms of the noun with stress, in random order,
+  `answer` among them. The others are forms that are not the case asked for,
+  of the same number where the noun has enough; a form that is only the
+  vocative is offered last.
+- `also` lists other spellings of the same case and number, without stress
+  and in lower case, where the noun has them (the locative of стіл is both
+  столі and столу). They are as right as `answer` and never among the wrong
+  `choices`.
+- `forms` is every spelling of the noun, without stress and in lower case: a
+  typed answer found there and not right is the right word in the wrong form.
+- `number` is `singular` or `plural`.
+
+Sent with `Cache-Control: no-store`: asking again must give other sentences.
+`400` with `{ "error": "bad_points", "max": 20 }` when `points` is missing,
+empty or names more than 20. An empty `gaps` means the dictionary was built
+before the sentences were (`data/README.md`, "Sentences with a gap").
+
+A point's schedule is a review card whose `word` is `grammar:<point>`
+(`"word": "grammar:bez-gen"`). It is worked out in the browser as a
+flashcard's is, kept with the flashcards and sent through
+`POST /api/review/sync`; a sentence answered adds one to the day's count
+there. One round of practice is one review of each point it asked.
 
 ### Signing in and out
 

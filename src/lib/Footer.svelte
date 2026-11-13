@@ -26,6 +26,7 @@
 		{ href: '/words', label: m.footer.words },
 		{ href: '/alphabet', label: m.footer.alphabet },
 		{ href: '/grammar', label: m.footer.grammar },
+		{ href: '/practice', label: m.footer.practice },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/report', label: m.footer.report },
 		{ href: SOURCE_URL, label: m.footer.source }

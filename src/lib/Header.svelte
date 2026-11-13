@@ -203,16 +203,16 @@
 		--ribbon-height: 3px;
 		--flag-blue: #005bbb;
 		--flag-yellow: #ffd500;
+		--ribbon-shade: linear-gradient(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 50%, rgb(0 0 0 / 0.12));
+		--ribbon-stripes: repeating-linear-gradient(
+			135deg,
+			var(--flag-blue) 0 9.65px,
+			var(--flag-yellow) 9.9px 19.55px,
+			var(--flag-blue) 19.8px
+		);
 		--ribbon:
-			linear-gradient(rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 50%, rgb(0 0 0 / 0.12)) 0 0 / 100% 100%
-				no-repeat,
-			repeating-linear-gradient(
-					135deg,
-					var(--flag-blue) 0 9.65px,
-					var(--flag-yellow) 9.9px 19.55px,
-					var(--flag-blue) 19.8px
-				)
-				0 0 / 28px 28px repeat fixed;
+			var(--ribbon-shade) 0 0 / 100% 100% no-repeat,
+			var(--ribbon-stripes) 0 0 / 28px 28px repeat fixed;
 		position: sticky;
 		top: 0;
 		z-index: 30;
@@ -334,14 +334,34 @@
 		pointer-events: none;
 	}
 
-	/* A gold line along the tab's top edge: the horizon the site is named after */
+	/* A short piece of the same ribbon along the tab's top edge. It was a
+	   plain gold line until 2026-11-13. Its stripes are its own, not fixed to
+	   the window: fixed, the piece was cut wherever the tab happened to stand
+	   and could end in a sliver of yellow.
+
+	   It holds whole stripes only, and is blue at both ends. A pair of
+	   stripes is 28px of the ribbon's length, so the piece is as many pairs
+	   as fit over the tab's word and one blue stripe more, centred. It stops
+	   4px short of that stripe's end: the stripes slant, and a square end
+	   any further on would take the corner off the next yellow one. (Ends
+	   cut on the slant were tried and looked like a pair of stray strokes.
+	   Stretching the stripes to fit with `background-repeat: round` left
+	   seams: the browser draws them again at the new size. Where `round()`
+	   is not known the piece is as wide as the word and may end part-way
+	   through a stripe.) */
 	nav a[aria-current='page']::after {
 		content: '';
 		position: absolute;
-		inset: -1px 0.7rem auto;
-		height: 2px;
+		top: -1px;
+		left: 50%;
+		width: calc(100% - 1.4rem);
+		width: calc(round(down, 100% - 1.4rem - 10px, 28px) + 10px);
+		height: var(--ribbon-height);
 		border-radius: 2px;
-		background: var(--gold);
+		translate: -50% 0;
+		background:
+			var(--ribbon-shade) 0 0 / 100% 100% no-repeat,
+			var(--ribbon-stripes) 0 0 / 28px 28px repeat;
 	}
 
 	@media (hover: hover) {

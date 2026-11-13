@@ -24,6 +24,7 @@
 	const links = $derived([
 		{ href: '/common-words', label: m.footer.common },
 		{ href: '/words', label: m.footer.words },
+		{ href: '/alphabet', label: m.footer.alphabet },
 		{ href: '/grammar', label: m.footer.grammar },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/report', label: m.footer.report },
@@ -64,14 +65,13 @@
 		font-size: var(--text-sm);
 	}
 
-	/* The top edge is the header's hairline, and in the middle of it the gold
-	   of the header's current page: the horizon, lit where the sun is */
+	/* The top edge: a plain hairline in the grey of every other border */
 	footer::before {
 		content: '';
 		position: absolute;
 		inset: 0 0 auto;
 		height: 1px;
-		background: linear-gradient(90deg, var(--border) 20%, var(--gold) 50%, var(--border) 80%);
+		background: var(--border);
 	}
 
 	.inner {

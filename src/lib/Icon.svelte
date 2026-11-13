@@ -17,6 +17,8 @@
 		// Put away, not closed for good: the radio's panel
 		minus: '<path d="M6 12h12"/>',
 		speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+		// The speaker with a cross where its sound would be: muted
+		'speaker-off': '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 6 6M22 9l-6 6"/>',
 		bookmark: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
 		// Three lines with a dot before each: the lists saved words are sorted into
 		list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',

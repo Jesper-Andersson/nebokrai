@@ -125,21 +125,16 @@
 	}
 
 	/* No side padding here: the search page's coloured band reaches both
-	   edges of the window, so each page sets its own.
-
-	   The sky under the header is painted here, not by the search page, so
-	   it is the same behind every page and does not come and go between
-	   them. Its size is fixed, whatever the page's height. */
+	   edges of the window, so each page sets its own. */
 	main {
 		flex: 1;
 		padding-bottom: 3rem;
-		background: radial-gradient(60rem 18rem at 50% -4rem, var(--sky), transparent 70%) no-repeat;
 	}
 
-	/* Over a photo (app.css) the photo is the sky: no painted one. The top of
-	   a photo is its brightest part, so the page colour is laid over it under
-	   the header and fades out 18rem down, about where the search page's box
-	   ends. That carries the search page's title on clouds and on blue. */
+	/* Over a photo (app.css) the top of the photo is its brightest part, so
+	   the page colour is laid over it under the header and fades out 18rem
+	   down, about where the search page's box ends. That carries the search
+	   page's title on clouds and on blue. */
 	:global(:root[data-bg]) main {
 		background: linear-gradient(color-mix(in srgb, var(--bg) 50%, transparent), transparent) top / 100%
 			18rem no-repeat;

@@ -18,6 +18,7 @@
 	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
 	import Tip from '#lib/Tip.svelte';
+	import { commonsPage } from '#lib/commons.ts';
 	import { formTables } from '#lib/forms.ts';
 	import { otherFormLabel, termOf } from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
@@ -37,15 +38,6 @@
 	let m = $derived(messagesFor(settings.lang));
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
-
-	// Audio URLs point at an mp3 transcoded from a Commons file; the file's own
-	// page (with author and licence) is named after the original, which is the
-	// second-to-last part of a transcoded address.
-	function commonsPage(audioUrl: string) {
-		const parts = audioUrl.split('/');
-		const file = parts.includes('transcoded') ? parts.at(-2) : parts.at(-1);
-		return `https://commons.wikimedia.org/wiki/File:${file}`;
-	}
 
 	// The radio (RadioPlayer.svelte) may be playing: it is turned down for as
 	// long as the word sounds, so the word can be heard over it.
@@ -447,14 +439,22 @@
 		margin-top: 0.3rem;
 	}
 
+	/* Ruled off from one another and nothing more: the entry is the card, and
+	   a box of its own around the sentences made a card inside a card. */
 	.sentences {
 		margin: 0;
-		border: 1px solid var(--border);
-		border-radius: var(--radius-md);
 	}
 
 	.sentences li {
-		padding: 0.6rem 0.9rem;
+		padding: 0.6rem 0;
+	}
+
+	.sentences li:first-child {
+		padding-top: 0;
+	}
+
+	.sentences li:last-child {
+		padding-bottom: 0;
 	}
 
 	.sentences li + li {

@@ -4,6 +4,7 @@
      themselves work as before (src/lib/settings.ts). -->
 <script lang="ts">
 	import { Popover, RadioGroup, Switch } from 'bits-ui';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import AccountPanel from '#lib/AccountPanel.svelte';
 	import fieldThumb from '#lib/assets/backgrounds/field-thumb.webp';
@@ -43,6 +44,9 @@
 	}
 
 	let hasAccount = $derived(Boolean(page.data.user) || page.data.providers?.length > 0);
+
+	// A touch screen: the open menu holds the page still (see the menu below)
+	const coarse = new MediaQuery('(pointer: coarse)');
 </script>
 
 <Popover.Root>
@@ -50,7 +54,17 @@
 		<Icon name="settings" size={20} />
 	</Popover.Trigger>
 	<Popover.Portal>
-		<Popover.Content class="ui-popover" align="end" sideOffset={10} collisionPadding={8}>
+		<!-- On a touch screen a finger moved on the menu scrolled the page
+		     behind it: there the page is held still while the menu is open,
+		     as under the radio's panel. With a mouse the page still scrolls
+		     under the open menu. -->
+		<Popover.Content
+			class="ui-popover ui-settings"
+			align="end"
+			sideOffset={10}
+			collisionPadding={8}
+			preventScroll={coarse.current}
+		>
 			<div class="groups">
 				<section>
 					<h2 id="ui-set-theme">{m.settings.appearance}</h2>
@@ -160,6 +174,15 @@
 </Popover.Root>
 
 <style>
+	/* The menu never grows past the window: it scrolls instead, and a swipe
+	   that reaches its end is not handed to the page behind. Bits UI measures
+	   the room under the header. */
+	:global(.ui-settings) {
+		max-height: var(--bits-floating-available-height, 80dvh);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+
 	.groups {
 		display: grid;
 		gap: 1rem;

@@ -632,6 +632,18 @@ select {
 	cursor: not-allowed;
 }
 
+/* Something not built yet, shown so that the way it will go is visible
+   (importing a deck). A greyed button reads as one that is broken or waiting
+   on something the visitor has not done; a dashed outline is how the site
+   draws what is not there yet, as on the empty Saved page. */
+.ui-btn.ui-btn-planned:disabled {
+	border-style: dashed;
+	background: none;
+	color: var(--muted);
+	opacity: 1;
+	cursor: default;
+}
+
 /* The one thing a form is for: Send */
 .ui-btn.ui-btn-primary {
 	border-color: var(--accent);

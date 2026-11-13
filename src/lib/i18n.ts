@@ -495,7 +495,9 @@ const en = {
 			'common-1000': 'Common words 501–1,000',
 			'common-2000': 'Common words 1,001–2,000'
 		} as Record<string, string>,
-		progress: (started: number, total: number) => `${started} of ${total} started`,
+		// 1,000 as the deck's name writes it ("Common words 1,001–2,000")
+		progress: (started: number, total: number) =>
+			`${started.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} started`,
 		inSaved: 'Included in Saved words',
 		onlyList: (name: string) => `Only the list “${name}”.`,
 		allDecks: 'Practise all your decks',

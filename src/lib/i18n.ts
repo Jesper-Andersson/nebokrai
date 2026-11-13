@@ -682,9 +682,14 @@ const en = {
 		met: (n: number, total: number) => `${n} of ${total} rules met`,
 		kept: 'Your progress is kept with your flashcards: in this browser, and in your account when you are signed in.',
 		rules: 'The rules',
+		/** Under the heading of the map of the rules. */
+		map: 'Each rule is marked by how well you hold it. Select one to practise it alone.',
+		/** Starts a round of the rules held least well, and what such a round is. */
+		weak: 'Weak spots',
+		weakTitle: 'A round of the rules you hold least well',
 		/** Said of a rule's row, which starts a round of that rule alone. */
 		only: 'Practise this rule alone',
-		state: { new: 'new', learning: 'learning', known: 'known' },
+		state: { new: 'new', weak: 'shaky', learning: 'learning', known: 'known' },
 		/** What each preposition says with its case, in a few words. */
 		meaning: {
 			'u-loc': 'in, at: where something is',
@@ -1505,8 +1510,11 @@ const uk: Messages = {
 		met: (n, total) => `Знайомі правила: ${n} з ${total}`,
 		kept: 'Ваш поступ зберігається разом із картками: у цьому браузері, а після входу — і в обліковому записі.',
 		rules: 'Правила',
+		map: 'Позначка показує, наскільки добре ви тримаєте правило. Оберіть правило, щоб вправляти лише його.',
+		weak: 'Слабкі місця',
+		weakTitle: 'Раунд із правил, які ви тримаєте найгірше',
 		only: 'Вправляти лише це правило',
-		state: { new: 'нове', learning: 'вивчається', known: 'засвоєне' },
+		state: { new: 'нове', weak: 'непевне', learning: 'вивчається', known: 'засвоєне' },
 		meaning: {
 			'u-loc': 'місце: де?',
 			'na-loc': 'місце: де?',

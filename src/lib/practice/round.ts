@@ -3,7 +3,9 @@
 // point's schedule. The page keeps the state and draws; the sentences come
 // from /api/practice (gaps.ts). No Svelte and no browser, so `npm test` runs
 // this file, and whatever is random is an argument.
-import { AGAIN, GOOD, HARD, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard } from '../review/fsrs.ts';
+import {
+	AGAIN, GOOD, HARD, RELEARNING, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard
+} from '../review/fsrs.ts';
 import { plain } from '../search/normalize.ts';
 import { cardKey } from './points.ts';
 
@@ -20,6 +22,10 @@ const DUE_ENOUGH = 6;
 const MIX = 3;
 /** Days a point must hold before it counts as known: a "mature" card, as Anki has it. */
 const KNOWN_DAYS = 21;
+/** A review is timed for nine chances in ten of recall; under eight the point's day is well past. */
+const WEAK_RECALL = 0.8;
+/** A round of weak spots is over at most this many points, so each is asked more than twice. */
+const WEAK_POINTS = 4;
 
 /** One sentence with a noun left out, as /api/practice gives it (docs/api.md). */
 export interface Gap {
@@ -44,11 +50,24 @@ export interface Gap {
 	tatoeba_id: number;
 }
 
-export type PointState = 'new' | 'learning' | 'known';
+/**
+ * How well a point is held, as the map of the rules shades it: not met;
+ * shaky; being learnt; known.
+ */
+export type PointState = 'new' | 'weak' | 'learning' | 'known';
 
-export function stateOf(card: ReviewCard | undefined): PointState {
+/**
+ * A point is shaky when its last round had a miss or needed help and it has
+ * not been got right since, or when it was left so long past its day that
+ * it has probably slipped.
+ */
+export function stateOf(card: ReviewCard | undefined, now: number): PointState {
 	if (!card) return 'new';
-	return card.state === REVIEW && card.stability >= KNOWN_DAYS ? 'known' : 'learning';
+	if (card.state === RELEARNING) return 'weak';
+	// Still on its first steps: a miss or help leaves it on the first, an unaided round moves it on
+	if (card.state !== REVIEW) return card.step === 0 ? 'weak' : 'learning';
+	if (retrievability(card, now) < WEAK_RECALL) return 'weak';
+	return card.stability >= KNOWN_DAYS ? 'known' : 'learning';
 }
 
 function shuffled<T>(items: readonly T[], random: Random): T[] {
@@ -107,6 +126,27 @@ export function planRound(
 		}
 	}
 	return [...opening, ...apart(shuffled(mixed, random), opening.at(-1))];
+}
+
+/**
+ * The points of a round of weak spots: the shaky points among those met, up
+ * to four, the least likely to be recalled first. Where fewer than three are
+ * shaky, the points held least well after them join in, so the round is
+ * still a mix. Nothing new is brought in: with no point met there is no
+ * round.
+ */
+export function planWeak(
+	available: readonly string[], cards: ReadonlyMap<string, ReviewCard>, now: number, random: Random
+): string[] {
+	const card = (id: string) => cards.get(cardKey(id))!;
+	const met = available
+		.filter((id) => cards.has(cardKey(id)))
+		.sort((a, b) => retrievability(card(a), now) - retrievability(card(b), now) || card(a).stability - card(b).stability);
+	const weak = met.filter((id) => stateOf(card(id), now) === 'weak').slice(0, WEAK_POINTS);
+	const chosen = [...weak, ...met.filter((id) => !weak.includes(id)).slice(0, Math.max(0, MIX - weak.length))];
+	if (!chosen.length) return [];
+	const dealt = Array.from({ length: ROUND }, (_, i) => chosen[i % chosen.length]);
+	return apart(shuffled(dealt, random), undefined);
 }
 
 /** The same points with as few as can be asked twice running; `before` is what was asked last. */

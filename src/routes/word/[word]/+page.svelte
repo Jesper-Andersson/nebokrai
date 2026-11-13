@@ -326,7 +326,6 @@
 
 	.entries .n {
 		font-weight: 700;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.entries .gloss {

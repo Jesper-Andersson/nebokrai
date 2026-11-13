@@ -869,7 +869,6 @@
 
 	.when {
 		font-size: var(--text-sm);
-		font-variant-numeric: tabular-nums;
 		opacity: 0.8;
 	}
 

@@ -425,7 +425,6 @@
 		font-family: var(--font-text);
 		font-size: 8.5px;
 		font-weight: 700;
-		font-variant-numeric: tabular-nums;
 	}
 
 	.flame text.long {
@@ -485,7 +484,6 @@
 		font-weight: 700;
 		line-height: 1rem;
 		text-align: center;
-		font-variant-numeric: tabular-nums;
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was

@@ -252,30 +252,29 @@
 		font-size: 1rem;
 	}
 
-	/* Phones: the word, its grammar, how common it is and the buttons share
-	   one line, and the meanings go under it across the full width. The
-	   grammar gives way first: it is cut short before the word is. The rank
+	/* Phones: the word, how common it is and the buttons share one line, the
+	   grammar has the line under it, and the meanings go under that across
+	   the full width. The grammar stood beside the word until 2026-11-14 and
+	   was cut short there: with a phone's text set larger, трáвма left room
+	   for "noun · fe" only. On a line of its own it wraps if it must. The rank
 	   (#233) is left to the word's page; the bars say enough here. The form
 	   found keeps to one line. */
 	@media (max-width: 600px) {
 		article {
-			grid-template-columns: auto minmax(0, 1fr) auto auto;
+			grid-template-columns: minmax(0, 1fr) auto auto;
 			grid-template-areas:
-				'word meta freq actions'
-				'glosses glosses glosses glosses'
-				'found found found found';
+				'word freq actions'
+				'meta meta meta'
+				'glosses glosses glosses'
+				'found found found';
 			gap: 0 0.5rem;
 			padding: 0.4rem 0.3rem 0.55rem 0.8rem;
 		}
 
 		.meta {
-			overflow: hidden;
+			margin-bottom: 0.2rem;
 			font-size: var(--text-xs);
-			white-space: nowrap;
-		}
-
-		.meta :global(.row) {
-			flex-wrap: nowrap;
+			line-height: 1.3;
 		}
 
 		.freq {

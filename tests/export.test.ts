@@ -55,6 +55,10 @@ test('CSV', () => {
 		'"Калина цвіте.","The viburnum is in bloom.","https://nebokrai.app/word/kalyna","2026-11-11T12:00:00.000Z"');
 	// Quotes are doubled, markup is left as text, and the line break stays inside its quoted field
 	assert.ok(text.includes('"""Ки́їв""","name","","","a <b>city</b> & ""capital""; tab\there\nand a new line","","",'));
+	// A suffix such as -а must not open as a formula
+	const suffix = csv([{ ...kalyna, word: '-а', headword: '-а', glosses: ['=SUM(1)'] }]);
+	assert.ok(suffix.includes(`"'-а","'-а","noun"`));
+	assert.ok(suffix.includes(`"'=SUM(1)"`));
 });
 
 test('Readlang CSV', () => {

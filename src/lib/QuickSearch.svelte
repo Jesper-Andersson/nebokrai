@@ -89,6 +89,8 @@
 		// Firefox's web console)
 		if (modifier && !event.altKey && !event.shiftKey && isK(event)) {
 			event.preventDefault();
+			// Held down, the key repeats: open once rather than flicker open and shut.
+			if (event.repeat) return;
 			quick.open = !quick.open;
 		}
 	}

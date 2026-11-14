@@ -38,6 +38,7 @@
 	import { FROM_TRANSLATIONS } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import { play as playWord } from '#lib/speak.ts';
 	import { differOnlyByStress, stressMoved, stressShift } from '#lib/stress.ts';
 	import type { PageProps } from './$types';
 
@@ -66,18 +67,7 @@
 	// The radio (RadioPlayer.svelte) may be playing: it is turned down for as
 	// long as the word sounds, so the word can be heard over it.
 	function play(entry: WordEntry) {
-		const done = radio.duck();
-		if (entry.audio_url) {
-			const audio = new Audio(entry.audio_url);
-			audio.addEventListener('ended', done);
-			audio.addEventListener('error', done);
-			audio.play().catch(done);
-		} else {
-			const utterance = new SpeechSynthesisUtterance(entry.word);
-			utterance.lang = 'uk-UA';
-			utterance.onend = utterance.onerror = done;
-			speechSynthesis.speak(utterance);
-		}
+		playWord(entry.word, entry.audio_url, radio.duck());
 	}
 
 	// The synonyms or antonyms of one meaning of an entry, or (n null) of the

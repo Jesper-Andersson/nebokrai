@@ -23,6 +23,7 @@
 	import Headword from './Headword.svelte';
 	import Icon from './Icon.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
+	import { speak } from '#lib/speak.ts';
 	import SaveButton from './SaveButton.svelte';
 	import Stressed from './Stressed.svelte';
 	import Tip from './Tip.svelte';
@@ -82,11 +83,7 @@
 	// dated, archaic or obsolete; only a search result says
 	let old = $derived('old' in entry ? entry.old : undefined);
 
-	function speak() {
-		const utterance = new SpeechSynthesisUtterance(entry.word);
-		utterance.lang = 'uk-UA';
-		speechSynthesis.speak(utterance);
-	}
+	const say = () => speak(entry.word);
 </script>
 
 {#snippet led(t: NonNullable<typeof through>)}
@@ -110,7 +107,7 @@
 		<Tip label={m.card.play}>
 			{#snippet trigger(props)}
 				<button
-					{...mergeProps(props, { onclick: speak })}
+					{...mergeProps(props, { onclick: say })}
 					type="button"
 					class="ui-icon-btn play"
 					aria-label={m.card.play}

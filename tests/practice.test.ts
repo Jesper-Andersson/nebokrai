@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { messagesFor } from '../src/lib/i18n.ts';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
-import { LESSONS } from '../src/lib/practice/lessons.ts';
+import { LESSONS, lessonRows, openLesson } from '../src/lib/practice/lessons.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
@@ -61,11 +61,22 @@ test('the lessons hold every point once, in the order of the points', () => {
 	for (const lesson of LESSONS) {
 		assert.ok(lesson.points.length, lesson.id);
 		for (const lang of ['en', 'uk'] as const) {
-			assert.ok(messagesFor(lang).practice.lessons[lesson.id], `${lesson.id} ${lang}`);
-			// Its name in a word or two, for the list on /learn
+			// Its name in a word or two, for the lists on /learn and /practice
 			assert.ok(messagesFor(lang).learn.short[lesson.id], `${lesson.id} ${lang} short`);
 		}
 	}
+});
+
+test('a lesson is shown by its words, and the one open is chosen, else the first not known', () => {
+	const all = LESSONS.flatMap((lesson) => lesson.points);
+	const rows = lessonRows(all, (point) => (point.id === 'u-loc' || point.id === 'na-loc' ? 'known' : 'new'));
+	assert.deepEqual(rows.find((row) => row.id === 'where')?.cues, ['у', 'на']);
+	assert.equal(rows.find((row) => row.id === 'numbers')?.cues.join(' · '), '1 книга · 2 книги · 5 книг');
+	assert.equal(openLesson(rows, null)?.id, 'where-to');
+	assert.equal(openLesson(rows, 'numbers')?.id, 'numbers');
+	assert.equal(openLesson(rows, 'gone')?.id, 'where-to');
+	// A rule without sentences is left out, and a lesson left with none
+	assert.equal(lessonRows(['u-loc'], () => 'new').length, 1);
 });
 
 test('a point keeps its id: progress is kept under it', () => {

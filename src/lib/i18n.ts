@@ -767,44 +767,23 @@ const en = {
 	},
 	/** Grammar practice (/practice). The rules themselves are in practice/points.ts. */
 	practice: {
-		lead: 'Fill the gap in a sentence. A round is ten sentences and mixes the rules you are learning: prepositions with the case each one asks for, in real sentences, and numbers with the form of what they count.',
 		none: 'There are no sentences to practise with yet.',
 		answerLabel: 'Answer by',
 		answer: { choice: 'Selecting', type: 'Writing' },
 		start: 'Start a round',
 		met: (n: number, total: number) => `${n} of ${total} rules met`,
 		kept: 'Your progress is kept with your flashcards: in this browser, and in your account when you are signed in.',
-		rules: 'The rules',
-		/** Under the heading of the map of the rules. */
-		map: 'Each rule is marked by how well you hold it. Select one to practise it alone.',
 		/** Starts a round of the rules held least well, and what such a round is. */
 		weak: 'Weak spots',
 		weakTitle: 'A round of the rules you hold least well',
-		/** What each lesson is about (lessons.ts), after "Lesson 3". */
-		lessons: {
-			where: 'Where something is',
-			'where-to': 'Where something goes',
-			'with-from': 'With whom and from where',
-			numbers: 'Numbers with nouns',
-			'for-about': 'For, without and about',
-			'before-after': 'Before, after and through',
-			around: 'Near, behind and between',
-			'above-below': 'Above, below and against'
-		} as Record<string, string>,
-		lessonN: (n: number) => `Lesson ${n}`,
-		/** On a lesson's heading: how many of its rules are known. */
-		knownOf: (n: number, total: number) => `${n} of ${total} known`,
-		search: 'Search the rules',
-		/** A switch: the rules already known are left off the map. */
-		hideKnown: 'Hide known',
-		noMatch: 'No rule matches that.',
-		/** Every rule is known and the known ones are hidden. */
-		allKnown: 'Every rule is known and hidden.',
+		/** Beside a lesson's bar: how many of its rules are known ("1 of 3"). */
+		ofTotal: (n: number, total: number) => `${n} of ${total}`,
+		/** Names the button that starts a round of one lesson ("Practise Direction"). */
+		practiseLesson: (name: string) => `Practise ${name}`,
 		/** After the case a number asks for: "nominative plural", називний відмінок множини. */
 		ofNumber: { singular: 'singular', plural: 'plural' },
 		/** Said of a rule's row, which starts a round of that rule alone. */
 		only: 'Practise this rule alone',
-		state: { new: 'new', weak: 'shaky', learning: 'learning', known: 'known' },
 		/** What each preposition says with its case, in a few words. */
 		meaning: {
 			'u-loc': 'in, at: where something is',
@@ -1729,36 +1708,18 @@ const uk: Messages = {
 		back: 'Назад до літер'
 	},
 	practice: {
-		lead: 'Заповнюйте пропуски в реченнях. У раунді десять речень на різні правила, які ви вивчаєте: прийменники з відмінком, якого вимагає кожен із них, у справжніх реченнях, і числівники з формою того, що вони рахують.',
 		none: 'Речень для вправ поки що немає.',
 		answerLabel: 'Як відповідати',
 		answer: { choice: 'Обирати', type: 'Писати' },
 		start: 'Почати раунд',
 		met: (n, total) => `Знайомі правила: ${n} з ${total}`,
 		kept: 'Ваш поступ зберігається разом із картками: у цьому браузері, а після входу — і в обліковому записі.',
-		rules: 'Правила',
-		map: 'Позначка показує, наскільки добре ви тримаєте правило. Оберіть правило, щоб вправляти лише його.',
 		weak: 'Слабкі місця',
 		weakTitle: 'Раунд із правил, які ви тримаєте найгірше',
-		lessons: {
-			where: 'Де щось є',
-			'where-to': 'Куди щось рухається',
-			'with-from': 'З ким і звідки',
-			numbers: 'Числівники з іменниками',
-			'for-about': 'Для, без і про',
-			'before-after': 'Перед, після й через',
-			around: 'Біля, за й між',
-			'above-below': 'Над, під і проти'
-		},
-		lessonN: (n) => `Урок ${n}`,
-		knownOf: (n, total) => `Засвоєно: ${n} з ${total}`,
-		search: 'Шукати серед правил',
-		hideKnown: 'Сховати засвоєні',
-		noMatch: 'Жодне правило не підходить.',
-		allKnown: 'Усі правила засвоєно й сховано.',
+		ofTotal: (n, total) => `${n} з ${total}`,
+		practiseLesson: (name) => `Тренувати: ${name}`,
 		ofNumber: { singular: 'однини', plural: 'множини' },
 		only: 'Вправляти лише це правило',
-		state: { new: 'нове', weak: 'непевне', learning: 'вивчається', known: 'засвоєне' },
 		meaning: {
 			'u-loc': 'місце: де?',
 			'na-loc': 'місце: де?',

@@ -41,6 +41,8 @@
 		radio:
 			'<rect x="3" y="9" width="18" height="11" rx="2.5"/><path d="m7 9 9.5-5M14.5 13.5h3M14.5 16.5h3"/><circle cx="8.5" cy="14.5" r="2.3"/>',
 		play: '<path d="M8 5.5v13l10.5-6.5z"/>',
+		// Three rings round a point: aim at what is held least well (Weak spots on /practice)
+		target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/>',
 		stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/>'
 	};
 

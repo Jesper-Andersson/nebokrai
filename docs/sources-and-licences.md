@@ -64,6 +64,13 @@ The logos on the Support Ukraine page belong to the organisations they stand
 for. Each was taken from that organisation's own site and is shown only to say
 whose link it is. None of the licences above covers them.
 
+### Icons of learning resources
+
+The small icons on the [Resources page](https://nebokrai.app/resources) belong
+to the sites they stand for. Each was taken once from that site's own icon and
+is served from here, so your browser asks none of them for anything. They are
+shown only to say whose link it is, and none of the licences above covers them.
+
 ### Radio
 
 The radio you can switch on in the settings plays Ukrainian stations, each

@@ -84,6 +84,14 @@
 		it is. None of the licences above covers them.
 	</p>
 
+	<h2>Icons of learning resources</h2>
+	<p>
+		The small icons on the <a href="/resources">Resources</a> page belong to the sites they stand
+		for. Each was taken once from that site’s own icon and is served from here, so your browser
+		asks none of them for anything. They are shown only to say whose link it is, and none of the
+		licences above covers them.
+	</p>
+
 	<h2>Radio</h2>
 	<p>
 		The radio you can switch on in the settings plays Ukrainian stations:

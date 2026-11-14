@@ -185,7 +185,7 @@ const en = {
 		ipa: 'Phonetic spelling',
 		ipaHint: 'A word’s page shows how it sounds in the International Phonetic Alphabet: [wɔˈda].',
 		blur: 'Hide translations',
-		blurHint: 'The English under an example sentence stays blurred until you press it.'
+		blurHint: 'The English under an example sentence, and the meanings of the word of the day, stay blurred until you press them.'
 	},
 	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
 	radio: {
@@ -225,7 +225,7 @@ const en = {
 		sources: 'Sources and licences',
 		privacy: 'Privacy',
 		words: 'All words',
-		discord: 'Discord community'
+		discord: 'Discord'
 	},
 	/** /learn: the four pages for learning, each as a card that leads to it. */
 	learn: {
@@ -1186,7 +1186,7 @@ const uk: Messages = {
 		ipa: 'Фонетичний запис',
 		ipaHint: 'Сторінка слова показує, як воно звучить, знаками Міжнародного фонетичного алфавіту: [wɔˈda].',
 		blur: 'Приховувати переклад',
-		blurHint: 'Англійський переклад під прикладом речення розмитий, доки ви його не натиснете.'
+		blurHint: 'Англійський переклад під прикладом речення і значення слова дня розмиті, доки ви їх не натиснете.'
 	},
 	radio: {
 		open: 'Радіо',
@@ -1224,7 +1224,7 @@ const uk: Messages = {
 		sources: 'Джерела й ліцензії',
 		privacy: 'Приватність',
 		words: 'Усі слова',
-		discord: 'Спільнота в Discord'
+		discord: 'Discord'
 	},
 	learn: {
 		kind: { cards: 'Картки', grammar: 'Граматика' },

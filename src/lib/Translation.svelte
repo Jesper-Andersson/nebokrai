@@ -7,12 +7,13 @@
        ░░░░░ ░░░░ ░░ ░ ░░░░░ ░░ ░░░░░░      → Please give me a glass of water.
 
      Until it is shown, a screen reader hears "Show the English" rather than
-     the translation, as the eye sees only the blur. -->
+     the translation, as the eye sees only the blur. The word of the day's
+     meanings use it too, in the ink of the meanings (`muted={false}`). -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 
-	let { text }: { text: string } = $props();
+	let { text, muted = true }: { text: string; muted?: boolean } = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -23,6 +24,7 @@
 	<button
 		type="button"
 		class="en reveal"
+		class:muted
 		class:shown
 		aria-pressed={shown}
 		aria-label={shown ? undefined : m.word.reveal}
@@ -30,12 +32,17 @@
 		onclick={() => (shown = !shown)}><span>{text}</span></button
 	>
 {:else}
-	<span class="en">{text}</span>
+	<span class="en" class:muted>{text}</span>
 {/if}
 
 <style>
+	/* A button's own colour is the system's, not the text's around it */
 	.en {
 		display: block;
+		color: inherit;
+	}
+
+	.muted {
 		color: var(--muted);
 	}
 

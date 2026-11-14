@@ -462,6 +462,16 @@
 			--hand: 1.7rem;
 		}
 
+		/* The four searches on one line under the box, closer together, rather
+		   than the last alone on a second (user, 2026-11-14) */
+		.examples {
+			gap: 0.3rem;
+		}
+
+		.ui-chip {
+			padding-inline: 0.5rem;
+		}
+
 		input {
 			padding-block: 0.6rem;
 		}

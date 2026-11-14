@@ -14,7 +14,9 @@ import type { PageServerLoad } from './$types';
 
 const RANGES = [7, 30, 90];
 
-export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, url, setHeaders, depends }) => {
+	// The page asks for the counts again every minute while it is open (+page.svelte)
+	depends('stats:counts');
 	const allowed = (STATS_USER_IDS ?? '').split(',').map((id) => id.trim()).filter(Boolean);
 	if (!locals.user || !allowed.includes(locals.user.id)) error(404);
 	setHeaders({ 'cache-control': 'private, no-store' });

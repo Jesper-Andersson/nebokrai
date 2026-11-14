@@ -17,6 +17,7 @@
 <script lang="ts">
 	import { RadioGroup } from 'bits-ui';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import PracticeRound from '#lib/PracticeRound.svelte';
 	import PracticeTile from '#lib/PracticeTile.svelte';
@@ -108,8 +109,25 @@
 
 	// --- A round ---
 
-	/** The round being answered: of one rule, of the weak spots, or of whatever is due. */
-	let round = $state.raw<{ only?: string; weak?: boolean } | null>(null);
+	/** The round being answered: of rules chosen, of the weak spots, or of whatever is due. */
+	let round = $state.raw<{ only?: readonly string[]; weak?: boolean } | null>(null);
+
+	// /practice?rule=<id> and ?lesson=<id>, where /learn's lessons lead: a
+	// round of that rule or that lesson starts at once. Not before the cards
+	// are read: a round grades from them, and an empty map would make every
+	// rule new again. Once only: stopping must not start it over.
+	let chosen = $derived.by(() => {
+		const rule = page.url.searchParams.get('rule');
+		if (rule) return pointOf(rule) ? [rule] : null;
+		const lesson = LESSONS.find((each) => each.id === page.url.searchParams.get('lesson'));
+		return lesson ? lesson.points : null;
+	});
+	let begin = true;
+	$effect(() => {
+		if (!begin || !review.ready || !chosen) return;
+		begin = false;
+		round = { only: chosen };
+	});
 
 	function stop() {
 		round = null;
@@ -190,7 +208,7 @@
 										{point}
 										held={held(point)}
 										disabled={!review.ready}
-										onselect={() => (round = { only: point.id })}
+										onselect={() => (round = { only: [point.id] })}
 									/>
 								</li>
 							{/each}

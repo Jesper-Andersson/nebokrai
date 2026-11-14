@@ -246,17 +246,17 @@
 <style>
 	.page {
 		max-width: var(--page-wide);
-		padding-block: var(--space-6) var(--space-7);
+		padding-block: var(--gap-block) var(--gap-section);
 	}
 
 	h2 {
-		margin: 0 0 var(--space-3);
+		margin: 0 0 var(--gap-stack);
 		font-family: var(--font-heading);
 		font-size: var(--text-xl);
 	}
 
 	.note {
-		margin: 0 0 var(--space-3);
+		margin: 0 0 var(--gap-stack);
 		color: var(--muted);
 		font-size: var(--text-sm);
 	}
@@ -264,15 +264,15 @@
 	.columns {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) 19rem;
-		gap: var(--space-7);
-		margin-top: var(--space-5);
+		gap: var(--gap-section);
+		margin-top: var(--gap-block);
 	}
 
 	aside {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-6);
-		padding-left: var(--space-6);
+		gap: var(--gap-block);
+		padding-left: var(--gap-block);
 		border-left: 1px solid var(--border);
 	}
 
@@ -280,13 +280,13 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--space-3) var(--space-4);
-		margin-bottom: var(--space-4);
+		gap: var(--gap-stack) var(--gap-stack);
+		margin-bottom: var(--gap-stack);
 	}
 
 	.ranges {
 		display: flex;
-		gap: var(--space-3);
+		gap: var(--gap-stack);
 		font-size: var(--text-sm);
 	}
 
@@ -327,7 +327,7 @@
 	.ends {
 		display: flex;
 		justify-content: space-between;
-		margin-top: var(--space-2);
+		margin-top: var(--gap-inline);
 		color: var(--muted);
 		font-size: var(--text-xs);
 	}
@@ -338,15 +338,15 @@
 	}
 
 	.summary {
-		margin: var(--space-3) 0 0;
+		margin: var(--gap-stack) 0 0;
 		color: var(--ink-2);
 	}
 
 	.pair {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: var(--space-6);
-		margin-top: var(--space-7);
+		gap: var(--gap-block);
+		margin-top: var(--gap-section);
 	}
 
 	/* A bar split into parts: where people go, found or not, signed in or not */
@@ -392,8 +392,8 @@
 	.key {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--space-1) var(--space-4);
-		margin: var(--space-3) 0 0;
+		gap: var(--gap-tight) var(--gap-stack);
+		margin: var(--gap-stack) 0 0;
 		padding: 0;
 		color: var(--ink-2);
 		font-size: var(--text-sm);
@@ -404,19 +404,19 @@
 		display: inline-block;
 		width: 9px;
 		height: 9px;
-		margin-right: var(--space-1);
+		margin-right: var(--gap-tight);
 		border-radius: calc(var(--radius-sm) / 3);
 	}
 
 	table {
 		width: 100%;
-		margin-top: var(--space-5);
+		margin-top: var(--gap-block);
 		border-collapse: collapse;
 		font-variant-numeric: tabular-nums;
 	}
 
 	th {
-		padding: var(--space-1) 0;
+		padding: var(--gap-tight) 0;
 		border-bottom: 1px solid var(--border);
 		color: var(--muted);
 		font-size: var(--text-sm);
@@ -425,13 +425,13 @@
 	}
 
 	td {
-		padding: var(--space-2) 0;
+		padding: var(--gap-inline) 0;
 		border-bottom: 1px solid var(--surface-2);
 		overflow-wrap: anywhere;
 	}
 
 	.n {
-		padding-left: var(--space-3);
+		padding-left: var(--gap-stack);
 		text-align: right;
 	}
 
@@ -482,8 +482,8 @@
 	.scale {
 		display: flex;
 		align-items: center;
-		gap: var(--space-1);
-		margin-top: var(--space-2);
+		gap: var(--gap-tight);
+		margin-top: var(--gap-inline);
 		color: var(--muted);
 		font-size: var(--text-xs);
 	}
@@ -494,7 +494,7 @@
 	}
 
 	.share {
-		margin: 0 0 var(--space-2);
+		margin: 0 0 var(--gap-inline);
 		color: var(--ink-2);
 	}
 
@@ -504,7 +504,7 @@
 	}
 
 	.funnel {
-		margin: var(--space-5) 0 0;
+		margin: var(--gap-block) 0 0;
 		padding: 0;
 		list-style: none;
 	}
@@ -512,8 +512,8 @@
 	.funnel li {
 		display: grid;
 		grid-template-columns: 1fr auto;
-		gap: var(--space-1) var(--space-3);
-		margin-bottom: var(--space-3);
+		gap: var(--gap-tight) var(--gap-inline);
+		margin-bottom: var(--gap-stack);
 	}
 
 	.track {
@@ -533,7 +533,7 @@
 	.chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--space-2);
+		gap: var(--gap-inline);
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -550,7 +550,7 @@
 
 		aside {
 			padding-left: 0;
-			padding-top: var(--space-6);
+			padding-top: var(--gap-block);
 			border-left: 0;
 			border-top: 1px solid var(--border);
 		}

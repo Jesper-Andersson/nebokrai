@@ -360,7 +360,7 @@
 
 	.results {
 		display: grid;
-		gap: 0.5rem;
+		gap: 0.3rem;
 		margin-block: 0.5rem 0;
 		list-style: none;
 	}
@@ -427,9 +427,62 @@
 		}
 	}
 
+	/* Phones: the title is one short line, the hand at the height of the
+	   print beside it, and the box a little lower, so the first results are
+	   on screen with the box (user, 2026-11-14). A desktop keeps the full
+	   title. */
 	@media (max-width: 600px) {
 		.hero {
-			padding-inline: 0.75rem;
+			padding: 0.5rem 0.75rem 0.3rem;
+		}
+
+		h1 {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.5rem;
+			margin-bottom: 0.4rem;
+		}
+
+		.pair {
+			font-size: var(--text-sm);
+		}
+
+		.word {
+			--hand: 1.7rem;
+		}
+
+		input {
+			padding-block: 0.6rem;
+		}
+
+		/* The results are one list on one surface, a hairline between words,
+		   rather than a card each: a card's own frame and gap cost each word
+		   a few lines. The frame is WordCard's, taken off here only. */
+		.results:has(:global(article)) {
+			gap: 0;
+			overflow: hidden;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			background: var(--surface);
+			box-shadow: var(--shadow);
+		}
+
+		.results :global(.ui-card) {
+			border: 0;
+			border-radius: 0;
+			background: none;
+			box-shadow: none;
+		}
+
+		.results > li + li {
+			border-top: 1px solid var(--border);
+		}
+
+		.results .divider {
+			margin: 0;
+			padding: 0.6rem 0.8rem 0.3rem;
+			color: var(--muted);
 		}
 	}
 </style>

@@ -11,7 +11,7 @@ import { orderedTags } from './labels.ts';
 export const GROUPS = {
 	pos: [
 		'noun', 'verb', 'adjective', 'adverb', 'pronoun', 'numeral', 'preposition', 'conjunction',
-		'particle', 'interjection'
+		'particle', 'interjection', 'determiner'
 	],
 	gender: ['masculine', 'feminine', 'neuter'],
 	animacy: ['inanimate', 'animate', 'person', 'animal', 'common-gender'],
@@ -41,7 +41,7 @@ export const CASES: TermId[] = GROUPS.cases.slice(1);
 // term's own name.
 const TERM_OF: Record<string, TermId> = {
 	adj: 'adjective', adv: 'adverb', pron: 'pronoun', num: 'numeral', prep: 'preposition',
-	conj: 'conjunction', intj: 'interjection',
+	conj: 'conjunction', intj: 'interjection', det: 'determiner',
 	personal: 'person', 'animal-not-person': 'animal', 'by-personal-gender': 'common-gender',
 	figuratively: 'figurative'
 };
@@ -75,6 +75,7 @@ export const EXAMPLES: Partial<Record<TermId, { uk: string; en: string }>> = {
 	conjunction: { uk: 'і, але, бо, що', en: 'and, but, because, that' },
 	particle: { uk: 'не, чи, би', en: 'not, whether, would' },
 	interjection: { uk: 'привіт, ну, гей', en: 'hi, well, hey' },
+	determiner: { uk: 'цей день, такий брат, кілька книг', en: 'this day, such a brother, a few books' },
 	masculine: { uk: 'новий стіл, мій брат', en: 'a new table, my brother' },
 	feminine: { uk: 'нова книга, моя сестра', en: 'a new book, my sister' },
 	neuter: { uk: 'нове місто, синє море', en: 'a new city, a blue sea' },

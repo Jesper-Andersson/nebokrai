@@ -36,6 +36,10 @@ const NOT_FOR_SEARCH = /^\/(api|saved|review|report|login|auth|logout)(\/|$)/;
 // search page itself, and the words have pages of their own.
 const isSearch = (url: URL) => url.pathname === '/' && url.searchParams.has('q');
 
+// How long a page waits to learn who is signed in. A lookup takes a few
+// milliseconds; this is for the day it takes for ever.
+const SESSION_WAIT_MS = 3000;
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const response = await answer({ event, resolve });
 	for (const [name, value] of Object.entries(HEADERS)) response.headers.set(name, value);
@@ -71,8 +75,14 @@ const answer: Handle = async ({ event, resolve }) => {
 	if (token && !SESSION_TOKEN.test(token)) clearSessionCookie(event.cookies);
 	else if (token) {
 		try {
-			const users = await getUserDb();
-			const session = users && (await validateSession(users, token));
+			// A database that never answers must not hold the page back either:
+			// after SESSION_WAIT_MS the lookup counts as failed.
+			const session = await Promise.race([
+				getUserDb().then((users) => users && validateSession(users, token)),
+				new Promise<never>((_, reject) =>
+					setTimeout(() => reject(new Error(`no answer in ${SESSION_WAIT_MS} ms`)), SESSION_WAIT_MS)
+				)
+			]);
 			if (!session) clearSessionCookie(event.cookies);
 			else {
 				event.locals.user = session.user;

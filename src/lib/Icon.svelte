@@ -23,6 +23,10 @@
 		// Three lines with a dot before each: the lists saved words are sorted into
 		list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
 		'chevron-right': '<path d="m9 6 6 6-6 6"/>',
+		// A speech bubble: words as they are spoken (/common-words)
+		message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+		// A table of four cells: the grammar words set out (/grammar)
+		table: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M12 3v18"/>',
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
 		download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
 		// An arrow leaving a tray: pass this on

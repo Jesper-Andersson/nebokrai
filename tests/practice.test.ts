@@ -60,7 +60,11 @@ test('the lessons hold every point once, in the order of the points', () => {
 	assert.equal(new Set(LESSONS.map((lesson) => lesson.id)).size, LESSONS.length);
 	for (const lesson of LESSONS) {
 		assert.ok(lesson.points.length, lesson.id);
-		for (const lang of ['en', 'uk'] as const) assert.ok(messagesFor(lang).practice.lessons[lesson.id], `${lesson.id} ${lang}`);
+		for (const lang of ['en', 'uk'] as const) {
+			assert.ok(messagesFor(lang).practice.lessons[lesson.id], `${lesson.id} ${lang}`);
+			// Its name in a word or two, for the list on /learn
+			assert.ok(messagesFor(lang).learn.short[lesson.id], `${lesson.id} ${lang} short`);
+		}
 	}
 });
 
@@ -110,9 +114,26 @@ test('a round does not ask one point twice running where it can be helped', () =
 });
 
 test('a round of one chosen point is that point alone', () => {
-	assert.deepEqual(planRound(ids, new Map(), NOW, seeded(), 'bez-gen'), Array(ROUND).fill('bez-gen'));
-	assert.deepEqual(planRound(ids, new Map(), NOW, seeded(), 'no-such'), []);
+	assert.deepEqual(planRound(ids, new Map(), NOW, seeded(), ['bez-gen']), Array(ROUND).fill('bez-gen'));
+	assert.deepEqual(planRound(ids, new Map(), NOW, seeded(), ['no-such']), []);
 	assert.deepEqual(planRound([], new Map(), NOW, seeded()), []);
+});
+
+test("a round of a lesson is that lesson's points, dealt evenly and apart", () => {
+	const lesson = LESSONS.find((each) => each.id === 'where-to')!;
+	// Two of them met long ago and one never: what is due or new makes no difference here
+	const round = planRound(ids, reviewed(['u-acc', 'na-acc'], 30), NOW, seeded(3), lesson.points);
+	assert.equal(round.length, ROUND);
+	assert.deepEqual([...new Set(round)].sort(), [...lesson.points].sort());
+	for (const id of lesson.points) assert.ok(round.filter((each) => each === id).length >= 3, id);
+	for (let i = 1; i < round.length; i++) assert.notEqual(round[i], round[i - 1]);
+	// A rule with no sentences is left out, not asked
+	assert.deepEqual([...new Set(planRound(['u-acc'], new Map(), NOW, seeded(), lesson.points))], ['u-acc']);
+});
+
+test('every point has a short example phrase in Ukrainian letters', () => {
+	for (const point of POINTS) assert.match(point.example, /^[0-9]* ?[а-щьюяєіїґʼ' ]+$/u, point.id);
+	assert.equal(new Set(POINTS.map((point) => point.example)).size, POINTS.length);
 });
 
 const SUGAR: Gap = {

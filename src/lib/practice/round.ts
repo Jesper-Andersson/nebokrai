@@ -88,12 +88,20 @@ function shuffled<T>(items: readonly T[], random: Random): T[] {
  * so that a round is a mix and not one rule ten times over. A new point is
  * asked twice running at the start, then mixed in with the rest.
  *
- * With `only`, the round is that point alone: what the learner chose.
+ * With `only`, the round is those points alone, whatever their days: what
+ * the learner chose, one rule (/practice?rule=bez-gen) or a lesson's
+ * (/practice?lesson=where). Their sentences are dealt round them evenly.
  */
 export function planRound(
-	available: readonly string[], cards: ReadonlyMap<string, ReviewCard>, now: number, random: Random, only?: string
+	available: readonly string[], cards: ReadonlyMap<string, ReviewCard>, now: number, random: Random,
+	only?: readonly string[]
 ): string[] {
-	if (only) return available.includes(only) ? Array<string>(ROUND).fill(only) : [];
+	if (only) {
+		const chosen = only.filter((id) => available.includes(id));
+		if (!chosen.length) return [];
+		const dealt = Array.from({ length: ROUND }, (_, i) => chosen[i % chosen.length]);
+		return apart(shuffled(dealt, random), undefined);
+	}
 
 	const today = dayNumber(now);
 	const card = (id: string) => cards.get(cardKey(id));

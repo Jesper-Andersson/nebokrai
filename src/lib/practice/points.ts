@@ -28,12 +28,14 @@ export interface Point {
 	number?: 'singular' | 'plural';
 	/** Where its sentences come from: found in Tatoeba (the cloze table), or made from frames (numbers.ts). */
 	source: 'cloze' | 'frames';
+	/** A short phrase that shows the rule at work, as /learn's table of a lesson prints it: без цукру. */
+	example: string;
 }
 
-const preposition = (id: string, cue: string, kase: PointCase): Point =>
-	({ id, kind: 'preposition', cue, case: kase, source: 'cloze' });
-const number = (id: string, cue: string, kase: PointCase, counts: 'singular' | 'plural'): Point =>
-	({ id, kind: 'number', cue, case: kase, number: counts, source: 'frames' });
+const preposition = (id: string, cue: string, kase: PointCase, example: string): Point =>
+	({ id, kind: 'preposition', cue, case: kase, source: 'cloze', example });
+const number = (id: string, cue: string, kase: PointCase, counts: 'singular' | 'plural', example: string): Point =>
+	({ id, kind: 'number', cue, case: kase, number: counts, source: 'frames', example });
 
 /**
  * In the order they are best met, which is the order of the lessons
@@ -46,33 +48,33 @@ const number = (id: string, cue: string, kase: PointCase, counts: 'singular' | '
  * may be moved, and its id is never changed.
  */
 export const POINTS: readonly Point[] = [
-	preposition('u-loc', 'у / в', 'locative'),
-	preposition('na-loc', 'на', 'locative'),
-	preposition('u-acc', 'у / в', 'accusative'),
-	preposition('na-acc', 'на', 'accusative'),
-	preposition('do-gen', 'до', 'genitive'),
-	preposition('z-ins', 'з / із / зі', 'instrumental'),
-	preposition('z-gen', 'з / із / зі', 'genitive'),
-	preposition('vid-gen', 'від', 'genitive'),
-	number('one-nom', '1, 21, 31…', 'nominative', 'singular'),
-	number('few-nom', '2, 3, 4, 22…', 'nominative', 'plural'),
-	number('many-gen', '5–20, 25…', 'genitive', 'plural'),
-	preposition('dlia-gen', 'для', 'genitive'),
-	preposition('bez-gen', 'без', 'genitive'),
-	preposition('pro-acc', 'про', 'accusative'),
-	preposition('za-acc', 'за', 'accusative'),
-	preposition('pislia-gen', 'після', 'genitive'),
-	preposition('pered-ins', 'перед', 'instrumental'),
-	preposition('cherez-acc', 'через', 'accusative'),
-	preposition('bilia-gen', 'біля', 'genitive'),
-	preposition('za-ins', 'за', 'instrumental'),
-	preposition('mizh-ins', 'між', 'instrumental'),
-	preposition('sered-gen', 'серед', 'genitive'),
-	preposition('po-loc', 'по', 'locative'),
-	preposition('nad-ins', 'над', 'instrumental'),
-	preposition('pid-ins', 'під', 'instrumental'),
-	preposition('pid-acc', 'під', 'accusative'),
-	preposition('proty-gen', 'проти', 'genitive')
+	preposition('u-loc', 'у / в', 'locative', 'у місті'),
+	preposition('na-loc', 'на', 'locative', 'на столі'),
+	preposition('u-acc', 'у / в', 'accusative', 'у місто'),
+	preposition('na-acc', 'на', 'accusative', 'на стіл'),
+	preposition('do-gen', 'до', 'genitive', 'до школи'),
+	preposition('z-ins', 'з / із / зі', 'instrumental', 'з другом'),
+	preposition('z-gen', 'з / із / зі', 'genitive', 'з міста'),
+	preposition('vid-gen', 'від', 'genitive', 'від мами'),
+	number('one-nom', '1, 21, 31…', 'nominative', 'singular', '1 книга'),
+	number('few-nom', '2, 3, 4, 22…', 'nominative', 'plural', '2 книги'),
+	number('many-gen', '5–20, 25…', 'genitive', 'plural', '5 книг'),
+	preposition('dlia-gen', 'для', 'genitive', 'для тебе'),
+	preposition('bez-gen', 'без', 'genitive', 'без цукру'),
+	preposition('pro-acc', 'про', 'accusative', 'про книгу'),
+	preposition('za-acc', 'за', 'accusative', 'за каву'),
+	preposition('pislia-gen', 'після', 'genitive', 'після роботи'),
+	preposition('pered-ins', 'перед', 'instrumental', 'перед домом'),
+	preposition('cherez-acc', 'через', 'accusative', 'через міст'),
+	preposition('bilia-gen', 'біля', 'genitive', 'біля дому'),
+	preposition('za-ins', 'за', 'instrumental', 'за містом'),
+	preposition('mizh-ins', 'між', 'instrumental', 'між нами'),
+	preposition('sered-gen', 'серед', 'genitive', 'серед друзів'),
+	preposition('po-loc', 'по', 'locative', 'по місту'),
+	preposition('nad-ins', 'над', 'instrumental', 'над столом'),
+	preposition('pid-ins', 'під', 'instrumental', 'під столом'),
+	preposition('pid-acc', 'під', 'accusative', 'під стіл'),
+	preposition('proty-gen', 'проти', 'genitive', 'проти вітру')
 ];
 
 const BY_ID = new Map(POINTS.map((point) => [point.id, point]));

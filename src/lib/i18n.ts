@@ -227,40 +227,61 @@ const en = {
 		 * The three things learnt here, kept apart everywhere on the page by
 		 * name and by colour: words as flashcards, grammar rules, the letters.
 		 */
-		kind: { cards: 'Flashcards', grammar: 'Grammar', alphabet: 'Alphabet' },
-		/** The choice under the alphabet's bar; ticked, the letters are no longer counted as something to do. */
-		lettersKnown: 'I already know the letters',
-		/** The two doors at the head of the page: what each has waiting. */
+		kind: { cards: 'Flashcards', grammar: 'Grammar' },
+		/** The two doors at the head of the page: what each has waiting, and its button. */
 		action: {
 			cardsDue: (n: number) => (n === 1 ? '1 card to review' : `${n} cards to review`),
 			cardsNone: 'No cards to review today',
-			cardsNew: (n: number) => (n === 1 ? '1 new word waiting today' : `${n} new words waiting today`),
-			cardsAbout: 'Saved and common words, shown again before you forget them.',
 			cardsGo: 'Review',
-			rulesDue: (n: number) => (n === 1 ? '1 grammar rule to practise' : `${n} grammar rules to practise`),
-			rulesNone: 'No grammar rules to practise today',
-			rulesSplit: (weak: number, fresh: number) => `${weak} need practice · ${fresh} not started`,
+			rulesDue: (n: number) => (n === 1 ? '1 rule to practise' : `${n} rules to practise`),
+			rulesNone: 'No rules to practise today',
 			/** In place of a count, on the door of a kind that has not been begun. */
 			notStarted: 'Not started yet',
-			rulesAbout: (n: number) => `${n} rules on the form after a preposition or a number.`,
-			rulesGo: 'Start a round'
+			rulesGo: 'Practise'
 		},
-		forecast: 'Forecast',
-		nextWeek: (n: number) => `${n} due in the next 7 days`,
 		activity: 'Activity',
-		lastWeeks: (n: number) => (n === 1 ? '1 review in the last 14 days' : `${n} reviews in the last 14 days`),
-		progress: 'Progress',
-		stage: { learning: 'Learning', weak: 'Needs practice', known: 'Known' },
-		words: (n: number) => (n === 1 ? '1 word' : `${n} words`),
-		rules: (n: number) => (n === 1 ? '1 rule' : `${n} rules`),
-		/** Said of a deck of flashcards that is not among the ones reviewed. */
+		/** Beside "Activity": the reviews of the fourteen days its bars show. */
+		inDays: (n: number) => `${n} in 14 days`,
+		/** The headings of the page's three parts, under the doors. */
+		vocabulary: 'Vocabulary',
+		grammar: 'Grammar',
+		reference: 'Reference',
+		manageDecks: 'Manage decks',
+		/** After the large figure of words known: "9 of 3,051 words known". */
+		wordsKnown: (total: string) => `of ${total} words known`,
+		learning: (n: number) => `${n} learning`,
+		/** A deck's chip: the figure on it, and a deck not among those reviewed. */
+		due: (n: number) => (n === 1 ? '1 due today' : `${n} due today`),
 		off: 'not switched on',
-		reviews: 'Reviews',
-		known: (n: number, total: number) => `${n} of ${total} known`,
-		/** In place of a count, for the saved words when none is saved. */
-		none: 'None yet',
-		notStarted: 'Not started',
-		places: 'Reference',
+		/** Over the list of lessons: what they are about. */
+		cases: 'Cases',
+		/** Each lesson in a word or two, in the list beside the open one. */
+		short: {
+			where: 'Location',
+			'where-to': 'Direction',
+			'with-from': 'With and from',
+			numbers: 'Counting',
+			'for-about': 'For and about',
+			'before-after': 'Before and after',
+			around: 'Nearby',
+			'above-below': 'Above and below'
+		} as Record<string, string>,
+		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
+		/** Starts a round of the open lesson; and, on a row, of that rule alone. */
+		practiseThis: 'Practise this',
+		practise: 'Practise',
+		/** The columns of the open lesson's table. */
+		column: { after: 'After', takes: 'The noun takes', means: 'Means', example: 'Example', state: 'State' },
+		state: { new: 'Not started', weak: 'Needs practice', learning: 'Learning', known: 'Known' },
+		/** The tiles of the pages for reading, at the foot. */
+		tile: {
+			alphabet: 'Alphabet (Cyrillic)',
+			letters: (n: number, total: number) => `${n} of ${total} letters`,
+			common: 'Common vocabulary',
+			commonNote: (n: string) => `${n} words`,
+			grammar: 'Grammar syllabus',
+			grammarNote: 'Gender, cases, verbs…'
+		},
 		/**
 		 * What a newcomer sees in place of the dashboard, until the first
 		 * flashcard or grammar round: three steps in the order to take them.
@@ -287,26 +308,6 @@ const en = {
 				text: 'Ten real sentences, each with a gap to fill. Best left until you can read the letters and know a few words.',
 				go: 'Start a round'
 			}
-		},
-		alphabet: {
-			name: 'The alphabet',
-			text: 'All 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
-			go: 'Learn the letters'
-		},
-		common: {
-			name: 'Common words',
-			text: 'The 1,000 words you’ll meet most often, the most common first, each with its stress and meaning.',
-			go: 'See the list'
-		},
-		grammar: {
-			name: 'Grammar words',
-			text: 'Gender, the seven cases, verb aspect: the words a dictionary uses, each explained in a sentence or two.',
-			go: 'Open the guide'
-		},
-		practice: {
-			name: 'Grammar practice',
-			text: 'Fill the gap in real sentences with the case a preposition asks for. Ten sentences a round, and each rule comes back before you forget it.',
-			go: 'Start a round'
 		}
 	},
 	/** The pages for browsing: /common-words and /words (browse.ts). */
@@ -596,7 +597,8 @@ const en = {
 		progress: (started: number, total: number) =>
 			`${started.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} started`,
 		inSaved: 'Included in Saved words',
-		onlyList: (name: string) => `Only the list “${name}”.`,
+		/** /review?deck= or ?list=: this visit is for one deck alone. */
+		onlyList: (name: string) => `Only the deck “${name}”.`,
 		allDecks: 'Practise all your decks',
 		newPerDay: 'New cards a day',
 		kept: 'Your reviews are kept in this browser. Sign in on the Saved page to have them on every device.',
@@ -1151,35 +1153,51 @@ const uk: Messages = {
 		discord: 'Спільнота в Discord'
 	},
 	learn: {
-		kind: { cards: 'Картки', grammar: 'Граматика', alphabet: 'Абетка' },
-		lettersKnown: 'Я вже знаю літери',
+		kind: { cards: 'Картки', grammar: 'Граматика' },
 		action: {
 			cardsDue: (n) => `${counted(n, 'картка', 'картки', 'карток')} на повторення`,
 			cardsNone: 'Сьогодні карток на повторення немає',
-			cardsNew: (n) => `Нових слів на сьогодні: ${n}`,
-			cardsAbout: 'Збережені й найуживаніші слова, що повертаються, перш ніж забудуться.',
 			cardsGo: 'Повторювати',
-			rulesDue: (n) => `${counted(n, 'правило граматики', 'правила граматики', 'правил граматики')} на повторення`,
+			rulesDue: (n) => `${counted(n, 'правило', 'правила', 'правил')} на повторення`,
 			rulesNone: 'Сьогодні правил на повторення немає',
-			rulesSplit: (weak, fresh) => `потребують практики: ${weak} · не розпочато: ${fresh}`,
 			notStarted: 'Ще не розпочато',
-			rulesAbout: (n) => `${counted(n, 'правило', 'правила', 'правил')} про форму після прийменника чи числівника.`,
-			rulesGo: 'Почати раунд'
+			rulesGo: 'Тренувати'
 		},
-		forecast: 'Прогноз',
-		nextWeek: (n) => `На повторення за 7 днів: ${n}`,
 		activity: 'Активність',
-		lastWeeks: (n) => `Повторень за 14 днів: ${n}`,
-		progress: 'Поступ',
-		stage: { learning: 'Вивчаються', weak: 'Потребують практики', known: 'Засвоєні' },
-		words: (n) => counted(n, 'слово', 'слова', 'слів'),
-		rules: (n) => counted(n, 'правило', 'правила', 'правил'),
+		inDays: (n) => `${n} за 14 днів`,
+		vocabulary: 'Лексика',
+		grammar: 'Граматика',
+		reference: 'Довідка',
+		manageDecks: 'Керувати колодами',
+		wordsKnown: (total) => `з ${total} слів засвоєно`,
+		learning: (n) => `вивчається: ${n}`,
+		due: (n) => `на сьогодні: ${n}`,
 		off: 'не ввімкнено',
-		reviews: 'Повторень',
-		known: (n, total) => `засвоєно ${n} з ${total}`,
-		none: 'Поки немає',
-		notStarted: 'Не розпочато',
-		places: 'Довідка',
+		cases: 'Відмінки',
+		short: {
+			where: 'Де',
+			'where-to': 'Куди',
+			'with-from': 'З ким і звідки',
+			numbers: 'Лічба',
+			'for-about': 'Для і про',
+			'before-after': 'До і після',
+			around: 'Поруч',
+			'above-below': 'Над і під'
+		},
+		// "з" takes the genitive: з 1 правила, з 3 правил
+		rulesKnown: (n, total) => `засвоєно ${n} з ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'правила' : 'правил'}`,
+		practiseThis: 'Тренувати це',
+		practise: 'Тренувати',
+		column: { after: 'Після', takes: 'Відмінок', means: 'Значення', example: 'Приклад', state: 'Стан' },
+		state: { new: 'Не розпочато', weak: 'Потребує практики', learning: 'Вивчається', known: 'Засвоєно' },
+		tile: {
+			alphabet: 'Абетка (кирилиця)',
+			letters: (n, total) => `${n} з ${total} літер`,
+			common: 'Найуживаніші слова',
+			commonNote: (n) => `${n} слів`,
+			grammar: 'Граматичні терміни',
+			grammarNote: 'Рід, відмінки, дієслова…'
+		},
 		first: {
 			title: 'Почніть тут',
 			lead: 'Щойно починаєте вчити українську? Три кроки, саме в такому порядку. Коли почнете, ця сторінка показуватиме, що ви вже вивчили і що робити щодня.',
@@ -1202,26 +1220,6 @@ const uk: Messages = {
 				text: 'Десять справжніх речень, у кожному пропуск. Краще братися, коли вже читаєте літери й знаєте кілька слів.',
 				go: 'Почати раунд'
 			}
-		},
-		alphabet: {
-			name: 'Абетка',
-			text: 'Усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
-			go: 'Вивчити літери'
-		},
-		common: {
-			name: 'Найуживаніші слова',
-			text: '1000 слів, які трапляються найчастіше: спершу найуживаніші, кожне з наголосом і значенням.',
-			go: 'Переглянути список'
-		},
-		grammar: {
-			name: 'Граматичні терміни',
-			text: 'Рід, сім відмінків, вид дієслова: терміни, якими користується словник, кожен пояснено одним-двома реченнями.',
-			go: 'Відкрити довідник'
-		},
-		practice: {
-			name: 'Вправи з граматики',
-			text: 'Заповнюйте пропуски у справжніх реченнях відмінком, якого вимагає прийменник. Десять речень у раунді, а кожне правило повертається, перш ніж забудеться.',
-			go: 'Почати раунд'
 		}
 	},
 	browse: {
@@ -1508,7 +1506,7 @@ const uk: Messages = {
 		},
 		progress: (started, total) => `розпочато ${started} з ${total}`,
 		inSaved: 'Входить до збережених слів',
-		onlyList: (name) => `Лише список «${name}».`,
+		onlyList: (name) => `Лише колода «${name}».`,
 		allDecks: 'Тренувати всі колоди',
 		newPerDay: 'Нових карток на день',
 		kept: 'Ваші повторення зберігаються в цьому браузері. Увійдіть на сторінці «Збережене», щоб мати їх на кожному пристрої.',

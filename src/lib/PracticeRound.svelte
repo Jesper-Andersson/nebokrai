@@ -5,7 +5,8 @@
      (review.svelte.ts), where a round is one review of each of its rules.
 
      The page that shows it decides what the round is over: every rule on
-     offer, one rule alone (`only`), or the rules held least well (`weak`). -->
+     offer, one rule or one lesson's (`only`), or the rules held least well
+     (`weak`). -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Headword from '#lib/Headword.svelte';
@@ -30,8 +31,8 @@
 	}: {
 		/** Ids of the rules that have sentences, in the order they are best met. */
 		offered: readonly string[];
-		/** The one rule the round is of. */
-		only?: string;
+		/** The rules the round is of, chosen by the learner: one rule, or a lesson's. */
+		only?: readonly string[];
 		/** A round of the rules held least well. */
 		weak?: boolean;
 		/** Answered by choosing among four forms; otherwise by typing. */

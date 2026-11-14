@@ -93,11 +93,18 @@
 	let allSaved = $derived(review.settings.decks.includes(SAVED_DECK));
 	const isOn = (deck: string) => review.settings.decks.includes(deck) || (allSaved && listOfDeck(deck) !== null);
 
-	// The one list this visit is for (/review?list=<id>), if it is one of the visitor's.
-	let only = $derived(saved.lists.find((list) => list.id === page.url.searchParams.get('list')) ?? null);
+	// The one deck this visit is for, if it is one there is: /review?list=<id>
+	// for one of the visitor's lists, /review?deck=<id> for any deck (the chips
+	// on /learn: saved, common-500, list:<id>). Switched on or not.
+	let only = $derived.by(() => {
+		const params = page.url.searchParams;
+		const list = params.get('list');
+		const deck = list ? listDeck(list) : params.get('deck');
+		return deck && decks.includes(deck) ? deck : null;
+	});
 
 	let words = $derived(
-		(only ? only.words : review.settings.decks.flatMap(wordsOf)).filter((word) => !gone.has(word)));
+		(only ? wordsOf(only) : review.settings.decks.flatMap(wordsOf)).filter((word) => !gone.has(word)));
 	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now));
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
@@ -410,7 +417,7 @@
 				<Icon name="cards" size={28} />
 				<p>{m.review.noWords}</p>
 				{#if only}
-					<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
+					<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
 				{/if}
 			</section>
 		{:else}
@@ -424,7 +431,7 @@
 					{m.review.start}
 				</button>
 				{#if only}
-					<p class="muted">{m.review.onlyList(only.name)} <a href="/review">{m.review.allDecks}</a></p>
+					<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
 				{/if}
 				{#if ready && !left}
 					<p class="muted">
@@ -435,7 +442,8 @@
 			</section>
 		{/if}
 
-		<section class="ui-card options">
+		<!-- /review#decks is where /learn's "Manage decks" leads -->
+		<section class="ui-card options" id="decks">
 			<h2 class="ui-label">{m.review.decks}</h2>
 			<ul>
 				{#each decks as deck (deck)}

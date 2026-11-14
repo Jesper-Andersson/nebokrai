@@ -223,7 +223,71 @@ const en = {
 	},
 	/** /learn: the four pages for learning, each as a card that leads to it. */
 	learn: {
-		lead: 'Four places to start from, besides looking a word up.',
+		/**
+		 * The three things learnt here, kept apart everywhere on the page by
+		 * name and by colour: words as flashcards, grammar rules, the letters.
+		 */
+		kind: { cards: 'Flashcards', grammar: 'Grammar', alphabet: 'Alphabet' },
+		/** The choice under the alphabet's bar; ticked, the letters are no longer counted as something to do. */
+		lettersKnown: 'I already know the letters',
+		/** The two doors at the head of the page: what each has waiting. */
+		action: {
+			cardsDue: (n: number) => (n === 1 ? '1 card to review' : `${n} cards to review`),
+			cardsNone: 'No cards to review today',
+			cardsNew: (n: number) => (n === 1 ? '1 new word waiting today' : `${n} new words waiting today`),
+			cardsAbout: 'Saved and common words, shown again before you forget them.',
+			cardsGo: 'Review',
+			rulesDue: (n: number) => (n === 1 ? '1 grammar rule to practise' : `${n} grammar rules to practise`),
+			rulesNone: 'No grammar rules to practise today',
+			rulesSplit: (weak: number, fresh: number) => `${weak} need practice · ${fresh} not started`,
+			/** In place of a count, on the door of a kind that has not been begun. */
+			notStarted: 'Not started yet',
+			rulesAbout: (n: number) => `${n} rules on the form after a preposition or a number.`,
+			rulesGo: 'Start a round'
+		},
+		forecast: 'Forecast',
+		nextWeek: (n: number) => `${n} due in the next 7 days`,
+		activity: 'Activity',
+		lastWeeks: (n: number) => (n === 1 ? '1 review in the last 14 days' : `${n} reviews in the last 14 days`),
+		progress: 'Progress',
+		stage: { learning: 'Learning', weak: 'Needs practice', known: 'Known' },
+		words: (n: number) => (n === 1 ? '1 word' : `${n} words`),
+		rules: (n: number) => (n === 1 ? '1 rule' : `${n} rules`),
+		/** Said of a deck of flashcards that is not among the ones reviewed. */
+		off: 'not switched on',
+		reviews: 'Reviews',
+		known: (n: number, total: number) => `${n} of ${total} known`,
+		/** In place of a count, for the saved words when none is saved. */
+		none: 'None yet',
+		notStarted: 'Not started',
+		places: 'Reference',
+		/**
+		 * What a newcomer sees in place of the dashboard, until the first
+		 * flashcard or grammar round: three steps in the order to take them.
+		 */
+		first: {
+			title: 'Start here',
+			lead: 'New to Ukrainian? Three steps, in this order. Once you begin, this page shows what you have learnt and what to do each day.',
+			letters: {
+				name: 'Learn to read the letters',
+				text: (n: number) =>
+					`Ukrainian is written in ${n} Cyrillic letters. A short drill teaches you to read them, and everything else here is written in them.`,
+				go: 'Learn the letters',
+				skip: 'I can read them already',
+				done: 'You can read the letters.',
+				undo: 'Undo'
+			},
+			words: {
+				name: 'Meet your first words',
+				text: 'Ten new flashcards a day from the 500 commonest words. Each word comes back shortly before you would forget it.',
+				go: 'Start the first words'
+			},
+			grammar: {
+				name: 'Try a round of grammar',
+				text: 'Ten real sentences, each with a gap to fill. Best left until you can read the letters and know a few words.',
+				go: 'Start a round'
+			}
+		},
 		alphabet: {
 			name: 'The alphabet',
 			text: 'All 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
@@ -1087,7 +1151,58 @@ const uk: Messages = {
 		discord: 'Спільнота в Discord'
 	},
 	learn: {
-		lead: 'Чотири місця, з яких можна почати, крім пошуку слова.',
+		kind: { cards: 'Картки', grammar: 'Граматика', alphabet: 'Абетка' },
+		lettersKnown: 'Я вже знаю літери',
+		action: {
+			cardsDue: (n) => `${counted(n, 'картка', 'картки', 'карток')} на повторення`,
+			cardsNone: 'Сьогодні карток на повторення немає',
+			cardsNew: (n) => `Нових слів на сьогодні: ${n}`,
+			cardsAbout: 'Збережені й найуживаніші слова, що повертаються, перш ніж забудуться.',
+			cardsGo: 'Повторювати',
+			rulesDue: (n) => `${counted(n, 'правило граматики', 'правила граматики', 'правил граматики')} на повторення`,
+			rulesNone: 'Сьогодні правил на повторення немає',
+			rulesSplit: (weak, fresh) => `потребують практики: ${weak} · не розпочато: ${fresh}`,
+			notStarted: 'Ще не розпочато',
+			rulesAbout: (n) => `${counted(n, 'правило', 'правила', 'правил')} про форму після прийменника чи числівника.`,
+			rulesGo: 'Почати раунд'
+		},
+		forecast: 'Прогноз',
+		nextWeek: (n) => `На повторення за 7 днів: ${n}`,
+		activity: 'Активність',
+		lastWeeks: (n) => `Повторень за 14 днів: ${n}`,
+		progress: 'Поступ',
+		stage: { learning: 'Вивчаються', weak: 'Потребують практики', known: 'Засвоєні' },
+		words: (n) => counted(n, 'слово', 'слова', 'слів'),
+		rules: (n) => counted(n, 'правило', 'правила', 'правил'),
+		off: 'не ввімкнено',
+		reviews: 'Повторень',
+		known: (n, total) => `засвоєно ${n} з ${total}`,
+		none: 'Поки немає',
+		notStarted: 'Не розпочато',
+		places: 'Довідка',
+		first: {
+			title: 'Почніть тут',
+			lead: 'Щойно починаєте вчити українську? Три кроки, саме в такому порядку. Коли почнете, ця сторінка показуватиме, що ви вже вивчили і що робити щодня.',
+			letters: {
+				name: 'Навчіться читати літери',
+				text: (n) =>
+					`В українській абетці ${counted(n, 'літера', 'літери', 'літер')}. Коротка вправа навчить їх читати, а ними написано все інше тут.`,
+				go: 'Вивчити літери',
+				skip: 'Я вже вмію їх читати',
+				done: 'Ви вмієте читати літери.',
+				undo: 'Скасувати'
+			},
+			words: {
+				name: 'Познайомтеся з першими словами',
+				text: 'Щодня десять нових карток із 500 найуживаніших слів. Кожне слово повертається незадовго до того, як ви його забули б.',
+				go: 'Почати з перших слів'
+			},
+			grammar: {
+				name: 'Спробуйте раунд граматики',
+				text: 'Десять справжніх речень, у кожному пропуск. Краще братися, коли вже читаєте літери й знаєте кілька слів.',
+				go: 'Почати раунд'
+			}
+		},
 		alphabet: {
 			name: 'Абетка',
 			text: 'Усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',

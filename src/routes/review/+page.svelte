@@ -12,7 +12,7 @@
      list, practises that list alone for the visit without changing the decks. -->
 <script lang="ts">
 	import { RadioGroup, Switch } from 'bits-ui';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/state';
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
@@ -107,6 +107,16 @@
 	let glosses = $derived([...new Set(info?.glosses)]);
 	let ahead = $derived(current ? preview(current, now) : null);
 	let canUndo = $derived(last !== null && review.canUndo(last.word));
+
+	// /review?start, where /learn's "first words" lead: the deck was switched
+	// on there, and the first card comes up without a second button to find.
+	// Once only: stopping the round must not start it again.
+	let begin = page.url.searchParams.has('start');
+	$effect(() => {
+		if (!begin || !ready || !left || started) return;
+		begin = false;
+		untrack(start);
+	});
 
 	/** How many cards fall due on each of the days to come, for the calendar. */
 	let forecast = $derived.by(() => {

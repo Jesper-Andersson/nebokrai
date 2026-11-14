@@ -3,7 +3,7 @@
 // named and explained here in both languages (`grammar`); a tag with no name
 // here is shown as it is stored.
 import { termOf, type Group, type HeadFormKey, type OtherFormKey, type TermId } from './grammar.ts';
-import type { Cost, Kind, LevelSpan } from './resources.ts';
+import type { Cost, Kind, LevelSpan, Order, Price } from './resources.ts';
 import type { Lang } from './settings.ts';
 
 /** What a word's page has to show, for its title and description (see seo.ts). */
@@ -902,11 +902,11 @@ const en = {
 	/** The Resources page: the list itself is in resources.ts. */
 	resources: {
 		intro: 'Other good places to learn Ukrainian:',
-		filterLabel: 'Narrow the list',
-		filterPlaceholder: 'Type to narrow the list…',
-		kindLegend: 'Kind of resource',
-		all: 'All',
-		/** On the chips that choose a kind */
+		priceLabel: 'Price',
+		prices: { any: 'Any', free: 'Free', paid: 'Paid' } as Record<Price, string>,
+		orderLabel: 'Sort',
+		orders: { easiest: 'Easiest first', hardest: 'Hardest first' } as Record<Order, string>,
+		/** A group's heading */
 		kinds: {
 			course: 'Courses', podcast: 'Podcasts', reading: 'Reading', dictionary: 'Dictionaries',
 			tool: 'Tools', tutor: 'Tutors', community: 'Community', book: 'Books'
@@ -917,6 +917,8 @@ const en = {
 			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', community: 'Community', book: 'Book'
 		} as Record<Kind, string>,
 		cost: { free: 'Free', freemium: 'Free + paid', paid: 'Paid' } as Record<Cost, string>,
+		/** The price pill: green 'Free', gold 'Paid', or both halves for free + paid */
+		pill: { free: 'Free', paid: 'Paid', plusPaid: '+ paid' },
 		ukOnly: 'UK',
 		ukOnlyHint: 'In Ukrainian only',
 		levels: {
@@ -929,7 +931,6 @@ const en = {
 		} as Record<LevelSpan, string>,
 		count: (shown: number, total: number) =>
 			shown === total ? `${total} ${total === 1 ? 'resource' : 'resources'}` : `${shown} of ${total}`,
-		none: 'Nothing here matches.',
 		reviewed: (date: string) => `Last reviewed ${date}`,
 		howTitle: 'How we choose',
 		how: 'Every link here is one we have opened and looked through ourselves. Each is useful without paying, or is plainly marked as paid. Nothing here is made in Russia, and nobody pays to be listed: there are no adverts and no affiliate links.',
@@ -1803,10 +1804,10 @@ const uk: Messages = {
 	},
 	resources: {
 		intro: 'Інші добрі місця, де можна вчити українську:',
-		filterLabel: 'Звузити список',
-		filterPlaceholder: 'Введіть, щоб звузити список…',
-		kindLegend: 'Вид ресурсу',
-		all: 'Усі',
+		priceLabel: 'Ціна',
+		prices: { any: 'Будь-яка', free: 'Безкоштовні', paid: 'Платні' },
+		orderLabel: 'Порядок',
+		orders: { easiest: 'Спершу легші', hardest: 'Спершу складніші' },
 		kinds: {
 			course: 'Курси', podcast: 'Подкасти', reading: 'Читання', dictionary: 'Словники',
 			tool: 'Інструменти', tutor: 'Репетитори', community: 'Спільноти', book: 'Книжки'
@@ -1816,6 +1817,7 @@ const uk: Messages = {
 			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', community: 'Спільнота', book: 'Книжка'
 		},
 		cost: { free: 'Безкоштовно', freemium: 'Безкоштовно + платне', paid: 'Платно' },
+		pill: { free: 'Безкоштовно', paid: 'Платно', plusPaid: '+ платне' },
 		ukOnly: 'УКР',
 		ukOnlyHint: 'Лише українською',
 		levels: {
@@ -1828,7 +1830,6 @@ const uk: Messages = {
 		},
 		count: (shown: number, total: number) =>
 			shown === total ? counted(total, 'ресурс', 'ресурси', 'ресурсів') : `${shown} з ${total}`,
-		none: 'Нічого не знайдено.',
 		reviewed: (date: string) => `Востаннє перевірено ${date}`,
 		howTitle: 'Як ми добираємо',
 		how: 'Кожне посилання тут ми самі відкрили й переглянули. Усе в списку корисне й без оплати або чітко позначене як платне. Тут немає російських ресурсів, і ніхто не платить за місце в списку: жодної реклами й жодних партнерських посилань.',

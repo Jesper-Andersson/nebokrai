@@ -1,11 +1,12 @@
 // The learning resources on /resources (src/lib/resources.ts). Needs no
 // database, so it also runs in CI.
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { messagesFor } from '../src/lib/i18n.ts';
 import {
-	KINDS, LEVEL_SPANS, RESOURCES, filterResources, kindsIn, lastChecked, levelSpan
+	KINDS, LEVEL_SPANS, ORDERS, PRICES, RESOURCES, byKind, byLevel, byPrice, kindsIn, lastChecked, levelSpan
 } from '../src/lib/resources.ts';
 
 test('every resource is complete', () => {
@@ -35,6 +36,9 @@ test('every resource is complete', () => {
 		assert.ok(LEVEL_SPANS.includes(levelSpan(r.levels)), `${r.name}: levels ${r.levels.join(', ')}`);
 		assert.equal(new Set(r.levels).size, r.levels.length, `${r.name}: a level twice`);
 
+		// Saved into the project, never loaded from the resource's own site
+		assert.ok(existsSync(new URL(`../src/lib/assets/${r.logo}`, import.meta.url)), `${r.name}: icon ${r.logo}`);
+
 		assert.match(r.checked, /^\d{4}-\d{2}-\d{2}$/, `${r.name}: checked is a day`);
 		assert.ok(!Number.isNaN(Date.parse(r.checked)), `${r.name}: checked is a real day`);
 	}
@@ -54,6 +58,8 @@ test('every kind, cost and run of levels has a label in both languages', () => {
 		}
 		for (const span of LEVEL_SPANS) assert.ok(r.levels[span], `${lang}: levels.${span}`);
 		for (const cost of ['free', 'freemium', 'paid'] as const) assert.ok(r.cost[cost], `${lang}: cost.${cost}`);
+		for (const price of PRICES) assert.ok(r.prices[price], `${lang}: prices.${price}`);
+		for (const order of ORDERS) assert.ok(r.orders[order], `${lang}: orders.${order}`);
 	}
 });
 
@@ -71,27 +77,46 @@ test('counting resources in Ukrainian', () => {
 	assert.equal(messagesFor('en').resources.count(4, 25), '4 of 25');
 });
 
-test('narrowing the list', () => {
-	assert.equal(filterResources(RESOURCES, null, '').length, RESOURCES.length);
-	assert.equal(filterResources(RESOURCES, null, '   ').length, RESOURCES.length);
+test('the price filter', () => {
+	assert.equal(byPrice(RESOURCES, 'any').length, RESOURCES.length);
+	// Free + paid is under both: usable without paying, and selling something
+	assert.ok(byPrice(RESOURCES, 'free').every((r) => r.cost !== 'paid'));
+	assert.ok(byPrice(RESOURCES, 'paid').every((r) => r.cost !== 'free'));
+	const freemium = RESOURCES.filter((r) => r.cost === 'freemium').map((r) => r.name);
+	for (const price of ['free', 'paid'] as const) {
+		const names = byPrice(RESOURCES, price).map((r) => r.name);
+		for (const name of freemium) assert.ok(names.includes(name), `${name} under ${price}`);
+	}
+});
 
-	// Neither case nor a stress mark matters
-	const names = (kind: Parameters<typeof filterResources>[1], text: string) =>
-		filterResources(RESOURCES, kind, text).map((r) => r.name);
-	assert.deepEqual(names(null, 'горох'), ['Горох']);
-	assert.deepEqual(names(null, 'ГОРО́Х'), ['Горох']);
-	assert.ok(names(null, 'tatoeba').includes('Tatoeba'));
+test('sorting by level', () => {
+	const before = RESOURCES.map((r) => r.name);
+	const easiest = byLevel(RESOURCES, 'easiest');
+	const hardest = byLevel(RESOURCES, 'hardest');
+	assert.equal(easiest.length, RESOURCES.length);
+	assert.equal(easiest[0].levels.join(), 'beginner');
+	assert.equal(hardest[0].levels.join(), 'advanced');
+	assert.deepEqual(hardest.at(-1)?.levels, ['beginner']);
 
-	// The description counts, in either language, and every word must be there
-	assert.ok(names(null, 'example sentences').includes('Tatoeba'));
-	assert.ok(names(null, 'перекладами').includes('Tatoeba'));
-	assert.deepEqual(names(null, 'tatoeba горох'), []);
+	// Within the dictionaries: every level first, then intermediate and up, then advanced only
+	const dictionaries = (list: typeof RESOURCES) => list.filter((r) => r.kind === 'dictionary').map((r) => r.name);
+	const order = dictionaries(easiest);
+	assert.ok(order.indexOf('Горох') < order.indexOf('ГРАК'));
+	assert.ok(order.indexOf('Wiktionary') < order.indexOf('Горох'));
 
-	// A kind and a word together
-	assert.deepEqual(names('dictionary', 'tatoeba'), []);
-	for (const r of filterResources(RESOURCES, 'dictionary', '')) assert.equal(r.kind, 'dictionary');
+	// Equals keep their hand-made order
+	const allLevels = RESOURCES.filter((r) => r.levels.length === 3).map((r) => r.name);
+	assert.deepEqual(easiest.filter((r) => r.levels.length === 3).map((r) => r.name), allLevels);
+	assert.deepEqual(RESOURCES.map((r) => r.name), before, 'the list itself is not sorted in place');
+});
 
-	for (const kind of kindsIn(RESOURCES)) assert.ok(filterResources(RESOURCES, kind, '').length > 0);
+test('grouping by kind', () => {
+	const groups = byKind(RESOURCES);
+	assert.deepEqual(groups.map((g) => g.kind), kindsIn(RESOURCES));
+	assert.equal(groups.reduce((n, g) => n + g.items.length, 0), RESOURCES.length);
+	for (const g of groups) assert.ok(g.items.every((r) => r.kind === g.kind));
+	// A price choice that empties a kind drops its heading
+	for (const g of byKind(byPrice(RESOURCES, 'paid'))) assert.ok(g.items.length > 0);
 });
 
 test('levels and the review date', () => {

@@ -189,6 +189,15 @@
 	--pill-2-line: #2f6fb5;
 	--pill-3-line: #c08a1e;
 	--pill-4-line: #8a8f99;
+	/* The price of a learning resource (/resources): free is green, paid is gold.
+	   Each pill is a soft fill with darker text in the same hue. */
+	/* The tile behind a resource's own icon: always light, because the icons
+	   are drawn for a white page (Горох's black square vanishes on dark). */
+	--logo-tile: #ffffff;
+	--free: #dcefe1;
+	--free-ink: #1f6b35;
+	--paid: #f6e7b8;
+	--paid-ink: #6e5000;
 	color-scheme: light;
 }
 
@@ -234,6 +243,11 @@
 	--pill-2-line: #5b95d9;
 	--pill-3-line: #c9962e;
 	--pill-4-line: #88847c;
+	--logo-tile: #ebe7df;
+	--free: #1e3424;
+	--free-ink: #8fd6a3;
+	--paid: #3a2f12;
+	--paid-ink: #e4cb81;
 	color-scheme: dark;
 }
 
@@ -276,6 +290,11 @@
 		--pill-2-line: #5b95d9;
 		--pill-3-line: #c9962e;
 		--pill-4-line: #88847c;
+		--logo-tile: #ebe7df;
+		--free: #1e3424;
+		--free-ink: #8fd6a3;
+		--paid: #3a2f12;
+		--paid-ink: #e4cb81;
 		color-scheme: dark;
 	}
 }
@@ -321,6 +340,11 @@
 	--pill-2-line: #2f629c;
 	--pill-3-line: #9c6a0e;
 	--pill-4-line: #857b66;
+	--logo-tile: #f1e6d0;
+	--free: #cbd8ab;
+	--free-ink: #28532a;
+	--paid: #e6cc86;
+	--paid-ink: #553c00;
 	color-scheme: light;
 }
 

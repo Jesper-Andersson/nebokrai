@@ -1,16 +1,23 @@
 <!-- A sheet with a title, for pages of text (About, Resources, Sources,
-     Report). `.lead` on a first paragraph sets it a size larger. -->
+     Report). `.lead` on a first paragraph sets it a size larger. `wide` gives
+     it the dictionary's width instead of the reading width, for a page laid
+     out in two columns (Resources). -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 
 	/** `description` is for search results and link previews; the page itself does not show it. */
-	let { title, description, children }: { title: string; description: string; children: Snippet } = $props();
+	let {
+		title,
+		description,
+		wide = false,
+		children
+	}: { title: string; description: string; wide?: boolean; children: Snippet } = $props();
 </script>
 
 <PageMeta title="{title} · Nebokrai" {description} />
 
-<article class="ui-card">
+<article class="ui-card" class:wide>
 	<h1 class="ui-title">{title}</h1>
 	{@render children()}
 </article>
@@ -23,6 +30,10 @@
 		margin: 1.5rem auto 2rem;
 		padding: 1.5rem 1.75rem 1.75rem;
 		line-height: 1.6;
+	}
+
+	article.wide {
+		width: min(var(--page), 100% - 2rem);
 	}
 
 	h1 {

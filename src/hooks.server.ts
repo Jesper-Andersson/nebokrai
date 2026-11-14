@@ -74,14 +74,15 @@ const answer: Handle = async ({ event, resolve }) => {
 	const token = event.cookies.get(SESSION_COOKIE);
 	if (token && !SESSION_TOKEN.test(token)) clearSessionCookie(event.cookies);
 	else if (token) {
+		let timer: ReturnType<typeof setTimeout> | undefined;
 		try {
 			// A database that never answers must not hold the page back either:
 			// after SESSION_WAIT_MS the lookup counts as failed.
 			const session = await Promise.race([
 				getUserDb().then((users) => users && validateSession(users, token)),
-				new Promise<never>((_, reject) =>
-					setTimeout(() => reject(new Error(`no answer in ${SESSION_WAIT_MS} ms`)), SESSION_WAIT_MS)
-				)
+				new Promise<never>((_, reject) => {
+					timer = setTimeout(() => reject(new Error(`no answer in ${SESSION_WAIT_MS} ms`)), SESSION_WAIT_MS);
+				})
 			]);
 			if (!session) clearSessionCookie(event.cookies);
 			else {
@@ -93,6 +94,9 @@ const answer: Handle = async ({ event, resolve }) => {
 			// it: answer as to a signed-out visitor and keep their cookie, so
 			// they are signed in again once the database is back.
 			console.error('Session lookup failed:', err);
+		} finally {
+			// The lookup answered in time: no timer is left behind for every signed-in request.
+			clearTimeout(timer);
 		}
 	}
 

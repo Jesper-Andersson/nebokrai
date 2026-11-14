@@ -61,6 +61,9 @@ export function newAttempt(): { state: string; verifier: string } {
 	return { state: random(), verifier: random() };
 }
 
+/** How long each request to Google or GitHub may take. They answer in well under a second. */
+const PROVIDER_WAIT_MS = 5000;
+
 const redirectUri = (origin: string, provider: Provider) => `${origin}/auth/callback/${provider}`;
 
 /** The provider's page to send the visitor to, or undefined if it is not configured. */
@@ -94,6 +97,9 @@ export async function fetchProfile(
 	const client = credentials(provider);
 	if (!client) return null;
 	const { token, profile, read } = ENDPOINTS[provider];
+	// On Workers a request to a provider that never answers waits as long as
+	// the visitor does; after this long the sign-in counts as refused.
+	const signal = () => AbortSignal.timeout(PROVIDER_WAIT_MS);
 	try {
 		const tokens = await fetcher(token, {
 			method: 'POST',
@@ -105,14 +111,16 @@ export async function fetchProfile(
 				client_secret: client.secret,
 				redirect_uri: redirectUri(origin, provider),
 				code_verifier: verifier
-			})
+			}),
+			signal: signal()
 		});
 		const { access_token } = (await tokens.json()) as { access_token?: unknown };
 		if (!tokens.ok || typeof access_token !== 'string') return null;
 
 		const res = await fetcher(profile, {
 			// GitHub's API rejects requests without a User-Agent.
-			headers: { accept: 'application/json', authorization: `Bearer ${access_token}`, 'user-agent': 'nebokrai' }
+			headers: { accept: 'application/json', authorization: `Bearer ${access_token}`, 'user-agent': 'nebokrai' },
+			signal: signal()
 		});
 		if (!res.ok) return null;
 		const { id, name } = read(await res.json());

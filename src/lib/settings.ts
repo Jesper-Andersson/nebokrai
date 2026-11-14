@@ -27,7 +27,7 @@ export interface Settings {
 	roman: OnOff;
 	/** The headword in the phonetic alphabet ([wɔˈda]). Off unless turned on: most learners do not read it. */
 	ipa: OnOff;
-	/** The English under an example sentence, blurred until pressed (Translation.svelte). On unless turned off. */
+	/** The English under an example sentence, and the word of the day's meanings, blurred until pressed (Translation.svelte). On unless turned off. */
 	blur: OnOff;
 }
 

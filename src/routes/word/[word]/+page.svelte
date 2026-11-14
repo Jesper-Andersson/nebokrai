@@ -1,8 +1,10 @@
-<!-- A word's page: for each entry of the spelling, the headword with its
-     actions, how it is said, its grammar in one italic line, the meanings
-     with their synonyms and antonyms, example sentences, the form tables
-     behind tabs (FormTables.svelte), the words related to it and the
-     etymology. A spelling with several entries gets a list of them first. -->
+<!-- A word's page: for each entry of the spelling, how common it is, the
+     headword with its actions, how it is said, and its grammar in one italic
+     line; then two columns. The left has what a reader comes for: the first
+     meanings (the rest behind a closed row), example sentences and the words
+     related to it. The right has the form tables behind tabs
+     (FormTables.svelte) and the etymology, closed. On a phone the two stack.
+     A spelling with several entries gets a list of them first. -->
 <script lang="ts">
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
@@ -20,12 +22,12 @@
 	import Tip from '#lib/Tip.svelte';
 	import { commonsPage } from '#lib/commons.ts';
 	import { formTables } from '#lib/forms.ts';
-	import { otherFormLabel, termOf } from '#lib/grammar.ts';
+	import { RELATED_HEAD_FORMS, headFormLabel, headFormPlace, otherFormLabel, termOf } from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
-	import type { WordEntry } from '#lib/search/word.ts';
+	import type { Relation, Sense, WordEntry } from '#lib/search/word.ts';
 	import { wordDescription, wordTitle } from '#lib/seo.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { differOnlyByStress, stressMoved, stressShift } from '#lib/stress.ts';
@@ -66,6 +68,43 @@
 	const ownForms = (entry: WordEntry) =>
 		new Set([entry.word, ...entry.forms.map((f) => f.form).filter((form) => !form.includes(' '))].map(plain));
 
+	// The meanings shown before the closed row of the rest. Three fill the first
+	// screen beside the tables and are usually enough; брати has 25.
+	const FIRST_MEANINGS = 3;
+
+	// A meaning with a usage note after a semicolon ("to take, to grab; but
+	// while брати is generic, дістати means…") is the meaning and, smaller, the
+	// note. A short second half ("water; liquid") is part of the meaning.
+	function splitGloss(gloss: string): [string, string | null] {
+		const at = gloss.indexOf('; ');
+		if (at < 0 || gloss.length - at < 60) return [gloss, null];
+		const note = gloss.slice(at + 2).trim();
+		return [gloss.slice(0, at), note.charAt(0).toUpperCase() + note.slice(1)];
+	}
+
+	// The etymology's opening words, beside its closed row: "From Old East Slavic бьрати"
+	function etymologyHint(text: string): string {
+		const first = text.split(/[,.;(\n]/)[0].trim();
+		return first.length > 48 ? `${first.slice(0, 46).trimEnd()}…` : first;
+	}
+
+	// The forms beside the headword that are words of their own (водяни́й,
+	// води́ця), as rows of Related words, in the order of RELATED_HEAD_FORMS
+	function relatedRows(entry: WordEntry, hasTables: boolean): { label: string; words: Relation[] }[] {
+		const related = entry.head_forms.filter((f) => headFormPlace(f.tags, hasTables) === 'related');
+		return RELATED_HEAD_FORMS.map((key) => ({
+			label: m.word.relatedRows[key] ?? key,
+			words: related
+				.filter((f) => headFormLabel(f.tags).key === key)
+				.map((f): Relation => ({ kind: 'derived', sense_n: null, word: f.form, tags: [], has_entry: f.has_entry }))
+		})).filter((row) => row.words.length);
+	}
+
+	// The second column: the tables and the etymology. A page without either
+	// keeps the narrower width of one column of text.
+	const hasSide = (entry: WordEntry) => entry.forms.length > 0 || Boolean(entry.etymology);
+	let wide = $derived(data.entries.some(hasSide));
+
 	// The list of entries names each headword only when they are not all the
 	// same (за́мок and замо́к, or а, А and -а behind one address).
 	let varied = $derived(new Set(data.entries.map((e) => e.headword)).size > 1);
@@ -77,7 +116,7 @@
 <!-- A spelling with several entries is described by its most common one -->
 <PageMeta title={wordTitle(m, data.entries[0])} description={wordDescription(m, data.entries[0])} />
 
-<div class="ui-page">
+<div class="ui-page" class:wide>
 	<p class="back">
 		<a href="/"><Icon name="arrow-left" size={16} />{m.word.back}</a>
 	</p>
@@ -105,12 +144,24 @@
 		{@const base = entry.pos === 'pron' ? '' : entry.headword}
 		{@const shift = stressShift(base, entry.forms.map((f) => f.form))}
 		{@const own = ownForms(entry)}
+		<!-- The grammar line keeps the forms a learner needs beside the headword
+		     (the aspect partner взя́ти); the case forms are in the table and the
+		     words made from it are with the related words -->
+		{@const lineForms = entry.head_forms.filter((f) => headFormPlace(f.tags, tables.length > 0) === 'line')}
+		{@const fromHead = relatedRows(entry, tables.length > 0)}
 		<!-- Derived words and words of the same root are shown for the entry as a
 		     whole, whichever meaning Wiktionary lists them under -->
 		{@const derived = entry.relations.filter((x) => x.kind === 'derived')}
 		{@const sameRoot = entry.relations.filter((x) => x.kind === 'related')}
+		{@const first = entry.senses.slice(0, FIRST_MEANINGS)}
+		{@const rest = entry.senses.slice(FIRST_MEANINGS)}
+		{@const pronounced = (settings.roman === 'on' && entry.roman) || (settings.ipa === 'on' && entry.ipa)}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
+				<!-- How common the word is, first: it says how much the rest is worth learning now -->
+				<div class="rank">
+					<FrequencyMeter rank={entry.freq_rank} showTier />
+				</div>
 				<div class="title">
 					<Headword text={entry.headword} size="lg" tag="h1" />
 					<div class="actions">
@@ -135,117 +186,147 @@
 						/>
 					</div>
 				</div>
-				{#if entry.roman || entry.ipa}
+				<!-- Latin letters and the phonetic alphabet, each as the settings ask -->
+				{#if pronounced}
 					<p class="pron">
-						{#if entry.roman}<span>{entry.roman}</span>{/if}
-						{#if entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
+						{#if settings.roman === 'on' && entry.roman}<span class="roman">{entry.roman}</span>{/if}
+						{#if settings.ipa === 'on' && entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
 					</p>
 				{/if}
-				<!-- How common the word is stands at the right end of the grammar
-				     line, as it does on a search card -->
 				<div class="grammar">
-					<Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} />
-					<FrequencyMeter rank={entry.freq_rank} showTier />
+					<Grammar pos={entry.pos} tags={entry.tags} headForms={lineForms} />
 				</div>
 			</header>
 
-			<section>
-				<h2 class="ui-label">{m.word.meanings}</h2>
-				<ol class="ui-senses senses">
-					{#each entry.senses as sense (sense.n)}
-						<li>
-							<p>
-								<!-- A remark that is a grammar word can be pressed for its note -->
-								{#if sense.tags.length}
-									<i class="tag">({#each sense.tags as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
-								{/if}
-								{sense.gloss}
-							</p>
-							{#if sense.examples.length}
-								<ul class="quotes">
-									{#each sense.examples as ex}
-										<li>
-											<Sentence text={ex.text} {own} />
-											{#if ex.english}<span class="en">{ex.english}</span>{/if}
-										</li>
-									{/each}
-								</ul>
-							{/if}
-							<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', sense.n)} />
-							<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', sense.n)} />
-						</li>
-					{/each}
-				</ol>
-				<!-- Those Wiktionary gives for the word, not for one of its meanings -->
-				{#if named(entry, 'synonym', null).length || named(entry, 'antonym', null).length}
-					<div class="whole">
-						<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', null)} />
-						<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', null)} />
-					</div>
-				{/if}
-			</section>
-
-			{#if entry.examples.length}
-				<section>
-					<h2 class="ui-label">{m.word.examples}</h2>
-					<ul class="sentences">
-						{#each entry.examples as ex (ex.tatoeba_id)}
+			<div class="columns" class:single={!hasSide(entry)}>
+				<div class="main">
+					<section>
+						<h2 class="ui-label">{m.word.meanings}</h2>
+						{#snippet senseItem(sense: Sense, big: boolean)}
+							{@const [gloss, note] = big ? splitGloss(sense.gloss) : [sense.gloss, null]}
 							<li>
-								<Sentence text={ex.uk} {own} />
-								<span class="en">{ex.en}</span>
-								<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
-									Tatoeba #{ex.tatoeba_id}
-								</a>
+								<p class:big>
+									<!-- A remark that is a grammar word can be pressed for its note -->
+									{#if sense.tags.length}
+										<i class="tag">({#each sense.tags as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
+									{/if}
+									{gloss}
+								</p>
+								{#if note}<p class="note">{note}</p>{/if}
+								{#if sense.examples.length}
+									<ul class="quotes">
+										{#each sense.examples as ex, i (i)}
+											<li>
+												<Sentence text={ex.text} {own} />
+												{#if ex.english}<span class="en">{ex.english}</span>{/if}
+											</li>
+										{/each}
+									</ul>
+								{/if}
+								<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', sense.n)} />
+								<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', sense.n)} />
 							</li>
-						{/each}
-					</ul>
-				</section>
-			{/if}
+						{/snippet}
+						<ol class="ui-senses senses">
+							{#each first as sense (sense.n)}{@render senseItem(sense, true)}{/each}
+						</ol>
+						<!-- брати has 25 meanings: the rest wait behind a row, numbered on from the first -->
+						{#if rest.length}
+							<details class="more">
+								<summary>
+									{m.word.moreMeanings(rest.length)}
+									<span class="chevron"><Icon name="chevron-right" size={16} /></span>
+								</summary>
+								<ol class="ui-senses senses" style="counter-reset: sense {FIRST_MEANINGS}">
+									{#each rest as sense (sense.n)}{@render senseItem(sense, false)}{/each}
+								</ol>
+							</details>
+						{/if}
+						<!-- Those Wiktionary gives for the word, not for one of its meanings -->
+						{#if named(entry, 'synonym', null).length || named(entry, 'antonym', null).length}
+							<div class="whole">
+								<RelatedWords label={m.word.synonyms} words={named(entry, 'synonym', null)} />
+								<RelatedWords label={m.word.antonyms} words={named(entry, 'antonym', null)} />
+							</div>
+						{/if}
+					</section>
 
-			{#if tables.length || other.length}
-				<section>
-					<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
-					{#if tables.length}<FormTables {tables} headword={base} />{/if}
-					{#if other.length}
-						<dl class="other">
-							{#each other as group, i (i)}
-								{@const label = otherFormLabel(group.tags)}
-								{@const text = formName(m, settings.lang, label.key && m.grammar.otherForms[label.key], label.extra)}
-								<div>
-									<dt>{#if label.term}<Term id={label.term}>{text}</Term>{:else}{text}{/if}</dt>
-									<dd lang="uk">
-										<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
-										{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} moved={stressMoved(base, form)} />{/each}
-									</dd>
-								</div>
+					{#if entry.examples.length}
+						<section>
+							<h2 class="ui-label">{m.word.examples}</h2>
+							<ul class="sentences">
+								{#each entry.examples as ex (ex.tatoeba_id)}
+									<li>
+										<Sentence text={ex.uk} {own} />
+										<span class="en">{ex.en}</span>
+										<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
+											Tatoeba #{ex.tatoeba_id}
+										</a>
+									</li>
+								{/each}
+							</ul>
+						</section>
+					{/if}
+
+					<!-- Adjectives and diminutives first, then the longer lists -->
+					{#if fromHead.length || derived.length || sameRoot.length}
+						<section>
+							<h2 class="ui-label">{m.word.family}</h2>
+							{#each fromHead as row (row.label)}
+								<RelatedWords label={row.label} words={row.words} />
 							{/each}
-						</dl>
+							<RelatedWords label={m.word.derived} words={derived} limit={24} />
+							<RelatedWords label={m.word.sameRoot} words={sameRoot} limit={24} />
+						</section>
 					{/if}
-					{#if shift === 'moves'}
-						<p class="shift">{m.word.stressMoves} <b lang="uk"><Stressed text={entry.headword} /></b>.</p>
-					{:else if shift === 'stays'}
-						<p class="shift">{m.word.stressStays}</p>
-					{/if}
-					<p class="guide">
-						<a href="/grammar#{entry.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
-					</p>
-				</section>
-			{/if}
+				</div>
 
-			{#if derived.length || sameRoot.length}
-				<section>
-					<h2 class="ui-label">{m.word.family}</h2>
-					<RelatedWords label={m.word.derived} words={derived} limit={24} />
-					<RelatedWords label={m.word.sameRoot} words={sameRoot} limit={24} />
-				</section>
-			{/if}
+				{#if hasSide(entry)}
+					<aside class="side">
+						{#if tables.length || other.length}
+							<section>
+								<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
+								{#if tables.length}<FormTables {tables} headword={base} />{/if}
+								{#if other.length}
+									<dl class="other">
+										{#each other as group, i (i)}
+											{@const label = otherFormLabel(group.tags)}
+											{@const text = formName(m, settings.lang, label.key && m.grammar.otherForms[label.key], label.extra)}
+											<div>
+												<dt>{#if label.term}<Term id={label.term}>{text}</Term>{:else}{text}{/if}</dt>
+												<dd lang="uk">
+													<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
+													{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} moved={stressMoved(base, form)} />{/each}
+												</dd>
+											</div>
+										{/each}
+									</dl>
+								{/if}
+								{#if shift === 'moves'}
+									<p class="shift">{m.word.stressMoves} <b lang="uk"><Stressed text={entry.headword} /></b>.</p>
+								{:else if shift === 'stays'}
+									<p class="shift">{m.word.stressStays}</p>
+								{/if}
+								<p class="guide">
+									<a href="/grammar#{entry.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
+								</p>
+							</section>
+						{/if}
 
-			{#if entry.etymology}
-				<section>
-					<h2 class="ui-label">{m.word.etymology}</h2>
-					<p class="etymology">{entry.etymology}</p>
-				</section>
-			{/if}
+						<!-- Closed, with its opening words beside the name -->
+						{#if entry.etymology}
+							<details class="etymology">
+								<summary>
+									<h2 class="ui-label">{m.word.etymology}</h2>
+									<span class="hint">{etymologyHint(entry.etymology)}</span>
+									<span class="chevron"><Icon name="chevron-right" size={16} /></span>
+								</summary>
+								<p>{entry.etymology}</p>
+							</details>
+						{/if}
+					</aside>
+				{/if}
+			</div>
 
 			<footer>
 				<span>
@@ -264,6 +345,11 @@
 <style>
 	p {
 		margin: 0;
+	}
+
+	/* Two columns need more than the width of one column of text */
+	.ui-page.wide {
+		--page: var(--page-wide);
 	}
 
 	.back {
@@ -346,6 +432,11 @@
 		text-decoration: underline;
 	}
 
+	.rank {
+		margin-bottom: 0.35rem;
+		font-size: var(--text-sm);
+	}
+
 	/* The word and its buttons on one line. A long word on a phone has the
 	   line to itself and the buttons go under it: beside them it was left a
 	   third of the line and broke in three (кавале / рійськи / й). The
@@ -359,17 +450,7 @@
 	}
 
 	.grammar {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 0.3rem 1.5rem;
 		margin-top: 0.6rem;
-	}
-
-	/* At the right edge also when it has a line to itself */
-	.grammar :global(.freq) {
-		margin-left: auto;
 	}
 
 	.actions {
@@ -388,6 +469,7 @@
 		gap: 0.2rem 1rem;
 		margin-top: 0.15rem;
 		color: var(--ink-2);
+		font-size: var(--text-lg);
 	}
 
 	.ipa {
@@ -395,7 +477,36 @@
 		font-family: var(--font-ipa);
 	}
 
-	section {
+	/* What the reader comes for on the left; the tables and the etymology on the right */
+	.columns {
+		display: grid;
+		grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+		align-items: start;
+		gap: 0 2rem;
+	}
+
+	.columns.single {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.side {
+		padding-left: 2rem;
+		border-left: 1px solid var(--border);
+	}
+
+	@media (max-width: 860px) {
+		.columns {
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.side {
+			padding-left: 0;
+			border-left: 0;
+		}
+	}
+
+	section,
+	.etymology {
 		margin-top: 1.6rem;
 	}
 
@@ -403,8 +514,99 @@
 		margin-bottom: 0.75rem;
 	}
 
+	/* A section's name stands alone, with no rule running beside it; rules are
+	   kept for between the items (sentences, table rows) */
+	h2.ui-label::after {
+		display: none;
+	}
+
 	.senses {
 		font-size: var(--text-lg);
+	}
+
+	/* 1. 2. 3., quieter than the meanings they count */
+	.senses > li::before {
+		content: counter(sense) '.';
+		color: var(--muted);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		line-height: 1.9;
+	}
+
+	/* The first meanings, in the text font a size up: they are what the page is for */
+	.big {
+		color: var(--ink);
+		font-size: var(--text-xl);
+		line-height: 1.3;
+	}
+
+	/* A usage note split off a meaning (splitGloss) */
+	.note {
+		margin-top: 0.3rem;
+		color: var(--ink-2);
+		font-size: 1rem;
+	}
+
+	/* "22 more meanings", and the rows that open like it */
+	details > summary {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.chevron {
+		display: inline-flex;
+		color: var(--muted);
+		transform: rotate(90deg);
+		transition: transform var(--duration);
+	}
+
+	details[open] > summary .chevron {
+		transform: rotate(-90deg);
+	}
+
+	.more {
+		margin-top: 0.75rem;
+	}
+
+	.more > summary {
+		display: inline-flex;
+		gap: 0.3rem;
+		color: var(--accent);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+
+	.more > summary .chevron {
+		color: inherit;
+	}
+
+	.more > ol {
+		margin-top: 0.75rem;
+	}
+
+	.etymology > summary h2 {
+		flex: 1;
+		margin: 0;
+	}
+
+	.etymology .hint {
+		overflow: hidden;
+		color: var(--muted);
+		font-size: var(--text-sm);
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.etymology > p {
+		margin-top: 0.75rem;
+		white-space: pre-line;
 	}
 
 	/* Synonyms and antonyms of the word as a whole, under its meanings and in
@@ -501,10 +703,6 @@
 	.guide {
 		margin-top: 0.75rem;
 		font-size: var(--text-sm);
-	}
-
-	.etymology {
-		white-space: pre-line;
 	}
 
 	footer {

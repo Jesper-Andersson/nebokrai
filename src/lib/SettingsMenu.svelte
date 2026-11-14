@@ -38,7 +38,7 @@
 	// Small previews of the photos; the plain background shows the page colour.
 	const previews: Record<Background, string | null> = { plain: null, field: fieldThumb, hills: hillsThumb };
 
-	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio'>(name: K, value: string) {
+	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio' | 'roman' | 'ipa'>(name: K, value: string) {
 		settings[name] = value as (typeof settings)[K];
 		applySetting(name, settings[name]);
 	}
@@ -161,6 +161,37 @@
 						</Switch.Root>
 					</div>
 					<p class="hint" id="ui-set-radio-hint">{m.settings.radioHint}</p>
+				</section>
+				<!-- What a word's page shows under the headword (word/[word]/+page.svelte) -->
+				<section class="divided">
+					<div class="switch-row">
+						<h2 id="ui-set-roman">{m.settings.roman}</h2>
+						<Switch.Root
+							class="ui-switch"
+							aria-labelledby="ui-set-roman"
+							aria-describedby="ui-set-roman-hint"
+							checked={settings.roman === 'on'}
+							onCheckedChange={(on) => set('roman', on ? 'on' : 'off')}
+						>
+							<Switch.Thumb class="ui-switch-thumb" />
+						</Switch.Root>
+					</div>
+					<p class="hint" id="ui-set-roman-hint">{m.settings.romanHint}</p>
+				</section>
+				<section>
+					<div class="switch-row">
+						<h2 id="ui-set-ipa">{m.settings.ipa}</h2>
+						<Switch.Root
+							class="ui-switch"
+							aria-labelledby="ui-set-ipa"
+							aria-describedby="ui-set-ipa-hint"
+							checked={settings.ipa === 'on'}
+							onCheckedChange={(on) => set('ipa', on ? 'on' : 'off')}
+						>
+							<Switch.Thumb class="ui-switch-thumb" />
+						</Switch.Root>
+					</div>
+					<p class="hint" id="ui-set-ipa-hint">{m.settings.ipaHint}</p>
 				</section>
 				{#if hasAccount}
 					<section class="divided">

@@ -179,7 +179,11 @@ const en = {
 		background: 'Background',
 		backgrounds: { plain: 'Plain', field: 'Field', hills: 'Hills' },
 		radio: 'Radio',
-		radioHint: 'Button in the corner that plays Ukrainian radio stations.'
+		radioHint: 'Button in the corner that plays Ukrainian radio stations.',
+		roman: 'Latin spelling',
+		romanHint: 'A word’s page shows the word in Latin letters too: вода́, vodá.',
+		ipa: 'Phonetic spelling',
+		ipaHint: 'A word’s page shows how it sounds in the International Phonetic Alphabet: [wɔˈda].'
 	},
 	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
 	radio: {
@@ -376,8 +380,13 @@ const en = {
 		coverAgain: 'Cover again',
 		/** Said of a covered place, before the names of its row and column. */
 		coverShow: 'Show the form',
+		/** The switch above the tables: the table as it is, or covered to test oneself */
+		mode: 'Show the forms or test yourself',
+		table: 'Table',
+		/** The closed row under the first meanings */
+		moreMeanings: (n: number) => `${n} more meaning${n === 1 ? '' : 's'}`,
 		/** Under the tables; the headword follows, then a full stop. */
-		stressMoves: 'Underlined: the stress falls on a different syllable than in',
+		stressMoves: 'Underlined letters carry the stress where it moves away from',
 		stressStays: 'The stress stays on the same syllable in every form.',
 		synonyms: 'Synonyms',
 		antonyms: 'Antonyms',
@@ -385,6 +394,14 @@ const en = {
 		family: 'Related words',
 		derived: 'Derived',
 		sameRoot: 'Same root',
+		/** Rows of Related words made from the forms beside the headword (grammar.ts RELATED_HEAD_FORMS) */
+		relatedRows: {
+			relatedAdjective: 'Adjectives',
+			diminutive: 'Diminutives',
+			relatedNoun: 'Nouns',
+			relatedAdverb: 'Adverbs',
+			augmentative: 'Augmentatives'
+		} as Partial<Record<HeadFormKey, string>>,
 		showAll: (n: number) => `show all ${n}`,
 		etymology: 'Etymology',
 		from: 'From',
@@ -1111,7 +1128,11 @@ const uk: Messages = {
 		background: 'Тло',
 		backgrounds: { plain: 'Однотонне', field: 'Поле', hills: 'Пагорби' },
 		radio: 'Радіо',
-		radioHint: 'Кнопка в кутку, що вмикає українські радіостанції.'
+		radioHint: 'Кнопка в кутку, що вмикає українські радіостанції.',
+		roman: 'Латиницею',
+		romanHint: 'Сторінка слова показує його й латинськими літерами: вода́, vodá.',
+		ipa: 'Фонетичний запис',
+		ipaHint: 'Сторінка слова показує, як воно звучить, знаками Міжнародного фонетичного алфавіту: [wɔˈda].'
 	},
 	radio: {
 		open: 'Радіо',
@@ -1279,13 +1300,23 @@ const uk: Messages = {
 		coverCount: (n, total) => `Відкрито ${n} з ${total}`,
 		coverAgain: 'Сховати знову',
 		coverShow: 'Показати форму',
-		stressMoves: 'Підкреслено: наголос падає на інший склад, ніж у слові',
+		mode: 'Показати форми чи перевірити себе',
+		table: 'Таблиця',
+		moreMeanings: (n: number) => `Ще ${counted(n, 'значення', 'значення', 'значень')}`,
+		stressMoves: 'Підкреслено наголошені літери там, де наголос падає не так, як у слові',
 		stressStays: 'У всіх формах наголос падає на той самий склад.',
 		synonyms: 'Синоніми',
 		antonyms: 'Антоніми',
 		family: 'Споріднені слова',
 		derived: 'Похідні',
 		sameRoot: 'Спільний корінь',
+		relatedRows: {
+			relatedAdjective: 'Прикметники',
+			diminutive: 'Зменшувальні',
+			relatedNoun: 'Іменники',
+			relatedAdverb: 'Прислівники',
+			augmentative: 'Збільшувальні'
+		},
 		showAll: (n: number) => `показати всі ${n}`,
 		etymology: 'Етимологія',
 		from: 'Джерело:',

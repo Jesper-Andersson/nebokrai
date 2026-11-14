@@ -59,10 +59,13 @@
 				{#if posTerm && !brief}<Term id={posTerm}>{name}</Term>{:else}{name}{/if}
 			</span>
 			{#each parts as part (part.tag)}
-				<span class="part">
-					{#if part.term && !brief}<Term id={part.term} />{:else}{tagLabel(m, settings.lang, part.tag)}{/if}
-					{#if part.hint}{' '}<span lang="uk">({part.hint})</span>{/if}
-				</span>
+				<!-- One line, no whitespace between the blocks: a tag without a hint
+				     kept a trailing space, and its dot stood further off than the others -->
+				<span class="part"
+					>{#if part.term && !brief}<Term id={part.term} />{:else}{tagLabel(m, settings.lang, part.tag)}{/if}{#if part.hint}{' '}<span
+							lang="uk">({part.hint})</span
+						>{/if}</span
+				>
 			{/each}
 			{#each forms as f, i (i)}
 				{@const label = headFormLabel(f.tags)}

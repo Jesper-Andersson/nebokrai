@@ -194,6 +194,24 @@ const HEAD_FORMS: [tags: string[], key: HeadFormKey, term?: TermId][] = [
 	[['lowercase'], 'lowercase']
 ];
 
+/**
+ * Where a word's page puts a form named beside the headword. A case form
+ * (води́, вод) is in the table already, when there is one; a word made from
+ * the headword (водяни́й, води́ця) goes with the related words; the rest (the
+ * aspect partner, another spelling) stays on the grammar line.
+ */
+export function headFormPlace(tags: string[], hasTables: boolean): 'line' | 'table' | 'related' {
+	const { key } = headFormLabel(tags);
+	if (key && RELATED_HEAD_FORMS.includes(key)) return 'related';
+	if (hasTables && (key === 'genitive' || key === 'plural' || key === 'genitivePlural')) return 'table';
+	return 'line';
+}
+
+/** The head forms listed with the related words, in the order of their rows there. */
+export const RELATED_HEAD_FORMS: HeadFormKey[] = [
+	'relatedAdjective', 'diminutive', 'relatedNoun', 'relatedAdverb', 'augmentative'
+];
+
 const REPEATED_ON_CANONICAL = new Set([
 	'masculine', 'feminine', 'neuter', 'singular', 'plural', 'perfective', 'imperfective', ...ANIMACY
 ]);

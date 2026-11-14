@@ -116,6 +116,7 @@
 	--text-xs: 0.78rem; /* labels, credits, badges */
 	--text-sm: 0.88rem; /* grammar lines, secondary text, controls */
 	--text-lg: 1.1rem; /* meanings, the search box, a page's opening line */
+	--text-xl: 1.25rem; /* the first meanings on a word's page */
 
 	--headword-sm: 1.2rem; /* in a list, a toast, the footer */
 	--headword-md: 1.6rem; /* a search result */
@@ -128,6 +129,7 @@
 	--radius-pill: 999px; /* chips: small things to click */
 
 	--page: 50rem; /* the dictionary: search, a word, saved words */
+	--page-wide: 68rem; /* a word's page in two columns: meanings, then tables */
 	--prose: 44rem; /* pages of text */
 	--frame-width: 72rem; /* the header and the footer */
 

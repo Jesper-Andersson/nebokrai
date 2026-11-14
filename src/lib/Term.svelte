@@ -4,9 +4,12 @@
        <Term id="genitive" />                       genitive
        <Term id="genitive">Родовий</Term>           the caller's own wording
 
-     A Bits UI Popover and not a tooltip (Tip.svelte): a tooltip opens on hover,
-     which a phone does not have. The note is drawn at the end of <body>, so its
-     styles are the global `ui-term` classes in app.css. -->
+     A Bits UI Popover and not a tooltip (Tip.svelte): a tooltip opens on hover
+     only, which a phone does not have. The popover opens on a press, and with
+     a mouse also after the pointer rests on the word a moment (HOVER_OPEN); it
+     waits a little before closing, so the pointer can move into the note and
+     reach its link. The note is drawn at the end of <body>, so its styles are
+     the global `ui-term` classes in app.css. -->
 <script lang="ts">
 	import { Popover } from 'bits-ui';
 	import type { Snippet } from 'svelte';
@@ -20,12 +23,17 @@
 	let m = $derived(messagesFor(settings.lang));
 	let term = $derived(m.grammar.terms[id]);
 	let example = $derived(EXAMPLES[id]);
+
+	// Long enough that a pointer passing over a line of grammar opens nothing,
+	// short enough that one resting on a word does not wait for it
+	const HOVER_OPEN = 400;
+	const HOVER_CLOSE = 300;
 </script>
 
 <!-- No space in or after the button: it would show before the bracket or the
      comma that follows the word, as in "(transitive )" -->
 <Popover.Root
-	><Popover.Trigger class="ui-term"
+	><Popover.Trigger class="ui-term" openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
 		>{#if children}{@render children()}{:else}{term.name.toLocaleLowerCase(settings.lang)}{/if}</Popover.Trigger
 	><Popover.Portal>
 		<Popover.Content class="ui-popover ui-term-note" sideOffset={6} collisionPadding={8}>

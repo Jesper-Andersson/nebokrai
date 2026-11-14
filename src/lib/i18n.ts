@@ -259,12 +259,12 @@ const en = {
 		short: {
 			where: 'Location',
 			'where-to': 'Direction',
-			'with-from': 'With and from',
+			'with-from': 'With & From',
 			numbers: 'Counting',
-			'for-about': 'For and about',
-			'before-after': 'Before and after',
+			'for-about': 'For & About',
+			'before-after': 'Before & After',
 			around: 'Nearby',
-			'above-below': 'Above and below'
+			'above-below': 'Above & Below'
 		} as Record<string, string>,
 		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
 		/** Starts a round of the open lesson; and, on a row, of that rule alone. */

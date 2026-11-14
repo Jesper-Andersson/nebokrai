@@ -25,7 +25,12 @@
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
-	let shown = $derived(entry.glosses.slice(0, 3));
+	// Two meanings in full, each on a line of its own, and how many more the
+	// word's page has: a third cut short told less than the first two whole
+	// (user, 2026-11-14)
+	const SHOWN = 2;
+	let shown = $derived(entry.glosses.slice(0, SHOWN));
+	let more = $derived(entry.glosses.length - shown.length);
 	// A VESUM-only word has no entry, so nothing to save or open.
 	let vesumOnly = $derived('vesum_only' in entry && entry.vesum_only === true);
 	// Present when the query was an inflected form of this word. Empty when
@@ -62,11 +67,14 @@
 		{#if vesumOnly}
 			<i>{m.card.noEntry}</i>
 		{:else}
-			<!-- The semicolons are text, the numerals are not: copied, the line
-			     reads "coffee; coffee tree" -->
-			<ol class="ui-senses inline">
-				{#each shown as gloss, i (i)}<li>{gloss}{#if i < shown.length - 1};{/if}</li>{' '}{/each}
+			<!-- The numerals are drawn, not text: copied, the meanings read one
+			     to a line -->
+			<ol class="ui-senses">
+				{#each shown as gloss, i (i)}<li>{gloss}</li>{/each}
 			</ol>
+			{#if more > 0}
+				<a class="more" href={wordPath(entry.word)}>{m.card.moreMeanings(more)}</a>
+			{/if}
 		{/if}
 	</div>
 
@@ -107,8 +115,8 @@
 			'meta glosses freq'
 			'found found found';
 		align-items: center;
-		gap: 0.15rem 1.25rem;
-		padding: 0.75rem 0.6rem 0.8rem 1.1rem;
+		gap: 0 1rem;
+		padding: 0.45rem 0.4rem 0.5rem 1rem;
 		transition: border-color var(--duration);
 	}
 
@@ -148,7 +156,42 @@
 		border-left: 1px solid var(--border);
 		color: var(--ink-2);
 		font-size: var(--text-lg);
-		line-height: 1.45;
+		line-height: 1.4;
+	}
+
+	/* "1." hanging in the margin, so the meanings' words line up. A word with
+	   one meaning has no number. */
+	/* The word page spaces its meanings apart; two short ones here read as
+	   one block */
+	.glosses :global(.ui-senses) {
+		gap: 0.1rem;
+	}
+
+	.glosses :global(.ui-senses > li) {
+		padding-left: 1.3em;
+	}
+
+	.glosses :global(.ui-senses > li::before) {
+		content: counter(sense) '.';
+	}
+
+	.glosses :global(.ui-senses > li:only-child) {
+		padding-left: 0;
+	}
+
+	.glosses :global(.ui-senses > li:only-child::before) {
+		content: none;
+	}
+
+	/* Quiet, as the related-word links are: it is there for who wants it */
+	.more {
+		display: inline-block;
+		padding-left: 1.3em;
+		color: var(--muted);
+		font-size: var(--text-sm);
+		text-decoration: underline;
+		text-decoration-color: var(--border-strong);
+		text-underline-offset: 3px;
 	}
 
 	/* Under the buttons, on the line of the grammar, and pushed to the same
@@ -178,8 +221,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0 0.45rem;
-		margin: 0.45rem 0.5rem 0 0;
-		padding-top: 0.45rem;
+		margin: 0.3rem 0.5rem 0 0;
+		padding-top: 0.3rem;
 		border-top: 1px dashed var(--border);
 		color: var(--muted);
 		font-size: var(--text-sm);
@@ -190,29 +233,56 @@
 		font-size: 1rem;
 	}
 
-	/* Phones: the meanings go under the word and use the card's full width */
+	/* Phones: the word, its grammar, how common it is and the buttons share
+	   one line, and the meanings go under it across the full width. The
+	   grammar gives way first: it is cut short before the word is. The rank
+	   (#233) is left to the word's page; the bars say enough here. The form
+	   found keeps to one line. */
 	@media (max-width: 600px) {
 		article {
-			grid-template-columns: minmax(0, 1fr) auto;
+			grid-template-columns: auto minmax(0, 1fr) auto auto;
 			grid-template-areas:
-				'word actions'
-				'meta freq'
-				'glosses glosses'
-				'found found';
-			padding: 0.6rem 0.4rem 0.8rem 0.9rem;
+				'word meta freq actions'
+				'glosses glosses glosses glosses'
+				'found found found found';
+			gap: 0 0.5rem;
+			padding: 0.4rem 0.3rem 0.55rem 0.8rem;
+		}
+
+		.meta {
+			overflow: hidden;
+			font-size: var(--text-xs);
+			white-space: nowrap;
+		}
+
+		.meta :global(.row) {
+			flex-wrap: nowrap;
 		}
 
 		.freq {
 			min-width: 0;
-			padding-right: 0.7rem;
+			padding-right: 0;
+		}
+
+		.freq :global(.freq > span:not(.tier)) {
+			display: none;
 		}
 
 		.glosses {
-			margin-top: 0.4rem;
-			padding: 0.5rem 0.5rem 0 0;
-			border-top: 1px solid var(--border);
+			padding: 0 0.5rem 0 0;
 			border-left: 0;
 			font-size: 1rem;
+			line-height: 1.35;
+		}
+
+		.found {
+			display: block;
+			margin-top: 0.15rem;
+			padding-top: 0;
+			overflow: hidden;
+			border-top: 0;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 	}
 </style>

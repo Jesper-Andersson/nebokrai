@@ -136,7 +136,7 @@
 						d="M12 20.5 4.6 13.1a4.9 4.9 0 0 1 6.9-6.9l.5.5.5-.5a4.9 4.9 0 0 1 6.9 6.9z"
 					/>
 				</svg>
-				{m.support.label}
+				<span class="support-label">{m.support.label}</span>
 			</a>
 			<!-- A hairline between the link to the funds and the site's own tools -->
 			<span class="divider"></span>
@@ -495,8 +495,10 @@
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was
-	   the heaviest thing in the bar. It keeps its words at every width; a
-	   heart alone does not say where it leads. */
+	   the heaviest thing in the bar. It keeps its words wherever there is
+	   room; on a phone it is the heart alone, with the words for a screen
+	   reader and as its title (user, 2026-11-14: the words' own line cost
+	   the search results a row). */
 	.support {
 		display: flex;
 		flex: none;
@@ -615,9 +617,11 @@
 		}
 	}
 
-	/* Phones. The name's line has no room for "Підтримати Україну", and the
-	   words must stay, so the link takes a slim line of its own above the
-	   name. The tools' box dissolves to let it out. The tabs share the width. */
+	/* Phones. The name's line has no room for "Підтримати Україну", so the
+	   link is its heart, beside the name, and the words are kept for a screen
+	   reader. The tools' box dissolves to let it sit by the name. The tabs
+	   share the width, a little lower than on a desktop: the bar is two lines
+	   here, and every line it saves is one more search result on screen. */
 	@media (max-width: 740px) {
 		.inner {
 			padding: 0 0.6rem;
@@ -628,21 +632,23 @@
 		}
 
 		.logo {
-			margin-right: auto;
+			height: 2.75rem;
 		}
 
 		.support {
-			order: -1;
-			flex: 0 0 100%;
-			height: 2rem;
+			width: 2.75rem;
+			height: 2.75rem;
+			margin-right: auto;
 			padding: 0;
-			border-bottom: 1px solid var(--border);
-			font-size: var(--text-xs);
 		}
 
-		.support svg {
-			width: 15px;
-			height: 15px;
+		.support-label {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 
 		.divider {
@@ -652,13 +658,13 @@
 		nav a {
 			flex: 1 0 auto;
 			justify-content: center;
-			height: 2.75rem;
+			height: 2.3rem;
 			padding: 0 0.3rem;
 			font-size: clamp(0.6rem, 2.9vw, var(--text-xs));
 		}
 
 		nav a[aria-current='page'] {
-			height: calc(2.75rem + var(--ribbon-height));
+			height: calc(2.3rem + var(--ribbon-height));
 		}
 
 		/* The tabs share the bar's width here and their words stand in the
@@ -671,6 +677,26 @@
 		.search {
 			width: 2.75rem;
 			height: 2.75rem;
+		}
+	}
+
+	/* A practice round on a phone (PracticeRound.svelte marks the page while
+	   it runs): the "Support Ukraine" line and the tabs step aside so the
+	   sentence and the answers fit on the screen, and come back when the round
+	   stops. The ribbon closes the bar as on a page with no tab. */
+	@media (max-width: 600px) {
+		:global(html[data-practising]) .support,
+		:global(html[data-practising]) nav {
+			display: none;
+		}
+
+		:global(html[data-practising]) header::after {
+			content: '';
+			position: absolute;
+			inset: 100% 0 auto;
+			height: var(--ribbon-height);
+			background: var(--ribbon);
+			pointer-events: none;
 		}
 	}
 

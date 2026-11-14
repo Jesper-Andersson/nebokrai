@@ -8,9 +8,11 @@
      and a gender has its pronoun beside it: a learner who has not met
      "masculine" knows "він".
 
-     `brief` is the line of a search result: plain text, so a list of results
-     stays quick to read and to tab through, without the animacy, and with the
-     genitive alone under a short name. `inline` is the part of speech alone,
+     `brief` is the line of a search result: without the animacy, with the
+     genitive alone under a short name, and on a phone the aspect short too
+     (pf., impf.). Its terms open their notes on hover or a press as anywhere
+     else, but stay out of the tab order, so a list of results is still quick
+     to tab through (user, 2026-11-14). `inline` is the part of speech alone,
      as a span, to stand on the headword's own line (the footer, a saved word).
 
      The italics are the text font slanted by the browser, on purpose. A true
@@ -56,13 +58,20 @@
 	<p class="grammar">
 		<span class="row">
 			<span class="part">
-				{#if posTerm && !brief}<Term id={posTerm}>{name}</Term>{:else}{name}{/if}
+				{#if posTerm}<Term id={posTerm} tabbable={!brief}>{name}</Term>{:else}{name}{/if}
 			</span>
 			{#each parts as part (part.tag)}
 				<!-- One line, no whitespace between the blocks: a tag without a hint
 				     kept a trailing space, and its dot stood further off than the others -->
+				{@const short = brief ? m.grammar.short[part.tag] : undefined}
 				<span class="part"
-					>{#if part.term && !brief}<Term id={part.term} />{:else}{tagLabel(m, settings.lang, part.tag)}{/if}{#if part.hint}{' '}<span
+					>{#if part.term && short}<Term id={part.term} tabbable={false}
+							><span class="long">{tagLabel(m, settings.lang, part.tag)}</span><span class="short">{short}</span></Term
+						>{:else if part.term}<Term id={part.term} tabbable={!brief} />{:else}{tagLabel(
+							m,
+							settings.lang,
+							part.tag
+						)}{/if}{#if part.hint}{' '}<span
 							lang="uk">({part.hint})</span
 						>{/if}</span
 				>
@@ -136,6 +145,23 @@
 		text-decoration: underline;
 		text-decoration-color: var(--border-strong);
 		text-underline-offset: 3px;
+	}
+
+	/* A result's line on a phone stands beside the headword, where
+	   "imperfective" has no room: it says "impf.", and its note gives the
+	   full name */
+	.short {
+		display: none;
+	}
+
+	@media (max-width: 600px) {
+		.long {
+			display: none;
+		}
+
+		.short {
+			display: inline;
+		}
 	}
 
 	a:hover {

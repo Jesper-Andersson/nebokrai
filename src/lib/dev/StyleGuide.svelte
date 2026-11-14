@@ -59,7 +59,7 @@
 		fonts: /^--font-/,
 		sizes: /^--(text-|headword-|title$)/,
 		corners: /^--radius-/,
-		spaces: /^--space-/,
+		spaces: /^--gap-/,
 		widths: /^--(page|prose|frame-width)$/,
 		shadows: /^--shadow/,
 		other: /^--duration$/
@@ -460,16 +460,16 @@
 <style>
 	.guide {
 		display: grid;
-		gap: var(--space-7);
+		gap: var(--gap-section);
 		max-width: var(--frame-width);
 		margin-inline: auto;
-		padding: var(--space-6) var(--space-4) 0;
+		padding: var(--gap-block) var(--gap-stack) 0;
 	}
 
 	.top,
 	section {
 		display: grid;
-		gap: var(--space-4);
+		gap: var(--gap-stack);
 		/* a grid item is as wide as its widest line unless told otherwise */
 		min-width: 0;
 	}
@@ -487,7 +487,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--space-2) var(--space-3);
+		gap: var(--gap-inline) var(--gap-inline);
 	}
 
 	.switches :global(.ui-segment) {
@@ -504,7 +504,7 @@
 
 	/* A section's heading clears the sticky header when its link is followed */
 	section {
-		scroll-margin-top: var(--space-7);
+		scroll-margin-top: var(--gap-section);
 	}
 
 	ul {
@@ -534,21 +534,21 @@
 		display: grid;
 		/* two across on a phone */
 		grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-		gap: var(--space-5) var(--space-4);
+		gap: var(--gap-block) var(--gap-stack);
 	}
 
 	.swatches li,
 	.boxes li {
 		display: grid;
 		align-content: start;
-		gap: var(--space-1);
+		gap: var(--gap-tight);
 	}
 
 	.swatch,
 	.corner,
 	.lifted {
 		height: 3.5rem;
-		margin-bottom: var(--space-1);
+		margin-bottom: var(--gap-tight);
 		border: 1px solid var(--border-strong);
 	}
 
@@ -569,16 +569,16 @@
 
 	.rows {
 		display: grid;
-		gap: var(--space-5);
+		gap: var(--gap-block);
 	}
 
 	.rows.tight {
-		gap: var(--space-3);
+		gap: var(--gap-stack);
 	}
 
 	.rows li {
 		display: grid;
-		gap: var(--space-1);
+		gap: var(--gap-tight);
 		min-width: 0;
 	}
 
@@ -587,7 +587,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--space-1) var(--space-3);
+		gap: var(--gap-tight) var(--gap-inline);
 	}
 
 	.rows li.measure {
@@ -612,7 +612,7 @@
 
 	.bar {
 		display: block;
-		height: var(--space-3);
+		height: var(--gap-inline);
 		border-radius: var(--radius-sm);
 		background: var(--accent);
 	}
@@ -622,7 +622,7 @@
 	.demos {
 		display: grid;
 		grid-template-columns: 12rem minmax(0, 1fr);
-		gap: var(--space-5) var(--space-4);
+		gap: var(--gap-block) var(--gap-stack);
 		margin: 0;
 	}
 
@@ -641,7 +641,7 @@
 	@media (max-width: 700px) {
 		.demos {
 			grid-template-columns: minmax(0, 1fr);
-			gap: var(--space-2);
+			gap: var(--gap-inline);
 		}
 
 		.demos dt,
@@ -650,18 +650,18 @@
 		}
 
 		.demos dd {
-			margin-bottom: var(--space-5);
+			margin-bottom: var(--gap-block);
 		}
 	}
 
 	.padded {
-		padding: var(--space-4);
+		padding: var(--gap-stack);
 	}
 
 	.fields,
 	.stack {
 		display: grid;
-		gap: var(--space-2);
+		gap: var(--gap-inline);
 		max-width: 24rem;
 	}
 
@@ -678,12 +678,12 @@
 
 	.icons {
 		grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-		gap: var(--space-4);
+		gap: var(--gap-stack);
 	}
 
 	.icons li {
 		display: flex;
 		align-items: center;
-		gap: var(--space-2);
+		gap: var(--gap-inline);
 	}
 </style>

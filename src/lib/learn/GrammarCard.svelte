@@ -2,14 +2,15 @@
      short name, the words it teaches and a bar of one segment per rule,
      coloured by how well the rule is held (stateOf in round.ts); beside the
      list, the open lesson's rules as a table. The lesson open at first is
-     the first not yet known; a click opens another, and nothing of it is
-     kept. "Practise this" and each rule's "Practise" start a round on
-     /practice (?lesson=, ?rule=). -->
+     the one last opened here or on /practice, or else the first not yet
+     known (openLesson in lessons.ts); a click opens another. "Practise this"
+     and each rule's "Practise" start a round on /practice (?lesson=, ?rule=). -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { LESSONS } from '#lib/practice/lessons.ts';
-	import { cardKey, isNumber, pointOf, type Point } from '#lib/practice/points.ts';
+	import { lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
+	import { cardKey, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -31,31 +32,18 @@
 
 	const held = (point: Point): PointState => (ready ? stateOf(review.cards.get(cardKey(point.id)), now) : 'new');
 
-	// A number's rule is shown in the list by its example (1 книга · 2 книги ·
-	// 5 книг): the change in the noun is what the lesson teaches, and the
-	// bare numbers (1 · 2–4 · 5+) said nothing of it.
-	const cueOf = (point: Point) => (isNumber(point) ? point.example : point.cue.split(' / ')[0]);
-
-	let lessons = $derived(
-		LESSONS.map((lesson, i) => {
-			const points = lesson.points
-				.filter((id) => offered.includes(id))
-				.map(pointOf)
-				.filter((point): point is Point => point !== undefined)
-				.map((point) => ({ point, state: held(point) }));
-			// The words it teaches, each once: у · на, з · від (the first spelling of у / в)
-			const cues = [...new Set(points.map(({ point }) => cueOf(point)))];
-			const known = points.filter(({ state }) => state === 'known').length;
-			return { id: lesson.id, n: i + 1, points, cues, known };
-		}).filter((lesson) => lesson.points.length)
-	);
+	let lessons = $derived(lessonRows(offered, held));
 
 	let chosen = $state<string | null>(null);
-	let open = $derived(
-		lessons.find((lesson) => lesson.id === chosen)
-			?? lessons.find((lesson) => lesson.known < lesson.points.length)
-			?? lessons[0]
-	);
+	let open = $derived(openLesson(lessons, chosen));
+	onMount(() => {
+		chosen = readOpenLesson();
+	});
+
+	function choose(id: string) {
+		chosen = id;
+		rememberOpenLesson(id);
+	}
 
 	const takes = (point: Point) =>
 		m.grammar.terms[point.case].name.toLocaleLowerCase(settings.lang)
@@ -76,7 +64,7 @@
 								class="lesson"
 								class:open={lesson.id === open.id}
 								aria-pressed={lesson.id === open.id}
-								onclick={() => (chosen = lesson.id)}
+								onclick={() => choose(lesson.id)}
 							>
 								<span class="n">{lesson.n}</span>
 								<b>{m.learn.short[lesson.id]}</b>

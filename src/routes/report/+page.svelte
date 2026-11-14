@@ -190,7 +190,7 @@
 				</p>
 			{/if}
 
-			<button type="submit" class="ui-btn ui-btn-primary" disabled={sending}>
+			<button type="submit" class="ui-btn ui-btn-primary" disabled={sending} aria-busy={sending}>
 				{sending ? m.report.sending : m.report.send}
 			</button>
 		</form>
@@ -261,10 +261,6 @@
 
 	textarea {
 		resize: vertical;
-	}
-
-	textarea[aria-invalid='true'] {
-		border-color: var(--stress);
 	}
 
 	.error {

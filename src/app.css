@@ -133,16 +133,15 @@
 	--prose: 44rem; /* pages of text */
 	--frame-width: 72rem; /* the header and the footer */
 
-	/* Gaps, padding and margins, for new work. What was built before these
-	   existed still has its own numbers; the steps are the values it uses
-	   most, so new and old sit together. */
-	--space-1: 0.25rem; /* an icon and its word */
-	--space-2: 0.5rem; /* things in a row */
-	--space-3: 0.75rem; /* a label and what it names */
-	--space-4: 1rem; /* inside a card; the page's edge */
-	--space-5: 1.5rem; /* between the parts of a card */
-	--space-6: 2rem; /* between cards */
-	--space-7: 3rem; /* between the sections of a page */
+	/* Gaps, padding and margins, named by what the gap is for rather than by
+	   size, so two people reach for the same one. Five on purpose: a gap that
+	   fits none of them is a design question, not a sixth token. What was
+	   built before these existed still has its own numbers. */
+	--gap-tight: 0.25rem; /* an icon and its word, a badge and its text */
+	--gap-inline: 0.5rem; /* things side by side: buttons, chips */
+	--gap-stack: 1rem; /* lines within a block; inside a card; the page's edge */
+	--gap-block: 2rem; /* between the blocks of a page: meanings, examples */
+	--gap-section: 3rem; /* between the parts of a page */
 
 	--duration: 0.15s;
 }
@@ -162,6 +161,7 @@
 	--raised: #ffffff;
 	--border: #e3e0d6;
 	--border-strong: #cdc9bc;
+	--border-field: #8f8a7f; /* the edge of a box to type in: 3:1 on the page and on a card */
 	--ink: #16181d;
 	--ink-2: #3c4049;
 	--muted: #646a76;
@@ -224,6 +224,7 @@
 	--raised: #35332e;
 	--border: #302e2a;
 	--border-strong: #48453f;
+	--border-field: #76726a;
 	--ink: #f0ede7;
 	--ink-2: #d4d0c8;
 	--muted: #a39f96;
@@ -271,6 +272,7 @@
 		--raised: #35332e;
 		--border: #302e2a;
 		--border-strong: #48453f;
+		--border-field: #76726a;
 		--ink: #f0ede7;
 		--ink-2: #d4d0c8;
 		--muted: #a39f96;
@@ -321,6 +323,7 @@
 	--raised: #f1e6d0;
 	--border: #cdbb98;
 	--border-strong: #b3a07a;
+	--border-field: #7f6c47;
 	--ink: #3b2f20;
 	--ink-2: #54452f;
 	--muted: #655740;
@@ -689,9 +692,27 @@ select {
 	}
 }
 
-.ui-btn:disabled {
-	opacity: 0.5;
+/* Pressed: a toggle that is on (Saved). An ink edge, not a fill, so it
+   stays apart from the one accent-filled button on a form. */
+.ui-btn[aria-pressed='true'] {
+	border-color: var(--ink-2);
+	background: var(--surface-2);
+}
+
+/* Disabled turns grey rather than faint: half opacity took the label below
+   4.5:1 and let a background photo show through. */
+.ui-btn:disabled,
+.ui-btn.ui-btn-primary:disabled {
+	border-color: var(--border);
+	background: var(--surface-2);
+	color: var(--muted);
 	cursor: not-allowed;
+}
+
+/* Busy: the label says what is happening ("Sending…") and the button keeps
+   its place; the component sets aria-busy and disables it meanwhile. */
+.ui-btn[aria-busy='true'] {
+	cursor: progress;
 }
 
 /* Something not built yet, shown so that the way it will go is visible
@@ -766,10 +787,23 @@ select {
 	box-sizing: border-box;
 	width: 100%;
 	padding: 0.55rem 0.7rem;
-	border: 1px solid var(--border-strong);
+	border: 1px solid var(--border-field);
 	border-radius: var(--radius-md);
 	background: var(--surface);
 	color: var(--ink);
+}
+
+.ui-field:disabled {
+	border-color: var(--border);
+	background: var(--surface-2);
+	color: var(--muted);
+}
+
+/* A field that needs fixing: a red edge, drawn inside so the box does not
+   grow, with the reason in words beside it (never the colour alone). */
+.ui-field[aria-invalid='true'] {
+	border-color: var(--stress);
+	box-shadow: inset 0 0 0 1px var(--stress);
 }
 
 .ui-badge {

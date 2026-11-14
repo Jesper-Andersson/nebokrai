@@ -187,6 +187,8 @@
 	--shadow: 0 1px 2px rgb(22 24 29 / 0.05), 0 6px 20px rgb(22 24 29 / 0.06);
 	--shadow-pop: 0 2px 6px rgb(22 24 29 / 0.08), 0 16px 48px rgb(22 24 29 / 0.18);
 	--stress: #cf3d2e;
+	--right: #1f7a3d; /* a right answer: 5.4:1 on the surface */
+	--right-soft: #e3f4e7;
 	--play: #1f8ac0;
 	/* The streak's flame on the header's flashcards button: its tip, its body
 	   and the number written on it */
@@ -243,6 +245,8 @@
 	--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 	--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	--stress: #e8645a;
+	--right: #6fcf8a;
+	--right-soft: #173322;
 	--play: #5cb8e6;
 	/* The streak's flame on the header's flashcards button: its tip, its body
 	   and the number written on it */
@@ -290,6 +294,8 @@
 		--shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 6px 20px rgb(0 0 0 / 0.25);
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		--stress: #e8645a;
+		--right: #6fcf8a;
+		--right-soft: #173322;
 		--play: #5cb8e6;
 		/* The streak's flame on the header's flashcards button: its tip, its body
 		   and the number written on it */
@@ -340,6 +346,8 @@
 	--shadow: 0 1px 2px rgb(59 47 32 / 0.07), 0 6px 20px rgb(59 47 32 / 0.08);
 	--shadow-pop: 0 2px 6px rgb(59 47 32 / 0.12), 0 16px 48px rgb(59 47 32 / 0.22);
 	--stress: #a8321f;
+	--right: #1a6331;
+	--right-soft: #cfe3c0;
 	--play: #1a6283;
 	/* The streak's flame on the header's flashcards button: its tip, its body
 	   and the number written on it */

@@ -51,11 +51,10 @@
 			"database_id": "ed15b7f2-ffa3-4a80-8bfa-913301caa107"
 		},
 		{
-			// Visit and search counts (src/lib/server/stats.ts). The id is a
-			// placeholder until `wrangler d1 create nebokrai-stats` is run.
+			// Visit and search counts (src/lib/server/stats.ts)
 			"binding": "STATS",
 			"database_name": "nebokrai-stats",
-			"database_id": "00000000-0000-0000-0000-00000000057a"
+			"database_id": "785916e9-d2a8-474f-8d72-84a4154d10a7"
 		}
 	],
 

@@ -4,13 +4,14 @@
      is a Melt Collapsible. -->
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
-	import { afterNavigate, goto } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import WordCard from '#lib/WordCard.svelte';
 	import WordOfDay from '#lib/WordOfDay.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
+	import { searchReporter } from '#lib/hit.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import type { LookupResult } from '#lib/search/suggest.ts';
@@ -87,6 +88,15 @@
 			clearTimeout(timer);
 			controller.abort();
 		};
+	});
+
+	// Count a search once its answer has been looked at, not per letter typed
+	// (src/lib/hit.ts). Leaving for a result counts it at once.
+	const searches = searchReporter();
+	$effect(() => searches.shown(found));
+	beforeNavigate((navigation) => {
+		if (navigation.type === 'goto' && navigation.shallow) return;
+		searches.leaving();
 	});
 
 	const key = (entry: { id: number | null; word: string; pos: string }) =>

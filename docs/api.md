@@ -320,6 +320,33 @@ station; the visitor's browser does not.
 A `<station>` that is not in the list gets `404` with
 `{ "error": "not_found", "station": "…" }`.
 
+## `POST /api/hit`
+
+Counts a page view or a search for the site's own visit numbers. The route is
+`src/routes/api/hit/+server.ts`; the counting is `src/lib/server/stats.ts`.
+Sent by the site's pages with `navigator.sendBeacon` (`src/lib/hit.ts`): after
+each page shown, and after a search whose answer was on screen for 1.5 seconds
+or one of whose results was opened.
+
+```json
+{ "kind": "view", "path": "/word/voda" }
+{ "kind": "search", "query": "вода", "results": 5 }
+```
+
+| Field | |
+|---|---|
+| `kind` | `view` or `search`. |
+| `path` | `view`: the page's path. Paths outside the site's sections are counted together as `(other)`. |
+| `query` | `search`: the text searched, at most 200 characters. Counted after normalising (lower case, no stress marks); its text is kept only up to 40 characters, for 90 days. |
+| `results` | `search`: how many results the answer had; `0` counts as a search that found nothing. |
+
+The answer is always `204` with no body, whether or not anything was counted:
+a body that is not JSON or over 1 KB, a user agent that is a program, a
+browser sending `DNT: 1` or `Sec-GPC: 1`, or more than 300 counts in 10
+minutes from one address are all dropped without an error. No cookie is set
+and the IP address is not stored (see `stats.ts`). A request whose `Origin`
+names another site gets the site-wide `403 cross_site`.
+
 ## Licence of the data
 
 The answers carry dictionary data, and each source keeps its own licence

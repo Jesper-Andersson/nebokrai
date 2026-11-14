@@ -6,6 +6,7 @@
 <script lang="ts">
 	import { Command, Dialog } from 'bits-ui';
 	import { goto } from '$app/navigation';
+	import { searchReporter } from '#lib/hit.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
@@ -70,7 +71,13 @@
 		}
 	}
 
+	// Counted like the search page's (src/lib/hit.ts); closing the box empties
+	// it, which drops a search not looked at long enough.
+	const searches = searchReporter();
+	$effect(() => searches.shown(found));
+
 	function go(entry: Entry) {
+		searches.leaving();
 		quick.open = false;
 		void goto(wordPath(entry.word));
 	}

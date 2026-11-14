@@ -7,7 +7,7 @@ import { MAX_REVIEW } from '../src/lib/review/cards.ts';
 import { AGAIN, GOOD, answer, newCard } from '../src/lib/review/fsrs.ts';
 import { MAX_LISTS, MAX_SAVED } from '../src/lib/saved.ts';
 import {
-	SESSION_MS, addToLists, createSession, deleteList, deleteSession, deleteUser, findOrCreateUser, getReviewSettings,
+	SESSION_MS, accountStats, addToLists, createSession, deleteList, deleteSession, deleteUser, findOrCreateUser, getReviewSettings,
 	hasList, listExported, listLists, listReviewCards, listReviewDays, listSaved, markExported, mergeLists, mergeSaved,
 	parseExportedMarks, parseExportedWords, parseSavedWords, parseWords, putList, removeFromList, removeWord,
 	saveReviewCards, saveReviewDays, saveReviewSettings, saveWord, validateSession
@@ -331,4 +331,18 @@ test('exported marks sent by a browser are read defensively', () => {
 	assert.deepEqual(parseExportedWords(['книга', '', 7, null, 'я'.repeat(101), 'привіт', 'книга'], now),
 		{ книга: now, привіт: now });
 	for (const junk of [null, 'книга', { книга: T0 }]) assert.deepEqual(parseExportedWords(junk, now), {});
+});
+
+test('account numbers count accounts, never name them', async () => {
+	const db = openMemoryUsers();
+	const now = T0;
+	const a = await findOrCreateUser(db, 'github', '1', 'А');
+	const b = await findOrCreateUser(db, 'github', '2', 'Б');
+	await db.run('UPDATE users SET created_at = ? WHERE id = ?', [now - 1000, a]);
+	await db.run('UPDATE users SET created_at = ? WHERE id = ?', [now - 8 * DAY, b]);
+	await saveWord(db, a, 'вода');
+	await saveReviewDays(db, a, 'device-aaaa', { [new Date(now - DAY).toISOString().slice(0, 10)]: 3 });
+	await saveReviewDays(db, b, 'device-bbbb', { [new Date(now - 20 * DAY).toISOString().slice(0, 10)]: 1 });
+	const stats = await accountStats(db, now, 4);
+	assert.deepEqual(stats, { users: 2, withSavedWords: 1, reviewed7: 1, reviewed30: 2, signUps: [0, 0, 1, 1] });
 });

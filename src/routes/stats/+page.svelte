@@ -8,7 +8,9 @@
      Everything comes from src/lib/server/stats.ts and accountStats() in
      users.ts; nothing here is stored in the browser. -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { RadioGroup } from 'bits-ui';
+	import { invalidate } from '$app/navigation';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import type { DayRow } from '#lib/server/stats.ts';
@@ -16,6 +18,29 @@
 	import { SECTION_NAMES } from '#lib/stats-sections.ts';
 
 	let { data } = $props();
+
+	// The counts are asked for again every minute while the page is in view,
+	// and at once when its tab comes back after a minute or more away. Only
+	// the data is loaded again: the chart's switch and the scroll stay put.
+	const REFRESH_MS = 60_000;
+	onMount(() => {
+		let last = Date.now();
+		const refresh = () => {
+			last = Date.now();
+			void invalidate('stats:counts');
+		};
+		const timer = setInterval(() => {
+			if (document.visibilityState === 'visible') refresh();
+		}, REFRESH_MS);
+		const onVisible = () => {
+			if (document.visibilityState === 'visible' && Date.now() - last >= REFRESH_MS) refresh();
+		};
+		document.addEventListener('visibilitychange', onVisible);
+		return () => {
+			clearInterval(timer);
+			document.removeEventListener('visibilitychange', onVisible);
+		};
+	});
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));

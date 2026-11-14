@@ -19,6 +19,7 @@
 		"reports": "node scripts/reports.ts",
 		"og-image": "node scripts/og-image.ts",
 		"app-icons": "node scripts/app-icons.ts",
+		"shots": "node scripts/shots.ts",
 		"deploy": "vite build && wrangler deploy"
 	},
 	"devDependencies": {

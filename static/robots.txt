@@ -7,6 +7,7 @@
 # offline.html is what the installed app shows without a connection; it says
 # "noindex" itself. Cloudflare serves it at /offline, and the line below
 # covers both addresses.
+# /dev/ is pages for building the site; here they answer 404.
 User-agent: *
 Disallow: /?q=
 Disallow: /api/
@@ -16,5 +17,6 @@ Disallow: /login/
 Disallow: /auth/
 Disallow: /logout
 Disallow: /offline
+Disallow: /dev/
 
 Sitemap: https://nebokrai.app/sitemap.xml

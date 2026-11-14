@@ -131,6 +131,17 @@
 	--prose: 44rem; /* pages of text */
 	--frame-width: 72rem; /* the header and the footer */
 
+	/* Gaps, padding and margins, for new work. What was built before these
+	   existed still has its own numbers; the steps are the values it uses
+	   most, so new and old sit together. */
+	--space-1: 0.25rem; /* an icon and its word */
+	--space-2: 0.5rem; /* things in a row */
+	--space-3: 0.75rem; /* a label and what it names */
+	--space-4: 1rem; /* inside a card; the page's edge */
+	--space-5: 1.5rem; /* between the parts of a card */
+	--space-6: 2rem; /* between cards */
+	--space-7: 3rem; /* between the sections of a page */
+
 	--duration: 0.15s;
 }
 

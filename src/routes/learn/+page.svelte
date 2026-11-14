@@ -129,8 +129,8 @@
 				</div>
 				<ol class="path">
 					<li data-kind="alphabet" class:done={lettersDone}>
-						<span class="number" aria-hidden="true">
-							{#if lettersDone}<Icon name="check" size={18} />{:else}1{/if}
+						<span class="mark" aria-hidden="true">
+							{#if lettersDone}<Icon name="check" size={20} />{:else}<span class="letters" lang="uk">АБВ</span>{/if}
 						</span>
 						<div class="path-text">
 							<h3>{m.learn.first.letters.name}</h3>
@@ -166,7 +166,7 @@
 						{/if}
 					</li>
 					<li data-kind="cards">
-						<span class="number" aria-hidden="true">2</span>
+						<span class="mark" aria-hidden="true"><Icon name="cards" size={22} /></span>
 						<div class="path-text">
 							<h3>{m.learn.first.words.name}</h3>
 							<p>{m.learn.first.words.text}</p>
@@ -178,7 +178,7 @@
 						</div>
 					</li>
 					<li data-kind="grammar">
-						<span class="number" aria-hidden="true">3</span>
+						<span class="mark" aria-hidden="true"><Icon name="book" size={22} /></span>
 						<div class="path-text">
 							<h3>{m.learn.first.grammar.name}</h3>
 							<p>{m.learn.first.grammar.text}</p>
@@ -262,16 +262,21 @@
 
 	/* --- The newcomer's three steps --- */
 
+	/* Each step in its own colour, and its mark on a tint of it. The letters
+	   are a quiet ink grey: the amber they had was disliked (2026-11-14). */
 	[data-kind='cards'] {
 		--kind: var(--accent);
+		--kind-soft: var(--accent-soft);
 	}
 
 	[data-kind='grammar'] {
 		--kind: var(--pill-1-line);
+		--kind-soft: color-mix(in srgb, var(--pill-1-line) 14%, var(--surface));
 	}
 
 	[data-kind='alphabet'] {
-		--kind: var(--pill-3-line);
+		--kind: var(--ink-2);
+		--kind-soft: color-mix(in srgb, var(--ink-2) 12%, var(--surface));
 	}
 
 	.first {
@@ -304,7 +309,7 @@
 		list-style: none;
 	}
 
-	/* A number in the kind's colour, what the step is, and its button */
+	/* A mark in the kind's colour, what the step is, and its button */
 	.path > li {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr) auto;
@@ -317,15 +322,23 @@
 		background: var(--surface-2);
 	}
 
-	.number {
+	/* What the step is about, drawn as the Reference tiles draw theirs: the
+	   letters АБВ, the flashcards, the book of grammar */
+	.mark {
 		display: grid;
 		place-items: center;
-		width: 2rem;
-		height: 2rem;
-		border: 2px solid var(--kind);
-		border-radius: 50%;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: var(--radius-md);
+		background: var(--kind-soft);
+		color: var(--kind);
+	}
+
+	.letters {
 		font-family: var(--font-headword);
+		font-size: var(--text-xs);
 		font-weight: 800;
+		letter-spacing: 0.02em;
 	}
 
 	.path-text {
@@ -423,18 +436,53 @@
 			padding-top: 0.9rem;
 		}
 
+		/* The three steps on one screen of a phone, under the header */
 		.first {
-			padding: 0.8rem 0.8rem 0.9rem;
+			gap: 0.75rem;
+			padding: 0.9rem 0.8rem;
 		}
 
-		/* The button under what it is for */
+		.first h2 {
+			font-size: 1.7rem;
+		}
+
+		.first-lead {
+			margin-top: 0.15rem;
+			font-size: var(--text-sm);
+		}
+
+		.path {
+			gap: 0.5rem;
+		}
+
+		/* The button under what it is for, the skip beside it where it fits */
 		.path > li {
 			grid-template-columns: auto minmax(0, 1fr);
+			align-items: start;
+			gap: 0.35rem 0.7rem;
+			padding: 0.7rem 0.75rem;
+		}
+
+		.path h3 {
+			font-size: 1.1rem;
+		}
+
+		.path p {
+			font-size: var(--text-sm);
+			line-height: 1.35;
 		}
 
 		.path-go {
+			display: flex;
+			flex-wrap: wrap;
 			grid-column: 2;
-			justify-items: start;
+			align-items: center;
+			gap: 0.4rem 0.9rem;
+		}
+
+		.path-go .ui-btn {
+			padding-block: 0.35rem;
+			font-size: var(--text-sm);
 		}
 	}
 </style>

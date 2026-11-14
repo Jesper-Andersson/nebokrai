@@ -288,11 +288,10 @@ const en = {
 		 */
 		first: {
 			title: 'Start here',
-			lead: 'New to Ukrainian? Three steps, in this order. Once you begin, this page shows what you have learnt and what to do each day.',
+			lead: 'Three steps to begin, in this order.',
 			letters: {
 				name: 'Learn to read the letters',
-				text: (n: number) =>
-					`Ukrainian is written in ${n} Cyrillic letters. A short drill teaches you to read them, and everything else here is written in them.`,
+				text: (n: number) => `${n} Cyrillic letters, with a short drill to read them.`,
 				go: 'Learn the letters',
 				skip: 'I can read them already',
 				done: 'You can read the letters.',
@@ -300,12 +299,12 @@ const en = {
 			},
 			words: {
 				name: 'Meet your first words',
-				text: 'Ten new flashcards a day from the 500 commonest words. Each word comes back shortly before you would forget it.',
+				text: 'Ten new flashcards a day from the 500 commonest words.',
 				go: 'Start the first words'
 			},
 			grammar: {
 				name: 'Try a round of grammar',
-				text: 'Ten real sentences, each with a gap to fill. Best left until you can read the letters and know a few words.',
+				text: 'Ten real sentences, each with a gap to fill.',
 				go: 'Start a round'
 			}
 		}
@@ -1200,11 +1199,10 @@ const uk: Messages = {
 		},
 		first: {
 			title: 'Почніть тут',
-			lead: 'Щойно починаєте вчити українську? Три кроки, саме в такому порядку. Коли почнете, ця сторінка показуватиме, що ви вже вивчили і що робити щодня.',
+			lead: 'Три кроки для початку, саме в такому порядку.',
 			letters: {
 				name: 'Навчіться читати літери',
-				text: (n) =>
-					`В українській абетці ${counted(n, 'літера', 'літери', 'літер')}. Коротка вправа навчить їх читати, а ними написано все інше тут.`,
+				text: (n) => `${counted(n, 'літера', 'літери', 'літер')} кирилиці й коротка вправа, щоб навчитися їх читати.`,
 				go: 'Вивчити літери',
 				skip: 'Я вже вмію їх читати',
 				done: 'Ви вмієте читати літери.',
@@ -1212,12 +1210,12 @@ const uk: Messages = {
 			},
 			words: {
 				name: 'Познайомтеся з першими словами',
-				text: 'Щодня десять нових карток із 500 найуживаніших слів. Кожне слово повертається незадовго до того, як ви його забули б.',
+				text: 'Щодня десять нових карток із 500 найуживаніших слів.',
 				go: 'Почати з перших слів'
 			},
 			grammar: {
 				name: 'Спробуйте раунд граматики',
-				text: 'Десять справжніх речень, у кожному пропуск. Краще братися, коли вже читаєте літери й знаєте кілька слів.',
+				text: 'Десять справжніх речень, у кожному пропуск.',
 				go: 'Почати раунд'
 			}
 		}

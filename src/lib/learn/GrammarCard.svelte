@@ -9,7 +9,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { LESSONS } from '#lib/practice/lessons.ts';
-	import { cardKey, pointOf, type Point } from '#lib/practice/points.ts';
+	import { cardKey, isNumber, pointOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -31,8 +31,10 @@
 
 	const held = (point: Point): PointState => (ready ? stateOf(review.cards.get(cardKey(point.id)), now) : 'new');
 
-	// What a number's rule is about, in the list: the numbers themselves
-	const NUMBER_CUE: Record<string, string> = { 'one-nom': '1', 'few-nom': '2–4', 'many-gen': '5+' };
+	// A number's rule is shown in the list by its example (1 книга · 2 книги ·
+	// 5 книг): the change in the noun is what the lesson teaches, and the
+	// bare numbers (1 · 2–4 · 5+) said nothing of it.
+	const cueOf = (point: Point) => (isNumber(point) ? point.example : point.cue.split(' / ')[0]);
 
 	let lessons = $derived(
 		LESSONS.map((lesson, i) => {
@@ -42,7 +44,7 @@
 				.filter((point): point is Point => point !== undefined)
 				.map((point) => ({ point, state: held(point) }));
 			// The words it teaches, each once: у · на, з · від (the first spelling of у / в)
-			const cues = [...new Set(points.map(({ point }) => NUMBER_CUE[point.id] ?? point.cue.split(' / ')[0]))];
+			const cues = [...new Set(points.map(({ point }) => cueOf(point)))];
 			const known = points.filter(({ state }) => state === 'known').length;
 			return { id: lesson.id, n: i + 1, points, cues, known };
 		}).filter((lesson) => lesson.points.length)

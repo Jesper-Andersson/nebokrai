@@ -45,6 +45,8 @@
 	};
 
 	export type IconName = keyof typeof PATHS;
+	/** Every icon there is, for the style guide (src/lib/dev/StyleGuide.svelte). */
+	export const ICON_NAMES = Object.keys(PATHS) as IconName[];
 </script>
 
 <script lang="ts">

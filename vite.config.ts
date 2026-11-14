@@ -46,6 +46,11 @@ export default defineConfig({
 				}
 			},
 
+			// In `npm run dev` only: hold Alt+X and click anything on a page, and
+			// the editor opens the component that drew it. SvelteKit hands this
+			// option on to vite-plugin-svelte.
+			inspector: true,
+
 			// The site runs on Cloudflare Workers; wrangler.jsonc says how.
 			adapter: adapter()
 		})

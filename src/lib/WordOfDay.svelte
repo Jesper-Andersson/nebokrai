@@ -1,16 +1,23 @@
-<!-- The word of the day, under the search box while nothing is typed: one
-     entry set as the word's own page sets it, cut down to a card. The
-     headword and "Details" both lead to the full entry. -->
+<!-- The word of the day, under the search box while nothing is typed: the
+     card a search result has, with the label and one example sentence in the
+     same frame (option B of the main-page design, user, 2026-11-14).
+
+       WORD OF THE DAY
+       тра́вма 🔈 noun · feminine (вона)  │ trauma, injury (…)        ☐ ›
+       ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+       │ На щастя, він уникнув травми.
+       │ ░░ ░░░░░░ ░░░░░░, ░░░░░░░
+
+     With "Hide translations" on, the meanings are blurred as the example's
+     English is: the learner did not choose this word, so it can be guessed
+     first. Latin letters and the phonetic alphabet are left to the word's
+     page, as a search result leaves them. -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
-	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { WordOfDay } from '#lib/word-of-day.ts';
-	import FrequencyMeter from './FrequencyMeter.svelte';
-	import Grammar from './Grammar.svelte';
-	import Headword from './Headword.svelte';
-	import Icon from './Icon.svelte';
-	import SaveButton from './SaveButton.svelte';
+	import Translation from './Translation.svelte';
+	import WordCard from './WordCard.svelte';
 
 	let { entry }: { entry: WordOfDay } = $props();
 
@@ -18,49 +25,28 @@
 	let m = $derived(messagesFor(settings.lang));
 
 	const label = (tag: string) => tag.replace(/-/g, ' ');
+	// A meaning's own tags go before it, as the word's page sets them: (colloquial) mate
+	let card = $derived({
+		...entry,
+		glosses: entry.senses.map((s) => (s.tags.length ? `(${s.tags.map(label).join(', ')}) ${s.gloss}` : s.gloss))
+	});
 </script>
 
 <section class="ui-page" aria-labelledby="word-of-day">
-	<h2 id="word-of-day" class="ui-label">{m.home.wordOfDay}</h2>
-
-	<article class="ui-card">
-		<header>
-			<div class="title">
-				<Headword text={entry.headword} href={wordPath(entry.word)} />
-				<SaveButton word={entry.word} headword={entry.headword} size={20} />
-			</div>
-			{#if entry.roman || entry.ipa}
-				<p class="pron">
-					{#if entry.roman}<span>{entry.roman}</span>{/if}
-					{#if entry.ipa}<span class="ipa">{entry.ipa}</span>{/if}
-				</p>
-			{/if}
-			<div class="grammar">
-				<Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} brief />
-				<FrequencyMeter rank={entry.freq_rank} showTier />
-			</div>
-		</header>
-
-		<ol class="ui-senses">
-			{#each entry.senses as sense, i (i)}
-				<li>
-					{#if sense.tags.length}<i class="tag">({sense.tags.map(label).join(', ')})</i>{/if}
-					{sense.gloss}
-				</li>
-			{/each}
-		</ol>
-
-		<p class="example">
-			<span lang="uk">{entry.example.uk}</span>
-			<span class="en">{entry.example.en}</span>
-			<!-- Tatoeba's licence asks for the sentence's source to be named -->
-			<a class="credit" href="https://tatoeba.org/sentences/show/{entry.example.tatoeba_id}">
-				Tatoeba #{entry.example.tatoeba_id}
-			</a>
-		</p>
-
-		<a class="more" href={wordPath(entry.word)}>{m.card.details}<Icon name="chevron-right" size={16} /></a>
-	</article>
+	<div class="ui-card">
+		<h2 id="word-of-day" class="ui-label">{m.home.wordOfDay}</h2>
+		<WordCard entry={card} framed={false} hideMeanings />
+		<div class="example">
+			<p>
+				<span lang="uk">{entry.example.uk}</span>
+				<Translation text={entry.example.en} />
+				<!-- Tatoeba's licence asks for the sentence's source to be named -->
+				<a class="credit" href="https://tatoeba.org/sentences/show/{entry.example.tatoeba_id}">
+					Tatoeba #{entry.example.tatoeba_id}
+				</a>
+			</p>
+		</div>
+	</div>
 </section>
 
 <style>
@@ -70,10 +56,15 @@
 		margin-top: 0.5rem;
 	}
 
-	/* The label stands straight on the page, over a photo too */
+	.ui-card {
+		overflow: hidden;
+		padding-bottom: 0.75rem;
+	}
+
+	/* Lined up with the card's word, at its left padding */
 	h2 {
-		margin-bottom: 0.5rem;
-		color: var(--on-page);
+		margin: 0.7rem 1rem 0;
+		color: var(--muted);
 	}
 
 	/* No rule running from it to the edge: inside an entry the rule divides one
@@ -82,66 +73,19 @@
 		content: none;
 	}
 
-	article {
-		display: grid;
-		gap: 0.9rem;
-		padding: 1.1rem 1.25rem 1rem;
-		line-height: 1.5;
+	/* Set off from the meanings by the dashed rule a result's "Form found"
+	   has, so it is not read as one more meaning */
+	.example {
+		margin: 0.25rem 1rem 0;
+		padding-top: 0.6rem;
+		border-top: 1px dashed var(--border);
 	}
 
 	p {
 		margin: 0;
-	}
-
-	.title {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-	}
-
-	.pron {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.2rem 1rem;
-		color: var(--ink-2);
-	}
-
-	.ipa {
-		color: var(--muted);
-		font-family: var(--font-ipa);
-	}
-
-	.grammar {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 0.3rem 1.5rem;
-		margin-top: 0.35rem;
-	}
-
-	.grammar :global(.freq) {
-		margin-left: auto;
-	}
-
-	.ui-senses {
-		font-size: var(--text-lg);
-	}
-
-	.tag {
-		color: var(--muted);
-		font-size: 1rem;
-	}
-
-	.example {
 		padding-left: 0.75rem;
 		border-left: 2px solid var(--border-strong);
-	}
-
-	.en {
-		display: block;
-		color: var(--muted);
+		line-height: 1.5;
 	}
 
 	.credit {
@@ -151,23 +95,14 @@
 		text-underline-offset: 3px;
 	}
 
-	.more {
-		display: inline-flex;
-		align-items: center;
-		justify-self: start;
-		gap: 0.2rem;
-		color: var(--accent);
-		font-size: var(--text-sm);
-		font-weight: 600;
-	}
-
-	.more:hover {
-		color: var(--link-hover);
-	}
-
 	@media (max-width: 600px) {
-		article {
-			padding: 0.9rem 1rem;
+		h2 {
+			margin: 0.55rem 0.8rem 0;
+		}
+
+		.example {
+			margin: 0.2rem 0.8rem 0;
+			padding-top: 0.5rem;
 		}
 	}
 

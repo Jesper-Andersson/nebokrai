@@ -20,8 +20,25 @@
 	import SaveButton from './SaveButton.svelte';
 	import Stressed from './Stressed.svelte';
 	import Tip from './Tip.svelte';
+	import Translation from './Translation.svelte';
 
-	let { entry }: { entry: SearchResult | Suggestion } = $props();
+	// What a card needs of an entry: a search result, a guess, or the word of
+	// the day all have it
+	type CardEntry = Pick<SearchResult, 'word' | 'headword' | 'pos' | 'tags' | 'head_forms' | 'glosses' | 'freq_rank'> &
+		Partial<Pick<SearchResult, 'vesum_only' | 'matched_forms'>>;
+
+	let {
+		entry,
+		framed = true,
+		hideMeanings = false
+	}: {
+		entry: SearchResult | Suggestion | CardEntry;
+		/** Off when the card sits inside a frame of its own (WordOfDay.svelte) */
+		framed?: boolean;
+		/** Blur each meaning until pressed, with "Hide translations" on: a word
+		    the learner did not ask for can be guessed before it is read */
+		hideMeanings?: boolean;
+	} = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -44,7 +61,7 @@
 	}
 </script>
 
-<article class="ui-card" class:plain={vesumOnly}>
+<article class:ui-card={framed} class:plain={vesumOnly}>
 	<div class="word">
 		<Headword text={entry.headword} href={vesumOnly ? undefined : wordPath(entry.word)} />
 		<Tip label={m.card.play}>
@@ -70,7 +87,9 @@
 			<!-- The numerals are drawn, not text: copied, the meanings read one
 			     to a line -->
 			<ol class="ui-senses">
-				{#each shown as gloss, i (i)}<li>{gloss}</li>{/each}
+				{#each shown as gloss, i (i)}
+					<li>{#if hideMeanings}<Translation text={gloss} muted={false} />{:else}{gloss}{/if}</li>
+				{/each}
 			</ol>
 			{#if more > 0}
 				<a class="more" href={wordPath(entry.word)}>{m.card.moreMeanings(more)}</a>

@@ -96,7 +96,8 @@ const values = (r: NewReport) => [
 	r.kind, r.message, r.email, r.entryId, r.word, r.pos, r.query, r.lang, r.layout, r.page, r.userAgent
 ];
 
-let d1Ready: Promise<unknown> | undefined;
+// A flag, not a promise kept between requests: see user-db.ts.
+let d1Ready = false;
 let local: Promise<LocalWritable> | undefined;
 
 /** Store a report; returns its id. */
@@ -108,11 +109,11 @@ export async function saveReport(report: NewReport): Promise<number | null> {
 	}
 	const d1 = env.REPORTS;
 	if (d1) {
-		await (d1Ready ??= d1.prepare(SCHEMA).run().catch((err) => {
-			// Forget the failure, so the next report tries again.
-			d1Ready = undefined;
-			throw err;
-		}));
+		if (!d1Ready) {
+			// A failure here leaves the flag unset, so the next report tries again
+			await d1.prepare(SCHEMA).run();
+			d1Ready = true;
+		}
 		const result = await d1.prepare(INSERT).bind(...values(report)).run();
 		const id = result.meta?.last_row_id ?? null;
 		// Sent after the answer has gone out, so the visitor does not wait for it

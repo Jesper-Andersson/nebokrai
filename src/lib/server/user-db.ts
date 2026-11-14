@@ -21,7 +21,14 @@ export function hasUserDb(): boolean {
 	return dev || Boolean(env.USERS);
 }
 
-let d1Ready: Promise<void> | undefined;
+// A flag, never a promise kept between requests. On Workers a promise belongs
+// to the request that made it: if that request ends before the tables are
+// made (the visitor closes the tab), the promise never settles, and every
+// later request that waits for it waits for ever. That left each signed-in
+// visitor with a page that never loaded (seen 2026-11-14). The price is that
+// two requests arriving together may both run the statements, which
+// IF NOT EXISTS makes harmless.
+let d1Ready = false;
 let local: Promise<UserDb> | undefined;
 
 export async function getUserDb(): Promise<UserDb | undefined> {
@@ -29,14 +36,11 @@ export async function getUserDb(): Promise<UserDb | undefined> {
 	if (dev) return (local ??= openLocal());
 	const d1 = env.USERS;
 	if (d1) {
-		await (d1Ready ??= (async () => {
+		if (!d1Ready) {
+			// A failure here leaves the flag unset, so the next request tries again
 			for (const statement of SCHEMA) await d1.prepare(statement).run();
-		})().catch((err) => {
-			// Forget the failure, so the next request tries again instead of
-			// failing for as long as this server instance lives.
-			d1Ready = undefined;
-			throw err;
-		}));
+			d1Ready = true;
+		}
 		return {
 			async all<T>(sql: string, params: unknown[] = []) {
 				return (await d1.prepare(sql).bind(...params).all<T>()).results;

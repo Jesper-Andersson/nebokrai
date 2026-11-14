@@ -68,8 +68,10 @@
 
 	/** The case was asked for before answering. */
 	let hinted = $state(false);
-	/** A first typed answer was the right word in another form. */
+	/** A first typed answer was the right word in another form, or (in Latin) near it. */
 	let nudged = $state(false);
+	/** Near in Latin only: the spelling is what to look at, not the ending. */
+	let close = $state(false);
 	let typed = $state('');
 	let field: HTMLInputElement | undefined = $state();
 
@@ -83,9 +85,11 @@
 		if (result || !typed.trim()) return;
 		const found = checkAnswer(gap, typed);
 		if (found === 'right') onanswer(hinted || nudged ? 'helped' : 'right', typed);
-		else if (found === 'form' && !nudged) {
-			// The word is known and the ending is not: the case is shown, and the field waits for another try
+		else if ((found === 'form' || found === 'close') && !nudged) {
+			// The word is known and the ending is not, or a Latin answer is near it:
+			// the case is shown, and the field waits for another try
 			nudged = true;
+			close = found === 'close';
 			field?.select();
 		} else onanswer('missed', typed);
 	}
@@ -271,7 +275,7 @@
 
 		<!-- "Show the case" and the rule share one place, as tall as the rule -->
 		<div class="help" class:spent={result && inDock} inert={result !== null && inDock}>
-			{#if nudged && !result}<p class="nudge" role="status">{m.practice.nudge}</p>{/if}
+			{#if nudged && !result}<p class="nudge" role="status">{close ? m.practice.close : m.practice.nudge}</p>{/if}
 			<div class="slot">
 				{#if hinted || nudged || (result && !inDock)}
 					{@render rule()}

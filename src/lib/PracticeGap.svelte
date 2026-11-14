@@ -32,6 +32,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
+	import Translation from '#lib/Translation.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
@@ -125,6 +126,10 @@
 		}
 	});
 
+	/** Typing with the on-screen keyboard: once answered, the keyboard is out of
+	 *  use, and the verdict and the rule take its room instead of the sentence's. */
+	let inDock = $derived(!choice && keyboard.open);
+
 	// On a phone the card reaches down to the foot of the screen, so the bar
 	// sits under the thumb and the sentence in the middle of what is left.
 	// Measured from the top of the page, so it is the same whatever the scroll.
@@ -189,6 +194,20 @@
 	</div>
 {/snippet}
 
+<!-- ✓ Right   екзамен → екзамені -->
+{#snippet verdict(result: { outcome: Outcome; given: string })}
+	<p class="verdict">
+		<Icon name={result.outcome === 'missed' ? 'x' : 'check'} size={18} />
+		{result.outcome === 'right' ? m.practice.correct : result.outcome === 'helped' ? m.practice.helped : m.practice.incorrect}
+		{#if result.outcome === 'missed' && !choice}<s class="given" lang="uk">{result.given}</s>{/if}
+	</p>
+	<p class="answer">
+		<Headword text={gap.headword} size="sm" href={wordPath(gap.word)} />
+		<Icon name="arrow-right" size={16} />
+		<Headword text={gap.answer} size="sm" />
+	</p>
+{/snippet}
+
 <!-- Next: in the bar, where the thumb already is -->
 {#snippet next(shown: boolean)}
 	<button type="button" class="ui-btn ui-btn-primary next" onclick={onnext} {@attach shown && focus}>
@@ -223,48 +242,38 @@
 						{@attach (!touch || keyboardOpen) && focus}
 					/>{/if}{parts.after}
 			</p>
-			<p class="english" lang="en">{gap.en}</p>
+			<div class="english" lang="en"><Translation text={gap.en} /></div>
 			<p class="cue">
 				<Headword text={gap.headword} size="sm" />
 				{#if gap.number === 'plural' && !isNumber(point)}<span class="ui-badge">{m.practice.plural}</span>{/if}
 			</p>
 		</div>
 
-		<!-- The verdict, kept in place unseen until there is one -->
-		<div class="outcome" data-outcome={result?.outcome} role="status">
-			{#if result}
-				<p class="verdict">
-					<Icon name={result.outcome === 'missed' ? 'x' : 'check'} size={18} />
-					{result.outcome === 'right'
-						? m.practice.correct
-						: result.outcome === 'helped'
-							? m.practice.helped
-							: m.practice.incorrect}
-					{#if result.outcome === 'missed' && !choice}<s class="given" lang="uk">{result.given}</s>{/if}
-				</p>
-				<p class="answer">
-					<Headword text={gap.headword} size="sm" href={wordPath(gap.word)} />
-					<Icon name="arrow-right" size={16} />
-					<Headword text={gap.answer} size="sm" />
-				</p>
-			{:else}
-				<!-- The same shape, naming the headword twice rather than the answer -->
-				<div class="ghost" aria-hidden="true" inert>
-					<p class="verdict"><Icon name="check" size={18} />{m.practice.correct}</p>
-					<p class="answer">
-						<Headword text={gap.headword} size="sm" />
-						<Icon name="arrow-right" size={16} />
-						<Headword text={gap.headword} size="sm" />
-					</p>
-				</div>
-			{/if}
-		</div>
+		<!-- The verdict, kept in place unseen until there is one; when typing with
+		     the on-screen keyboard it comes in the keyboard's place instead -->
+		{#if !inDock}
+			<div class="outcome" data-outcome={result?.outcome} role="status">
+				{#if result}
+					{@render verdict(result)}
+				{:else}
+					<!-- The same shape, naming the headword twice rather than the answer -->
+					<div class="ghost" aria-hidden="true" inert>
+						<p class="verdict"><Icon name="check" size={18} />{m.practice.correct}</p>
+						<p class="answer">
+							<Headword text={gap.headword} size="sm" />
+							<Icon name="arrow-right" size={16} />
+							<Headword text={gap.headword} size="sm" />
+						</p>
+					</div>
+				{/if}
+			</div>
+		{/if}
 
 		<!-- "Show the case" and the rule share one place, as tall as the rule -->
-		<div class="help">
+		<div class="help" class:spent={result && inDock} inert={result !== null && inDock}>
 			{#if nudged && !result}<p class="nudge" role="status">{m.practice.nudge}</p>{/if}
 			<div class="slot">
-				{#if hinted || nudged || result}
+				{#if hinted || nudged || (result && !inDock)}
 					{@render rule()}
 				{:else}
 					<button type="button" class="link" onclick={() => (hinted = true)}>{m.practice.hint}</button>
@@ -307,9 +316,18 @@
 					<span class="turn" class:open={keyboard.open}><Icon name="chevron-right" size={16} /></span>
 				</button>
 			</form>
-			<div {...keyboard.content} class="keys-board" class:spent={result} inert={result !== null}>
-				{#if keyboard.open}
-					<UkrainianKeyboard id="practice-keyboard" input={field} oninsert={insert} onbackspace={backspace} onstress={() => {}} />
+			<!-- The keyboard, and once answered the verdict and the rule in its room -->
+			<div class="board">
+				<div {...keyboard.content} class="keys-board" class:spent={result} inert={result !== null}>
+					{#if keyboard.open}
+						<UkrainianKeyboard id="practice-keyboard" input={field} oninsert={insert} onbackspace={backspace} onstress={() => {}} />
+					{/if}
+				</div>
+				{#if inDock && result}
+					<div class="outcome panel" data-outcome={result.outcome} role="status">
+						{@render verdict(result)}
+						{@render rule()}
+					</div>
 				{/if}
 			</div>
 		{/if}
@@ -491,7 +509,8 @@
 	/* The link and the unseen rule in one cell, as tall as the rule */
 	.slot {
 		display: grid;
-		place-items: center;
+		/* The link at the top, right under the word: the room below it is only kept */
+		place-items: start center;
 	}
 
 	.slot > :global(*),
@@ -627,14 +646,22 @@
 		transform: rotate(90deg);
 	}
 
-	.keys-board {
+	/* The keyboard and the answer's panel in one cell, as tall as the keyboard */
+	.board {
+		display: grid;
 		width: 100%;
 	}
 
-	/* The on-screen keyboard stays where it is once answered, out of use */
-	.keys-board.spent {
-		visibility: visible;
-		opacity: 0.4;
+	.board > * {
+		grid-area: 1 / 1;
+	}
+
+	.panel {
+		align-content: center;
+		padding: 0.5rem 1rem;
+		border-radius: var(--radius-md);
+		background: var(--surface-2);
+		text-align: center;
 	}
 
 	.under {
@@ -663,14 +690,6 @@
 			min-height: calc(2 * 1.5em);
 		}
 
-		.mid {
-			gap: 0.6rem;
-		}
-
-		.shown {
-			gap: 0.3rem;
-		}
-
 		.dock {
 			position: sticky;
 			bottom: 0;
@@ -683,7 +702,7 @@
 		}
 
 		/* The keys as wide as the screen, as a phone's own keyboard */
-		.keys-board {
+		.board {
 			justify-self: stretch;
 			width: auto;
 			margin-inline: -0.6rem;

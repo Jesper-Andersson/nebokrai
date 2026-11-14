@@ -82,8 +82,13 @@
 
 	onMount(() => {
 		void start();
-		// Sentences that arrive after the round was left are dropped
-		return () => void (asked += 1);
+		// While a round runs, a phone's header slims down (Header.svelte)
+		document.documentElement.dataset.practising = '';
+		return () => {
+			// Sentences that arrive after the round was left are dropped
+			asked += 1;
+			delete document.documentElement.dataset.practising;
+		};
 	});
 
 	function answer(outcome: Outcome, given: string) {

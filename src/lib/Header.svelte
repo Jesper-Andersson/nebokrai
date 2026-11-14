@@ -674,4 +674,24 @@
 		}
 	}
 
+	/* A practice round on a phone (PracticeRound.svelte marks the page while
+	   it runs): the "Support Ukraine" line and the tabs step aside so the
+	   sentence and the answers fit on the screen, and come back when the round
+	   stops. The ribbon closes the bar as on a page with no tab. */
+	@media (max-width: 600px) {
+		:global(html[data-practising]) .support,
+		:global(html[data-practising]) nav {
+			display: none;
+		}
+
+		:global(html[data-practising]) header::after {
+			content: '';
+			position: absolute;
+			inset: 100% 0 auto;
+			height: var(--ribbon-height);
+			background: var(--ribbon);
+			pointer-events: none;
+		}
+	}
+
 </style>

@@ -40,6 +40,8 @@ const OTHER_DAYS_KEY = 'review-days-others';
 const UNSENT_DAYS_KEY = 'review-days-unsent';
 /** A random name for this browser, under which the account keeps its day counts. */
 const DEVICE_KEY = 'review-device';
+/** How long one exchange with the account may take before the next one is let through. */
+const SYNC_WAIT_MS = 15_000;
 
 function read(key: string): unknown {
 	try {
@@ -279,6 +281,10 @@ export class Review {
 				headers: { 'content-type': 'application/json' },
 				// Kept alive, so an exchange begun as the page is left still arrives.
 				keepalive: batch.length < 100,
+				// Exchanges wait in line, so one that stalls would hold back every
+				// later one. A closed page's timer never fires, so this does not cut
+				// short an exchange sent as the page is left.
+				signal: AbortSignal.timeout(SYNC_WAIT_MS),
 				body: JSON.stringify({
 					cards: batch,
 					...(last ? { since: this.#synced, settings: this.settings, device: this.#device, days } : {})

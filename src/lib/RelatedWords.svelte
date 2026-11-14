@@ -9,18 +9,23 @@
      shows its beginning and a button for the rest. Nothing is drawn for an
      empty list. -->
 <script lang="ts">
+	import type { TermId } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import type { Relation } from '#lib/search/word.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import Stressed from './Stressed.svelte';
+	import Term from './Term.svelte';
 
 	let {
 		label,
+		term,
 		words,
 		limit = Infinity
 	}: {
 		label: string;
+		/** A grammar note behind the label (Derived opens "Derived word"), pressed or hovered */
+		term?: TermId;
 		words: Relation[];
 		/** How many to show before the button. A list only a little longer is shown whole. */
 		limit?: number;
@@ -50,7 +55,7 @@
 
 {#if unique.length}
 	<p class="related">
-		<span class="label">{label}</span>
+		<span class="label">{#if term}<Term id={term}>{label}</Term>{:else}{label}{/if}</span>
 		<span class="words">
 			<!-- {', '}: Svelte drops a space at the end of a block -->
 			{#each shown as x, i (x.word)}{#if i}{', '}{/if}<a

@@ -38,7 +38,10 @@
 	// Small previews of the photos; the plain background shows the page colour.
 	const previews: Record<Background, string | null> = { plain: null, field: fieldThumb, hills: hillsThumb };
 
-	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio' | 'roman' | 'ipa'>(name: K, value: string) {
+	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio' | 'roman' | 'ipa' | 'blur'>(
+		name: K,
+		value: string
+	) {
 		settings[name] = value as (typeof settings)[K];
 		applySetting(name, settings[name]);
 	}
@@ -192,6 +195,21 @@
 						</Switch.Root>
 					</div>
 					<p class="hint" id="ui-set-ipa-hint">{m.settings.ipaHint}</p>
+				</section>
+				<section>
+					<div class="switch-row">
+						<h2 id="ui-set-blur">{m.settings.blur}</h2>
+						<Switch.Root
+							class="ui-switch"
+							aria-labelledby="ui-set-blur"
+							aria-describedby="ui-set-blur-hint"
+							checked={settings.blur === 'on'}
+							onCheckedChange={(on) => set('blur', on ? 'on' : 'off')}
+						>
+							<Switch.Thumb class="ui-switch-thumb" />
+						</Switch.Root>
+					</div>
+					<p class="hint" id="ui-set-blur-hint">{m.settings.blurHint}</p>
 				</section>
 				{#if hasAccount}
 					<section class="divided">

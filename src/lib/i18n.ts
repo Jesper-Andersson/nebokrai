@@ -183,7 +183,9 @@ const en = {
 		roman: 'Latin spelling',
 		romanHint: 'A word’s page shows the word in Latin letters too: вода́, vodá.',
 		ipa: 'Phonetic spelling',
-		ipaHint: 'A word’s page shows how it sounds in the International Phonetic Alphabet: [wɔˈda].'
+		ipaHint: 'A word’s page shows how it sounds in the International Phonetic Alphabet: [wɔˈda].',
+		blur: 'Hide translations',
+		blurHint: 'The English under an example sentence stays blurred until you press it.'
 	},
 	/** The radio in the corner of the page (RadioPlayer.svelte). Station names stay as the stations write them. */
 	radio: {
@@ -382,6 +384,8 @@ const en = {
 		coverShow: 'Show the form',
 		/** The switch above the tables: the table as it is, or covered to test oneself */
 		mode: 'Show the forms or test yourself',
+		/** On a blurred translation (Translation.svelte) */
+		reveal: 'Show the English',
 		table: 'Table',
 		/** The closed row under the first meanings */
 		moreMeanings: (n: number) => `${n} more meaning${n === 1 ? '' : 's'}`,
@@ -509,6 +513,8 @@ const en = {
 			predicative: { name: 'Predicative', text: 'Used as the main statement of a sentence, without a verb, usually about a state or a need.' },
 			diminutive: { name: 'Diminutive', text: 'A form that makes the word small or affectionate. Ukrainian uses these a great deal.' },
 			augmentative: { name: 'Augmentative', text: 'A form that makes the word big, strong or rough.' },
+			derived: { name: 'Derived word', text: 'A word made from this one by adding a prefix, a suffix or another word, often with a meaning of its own.' },
+			'same-root': { name: 'Same root', text: 'A word that shares this one’s root, the core that carries the meaning, though neither is made from the other.' },
 			colloquial: { name: 'Colloquial', text: 'Used in everyday speech, not in formal writing.' },
 			dialectal: { name: 'Dialectal', text: 'Used in some regions, not everywhere in the standard language.' },
 			dated: { name: 'Dated', text: 'Once common and still heard now and then, but it sounds old-fashioned.' },
@@ -1132,7 +1138,9 @@ const uk: Messages = {
 		roman: 'Латиницею',
 		romanHint: 'Сторінка слова показує його й латинськими літерами: вода́, vodá.',
 		ipa: 'Фонетичний запис',
-		ipaHint: 'Сторінка слова показує, як воно звучить, знаками Міжнародного фонетичного алфавіту: [wɔˈda].'
+		ipaHint: 'Сторінка слова показує, як воно звучить, знаками Міжнародного фонетичного алфавіту: [wɔˈda].',
+		blur: 'Приховувати переклад',
+		blurHint: 'Англійський переклад під прикладом речення розмитий, доки ви його не натиснете.'
 	},
 	radio: {
 		open: 'Радіо',
@@ -1301,6 +1309,7 @@ const uk: Messages = {
 		coverAgain: 'Сховати знову',
 		coverShow: 'Показати форму',
 		mode: 'Показати форми чи перевірити себе',
+		reveal: 'Показати переклад',
 		table: 'Таблиця',
 		moreMeanings: (n: number) => `Ще ${counted(n, 'значення', 'значення', 'значень')}`,
 		stressMoves: 'Підкреслено наголошені літери там, де наголос падає не так, як у слові',
@@ -1425,6 +1434,8 @@ const uk: Messages = {
 			predicative: { name: 'Присудкове слово', text: 'Вживається як головний член речення без дієслова, зазвичай про стан або потребу.' },
 			diminutive: { name: 'Зменшувальна форма', text: 'Форма, що надає слову значення малого або пестливого. В українській мові такі форми дуже поширені.' },
 			augmentative: { name: 'Збільшувальна форма', text: 'Форма, що надає слову значення великого, сильного або грубого.' },
+			derived: { name: 'Похідне слово', text: 'Слово, утворене від цього за допомогою префікса, суфікса чи іншого слова, часто з власним значенням.' },
+			'same-root': { name: 'Спільнокореневе слово', text: 'Слово з тим самим коренем, носієм значення, хоч жодне з двох не утворене від іншого.' },
 			colloquial: { name: 'Розмовне', text: 'Уживається в повсякденному мовленні, а не в офіційних текстах.' },
 			dialectal: { name: 'Діалектне', text: 'Уживається в окремих регіонах, а не всюди в літературній мові.' },
 			dated: { name: 'Застаріле', text: 'Колись було звичним і ще часом трапляється, але звучить старомодно.' },

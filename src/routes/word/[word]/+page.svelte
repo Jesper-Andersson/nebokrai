@@ -20,9 +20,12 @@
 	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
 	import Tip from '#lib/Tip.svelte';
+	import Translation from '#lib/Translation.svelte';
 	import { commonsPage } from '#lib/commons.ts';
 	import { formTables } from '#lib/forms.ts';
-	import { RELATED_HEAD_FORMS, headFormLabel, headFormPlace, otherFormLabel, termOf } from '#lib/grammar.ts';
+	import {
+		RELATED_HEAD_FORMS, RELATED_ROW_TERMS, headFormLabel, headFormPlace, otherFormLabel, termOf, type TermId
+	} from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
@@ -90,10 +93,14 @@
 
 	// The forms beside the headword that are words of their own (водяни́й,
 	// води́ця), as rows of Related words, in the order of RELATED_HEAD_FORMS
-	function relatedRows(entry: WordEntry, hasTables: boolean): { label: string; words: Relation[] }[] {
+	function relatedRows(
+		entry: WordEntry,
+		hasTables: boolean
+	): { label: string; term?: TermId; words: Relation[] }[] {
 		const related = entry.head_forms.filter((f) => headFormPlace(f.tags, hasTables) === 'related');
 		return RELATED_HEAD_FORMS.map((key) => ({
 			label: m.word.relatedRows[key] ?? key,
+			term: RELATED_ROW_TERMS[key],
 			words: related
 				.filter((f) => headFormLabel(f.tags).key === key)
 				.map((f): Relation => ({ kind: 'derived', sense_n: null, word: f.form, tags: [], has_entry: f.has_entry }))
@@ -218,7 +225,7 @@
 										{#each sense.examples as ex, i (i)}
 											<li>
 												<Sentence text={ex.text} {own} />
-												{#if ex.english}<span class="en">{ex.english}</span>{/if}
+												{#if ex.english}<Translation text={ex.english} />{/if}
 											</li>
 										{/each}
 									</ul>
@@ -258,7 +265,7 @@
 								{#each entry.examples as ex (ex.tatoeba_id)}
 									<li>
 										<Sentence text={ex.uk} {own} />
-										<span class="en">{ex.en}</span>
+										<Translation text={ex.en} />
 										<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
 											Tatoeba #{ex.tatoeba_id}
 										</a>
@@ -273,10 +280,10 @@
 						<section>
 							<h2 class="ui-label">{m.word.family}</h2>
 							{#each fromHead as row (row.label)}
-								<RelatedWords label={row.label} words={row.words} />
+								<RelatedWords label={row.label} term={row.term} words={row.words} />
 							{/each}
-							<RelatedWords label={m.word.derived} words={derived} limit={24} />
-							<RelatedWords label={m.word.sameRoot} words={sameRoot} limit={24} />
+							<RelatedWords label={m.word.derived} term="derived" words={derived} limit={24} />
+							<RelatedWords label={m.word.sameRoot} term="same-root" words={sameRoot} limit={24} />
 						</section>
 					{/if}
 				</div>
@@ -661,11 +668,6 @@
 
 	.sentences li + li {
 		border-top: 1px solid var(--border);
-	}
-
-	.en {
-		display: block;
-		color: var(--muted);
 	}
 
 	section a.credit {

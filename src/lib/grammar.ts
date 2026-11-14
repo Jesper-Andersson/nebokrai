@@ -22,7 +22,9 @@ export const GROUPS = {
 		'third-person', 'imperative', 'transitive', 'intransitive', 'impersonal', 'participle',
 		'adverbial-participle'
 	],
-	words: ['comparative', 'superlative', 'relational', 'predicative', 'diminutive', 'augmentative'],
+	words: [
+		'comparative', 'superlative', 'relational', 'predicative', 'diminutive', 'augmentative', 'derived', 'same-root'
+	],
 	usage: ['colloquial', 'dialectal', 'dated', 'archaic', 'figurative', 'slang']
 } as const;
 
@@ -117,7 +119,9 @@ export const EXAMPLES: Partial<Record<TermId, { uk: string; en: string }>> = {
 	relational: { uk: 'кава, кавовий', en: 'coffee, of coffee' },
 	predicative: { uk: 'Мені холодно. Треба йти.', en: 'I am cold. It is time to go.' },
 	diminutive: { uk: 'кіт, котик', en: 'cat, kitty' },
-	augmentative: { uk: 'великий, величезний', en: 'big, huge' }
+	augmentative: { uk: 'великий, величезний', en: 'big, huge' },
+	derived: { uk: 'читати, читач, читанка', en: 'to read, reader, reading book' },
+	'same-root': { uk: 'вода, підводний', en: 'water, underwater' }
 };
 
 /** One part of the line under a headword: a tag, and the term that explains it. */
@@ -211,6 +215,12 @@ export function headFormPlace(tags: string[], hasTables: boolean): 'line' | 'tab
 export const RELATED_HEAD_FORMS: HeadFormKey[] = [
 	'relatedAdjective', 'diminutive', 'relatedNoun', 'relatedAdverb', 'augmentative'
 ];
+
+/** The note behind the name of each of those rows (Adjectives opens "Relational adjective"). */
+export const RELATED_ROW_TERMS: Partial<Record<HeadFormKey, TermId>> = {
+	relatedAdjective: 'relational', diminutive: 'diminutive', relatedNoun: 'noun', relatedAdverb: 'adverb',
+	augmentative: 'augmentative'
+};
 
 const REPEATED_ON_CANONICAL = new Set([
 	'masculine', 'feminine', 'neuter', 'singular', 'plural', 'perfective', 'imperfective', ...ANIMACY

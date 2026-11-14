@@ -520,3 +520,39 @@ export function parseWords(value: unknown): string[] | null {
 	if (!Array.isArray(value) || value.length > MAX_SAVED) return null;
 	return [...new Set(value.filter((w): w is string => typeof w === 'string' && !!w && w.length <= MAX_WORD_LENGTH))];
 }
+
+export interface AccountStats {
+	users: number;
+	withSavedWords: number;
+	/** Accounts that reviewed at least one card in the last 7 and 30 days. */
+	reviewed7: number;
+	reviewed30: number;
+	/** Sign-ups in each of the last `weeks` weeks of 7 days, oldest first; the last ends at `now`. */
+	signUps: number[];
+}
+
+/** Counts over all accounts, for the /stats page. No account is named. */
+export async function accountStats(db: UserDb, now: number, weeks = 12): Promise<AccountStats> {
+	const WEEK = 7 * 24 * 60 * 60 * 1000;
+	const count = async (sql: string, params: unknown[] = []) =>
+		(await db.all<{ n: number }>(sql, params))[0]?.n ?? 0;
+	// review_days.day is the visitor's own date; a day either way does not matter here.
+	const date = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+	const reviewed = (days: number) => count(
+		'SELECT count(DISTINCT user_id) AS n FROM review_days WHERE day > ? AND count > 0',
+		[date(now - days * 24 * 60 * 60 * 1000)]);
+	const since = now - weeks * WEEK;
+	const created = await db.all<{ created_at: number }>('SELECT created_at FROM users WHERE created_at > ?', [since]);
+	const signUps = Array<number>(weeks).fill(0);
+	for (const { created_at } of created) {
+		const week = Math.min(weeks - 1, Math.floor((created_at - since) / WEEK));
+		signUps[week] += 1;
+	}
+	return {
+		users: await count('SELECT count(*) AS n FROM users'),
+		withSavedWords: await count('SELECT count(DISTINCT user_id) AS n FROM saved_words'),
+		reviewed7: await reviewed(7),
+		reviewed30: await reviewed(30),
+		signUps
+	};
+}

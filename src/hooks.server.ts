@@ -31,9 +31,10 @@ const HEADERS: Record<string, string> = {
 // Not pages to find through a search engine: the API, a visitor's own list
 // and flashcards, the report form and the sign-in addresses. static/robots.txt asks crawlers
 // not to fetch most of these; this covers the ones that are fetched anyway.
+// /stats is the private visit counts (404 for all but the site's owner).
 // /dev is pages for building the site (the style guide): the built site
 // answers 404 for them, and this is the second lock on that door.
-const NOT_FOR_SEARCH = /^\/(api|saved|review|report|login|auth|logout|dev)(\/|$)/;
+const NOT_FOR_SEARCH = /^\/(api|saved|review|report|login|auth|logout|dev|stats)(\/|$)/;
 // Nor is a search made from the address (/?q=kava): the page to find is the
 // search page itself, and the words have pages of their own.
 const isSearch = (url: URL) => url.pathname === '/' && url.searchParams.has('q');

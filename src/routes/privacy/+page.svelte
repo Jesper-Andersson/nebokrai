@@ -1,5 +1,5 @@
 <!-- What the site keeps about a visitor. It says what the code does: read it
-     again whenever users.ts, oauth.ts, reports.ts or the report endpoint
+     again whenever users.ts, oauth.ts, reports.ts, stats.ts or the report endpoint
      changes what is kept, or a page starts loading something from another
      site. It was a section of the About page until 2026-11-13. -->
 <script lang="ts">
@@ -36,6 +36,15 @@
 			вкажете, і видаляємо, щойно повідомлення закрито.
 		</p>
 
+		<h2>Підрахунок відвідувань</h2>
+		<p>
+			Щоб знати, скільки людей користується сайтом, ми рахуємо показані сторінки й пошукові запити,
+			без файлів cookie і без збереження вашої IP-адреси: протягом дня відвідувач — це зашифрований
+			код, з якого не можна відновити адресу, і наприкінці дня його видаляємо. Запити до 40 символів
+			зберігаються 90 днів, без зв’язку з тим, хто їх зробив. Браузер з увімкненим Do Not Track або
+			Global Privacy Control ми не рахуємо.
+		</p>
+
 		<h2>Інші сайти</h2>
 		<p>
 			Дещо завантажується з інших сайтів, які бачать ваш запит так само, як будь-який сайт: записи
@@ -45,7 +54,8 @@
 		</p>
 		<p>
 			Сайт працює на Cloudflare, через який проходить кожен запит. Ми не зберігаємо вашу IP-адресу:
-			вона потрібна лише на кілька хвилин, щоб обмежити кількість повідомлень поспіль.
+			вона потрібна лише на кілька хвилин, щоб обмежити кількість повідомлень поспіль, і для денного
+			підрахунку відвідувань.
 		</p>
 		<p>
 			Радіо, яке можна ввімкнути в налаштуваннях, грає просто із сервера станції: коли ви вмикаєте
@@ -78,6 +88,15 @@
 			closed.
 		</p>
 
+		<h2>Counting visits</h2>
+		<p>
+			To know how many people use the site, we count the pages shown and the searches made, without
+			a cookie and without storing your IP address: for one day a visitor is a scrambled code that
+			cannot be turned back into an address, and it is deleted when the day ends. Searches of up to
+			40 characters are kept for 90 days, with nothing that says who made them. A browser set to Do
+			Not Track or Global Privacy Control is not counted.
+		</p>
+
 		<h2>Other sites</h2>
 		<p>
 			Three things are loaded from other sites, which see the request as any site would: recordings
@@ -87,7 +106,8 @@
 		</p>
 		<p>
 			The site runs on Cloudflare, which every request passes through. We do not store your IP
-			address: it is used only for a few minutes, to limit how many reports can be sent in a row.
+			address: it is used only for a few minutes, to limit how many reports can be sent in a row, and
+			for the day's visit count.
 		</p>
 		<p>
 			The radio you can switch on in the settings plays straight from each station’s server: when

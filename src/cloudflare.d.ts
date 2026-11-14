@@ -1,5 +1,5 @@
 // What this site uses from Cloudflare's runtime module. The bindings are the
-// four D1 databases and the mail sender in wrangler.jsonc. Each is described
+// five D1 databases and the mail sender in wrangler.jsonc. Each is described
 // by the few methods
 // the code calls (see the files named below), not by Cloudflare's full types,
 // so the type check needs no generated file.
@@ -20,6 +20,8 @@ declare module 'cloudflare:workers' {
 		REPORTS?: import('#lib/server/reports.ts').D1Writable;
 		/** Accounts and saved words (private, see src/lib/server/user-db.ts) */
 		USERS?: import('#lib/server/user-db.ts').D1Users;
+		/** Visit and search counts, no personal data (see src/lib/server/stats.ts) */
+		STATS?: import('#lib/server/user-db.ts').D1Users;
 		/** Sends the email that announces a new report (see src/lib/server/reports.ts) */
 		MAIL?: import('#lib/server/reports.ts').Mailer;
 	};

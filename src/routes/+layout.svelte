@@ -5,10 +5,12 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount, type Component } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
+	import { sendHit } from '#lib/hit.ts';
 	import Header from '#lib/Header.svelte';
 	import { provideRadio } from '#lib/radio.svelte.ts';
 	import RadioPlayer from '#lib/RadioPlayer.svelte';
@@ -49,6 +51,16 @@
 	onMount(() => radio.load());
 
 	provideToasts();
+
+	// Count each page shown (src/lib/hit.ts): the first one, and each one
+	// reached by a link or Back. Not the search page writing the box's text
+	// into the address, which is a shallow goto and not a new page. Nor the
+	// owner reading the counts on /stats.
+	afterNavigate((navigation) => {
+		if (navigation.type === 'goto' && navigation.shallow) return;
+		if (location.pathname === '/stats') return;
+		sendHit({ kind: 'view', path: location.pathname });
+	});
 
 	// The quick search lives in the header, and a page can open it too.
 	provideQuickSearch();

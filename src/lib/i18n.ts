@@ -855,10 +855,43 @@ const en = {
 		again: 'Another round',
 		back: 'Back to the rules'
 	},
+	/** /stats: the visit counts, for the site's owner only (src/lib/server/stats.ts). */
+	stats: {
+		visitors: 'Visitors',
+		views: 'Page views',
+		searches: 'Searches',
+		measure: 'What the chart shows',
+		days: (n: number) => `${n} days`,
+		chart: (what: string, days: number) => `${what} a day over the last ${days} days`,
+		summary: (days: number, views: string, perDay: string, best: string, bestCount: string) =>
+			`${days} days: ${views} page views and ${perDay} visitors a day on average; best day ${best} (${bestCount} visitors).`,
+		whereGo: 'Where people go',
+		sections: { words: 'Words', search: 'Search', learn: 'Learn', saved: 'Saved', other: 'Other' },
+		page: 'Page',
+		search: 'Search',
+		times: 'Times',
+		found: 'Found something',
+		nothing: 'Nothing',
+		weeks: (n: number) => `${n} weeks`,
+		fewer: 'Fewer',
+		more: 'More visitors',
+		dayVisitors: (day: string, n: string) => `${day}: ${n} visitors`,
+		accounts: 'Accounts',
+		signedIn: 'of visitors are signed in',
+		funnel: {
+			users: 'Accounts', withSavedWords: 'With saved words', reviewed30: 'Reviewed in 30 days',
+			reviewed7: 'Reviewed in 7 days'
+		},
+		notFound: 'Not found',
+		notFoundNote: 'Words people looked for that the dictionary lacks.',
+		none: 'None yet.',
+		off: 'Nothing is counted here: the STATS database is not bound, or STATS_IN_DEV is not set in npm run dev.',
+		noAccounts: 'No account database here.'
+	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
-		privacy: 'Privacy'
+		privacy: 'Privacy', stats: 'Usage'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -871,6 +904,7 @@ const en = {
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
 		learn: 'Start learning Ukrainian: the alphabet with a drill on its 33 letters, the 1,000 most common words, the grammar words explained, and grammar practice.',
 		privacy: 'What Nebokrai keeps and what it does not: no ads and no tracking, cookies only for signing in and settings, and what an account or a report stores.',
+		stats: 'Visits, searches and accounts on Nebokrai, counted without cookies. For the site’s owner only.',
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
@@ -1763,10 +1797,42 @@ const uk: Messages = {
 		again: 'Ще раунд',
 		back: 'Назад до правил'
 	},
+	stats: {
+		visitors: 'Відвідувачі',
+		views: 'Перегляди',
+		searches: 'Пошуки',
+		measure: 'Що показує графік',
+		days: (n: number) => `${n} днів`,
+		chart: (what: string, days: number) => `${what} за день протягом останніх ${days} днів`,
+		summary: (days: number, views: string, perDay: string, best: string, bestCount: string) =>
+			`За ${days} днів: ${views} переглядів сторінок і в середньому ${perDay} відвідувачів на день; найкращий день — ${best} (${bestCount}).`,
+		whereGo: 'Куди заходять',
+		sections: { words: 'Слова', search: 'Пошук', learn: 'Навчання', saved: 'Збережене', other: 'Інше' },
+		page: 'Сторінка',
+		search: 'Запит',
+		times: 'Разів',
+		found: 'Щось знайдено',
+		nothing: 'Нічого',
+		weeks: (n: number) => `${n} тижнів`,
+		fewer: 'Менше',
+		more: 'Більше відвідувачів',
+		dayVisitors: (day: string, n: string) => `${day}: відвідувачів — ${n}`,
+		accounts: 'Облікові записи',
+		signedIn: 'відвідувачів увійшли в обліковий запис',
+		funnel: {
+			users: 'Облікові записи', withSavedWords: 'Зі збереженими словами', reviewed30: 'Повторювали за 30 днів',
+			reviewed7: 'Повторювали за 7 днів'
+		},
+		notFound: 'Не знайдено',
+		notFoundNote: 'Слова, які шукали, але яких у словнику немає.',
+		none: 'Поки нічого.',
+		off: 'Тут нічого не рахується: базу STATS не підключено, або в npm run dev не задано STATS_IN_DEV.',
+		noAccounts: 'Тут немає бази облікових записів.'
+	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
-		privacy: 'Приватність'
+		privacy: 'Приватність', stats: 'Відвідуваність'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
@@ -1774,6 +1840,7 @@ const uk: Messages = {
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
 		learn: 'Почніть вивчати українську: абетка з вправами на всі 33 літери, 1000 найуживаніших слів, граматичні терміни з поясненнями та вправи з граматики.',
 		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й відстеження, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
+		stats: 'Відвідування, пошуки й облікові записи Nebokrai, пораховані без файлів cookie. Лише для власника сайту.',
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',

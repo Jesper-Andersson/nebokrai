@@ -20,10 +20,11 @@
 	"preview_urls": false,
 	"routes": [{ "pattern": "nebokrai.app", "custom_domain": true }],
 
-	// Four databases, apart on purpose:
+	// Five databases, apart on purpose:
 	// - the dictionary is rebuilt from open data and replaced whole (CC BY-SA);
 	// - VESUM has a non-commercial licence and must never share a database with it;
-	// - accounts and reports are personal data that must survive every rebuild.
+	// - accounts and reports are personal data that must survive every rebuild;
+	// - visit counts hold no personal data and must not sit with any that does.
 	// The dictionary names carry the date they were loaded: a rebuild goes
 	// into a new database and the id here is switched (data/README.md).
 	// An id names a database on the Cloudflare account; it is not a secret.
@@ -48,6 +49,12 @@
 			"binding": "REPORTS",
 			"database_name": "nebokrai-reports",
 			"database_id": "ed15b7f2-ffa3-4a80-8bfa-913301caa107"
+		},
+		{
+			// Visit and search counts (src/lib/server/stats.ts)
+			"binding": "STATS",
+			"database_name": "nebokrai-stats",
+			"database_id": "785916e9-d2a8-474f-8d72-84a4154d10a7"
 		}
 	],
 

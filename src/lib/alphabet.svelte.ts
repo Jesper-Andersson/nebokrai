@@ -14,6 +14,8 @@ import { DEFAULT_OPTIONS, parseOptions, parseProgress, type Options, type Progre
 /** By letter: `{ "ж": { "box": 2, "seen": 5, "right": 4 } }`. */
 const PROGRESS_KEY = 'alphabet';
 const OPTIONS_KEY = 'alphabet-options';
+/** `true` once the learner has said the letters are known already; absent otherwise. */
+const SKIPPED_KEY = 'alphabet-skipped';
 
 function read(key: string): unknown {
 	try {
@@ -36,6 +38,12 @@ export class Alphabet {
 	/** Replaced, never changed in place. */
 	progress = $state.raw<Progress>({});
 	options = $state.raw<Options>(DEFAULT_OPTIONS);
+	/**
+	 * The learner reads Cyrillic already and has said so on /learn, which then
+	 * stops counting the letters as something still to do. The drill is not
+	 * changed by it, and what it has recorded is kept.
+	 */
+	skipped = $state(false);
 	/** False until the browser's copy has been read. */
 	ready = $state(false);
 
@@ -44,8 +52,10 @@ export class Alphabet {
 		if (this.ready) return;
 		this.progress = parseProgress(read(PROGRESS_KEY));
 		this.options = parseOptions(read(OPTIONS_KEY));
+		this.skipped = read(SKIPPED_KEY) === true;
 		// Another tab practised, or changed the choices.
 		addEventListener('storage', (event) => {
+			if (event.key === SKIPPED_KEY) this.skipped = read(SKIPPED_KEY) === true;
 			if (event.key === PROGRESS_KEY) this.progress = parseProgress(read(PROGRESS_KEY));
 			if (event.key === OPTIONS_KEY) this.options = parseOptions(read(OPTIONS_KEY));
 		});
@@ -63,6 +73,12 @@ export class Alphabet {
 		// Through the same reading as storage, so nothing that cannot be is ever kept
 		this.options = parseOptions({ ...this.options, ...part });
 		store(OPTIONS_KEY, this.options);
+	}
+
+	/** Say that the letters are known already, or take that back. */
+	skip(on: boolean): void {
+		this.skipped = on;
+		store(SKIPPED_KEY, on ? true : null);
 	}
 
 	/** Forget every letter, as if the page had never been opened. The choices stay. */

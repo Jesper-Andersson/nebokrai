@@ -8,12 +8,14 @@
      question it answers (Genitive: кого? чого?), a gender its pronoun, and a
      verb form the pronoun it goes with (я чита́ю).
 
-     "Test yourself" covers the forms, to recall them from the names of their
-     rows: say the form, press its place, and it is shown; pressed again, it
-     is covered again. Nothing is marked right or wrong and nothing is kept:
+     A switch above the tables chooses between the table and "Test yourself",
+     which covers the forms, to recall them from the names of their rows: say
+     the form, press its place, and it is shown; pressed again, it is covered
+     again. Nothing is marked right or wrong and nothing is kept:
      the learner is the judge. The dictionary form's own cell stays in sight
      (coverable in forms.ts). -->
 <script lang="ts">
+	import { RadioGroup } from 'bits-ui';
 	import { Tabs } from 'melt/builders';
 	import { cellKey, coverable, type CellItem, type FormTable } from '#lib/forms.ts';
 	import { HINTS, termOfLabel } from '#lib/grammar.ts';
@@ -44,8 +46,8 @@
 	let shown = $state.raw<ReadonlySet<string>>(new Set());
 	let cover = $derived(coverable(tables, headword));
 
-	function toggleCover() {
-		covered = !covered;
+	function setCovered(on: boolean) {
+		covered = on;
 		shown = new Set();
 	}
 
@@ -75,7 +77,16 @@
 
 {#if cover.cells.length}
 	<div class="tools">
-		<button type="button" class="ui-chip" aria-pressed={covered} onclick={toggleCover}>{m.word.cover}</button>
+		<RadioGroup.Root
+			class="ui-segmented mode"
+			orientation="horizontal"
+			aria-label={m.word.mode}
+			value={covered ? 'test' : 'table'}
+			onValueChange={(value) => setCovered(value === 'test')}
+		>
+			<RadioGroup.Item class="ui-segment" value="table">{m.word.table}</RadioGroup.Item>
+			<RadioGroup.Item class="ui-segment" value="test">{m.word.cover}</RadioGroup.Item>
+		</RadioGroup.Root>
 		{#if covered}
 			<span class="how">{m.word.coverHow}</span>
 			<span class="count" role="status">{m.word.coverCount(shown.size, cover.cells.length)}</span>
@@ -157,6 +168,16 @@
 		margin-bottom: 0.6rem;
 		color: var(--muted);
 		font-size: var(--text-sm);
+	}
+
+	/* Two choices as wide as their words, not the whole column */
+	.tools :global(.mode) {
+		display: inline-flex;
+	}
+
+	.tools :global(.mode .ui-segment) {
+		flex: none;
+		padding-inline: 0.8rem;
 	}
 
 	.count {

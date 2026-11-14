@@ -22,7 +22,9 @@ export const GROUPS = {
 		'third-person', 'imperative', 'transitive', 'intransitive', 'impersonal', 'participle',
 		'adverbial-participle'
 	],
-	words: ['comparative', 'superlative', 'relational', 'predicative', 'diminutive', 'augmentative'],
+	words: [
+		'comparative', 'superlative', 'relational', 'predicative', 'diminutive', 'augmentative', 'derived', 'same-root'
+	],
 	usage: ['colloquial', 'dialectal', 'dated', 'archaic', 'figurative', 'slang']
 } as const;
 
@@ -117,7 +119,9 @@ export const EXAMPLES: Partial<Record<TermId, { uk: string; en: string }>> = {
 	relational: { uk: 'кава, кавовий', en: 'coffee, of coffee' },
 	predicative: { uk: 'Мені холодно. Треба йти.', en: 'I am cold. It is time to go.' },
 	diminutive: { uk: 'кіт, котик', en: 'cat, kitty' },
-	augmentative: { uk: 'великий, величезний', en: 'big, huge' }
+	augmentative: { uk: 'великий, величезний', en: 'big, huge' },
+	derived: { uk: 'читати, читач, читанка', en: 'to read, reader, reading book' },
+	'same-root': { uk: 'вода, підводний', en: 'water, underwater' }
 };
 
 /** One part of the line under a headword: a tag, and the term that explains it. */
@@ -193,6 +197,30 @@ const HEAD_FORMS: [tags: string[], key: HeadFormKey, term?: TermId][] = [
 	[['uppercase'], 'uppercase'],
 	[['lowercase'], 'lowercase']
 ];
+
+/**
+ * Where a word's page puts a form named beside the headword. A case form
+ * (води́, вод) is in the table already, when there is one; a word made from
+ * the headword (водяни́й, води́ця) goes with the related words; the rest (the
+ * aspect partner, another spelling) stays on the grammar line.
+ */
+export function headFormPlace(tags: string[], hasTables: boolean): 'line' | 'table' | 'related' {
+	const { key } = headFormLabel(tags);
+	if (key && RELATED_HEAD_FORMS.includes(key)) return 'related';
+	if (hasTables && (key === 'genitive' || key === 'plural' || key === 'genitivePlural')) return 'table';
+	return 'line';
+}
+
+/** The head forms listed with the related words, in the order of their rows there. */
+export const RELATED_HEAD_FORMS: HeadFormKey[] = [
+	'relatedAdjective', 'diminutive', 'relatedNoun', 'relatedAdverb', 'augmentative'
+];
+
+/** The note behind the name of each of those rows (Adjectives opens "Relational adjective"). */
+export const RELATED_ROW_TERMS: Partial<Record<HeadFormKey, TermId>> = {
+	relatedAdjective: 'relational', diminutive: 'diminutive', relatedNoun: 'noun', relatedAdverb: 'adverb',
+	augmentative: 'augmentative'
+};
 
 const REPEATED_ON_CANONICAL = new Set([
 	'masculine', 'feminine', 'neuter', 'singular', 'plural', 'perfective', 'imperfective', ...ANIMACY

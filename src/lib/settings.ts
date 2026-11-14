@@ -14,12 +14,21 @@ export const BACKGROUNDS: Background[] = ['plain', 'field', 'hills'];
 /** Whether the radio button is in the corner of the page (RadioPlayer.svelte). Off until the visitor asks for it. */
 export type RadioButton = 'off' | 'on';
 
+/** A switch that is only on or off. */
+export type OnOff = 'off' | 'on';
+
 export interface Settings {
 	lang: Lang;
 	theme: Theme;
 	layout: KeyboardLayout;
 	background: Background;
 	radio: RadioButton;
+	/** The headword in Latin letters under it (vodá). On unless turned off. */
+	roman: OnOff;
+	/** The headword in the phonetic alphabet ([wɔˈda]). Off unless turned on: most learners do not read it. */
+	ipa: OnOff;
+	/** The English under an example sentence, blurred until pressed (Translation.svelte). On unless turned off. */
+	blur: OnOff;
 }
 
 export function readSettings(cookie: (name: string) => string | undefined): Settings {
@@ -30,9 +39,15 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 		theme: theme === 'light' || theme === 'sepia' || theme === 'dark' ? theme : 'system',
 		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard',
 		background: background === 'field' || background === 'hills' ? background : 'plain',
-		radio: cookie('radio') === 'on' ? 'on' : 'off'
+		radio: cookie('radio') === 'on' ? 'on' : 'off',
+		roman: cookie('roman') === 'off' ? 'off' : 'on',
+		ipa: cookie('ipa') === 'on' ? 'on' : 'off',
+		blur: cookie('blur') === 'off' ? 'off' : 'on'
 	};
 }
+
+// The value a switch has when its cookie is not set; only the other value is written down
+const SWITCH_DEFAULTS = { radio: 'off', roman: 'on', ipa: 'off', blur: 'on' } as const;
 
 const YEAR = 60 * 60 * 24 * 365;
 
@@ -59,10 +74,10 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 			document.cookie = `bg=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 			root.setAttribute('data-bg', value);
 		}
-	} else if (name === 'radio') {
-		// Nothing on <html>: the layout draws the button from the settings object.
-		if (value === 'on') document.cookie = `radio=on; path=/; max-age=${YEAR}; samesite=lax`;
-		else document.cookie = 'radio=; path=/; max-age=0; samesite=lax';
+	} else if (name === 'radio' || name === 'roman' || name === 'ipa' || name === 'blur') {
+		// Nothing on <html>: the page draws these from the settings object.
+		if (value !== SWITCH_DEFAULTS[name as keyof typeof SWITCH_DEFAULTS]) document.cookie = `${name}=${value}; path=/; max-age=${YEAR}; samesite=lax`;
+		else document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
 	} else {
 		document.cookie = `kbd=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	}

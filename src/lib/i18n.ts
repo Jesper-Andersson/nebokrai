@@ -359,6 +359,8 @@ const en = {
 		/** Before the form of the word that the search found: руки́ genitive singular */
 		formFound: 'Form found:',
 		moreForms: (n: number) => `+${n} more`,
+		/** After a result's first two meanings, leading to the word's page: брати has 25 */
+		moreMeanings: (n: number) => `+${n} more`,
 		/** When it is known to be a form of the word, but not which */
 		someForm: 'Your search is a form of this word.'
 	},
@@ -435,6 +437,8 @@ const en = {
 		more: 'More in the guide',
 		/** The link beside a word's tables */
 		explained: 'What these words mean',
+		/** A search result's grammar line on a phone, where "imperfective" has no room beside the word */
+		short: { perfective: 'pf.', imperfective: 'impf.' } as Record<string, string>,
 		groups: {
 			pos: 'Kinds of word',
 			gender: 'Gender',
@@ -471,6 +475,7 @@ const en = {
 			conjunction: { name: 'Conjunction', text: 'A word that joins words or sentences.' },
 			particle: { name: 'Particle', text: 'A small word that adds a shade of meaning: a question, a denial, emphasis. It never changes its form.' },
 			interjection: { name: 'Interjection', text: 'A word said on its own: a greeting, a reaction, a call.' },
+			determiner: { name: 'Determiner', text: 'A word before a noun that says which one or how many: this, such, a few. Ukrainian school grammar counts most of them as pronouns or numerals.' },
 			masculine: { name: 'Masculine', text: 'One of the three genders. A masculine noun is spoken of as він (he), and an adjective with it ends in -ий or -ій. Most masculine nouns end in a consonant.' },
 			feminine: { name: 'Feminine', text: 'One of the three genders. A feminine noun is spoken of as вона (she), and an adjective with it ends in -а or -я. Most feminine nouns end in -а or -я.' },
 			neuter: { name: 'Neuter', text: 'One of the three genders. A neuter noun is spoken of as воно (it), and an adjective with it ends in -е or -є. Most neuter nouns end in -о, -е or -я.' },
@@ -1325,6 +1330,7 @@ const uk: Messages = {
 		noEntry: 'Українське слово, якого ще немає в словнику.',
 		formFound: 'Знайдена форма:',
 		moreForms: (n: number) => `ще ${n}`,
+		moreMeanings: (n: number) => `ще ${n}`,
 		someForm: 'Ваш запит є формою цього слова.'
 	},
 	word: {
@@ -1393,6 +1399,7 @@ const uk: Messages = {
 	grammar: {
 		more: 'Докладніше в довіднику',
 		explained: 'Що означають ці слова',
+		short: { perfective: 'док.', imperfective: 'недок.' },
 		groups: {
 			pos: 'Частини мови',
 			gender: 'Рід',
@@ -1427,6 +1434,7 @@ const uk: Messages = {
 			conjunction: { name: 'Сполучник', text: 'Слово, що поєднує слова або речення.' },
 			particle: { name: 'Частка', text: 'Коротке слово, що додає відтінок значення: питання, заперечення, підсилення. Не змінює форми.' },
 			interjection: { name: 'Вигук', text: 'Слово, яке вимовляють окремо: вітання, реакція, оклик.' },
+			determiner: { name: 'Детермінатив', text: 'Слово перед іменником, що вказує, який саме або скільки: цей, такий, кілька. Шкільна граматика відносить більшість із них до займенників або числівників.' },
 			masculine: { name: 'Чоловічий рід', text: 'Один із трьох родів. Про такий іменник кажуть «він», а прикметник при ньому закінчується на -ий або -ій. Більшість іменників чоловічого роду закінчується на приголосний.' },
 			feminine: { name: 'Жіночий рід', text: 'Один із трьох родів. Про такий іменник кажуть «вона», а прикметник при ньому закінчується на -а або -я. Більшість іменників жіночого роду закінчується на -а або -я.' },
 			neuter: { name: 'Середній рід', text: 'Один із трьох родів. Про такий іменник кажуть «воно», а прикметник при ньому закінчується на -е або -є. Більшість іменників середнього роду закінчується на -о, -е або -я.' },

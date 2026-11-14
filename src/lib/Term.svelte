@@ -17,7 +17,11 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 
-	let { id, children }: { id: TermId; children?: Snippet } = $props();
+	// `tabbable={false}`: a search result's line. Twenty results with three
+	// terms each would be sixty stops between one result and the next; the
+	// pointer and a press still open the note, and the word's page has it in
+	// the tab order.
+	let { id, children, tabbable = true }: { id: TermId; children?: Snippet; tabbable?: boolean } = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -33,7 +37,12 @@
 <!-- No space in or after the button: it would show before the bracket or the
      comma that follows the word, as in "(transitive )" -->
 <Popover.Root
-	><Popover.Trigger class="ui-term" openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
+	><Popover.Trigger
+		class="ui-term"
+		openOnHover
+		openDelay={HOVER_OPEN}
+		closeDelay={HOVER_CLOSE}
+		tabindex={tabbable ? undefined : -1}
 		>{#if children}{@render children()}{:else}{term.name.toLocaleLowerCase(settings.lang)}{/if}</Popover.Trigger
 	><Popover.Portal>
 		<Popover.Content class="ui-popover ui-term-note" sideOffset={6} collisionPadding={8}>

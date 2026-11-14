@@ -347,8 +347,9 @@
 		padding: 0;
 		border: 0;
 		border-bottom: 2px solid var(--flag-line);
-		border-radius: 0;
-		background: none;
+		/* The soft flag fill the answered word gets, so the gap reads as a field */
+		border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+		background: var(--flag-soft);
 		color: var(--ink);
 		font: inherit;
 		line-height: 1.2;

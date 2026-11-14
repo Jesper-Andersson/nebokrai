@@ -19,6 +19,7 @@
      what the answers do to the rule's schedule the page decides
      (src/lib/practice/round.ts). -->
 <script lang="ts">
+	import { Collapsible } from 'melt/builders';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import Stressed from '#lib/Stressed.svelte';
@@ -84,7 +85,37 @@
 	const insert = (text: string) => (typed += text);
 	const backspace = () => (typed = [...typed].slice(0, -1).join(''));
 
-	const focus = (node: HTMLElement) => node.focus();
+	// Focus must not scroll: on a phone the page would jump to the field or to Next
+	const focus = (node: HTMLElement) => node.focus({ preventScroll: true });
+
+	// A sentence is only ever shown in the browser (the round fetches it), so
+	// these are read once, as the card is made, and the first paint is right.
+	/** A touch screen: focusing the field there opens the phone's own keyboard. */
+	const touch = typeof matchMedia === 'function' && matchMedia('(hover: none)').matches;
+
+	// The on-screen keyboard can be put away. Whether it is open is remembered in
+	// this browser only; without storage it is open, as it always was.
+	const KEYBOARD_KEY = 'nebokrai-practice-keyboard';
+	let keyboardOpen = $state(readOpen());
+
+	function readOpen() {
+		try {
+			return localStorage.getItem(KEYBOARD_KEY) !== '0';
+		} catch {
+			return true;
+		}
+	}
+
+	const keyboard = new Collapsible({
+		open: () => keyboardOpen,
+		onOpenChange: (open) => {
+			keyboardOpen = open;
+			try {
+				localStorage.setItem(KEYBOARD_KEY, open ? '1' : '0');
+			} catch {}
+			field?.focus({ preventScroll: true });
+		}
+	});
 
 	// 1 to 4 choose, Enter goes on. Keys are known by their place
 	// (KeyboardEvent.code), so they work with a Ukrainian layout switched on.
@@ -123,16 +154,49 @@
 	</p>
 {/snippet}
 
+<!-- What the answer says: shown after answering, and before it kept in place,
+     unseen, so that answering fills the room instead of pushing the page down.
+     The unseen copy names the headword twice, not the answer. -->
+{#snippet feedback(outcome: Outcome | null)}
+	<p class="verdict">
+		<Icon name={outcome === 'missed' ? 'x' : 'check'} size={18} />
+		{outcome === 'helped' ? m.practice.helped : outcome === 'missed' ? m.practice.incorrect : m.practice.correct}
+		{#if outcome === 'missed' && !choice && result}<s class="given" lang="uk">{result.given}</s>{/if}
+	</p>
+	<p class="answer">
+		<Headword text={gap.headword} size="sm" href={outcome ? wordPath(gap.word) : undefined} />
+		<Icon name="arrow-right" size={16} />
+		<Headword text={outcome ? gap.answer : gap.headword} size="sm" />
+	</p>
+	{@render rule()}
+	<button type="button" class="ui-btn ui-btn-primary next" onclick={onnext} {@attach outcome && focus}>
+		{m.practice.next} <kbd class="ui-kbd">Enter</kbd>
+	</button>
+{/snippet}
+
 <article class="ui-card card">
 	<p class="ask">{choice ? m.practice.ask.choice : m.practice.ask.type}</p>
 
 	<div class="shown">
 		<p class="sentence" lang="uk">
-			{parts.before}{#if result}<b class="filled" data-outcome={result.outcome}>{parts.word}</b>{:else}<span
-					class="blank"
-					style:--letters={gap.length}
+			{parts.before}{#if result}<b class="filled" data-outcome={result.outcome}>{parts.word}</b
+				>{:else if choice}<span class="blank" style:--letters={gap.length} aria-label={m.practice.yourAnswer}></span
+				>{:else}<input
+					bind:this={field}
+					bind:value={typed}
+					class="blank field"
+					style:--letters={Math.max(gap.length, [...typed].length + 1)}
+					type="text"
+					form="practice-answer"
 					aria-label={m.practice.yourAnswer}
-				></span>{/if}{parts.after}
+					autocomplete="off"
+					autocapitalize="off"
+					autocorrect="off"
+					spellcheck="false"
+					maxlength="60"
+					inputmode={keyboardOpen ? 'none' : undefined}
+					{@attach (!touch || keyboardOpen) && focus}
+				/>{/if}{parts.after}
 		</p>
 		<p class="english" lang="en">{gap.en}</p>
 		<p class="cue">
@@ -141,14 +205,15 @@
 		</p>
 	</div>
 
-	{#if !result}
+	<!-- Kept in place once answered, unseen, so nothing under it moves up -->
+	<div class="help" class:spent={result} inert={result !== null}>
 		{#if hinted || nudged}
 			{#if nudged}<p class="nudge" role="status">{m.practice.nudge}</p>{/if}
 			{@render rule()}
 		{:else}
 			<button type="button" class="link" onclick={() => (hinted = true)}>{m.practice.hint}</button>
 		{/if}
-	{/if}
+	</div>
 
 	{#if choice}
 		<div class="choices">
@@ -166,56 +231,44 @@
 				</button>
 			{/each}
 		</div>
-	{:else}
-		<form class="typing" onsubmit={submit}>
-			<input
-				bind:this={field}
-				bind:value={typed}
-				class="ui-field"
-				type="text"
-				lang="uk"
-				aria-label={m.practice.yourAnswer}
-				autocomplete="off"
-				autocapitalize="off"
-				autocorrect="off"
-				spellcheck="false"
-				maxlength="60"
-				disabled={result !== null}
-				data-is={result ? (result.outcome === 'missed' ? 'wrong' : 'right') : undefined}
-				{@attach focus}
-			/>
-			<button type="submit" class="ui-btn" disabled={result !== null || !typed.trim()}>{m.practice.check}</button>
-		</form>
-		{#if !result}
-			<UkrainianKeyboard id="practice-keyboard" input={field} oninsert={insert} onbackspace={backspace} onstress={() => {}} />
-		{/if}
 	{/if}
 
-	{#if result}
-		<div class="feedback" data-outcome={result.outcome} role="status">
-			<p class="verdict">
-				<Icon name={result.outcome === 'missed' ? 'x' : 'check'} size={18} />
-				{result.outcome === 'right'
-					? m.practice.correct
-					: result.outcome === 'helped'
-						? m.practice.helped
-						: m.practice.incorrect}
-			</p>
-			<p class="answer">
-				<Headword text={gap.headword} size="sm" href={wordPath(gap.word)} />
-				<Icon name="arrow-right" size={16} />
-				<Headword text={gap.answer} size="sm" />
-			</p>
-			{@render rule()}
-			<button type="button" class="ui-btn ui-btn-primary next" onclick={onnext} {@attach focus}>
-				{m.practice.next} <kbd class="ui-kbd">Enter</kbd>
-			</button>
+	<!-- Check and the feedback share one place: Next comes where Check was -->
+	<div class="after">
+		{#if !choice}
+			<form id="practice-answer" class="typing" class:spent={result} inert={result !== null} onsubmit={submit}>
+				<button type="submit" class="ui-btn ui-btn-primary" disabled={!typed.trim()}>{m.practice.check}</button>
+				<button
+					{...keyboard.trigger}
+					type="button"
+					class="ui-icon-btn"
+					aria-label={m.keyboard.toggle}
+					title={m.keyboard.toggle}
+				>
+					<Icon name="keyboard" size={22} />
+				</button>
+			</form>
+		{/if}
+		<div class="feedback" class:waiting={!result} data-outcome={result?.outcome} role="status">
+			{#if result}
+				{@render feedback(result.outcome)}
+			{:else}
+				<div class="ghost" aria-hidden="true" inert>{@render feedback(null)}</div>
+			{/if}
+		</div>
+	</div>
+
+	{#if !choice}
+		<div {...keyboard.content} class="keys-board" class:spent={result} inert={result !== null}>
+			{#if keyboard.open}
+				<UkrainianKeyboard id="practice-keyboard" input={field} oninsert={insert} onbackspace={backspace} onstress={() => {}} />
+			{/if}
 		</div>
 	{/if}
 </article>
 
 <p class="under">
-	{#if choice && !result}<span class="keys">{m.practice.keys}</span>{/if}
+	{#if choice}<span class="keys" class:spent={result}>{m.practice.keys}</span>{/if}
 	<!-- The sentence's licence asks for its author's credit: the link leads to it -->
 	<!-- A number's sentence is made here, not taken from Tatoeba: there is no one to credit -->
 	{#if gap.tatoeba_id}
@@ -270,6 +323,14 @@
 		text-wrap: balance;
 	}
 
+	/* On a phone a sentence takes one line or two: two lines' room either way,
+	   so the next sentence does not move what is under it */
+	@media (max-width: 40rem) {
+		.sentence {
+			min-height: calc(2 * 1.5em);
+		}
+	}
+
 	/* The gap: a rule to write on, about as long as the word it stands for,
 	   so that a long word is not guessed from a short line or the other way */
 	.blank {
@@ -278,6 +339,26 @@
 		margin-inline: 0.1em;
 		border-bottom: 2px solid var(--flag-line);
 		vertical-align: baseline;
+	}
+
+	/* Typing: the gap itself is the field, in the sentence's own letters */
+	.field {
+		max-width: 100%;
+		padding: 0;
+		border: 0;
+		border-bottom: 2px solid var(--flag-line);
+		border-radius: 0;
+		background: none;
+		color: var(--ink);
+		font: inherit;
+		line-height: 1.2;
+		text-align: center;
+		caret-color: var(--ink);
+	}
+
+	.field:focus-visible {
+		outline: none;
+		border-bottom-color: var(--accent);
 	}
 
 	.filled {
@@ -398,27 +479,44 @@
 		text-decoration: line-through;
 	}
 
+	/* Answered: still taking its room, so nothing under it moves up */
+	.spent {
+		visibility: hidden;
+	}
+
+	.help {
+		display: grid;
+		justify-items: center;
+		gap: 0.5rem;
+	}
+
+	/* Check and the feedback in one grid cell, as tall as the feedback:
+	   Check stands at the foot of it, where Next will be */
+	.after {
+		display: grid;
+		width: 100%;
+	}
+
+	.after > * {
+		grid-area: 1 / 1;
+	}
+
 	.typing {
 		display: flex;
+		align-self: end;
+		justify-content: center;
+		align-items: center;
 		gap: 0.5rem;
-		width: min(100%, 24rem);
 	}
 
-	.typing input {
-		flex: 1;
-		min-width: 0;
-		font-size: var(--text-lg);
-		text-align: center;
+	/* The on-screen keyboard stays where it is once answered, out of use */
+	.keys-board {
+		width: 100%;
 	}
 
-	.typing input[data-is='right'] {
-		border-color: var(--flag-line);
-	}
-
-	.typing input[data-is='wrong'] {
-		border-color: var(--stress);
-		color: var(--stress);
-		text-decoration: line-through;
+	.keys-board.spent {
+		visibility: visible;
+		opacity: 0.4;
 	}
 
 	.feedback {
@@ -429,6 +527,20 @@
 		padding-top: 1rem;
 		border-top: 1px solid var(--border);
 		text-align: center;
+	}
+
+	.feedback.waiting {
+		border-top-color: transparent;
+	}
+
+	.ghost {
+		display: contents;
+		visibility: hidden;
+	}
+
+	.given {
+		color: var(--stress);
+		font-family: var(--font-headword);
 	}
 
 	.verdict {

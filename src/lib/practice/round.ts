@@ -6,7 +6,7 @@
 import {
 	AGAIN, GOOD, HARD, RELEARNING, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard
 } from '../review/fsrs.ts';
-import { plain } from '../search/normalize.ts';
+import { isCyrillic, looseLatin, nationalTranslit, plain } from '../search/normalize.ts';
 import { cardKey } from './points.ts';
 
 /** A number from 0 up to, not including, 1: Math.random, or a fixed sequence in a test. */
@@ -171,17 +171,40 @@ function apart(points: string[], before: string | undefined): string[] {
 	return out;
 }
 
+/** Latin letters as typed, without accents or apostrophes: tsúkru -> tsukru. */
+function bareLatin(text: string): string {
+	return text.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/[^a-z]/g, '');
+}
+
 /**
  * What a typed answer is: the form wanted, another form of the same noun
- * (the right word, the wrong ending), or neither. Stress marks, capitals and
- * the kind of apostrophe do not count, and a second spelling of the same
- * case is as right as the one the sentence has.
+ * (the right word, the wrong ending), close to one of them, or none of these.
+ * Stress marks, capitals and the kind of apostrophe do not count, and a second
+ * spelling of the same case is as right as the one the sentence has.
+ *
+ * An answer in Latin letters counts when it is the national transliteration
+ * (nationalTranslit) of the form: tsukru for цукру. This tests the case, not
+ * the alphabet. The match is exact, not loose: loosely y and i are one letter,
+ * and stoly (столи) would then pass for stoli (столі), another case. Latin
+ * that is near a form, spelled another way (cukru) or cut short (tsukr), is
+ * "close", and the page lets it be tried again.
  */
-export function checkAnswer(gap: Gap, given: string): 'right' | 'form' | 'wrong' {
+export function checkAnswer(gap: Gap, given: string): 'right' | 'form' | 'close' | 'wrong' {
 	const typed = plain(given.trim());
 	if (!typed) return 'wrong';
-	if (typed === plain(gap.answer) || gap.also.includes(typed)) return 'right';
-	return gap.forms.includes(typed) ? 'form' : 'wrong';
+	if (isCyrillic(typed)) {
+		if (typed === plain(gap.answer) || gap.also.includes(typed)) return 'right';
+		return gap.forms.includes(typed) ? 'form' : 'wrong';
+	}
+	const roman = bareLatin(typed);
+	if (!roman) return 'wrong';
+	const wanted = [gap.answer, ...gap.also].map(nationalTranslit);
+	const others = gap.forms.map(nationalTranslit);
+	if (wanted.includes(roman)) return 'right';
+	if (others.includes(roman)) return 'form';
+	const loose = looseLatin(roman);
+	const near = (form: string) => looseLatin(form) === loose || (roman.length >= 2 && form.startsWith(roman));
+	return [...wanted, ...others].some(near) ? 'close' : 'wrong';
 }
 
 /**

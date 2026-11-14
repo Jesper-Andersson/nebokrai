@@ -138,7 +138,7 @@
 <PageMeta title="{m.pageTitle.practice} · Nebokrai" description={m.meta.practice} />
 
 <div class="ui-page page">
-	<h1 class="ui-title">{m.pageTitle.practice}</h1>
+	<h1 class="ui-title" class:playing={round}>{m.pageTitle.practice}</h1>
 
 	{#if !offered.length}
 		<p class="lead">{m.practice.none}</p>
@@ -238,6 +238,24 @@
 
 	/* What starts a round and what is chosen are in the flag's yellow, as on
 	   the alphabet page (--flag in app.css), not the blue of a link */
+	/* During a round on a phone the title gives its room to the sentence; it
+	   stays for screen readers. The card then reaches the foot of the screen
+	   with the sentence in the middle (PracticeGap.svelte). */
+	@media (max-width: 600px) {
+		.page:has(h1.playing) {
+			padding-top: 0.75rem;
+		}
+
+		h1.playing {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+	}
+
 	.page :global(.ui-btn.ui-btn-primary) {
 		border-color: var(--flag-line);
 		background: var(--flag);

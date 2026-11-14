@@ -162,6 +162,23 @@ test('a second spelling of the same case is right', () => {
 	assert.equal(checkAnswer(table, 'стола'), 'form');
 });
 
+test('a typed answer in Latin letters counts in the national transliteration', () => {
+	assert.equal(checkAnswer(SUGAR, 'tsukru'), 'right');
+	assert.equal(checkAnswer(SUGAR, ' Tsúkru '), 'right');
+	assert.equal(checkAnswer(SUGAR, 'tsukor'), 'form');
+	assert.equal(checkAnswer(SUGAR, 'sil'), 'wrong');
+	// Exact, not loose: stoly is столи, another case than столі
+	const table = { ...SUGAR, answer: 'столі́', also: [], forms: ['стіл', 'стола', 'столі', 'столи'] };
+	assert.equal(checkAnswer(table, 'stoli'), 'right');
+	assert.equal(checkAnswer(table, 'stoly'), 'form');
+});
+
+test('Latin near the word is close: spelled another way, or not finished', () => {
+	assert.equal(checkAnswer(SUGAR, 'cukru'), 'close');
+	assert.equal(checkAnswer(SUGAR, 'tsukr'), 'close');
+	assert.equal(checkAnswer(SUGAR, 't'), 'wrong');
+});
+
 test('a sentence splits round its gap', () => {
 	assert.deepEqual(split(SUGAR), { before: 'Кава без ', word: 'цукру', after: '.' });
 });

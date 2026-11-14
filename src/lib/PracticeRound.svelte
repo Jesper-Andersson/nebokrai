@@ -8,7 +8,7 @@
      offer, one rule or one lesson's (`only`), or the rules held least well
      (`weak`). -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PracticeGap from '#lib/PracticeGap.svelte';
@@ -82,8 +82,13 @@
 
 	onMount(() => {
 		void start();
-		// Sentences that arrive after the round was left are dropped
-		return () => void (asked += 1);
+		// While a round runs, a phone's header slims down (Header.svelte)
+		document.documentElement.dataset.practising = '';
+		return () => {
+			// Sentences that arrive after the round was left are dropped
+			asked += 1;
+			delete document.documentElement.dataset.practising;
+		};
 	});
 
 	function answer(outcome: Outcome, given: string) {
@@ -96,10 +101,23 @@
 		review.record(gradePoint(point, before.get(point), sofar, Date.now()));
 	}
 
-	function goOn() {
+	/** How far the round has come: the next sentence is brought back to it if it was scrolled past. */
+	let bar: HTMLElement | undefined = $state();
+
+	async function goOn() {
 		if (stage !== 'round' || !result) return;
 		result = null;
 		if (outcomes.length >= gaps.length) stage = 'summary';
+		await tick();
+		// On a phone Next may sit below the sentence's first screen: the next
+		// sentence must not start out of sight above it, under the sticky header
+		if (!bar) return;
+		const header = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+		const off = bar.getBoundingClientRect().top - header - 8;
+		if (off < 0) {
+			const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+			window.scrollBy({ top: off, behavior: still ? 'instant' : 'smooth' });
+		}
 	}
 
 	let right = $derived(outcomes.filter((outcome) => outcome !== 'missed').length);
@@ -128,7 +146,7 @@
 	</section>
 {:else if stage === 'round' && gap}
 	{@const point = pointOf(gap.point)}
-	<div class="bar">
+	<div class="bar" bind:this={bar}>
 		<span class="ui-badge">{m.practice.count(Math.min(at + 1, gaps.length), gaps.length)}</span>
 		<button type="button" class="ui-btn" onclick={onstop}>{m.practice.stop}</button>
 	</div>

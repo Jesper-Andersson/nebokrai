@@ -843,6 +843,12 @@ const en = {
 		hint: 'Show the case',
 		/** A typed answer that is the right word in another form: one more try. */
 		nudge: 'The right word, but not in this form. Try once more.',
+		/** A Latin answer near the word: spelled another way, or not finished. */
+		close: 'Almost. Check the spelling and try once more.',
+		/** The button that shows or puts away the on-screen keyboard. */
+		keyboard: 'Keyboard',
+		/** Between a case's name and its questions: "genitive answers кого? чого?" */
+		answers: 'answers',
 		yourAnswer: 'Your answer',
 		check: 'Check',
 		next: 'Next',
@@ -1788,6 +1794,9 @@ const uk: Messages = {
 		plural: 'множина',
 		hint: 'Показати відмінок',
 		nudge: 'Слово правильне, а форма не та. Спробуйте ще раз.',
+		close: 'Майже. Перевірте написання і спробуйте ще раз.',
+		keyboard: 'Клавіатура',
+		answers: 'відповідає на питання',
 		yourAnswer: 'Ваша відповідь',
 		check: 'Перевірити',
 		next: 'Далі',

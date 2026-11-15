@@ -29,7 +29,7 @@
 	let width = $state(460);
 	let W = $derived(Math.max(240, Math.round(width)));
 	let RIGHT = $derived(W - 12);
-	const LEFT = 44, TOP = 14, BOTTOM = 136;
+	const LEFT = 44, TOP = 14, BOTTOM = 116, HEIGHT = 140;
 	let end = $derived(Math.max(now + 30 * 86_400_000, ...ahead.map((mark) => mark.at ?? 0)));
 	const x = (t: number) => LEFT + ((t - now) / (end - now)) * (RIGHT - LEFT);
 	const y = (v: number) => BOTTOM - (v / pace.total) * (BOTTOM - TOP);
@@ -62,7 +62,7 @@
 
 		{#if reachable}
 			<div class="chart" bind:clientWidth={width}>
-				<svg viewBox="0 0 {W} 160" aria-hidden="true">
+				<svg viewBox="0 0 {W} {HEIGHT}" aria-hidden="true">
 					{#each pace.milestones as mark (mark.count)}
 						<line class="grid" x1={LEFT} x2={RIGHT} y1={y(mark.count)} y2={y(mark.count)} />
 						<text class="axis" x={LEFT - 8} y={y(mark.count) + 4} text-anchor="end">{m.review.pace.mark(mark.count)}</text>

@@ -519,44 +519,10 @@
 	</header>
 
 	{#if !started}
-		<!-- Before a round: on a phone one column, on a wide screen two, the
-		     decks beside the pace -->
+		<!-- Before a round: the decks; Today and the pace; the settings, folded,
+		     and the calendar. One column on a phone, two or three wider. -->
 		<div class="setup">
 			<div class="column one">
-				{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
-					<!-- No deck has a word in it: three noughts over a Start that cannot be
-					     pressed say nothing, so the way to begin is said in their place.
-					     The decks to tick are the next thing down the page. -->
-					<section class="ui-card today begin">
-						<Icon name="cards" size={28} />
-						<p>{m.review.noWords}</p>
-						{#if only}
-							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
-						{/if}
-					</section>
-				{:else}
-					<!-- Today on one line: the three counts, then Start -->
-					<section class="ui-card today" aria-busy={!ready}>
-						<dl>
-							<div><dd>{ready ? today.learning.length : '–'}</dd><dt>{m.review.learning}</dt></div>
-							<div><dd>{ready ? today.due.length : '–'}</dd><dt>{m.review.due}</dt></div>
-							<div><dd>{ready ? today.fresh.length : '–'}</dd><dt>{m.review.fresh}</dt></div>
-						</dl>
-						<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
-							{m.review.start}
-						</button>
-						{#if only}
-							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
-						{/if}
-						{#if ready && !left}
-							<p class="muted">
-								{m.review.nothingToday}
-								{#if nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
-							</p>
-						{/if}
-					</section>
-				{/if}
-
 				<!-- /review#decks is where /learn's "Manage decks" leads -->
 				<section class="ui-card options" id="decks">
 					<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
@@ -675,12 +641,45 @@
 						{m.review.planned.deck} <span>{m.review.planned.note}</span>
 					</button>
 				</section>
-				<p class="muted kept">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 			</div>
 
 			<div class="column two">
+				{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
+					<!-- No deck has a word in it: three noughts over a Start that cannot be
+					     pressed say nothing, so the way to begin is said in their place.
+					     The decks to tick are the next thing down the page. -->
+					<section class="ui-card today begin">
+						<Icon name="cards" size={28} />
+						<p>{m.review.noWords}</p>
+						{#if only}
+							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
+						{/if}
+					</section>
+				{:else}
+					<!-- Today on one line: the three counts, then Start -->
+					<section class="ui-card today" aria-busy={!ready}>
+						<dl>
+							<div><dd>{ready ? today.learning.length : '–'}</dd><dt>{m.review.learning}</dt></div>
+							<div><dd>{ready ? today.due.length : '–'}</dd><dt>{m.review.due}</dt></div>
+							<div><dd>{ready ? today.fresh.length : '–'}</dd><dt>{m.review.fresh}</dt></div>
+						</dl>
+						<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
+							{m.review.start}
+						</button>
+						{#if only}
+							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
+						{/if}
+						{#if ready && !left}
+							<p class="muted">
+								{m.review.nothingToday}
+								{#if nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
+							</p>
+						{/if}
+					</section>
+				{/if}
+
 				<!-- The number of new words a day, and where it leads (review/pace.ts) -->
-				<section class="ui-card options">
+				<section class="ui-card options pace-card">
 					<h2 class="ui-label">{m.review.pace.heading}</h2>
 					<div class="setting">
 						<span class="muted" id="new-per-day">{m.review.newPerDay}</span>
@@ -712,8 +711,8 @@
 			</div>
 
 			<div class="column three">
-				<!-- Settings changed once in a while. On a phone they fold away under
-				     a line that says what they are set to; on a wide screen they show. -->
+				<!-- Settings changed once in a while fold away under a line that says
+				     how they are set, at every width: the page then fits one screen -->
 				<section class="ui-card options habit" class:open={habitOpen}>
 					<!-- Said, not shown: a second label over "Weekly goal" only repeated it -->
 					<h2 class="ui-sr-only">{m.review.habit.heading}</h2>
@@ -760,8 +759,7 @@
 							value={review.settings.plan}
 							onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
 						/>
-						<!-- Left out beside two other columns, where the field's example says it -->
-						<p class="muted hint plan-hint">{m.review.goal.planHint}</p>
+						<p class="muted hint">{m.review.goal.planHint}</p>
 
 						<h3 class="ui-label">{m.review.recall.heading}</h3>
 						<div class="typing">
@@ -781,6 +779,7 @@
 						<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
 					</div>
 				{/if}
+				<p class="muted kept">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 			</div>
 		</div>
 	{:else if current && info}
@@ -936,8 +935,8 @@
 	}
 
 	/* Before a round. On a phone every card in one column, the calendar last;
-	   from a tablet up, two columns, the settings under the pace; on a desktop
-	   three, so that the whole page is on one screen of 1920 by 1080. */
+	   from a tablet up, two columns, the settings and calendar under the decks;
+	   on a desktop three, so that the whole page is on one screen of a laptop. */
 	.setup {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -949,8 +948,12 @@
 		display: contents;
 	}
 
-	/* On a phone the calendar comes after the settings, and the note on where
-	   reviews are kept last of all */
+	/* On a phone Today first, then the decks; the calendar after the settings,
+	   and the note on where reviews are kept last of all */
+	.today {
+		order: -1;
+	}
+
 	.heat {
 		order: 1;
 	}
@@ -967,7 +970,7 @@
 
 		.setup {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
-			grid-template-areas: 'one two' 'one three';
+			grid-template-areas: 'one two' 'three two';
 		}
 
 		.column {
@@ -992,16 +995,28 @@
 	@media (min-width: 75rem) {
 		.page.wide {
 			max-width: var(--frame-width);
-			padding-top: 1.25rem;
-		}
-
-		.plan-hint {
-			display: none;
+			padding-top: 1rem;
 		}
 
 		.setup {
 			grid-template-columns: repeat(3, minmax(0, 1fr));
 			grid-template-areas: 'one two three';
+		}
+
+		/* A little less air, so that the page fits the screen of a laptop */
+		.setup,
+		.column {
+			gap: 0.75rem;
+		}
+
+		/* Inside .setup, to outweigh the rules for every card further down */
+		.setup .options {
+			gap: 0.75rem;
+			padding: 1rem;
+		}
+
+		.setup .today:not(.begin) {
+			padding-block: 0.7rem;
 		}
 	}
 
@@ -1264,6 +1279,10 @@
 		color: var(--muted);
 	}
 
+	.pace-card {
+		gap: 0.75rem;
+	}
+
 	/* A setting on one line: what it is, then its choices */
 	.setting {
 		display: flex;
@@ -1273,8 +1292,7 @@
 		gap: 0.5rem 1rem;
 	}
 
-	/* Goal, plan and typing: folded on a phone under a line that says how they
-	   are set; open on a wide screen, where "Weekly goal" heads the card */
+	/* Goal, plan and typing: folded under a line that says how they are set */
 	.habit .body {
 		display: none;
 	}
@@ -1320,15 +1338,6 @@
 		transform: rotate(180deg);
 	}
 
-	@media (min-width: 60rem) {
-		.habit .body {
-			display: grid;
-		}
-
-		.fold {
-			display: none;
-		}
-	}
 
 	/* The typing switch: its name and what it does, the switch beside them */
 	.typing {
@@ -1354,6 +1363,7 @@
 	@media (min-width: 60rem) {
 		.kept {
 			padding-inline: 0.25rem;
+			font-size: var(--text-xs);
 			text-align: start;
 		}
 	}

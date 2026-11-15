@@ -15,6 +15,9 @@
 // heatmap and the weekly goal. Each browser counts its own reviews and sends the
 // account its own numbers; the account answers with the other browsers' sum.
 // A number sent twice is the same number, so nothing is ever counted double.
+// Reviews brought in from Anki (the Import page) are counted the same way,
+// under a name of their own instead of this browser's, so importing a deck
+// twice does not count its history twice.
 //
 // One object per page, shared through Svelte context (a module variable would
 // be shared between visitors on the server).
@@ -40,6 +43,10 @@ const OTHER_DAYS_KEY = 'review-days-others';
 const UNSENT_DAYS_KEY = 'review-days-unsent';
 /** A random name for this browser, under which the account keeps its day counts. */
 const DEVICE_KEY = 'review-device';
+/** Reviews by day brought in from another app, not yet sent to the account (or kept here while signed out). */
+const IMPORTED_DAYS_KEY = 'review-days-imported';
+/** The name the account keeps imported reviews under, as though they were one more browser. */
+export const IMPORT_DEVICE = 'anki-import';
 /** How long one exchange with the account may take before the next one is let through. */
 const SYNC_WAIT_MS = 15_000;
 
@@ -81,8 +88,9 @@ export class Review {
 
 	#ownDays = $state.raw<DayCounts>({});
 	#otherDays = $state.raw<DayCounts>({});
-	/** Reviews by day, in every browser of the account. */
-	days = $derived(addDays(this.#ownDays, this.#otherDays));
+	#importedDays = $state.raw<DayCounts>({});
+	/** Reviews by day, in every browser of the account, and those imported. */
+	days = $derived(addDays(addDays(this.#ownDays, this.#otherDays), this.#importedDays));
 
 	#unsent = $state.raw<ReadonlySet<string>>(new Set());
 	#unsentDays = new Set<string>();
@@ -128,9 +136,10 @@ export class Review {
 	 * count as another browser's from now on.
 	 */
 	#dropDays(): void {
-		for (const key of [DAYS_KEY, OTHER_DAYS_KEY, UNSENT_DAYS_KEY, DEVICE_KEY]) store(key, null);
+		for (const key of [DAYS_KEY, OTHER_DAYS_KEY, UNSENT_DAYS_KEY, DEVICE_KEY, IMPORTED_DAYS_KEY]) store(key, null);
 		this.#ownDays = {};
 		this.#otherDays = {};
+		this.#importedDays = {};
 		this.#unsentDays = new Set();
 	}
 
@@ -183,6 +192,7 @@ export class Review {
 		const owner = read(OWNER_KEY);
 		const local = readCards();
 		this.#ownDays = parseDays(read(DAYS_KEY));
+		this.#importedDays = parseDays(read(IMPORTED_DAYS_KEY));
 
 		if (!this.#userId) {
 			// Just signed out: the cards were a copy of the account, and the next
@@ -249,6 +259,28 @@ export class Review {
 		if (!before) this.#setUnsent(new Set([...this.#unsent].filter((w) => w !== word)));
 	}
 
+	/**
+	 * Take in cards and day counts from another app (the Import page). A word
+	 * that already has a card keeps whichever copy was reviewed later. Signed
+	 * in, everything goes to the account at once; the promise settles when it
+	 * has, or has failed and will be tried again with the next exchange.
+	 */
+	importCards(cards: ReviewCard[], days: DayCounts = {}): Promise<void> {
+		this.peek();
+		const merged = mergeCards(this.cards.values(), cards);
+		this.#setCards(merged);
+		if (this.#userId) {
+			const taken = cards.filter((card) => merged.get(card.word) === card).map((card) => card.word);
+			this.#setUnsent(new Set([...this.#unsent, ...taken]));
+		}
+		if (Object.keys(days).length) {
+			// A day the import names again is replaced, not added to: the same deck imported twice counts once
+			this.#importedDays = { ...this.#importedDays, ...days };
+			store(IMPORTED_DAYS_KEY, this.#importedDays);
+		}
+		return this.sync();
+	}
+
 	change(settings: Partial<Pick<ReviewSettings, 'new_per_day' | 'decks' | 'paused' | 'goal_days' | 'plan'>>): void {
 		this.settings = { ...this.settings, ...settings, updated_at: Date.now() };
 		store(SETTINGS_KEY, this.settings);
@@ -264,9 +296,35 @@ export class Review {
 		const sending = [...this.#unsent].flatMap((word) => this.cards.get(word) ?? []);
 		const days: DayCounts = {};
 		for (const day of [...this.#unsentDays].slice(0, DAYS_MAX)) days[day] = this.#ownDays[day] ?? 0;
+		const imported = this.#importedDays;
 		// Offline or the server failed: the cards stay marked as unsent and go with the next exchange.
-		this.#queue = this.#queue.then(() => this.#exchange(sending, days)).catch(() => {});
+		this.#queue = this.#queue
+			.then(() => this.#sendImported(imported))
+			.then(() => this.#exchange(sending, days))
+			.catch(() => {});
 		return this.#queue;
+	}
+
+	/**
+	 * Give the account the imported day counts, under their own name. Once it
+	 * has them they come back with the other browsers' counts, so this
+	 * browser's copy is dropped.
+	 */
+	async #sendImported(imported: DayCounts): Promise<void> {
+		const entries = Object.entries(imported);
+		for (let i = 0; i < entries.length; i += DAYS_MAX) {
+			const res = await fetch('/api/review/sync', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				signal: AbortSignal.timeout(SYNC_WAIT_MS),
+				body: JSON.stringify({ device: IMPORT_DEVICE, days: Object.fromEntries(entries.slice(i, i + DAYS_MAX)) })
+			});
+			if (!res.ok) throw new Error(String(res.status));
+		}
+		if (entries.length && this.#importedDays === imported) {
+			this.#importedDays = {};
+			store(IMPORTED_DAYS_KEY, null);
+		}
 	}
 
 	async #exchange(sending: ReviewCard[], days: DayCounts): Promise<void> {

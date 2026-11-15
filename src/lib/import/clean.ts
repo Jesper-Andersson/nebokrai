@@ -1,0 +1,82 @@
+// From the text of a flashcard to the Ukrainian words it names. A card's
+// front is often more than one word, with HTML, sound and notes around it:
+//   дзвонити, задзвонити (1)<br>[sound:дзвонити.mp3]  →  дзвонити, задзвонити
+//   автомобіль = авто = машина                         →  автомобіль, авто, машина
+//   п&#x27;яний                                        →  п'яний
+// Pictures and sound are dropped here: an import never carries them.
+import { MAX_WORD_LENGTH } from '../saved.ts';
+import { isCyrillic } from '../search/normalize.ts';
+
+const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decodeEntities(text: string): string {
+	return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, name: string) => {
+		if (name[0] === '#') {
+			const code = name[1] === 'x' || name[1] === 'X' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+			return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : '';
+		}
+		return ENTITIES[name.toLowerCase()] ?? whole;
+	});
+}
+
+/**
+ * The text of a field without markup: sound tags, pictures and HTML removed,
+ * entities decoded. A line break (<br>, <div>) stays a line break, because it
+ * separates two things as a comma does.
+ */
+export function fieldText(html: string): string {
+	return decodeEntities(
+		html
+			.replace(/\[sound:[^\]]*\]/gi, ' ')
+			.replace(/<(br|div|p|li)\b[^>]*>/gi, '\n')
+			.replace(/<[^>]*>/g, ' ')
+	)
+		.replace(/[ \t ]+/g, ' ')
+		.replace(/ *\n */g, '\n')
+		.trim();
+}
+
+// Latin letters drawn like Cyrillic ones, which turn up inside Ukrainian words
+// typed on a mixed keyboard: тваринa with a Latin "a".
+const TWINS: Record<string, string> = {
+	a: 'а', c: 'с', e: 'е', i: 'і', o: 'о', p: 'р', x: 'х', y: 'у', k: 'к', m: 'м', t: 'т', h: 'н', b: 'в',
+	A: 'А', B: 'В', C: 'С', E: 'Е', H: 'Н', I: 'І', K: 'К', M: 'М', O: 'О', P: 'Р', T: 'Т', X: 'Х'
+};
+
+/** A Ukrainian word with any Latin look-alike letters in it made Cyrillic. Words with no Cyrillic are left alone. */
+export function cyrillicTwins(word: string): string {
+	if (!isCyrillic(word) || !/[a-z]/i.test(word)) return word;
+	return word.replace(/[a-z]/gi, (ch) => TWINS[ch] ?? ch);
+}
+
+/** At most this many words in one piece: a phrase (будь ласка) is a word to learn, a sentence is not. */
+const MAX_TOKENS = 4;
+
+/**
+ * The Ukrainian words a field names, in order and without repeats. Notes in
+ * brackets and quotes are dropped. "!" and "?" end a word wherever they
+ * stand, so Ого! is ого and «Ого! Ура!» is two words. Pieces with no
+ * Cyrillic, or as long as a sentence, are left out.
+ */
+export function wordsOf(html: string): string[] {
+	const words: string[] = [];
+	for (const piece of fieldText(html)
+		.replace(/\([^)]*\)|\[[^\]]*\]/g, ' ')
+		.split(/[\n,;=/|!?¡¿]+/)) {
+		const word = cyrillicTwins(
+			piece
+				// A hyphen stays: -ся and -а are entries of their own
+				.replace(/^[\s–—«»"“”„!?.…:]+|[\s–—«»"“”„!?.…:]+$/g, '')
+				.replace(/\s+/g, ' ')
+		);
+		if (!word || !isCyrillic(word) || word.length > MAX_WORD_LENGTH) continue;
+		if (word.split(' ').length > MAX_TOKENS) continue;
+		if (!words.includes(word)) words.push(word);
+	}
+	return words;
+}
+
+/** How Ukrainian a field looks: 1 if it names a word or two, 0 if it names none. For choosing the field to read. */
+export function looksUkrainian(html: string): number {
+	return wordsOf(html).length ? 1 : 0;
+}

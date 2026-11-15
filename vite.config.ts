@@ -27,7 +27,9 @@ export default defineConfig({
 			csp: {
 				directives: {
 					'default-src': ['self'],
-					'script-src': ['self', 'https://challenges.cloudflare.com'],
+					// wasm-unsafe-eval lets the Import page compile sql.js, the SQLite that
+					// reads an Anki deck in the browser. It allows WebAssembly only, not eval().
+					'script-src': ['self', 'wasm-unsafe-eval', 'https://challenges.cloudflare.com'],
 					'style-src': ['self', 'unsafe-inline'],
 					'font-src': ['self'],
 					// data: for small images Vite inlines; GitHub for the avatar on /about

@@ -2,6 +2,7 @@
 # report form (it takes parameters, so it has endless addresses) and the
 # sign-in addresses. src/hooks.server.ts also marks these and /saved "noindex".
 # /review is a visitor's own flashcards: the same for every crawler, and empty.
+# /import reads a file the visitor chooses: there is nothing on it to read.
 # A search (/?q=kava) is not a page either: every query is an address, and
 # each one fetched is a search of the database.
 # offline.html is what the installed app shows without a connection; it says
@@ -13,6 +14,7 @@ Disallow: /?q=
 Disallow: /api/
 Disallow: /report
 Disallow: /review
+Disallow: /import
 Disallow: /login/
 Disallow: /auth/
 Disallow: /logout

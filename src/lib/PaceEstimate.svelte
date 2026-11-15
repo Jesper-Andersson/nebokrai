@@ -25,7 +25,11 @@
 	let days = $derived(Math.max(1, Math.round(perWeek)));
 
 	// --- The chart ---
-	const W = 460, LEFT = 44, RIGHT = 448, TOP = 14, BOTTOM = 136;
+	// As wide as its column, in pixels, so that its labels stay the size of the text around them
+	let width = $state(460);
+	let W = $derived(Math.max(240, Math.round(width)));
+	let RIGHT = $derived(W - 12);
+	const LEFT = 44, TOP = 14, BOTTOM = 136;
 	let end = $derived(Math.max(now + 30 * 86_400_000, ...ahead.map((mark) => mark.at ?? 0)));
 	const x = (t: number) => LEFT + ((t - now) / (end - now)) * (RIGHT - LEFT);
 	const y = (v: number) => BOTTOM - (v / pace.total) * (BOTTOM - TOP);
@@ -57,23 +61,25 @@
 		<p class="lead">{m.review.pace.lead(newPerDay, days, basis)}</p>
 
 		{#if reachable}
-			<svg class="chart" viewBox="0 0 {W} 160" aria-hidden="true">
-				{#each pace.milestones as mark (mark.count)}
-					<line class="grid" x1={LEFT} x2={RIGHT} y1={y(mark.count)} y2={y(mark.count)} />
-					<text class="axis" x={LEFT - 8} y={y(mark.count) + 4} text-anchor="end">{m.review.pace.mark(mark.count)}</text>
-				{/each}
-				<line class="base" x1={LEFT} x2={RIGHT} y1={BOTTOM} y2={BOTTOM} />
-				{#each months as t (t)}
-					<text class="axis" x={x(t)} y={BOTTOM + 18} text-anchor="middle">{monthName.format(t)}</text>
-				{/each}
-				<path class="area" d={area} />
-				<path class="line" d={line} />
-				<circle class="now" cx={x(now)} cy={y(pace.started)} r="4" />
-				{#each ahead as mark (mark.count)}
-					<circle class="mark" cx={x(mark.at ?? end)} cy={y(mark.count)} r="4.5" />
-					<text class="when" x={x(mark.at ?? end) - 8} y={y(mark.count) - 9} text-anchor="end">{when(mark.at)}</text>
-				{/each}
-			</svg>
+			<div class="chart" bind:clientWidth={width}>
+				<svg viewBox="0 0 {W} 160" aria-hidden="true">
+					{#each pace.milestones as mark (mark.count)}
+						<line class="grid" x1={LEFT} x2={RIGHT} y1={y(mark.count)} y2={y(mark.count)} />
+						<text class="axis" x={LEFT - 8} y={y(mark.count) + 4} text-anchor="end">{m.review.pace.mark(mark.count)}</text>
+					{/each}
+					<line class="base" x1={LEFT} x2={RIGHT} y1={BOTTOM} y2={BOTTOM} />
+					{#each months as t (t)}
+						<text class="axis" x={x(t)} y={BOTTOM + 18} text-anchor="middle">{monthName.format(t)}</text>
+					{/each}
+					<path class="area" d={area} />
+					<path class="line" d={line} />
+					<circle class="now" cx={x(now)} cy={y(pace.started)} r="4" />
+					{#each ahead as mark (mark.count)}
+						<circle class="mark" cx={x(mark.at ?? end)} cy={y(mark.count)} r="4.5" />
+						<text class="when" x={x(mark.at ?? end) - 8} y={y(mark.count) - 9} text-anchor="end">{when(mark.at)}</text>
+					{/each}
+				</svg>
+			</div>
 		{/if}
 
 		<div class="track" aria-hidden="true">
@@ -179,6 +185,10 @@
 	/* A wide screen: the chart, and no line of marks */
 	.chart {
 		display: none;
+	}
+
+	.chart svg {
+		display: block;
 		width: 100%;
 		height: auto;
 		overflow: visible;

@@ -522,7 +522,7 @@
 		<!-- Before a round: on a phone one column, on a wide screen two, the
 		     decks beside the pace -->
 		<div class="setup">
-			<div class="column">
+			<div class="column one">
 				{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
 					<!-- No deck has a word in it: three noughts over a Start that cannot be
 					     pressed say nothing, so the way to begin is said in their place.
@@ -675,9 +675,10 @@
 						{m.review.planned.deck} <span>{m.review.planned.note}</span>
 					</button>
 				</section>
+				<p class="muted kept">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 			</div>
 
-			<div class="column">
+			<div class="column two">
 				<!-- The number of new words a day, and where it leads (review/pace.ts) -->
 				<section class="ui-card options">
 					<h2 class="ui-label">{m.review.pace.heading}</h2>
@@ -708,6 +709,9 @@
 					<p class="muted hint">{m.review.goal.estimate(estimate.answers, estimate.minutes)}</p>
 				</section>
 
+			</div>
+
+			<div class="column three">
 				<!-- Settings changed once in a while. On a phone they fold away under
 				     a line that says what they are set to; on a wide screen they show. -->
 				<section class="ui-card options habit" class:open={habitOpen}>
@@ -756,7 +760,8 @@
 							value={review.settings.plan}
 							onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
 						/>
-						<p class="muted hint">{m.review.goal.planHint}</p>
+						<!-- Left out beside two other columns, where the field's example says it -->
+						<p class="muted hint plan-hint">{m.review.goal.planHint}</p>
 
 						<h3 class="ui-label">{m.review.recall.heading}</h3>
 						<div class="typing">
@@ -768,15 +773,16 @@
 						</div>
 					</div>
 				</section>
+
+				<!-- The calendar comes with the first review: before it, every count on
+				     it is nought and every square empty. Under the settings, the shortest column; near the end on a phone. -->
+				{#if ready && (Object.keys(review.days).length || Object.keys(forecast).length)}
+					<div class="heat">
+						<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
+					</div>
+				{/if}
 			</div>
 		</div>
-
-		<!-- The calendar comes with the first review: before it, every count on
-		     it is nought and every square empty -->
-		{#if ready && (Object.keys(review.days).length || Object.keys(forecast).length)}
-			<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
-		{/if}
-		<p class="muted kept">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 	{:else if current && info}
 		<div class="pile">
 			{#if left > 2}<div class="ui-card under two"></div>{/if}
@@ -929,6 +935,9 @@
 		padding-top: 1.75rem;
 	}
 
+	/* Before a round. On a phone every card in one column, the calendar last;
+	   from a tablet up, two columns, the settings under the pace; on a desktop
+	   three, so that the whole page is on one screen of 1920 by 1080. */
 	.setup {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -937,12 +946,20 @@
 	}
 
 	.column {
-		display: grid;
-		gap: 1rem;
+		display: contents;
 	}
 
-	/* Before a round, on a wide screen: two columns, the decks beside the pace.
-	   After the rules above, which it overrides. */
+	/* On a phone the calendar comes after the settings, and the note on where
+	   reviews are kept last of all */
+	.heat {
+		order: 1;
+	}
+
+	.kept {
+		order: 2;
+	}
+
+	/* After the rules above, which these override */
 	@media (min-width: 60rem) {
 		.page.wide {
 			max-width: var(--page-wide);
@@ -950,6 +967,41 @@
 
 		.setup {
 			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-areas: 'one two' 'one three';
+		}
+
+		.column {
+			display: grid;
+			gap: 1rem;
+			align-content: start;
+		}
+
+		.one {
+			grid-area: one;
+		}
+
+		.two {
+			grid-area: two;
+		}
+
+		.three {
+			grid-area: three;
+		}
+	}
+
+	@media (min-width: 75rem) {
+		.page.wide {
+			max-width: var(--frame-width);
+			padding-top: 1.25rem;
+		}
+
+		.plan-hint {
+			display: none;
+		}
+
+		.setup {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-areas: 'one two three';
 		}
 	}
 
@@ -1232,7 +1284,7 @@
 	}
 
 	.body {
-		gap: 1rem;
+		gap: 0.75rem;
 	}
 
 	.fold {
@@ -1297,6 +1349,13 @@
 
 	.kept {
 		text-align: center;
+	}
+
+	@media (min-width: 60rem) {
+		.kept {
+			padding-inline: 0.25rem;
+			text-align: start;
+		}
 	}
 
 	/* The menu sits at the end of <body>: a long note must wrap, not stretch it */

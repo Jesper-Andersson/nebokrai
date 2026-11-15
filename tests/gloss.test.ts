@@ -41,6 +41,13 @@ test('glosses for words in a sentence', { skip }, async () => {
 	const at = await glossFor(db, vesum, 'У', undefined, 'склянці');
 	assert.ok(at.readings.length > 0 && at.readings.every((r) => r.pos === 'prep'));
 
+	// An entry that only names a form (вихідних: "genitive/locative plural of
+	// вихідний") gives way to the words it points to
+	const weekend = await glossFor(db, vesum, 'вихідних', 'На', 'у');
+	assert.equal(weekend.readings[0].word, 'вихідні');
+	assert.equal(weekend.readings[0].meaning, 'weekend');
+	assert.ok(weekend.readings.every((r) => !/ of /.test(r.meaning ?? '')));
+
 	// A capital at the start of a sentence finds the word all the same
 	assert.equal((await glossFor(db, vesum, 'Дайте')).readings[0]?.word, 'дати');
 

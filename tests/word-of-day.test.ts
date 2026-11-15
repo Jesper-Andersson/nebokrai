@@ -37,6 +37,12 @@ test('the entry for a day', { skip }, async () => {
 	assert.ok(entry.freq_rank !== null && entry.freq_rank >= rankForDay(day));
 	assert.ok(entry.senses.length >= 1 && entry.senses.length <= 3);
 	assert.ok(entry.example.uk && entry.example.en && entry.example.tatoeba_id);
+	// The word in its sentence stands out and opens no card (керівництвом, of
+	// керівництво). Which sentence comes first changes with the data, so the test
+	// asks only that the marked words are in it.
+	const inSentence = entry.example.uk.toLowerCase().split(/[^\p{L}'’ʼ-]+/u);
+	assert.ok(entry.own.length > 0);
+	assert.ok(entry.own.every((w) => inSentence.includes(w.toLowerCase())), `${entry.own} in ${entry.example.uk}`);
 
 	// A month of words: all different, and none a word to keep off the front page
 	const rude = ['vulgar', 'offensive', 'derogatory', 'slang'];

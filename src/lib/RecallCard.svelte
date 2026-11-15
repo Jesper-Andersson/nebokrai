@@ -20,6 +20,7 @@
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import Sentence from '#lib/Sentence.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import { messagesFor, tagLabel } from '#lib/i18n.ts';
 	import {
@@ -245,7 +246,7 @@
 					<span class="english" lang="en">{info.example.en}</span>
 					{#if parts && gap}
 						<p class="sentence" lang="uk">
-							{parts.before}{#if step === 'form'}<input
+							{#if step === 'done'}<Sentence text={parts.before} />{:else}{parts.before}{/if}{#if step === 'form'}<input
 									bind:value={typed}
 									class="blank"
 									style:--letters={Math.max(gap.length, [...typed].length + 1)}
@@ -257,10 +258,12 @@
 									spellcheck="false"
 									maxlength="60"
 									{@attach focus}
-								/>{:else}<b class="filled" data-outcome={form ?? (knewWord ? 'right' : 'missed')}><Stressed text={filled} /></b>{/if}{parts.after}
+								/>{:else}<b class="filled" data-outcome={form ?? (knewWord ? 'right' : 'missed')}><Stressed text={filled} /></b>{/if}{#if step === 'done'}<Sentence text={parts.after} />{:else}{parts.after}{/if}
 						</p>
 					{:else}
-						<p class="sentence" lang="uk">{info.example.uk}</p>
+						<p class="sentence" lang="uk">
+							{#if step === 'done'}<Sentence text={info.example.uk} own={new Set(recall.forms)} />{:else}{info.example.uk}{/if}
+						</p>
 					{/if}
 				</div>
 			{/if}

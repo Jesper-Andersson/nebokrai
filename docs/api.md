@@ -348,6 +348,9 @@ Only entries that are the word or one of its forms are given: a word that
 starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor
 is a letter, a symbol or a part of a word (`у` is the preposition, not the
 letter У).
+An entry whose every meaning only names a form (`вихідних`, "genitive/locative
+plural of вихідни́й") is left out when the word has another reading, so
+`вихідних` gives вихідні, "weekend", first.
 There are no "did you mean" guesses.
 
 ## `GET /api/radio/now/<station>`

@@ -28,6 +28,7 @@
 	import PageMeta from '#lib/PageMeta.svelte';
 	import PaceEstimate from '#lib/PaceEstimate.svelte';
 	import RecallCard from '#lib/RecallCard.svelte';
+	import Sentence from '#lib/Sentence.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
 	import ReviewHelp from '#lib/ReviewHelp.svelte';
 	import ReviewKeys from '#lib/ReviewKeys.svelte';
@@ -51,6 +52,7 @@
 	import { useReview } from '#lib/review.svelte.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
+	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import type { WordCard } from '#lib/search/word.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -451,9 +453,12 @@
 		// Ctrl+Z as everywhere else, whatever the keys are.
 		const action = plain ? actionFor(keys, event.code) : !event.altKey && event.code === 'KeyZ' ? 'undo' : null;
 		if (!action) return;
-		// A focused button or link is pressed by Space and Enter itself.
-		if ((event.code === 'Space' || event.code === 'Enter') && event.target instanceof Element
-			&& event.target.closest('button, a')) return;
+		// A focused button or link is pressed by Space and Enter itself. A word
+		// of the example is focused by pressing it for its card (GlossWord.svelte),
+		// so Enter still answers the card there; Space opens the word's card again.
+		const pressable = event.target instanceof Element ? event.target.closest('button, a') : null;
+		const glossWord = pressable?.classList.contains('ui-gloss-word') && event.code === 'Enter';
+		if ((event.code === 'Space' || event.code === 'Enter') && pressable && !glossWord) return;
 
 		// Undo works on the last screen too, where there is no card.
 		if (action === 'undo') {
@@ -829,7 +834,7 @@
 							</ol>
 							{#if info.example}
 								<p class="example">
-									<span lang="uk">{info.example.uk}</span>
+									<Sentence text={info.example.uk} own={new Set(info.recall?.forms ?? [plain(info.word)])} />
 									<span class="muted">{info.example.en}</span>
 								</p>
 							{/if}

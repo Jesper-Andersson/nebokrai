@@ -2,8 +2,10 @@
 // day, chosen from the words a learner is likely to meet. No SvelteKit imports,
 // so tests/word-of-day.test.ts runs it on the local database.
 import type { Db } from './search/db.ts';
+import { plain } from './search/normalize.ts';
 import type { HeadForm } from './search/search.ts';
 import { wordDetails, type Sense } from './search/word.ts';
+import { tokens } from './sentence.ts';
 
 /** What the home page shows of the entry: enough for a card, not the form tables. */
 export interface WordOfDay {
@@ -18,6 +20,12 @@ export interface WordOfDay {
 	/** The first meanings, at most three. */
 	senses: Pick<Sense, 'gloss' | 'tags'>[];
 	example: { uk: string; en: string; tatoeba_id: number };
+	/**
+	 * The words of the example that are forms of the day's word, as `plain()`
+	 * writes them: they stand out and open no card, which would give away the
+	 * meaning the page keeps hidden (На щастя, він уникнув **травми**).
+	 */
+	own: string[];
 }
 
 // Ranks 300 to 6000: past я, не and що, which nobody needs to be shown, and
@@ -64,6 +72,13 @@ export async function wordOfDay(db: Db, day: number): Promise<WordOfDay | null> 
 		word: entry.word, headword: entry.headword, pos: entry.pos, tags: entry.tags,
 		head_forms: entry.head_forms, roman: entry.roman, ipa: entry.ipa, freq_rank: entry.freq_rank,
 		senses: entry.senses.slice(0, 3).map(({ gloss, tags }) => ({ gloss, tags })),
-		example: entry.examples[0]
+		example: entry.examples[0],
+		own: ownWords(entry.examples[0].uk, [entry.word, ...entry.forms.map((f) => f.form)])
 	};
+}
+
+/** The words of `sentence` that are among `forms`, each once. */
+function ownWords(sentence: string, forms: string[]): string[] {
+	const all = new Set(forms.map(plain));
+	return [...new Set(tokens(sentence).filter((t) => t.word).map((t) => plain(t.text)))].filter((w) => all.has(w));
 }

@@ -49,6 +49,15 @@ const NOT_A_WORD = new Set(['character', 'symbol', 'punct', 'suffix', 'prefix', 
 // for ласка) or mentions it in a meaning.
 const exact = (r: SearchResult) => (r.match === 'word' || r.match === 'form') && !NOT_A_WORD.has(r.pos);
 
+// Wiktionary keeps some inflected forms as entries of their own, whose only
+// meaning names the form: вихідних is "genitive/locative plural of вихідни́й".
+// Beside the word it points to (вихідні, "weekend") such an entry says
+// nothing, so it is left out when the word has another reading. A synonym
+// or a verbal noun ("synonym of холоди́льник") is a word, and stays.
+const FORM_NOTE =
+	/^[a-z/ -]*\b(?:nominative|genitive|dative|accusative|instrumental|locative|vocative|singular|plural|person|infinitive|imperative|indicative|participle|present|past|future)\b[a-z/ -]* of [Ѐ-ӿ]/i;
+const onlyNamesAForm = (r: SearchResult) => r.glosses.length > 0 && r.glosses.every((g) => FORM_NOTE.test(g));
+
 function toGloss(r: SearchResult): Gloss {
 	const gloss: Gloss = {
 		word: r.word,
@@ -87,6 +96,8 @@ export async function glossFor(
 		}
 	}
 
-	const readings = (await search(db, w, { limit: 10, vesum })).filter(exact).slice(0, READINGS).map(toGloss);
+	const found = (await search(db, w, { limit: 10, vesum })).filter(exact);
+	const words = found.filter((r) => !onlyNamesAForm(r));
+	const readings = (words.length ? words : found).slice(0, READINGS).map(toGloss);
 	return { phrase, readings };
 }

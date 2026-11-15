@@ -11,6 +11,7 @@
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
 	import { sendHit } from '#lib/hit.ts';
+	import { NOT_FOUND } from '#lib/stats-sections.ts';
 	import Header from '#lib/Header.svelte';
 	import { provideRadio } from '#lib/radio.svelte.ts';
 	import RadioPlayer from '#lib/RadioPlayer.svelte';
@@ -55,11 +56,12 @@
 	// Count each page shown (src/lib/hit.ts): the first one, and each one
 	// reached by a link or Back. Not the search page writing the box's text
 	// into the address, which is a shallow goto and not a new page. Nor the
-	// owner reading the counts on /stats.
+	// owner reading the counts on /stats. A page that does not exist is
+	// counted as that and not under its address, which could be anything.
 	afterNavigate((navigation) => {
 		if (navigation.type === 'goto' && navigation.shallow) return;
 		if (location.pathname === '/stats') return;
-		sendHit({ kind: 'view', path: location.pathname });
+		sendHit({ kind: 'view', path: page.status === 404 ? NOT_FOUND : location.pathname });
 	});
 
 	// The quick search lives in the header, and a page can open it too.

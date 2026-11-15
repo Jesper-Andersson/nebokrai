@@ -6,6 +6,8 @@ export type Hit = { kind: 'view'; path: string } | { kind: 'search'; query: stri
 
 export function sendHit(hit: Hit): void {
 	if (typeof navigator === 'undefined' || !navigator.sendBeacon) return;
+	// A browser driven by a program (a test, a screenshot run) is not a visitor
+	if (navigator.webdriver) return;
 	try {
 		navigator.sendBeacon('/api/hit', JSON.stringify(hit));
 	} catch {
@@ -18,6 +20,8 @@ export function sendHit(hit: Hit): void {
  * SEARCH_SEEN_MS, or a result opened before that. Not per letter typed.
  * Call `shown` with each new answer (null when the box is emptied, which
  * drops one not yet reported) and `leaving` before a result is opened.
+ * Closing the tab or leaving the site with an answer on screen reports it
+ * too (pagehide): the visitor read it and went.
  */
 export const SEARCH_SEEN_MS = 1500;
 
@@ -25,8 +29,15 @@ export function searchReporter() {
 	let reported = '';
 	let pending: { query: string; results: number } | null = null;
 	let timer: ReturnType<typeof setTimeout> | undefined;
+	// Listening only while an answer waits, so a reporter that is done holds nothing
+	const listen = (on: boolean) => {
+		if (typeof window === 'undefined') return;
+		if (on) window.addEventListener('pagehide', flush);
+		else window.removeEventListener('pagehide', flush);
+	};
 	const flush = () => {
 		clearTimeout(timer);
+		listen(false);
 		if (pending && pending.query !== reported) {
 			reported = pending.query;
 			sendHit({ kind: 'search', ...pending });
@@ -37,6 +48,7 @@ export function searchReporter() {
 		shown(answer: { query: string; results: unknown[] } | null) {
 			clearTimeout(timer);
 			pending = answer && answer.query.trim() ? { query: answer.query.trim(), results: answer.results.length } : null;
+			listen(Boolean(pending));
 			if (pending) timer = setTimeout(flush, SEARCH_SEEN_MS);
 		},
 		leaving: flush

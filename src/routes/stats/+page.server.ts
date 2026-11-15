@@ -6,7 +6,7 @@
 // calendar, which is always the last 13 weeks.
 import { error } from '@sveltejs/kit';
 import { STATS_USER_IDS } from '$app/env/private';
-import { statsReport } from '#lib/server/stats.ts';
+import { ownerIds, statsReport } from '#lib/server/stats.ts';
 import { getStatsDb } from '#lib/server/stats-db.ts';
 import { getUserDb } from '#lib/server/user-db.ts';
 import { accountStats } from '#lib/server/users.ts';
@@ -17,8 +17,7 @@ const RANGES = [7, 30, 90];
 export const load: PageServerLoad = async ({ locals, url, setHeaders, depends }) => {
 	// The page asks for the counts again every minute while it is open (+page.svelte)
 	depends('stats:counts');
-	const allowed = (STATS_USER_IDS ?? '').split(',').map((id) => id.trim()).filter(Boolean);
-	if (!locals.user || !allowed.includes(locals.user.id)) error(404);
+	if (!locals.user || !ownerIds(STATS_USER_IDS).includes(locals.user.id)) error(404);
 	setHeaders({ 'cache-control': 'private, no-store' });
 
 	const asked = Number(url.searchParams.get('days'));

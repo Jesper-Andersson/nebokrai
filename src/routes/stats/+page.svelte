@@ -15,7 +15,7 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import type { DayRow } from '#lib/server/stats.ts';
 	import { useSettings } from '#lib/settings.ts';
-	import { SECTION_NAMES } from '#lib/stats-sections.ts';
+	import { SECTION_NAMES, readablePath } from '#lib/stats-sections.ts';
 
 	let { data } = $props();
 
@@ -130,7 +130,7 @@
 						{s.summary(
 							data.days,
 							number.format(views),
-							number.format(Math.round(visitorDays / Math.max(1, days.length))),
+							number.format(report.visitorsADay),
 							dateOf(best.day),
 							number.format(best.visitors)
 						)}
@@ -162,7 +162,7 @@
 									{#each report.pages.slice(0, 8) as row (row.key)}
 										<tr>
 											<td>
-												{#if row.key.startsWith('/')}<a href={row.key}>{decodeURIComponent(row.key)}</a>
+												{#if row.key.startsWith('/')}<a href={row.key}>{readablePath(row.key)}</a>
 												{:else}{row.key}{/if}
 											</td>
 											<td class="n">{number.format(row.count)}</td>

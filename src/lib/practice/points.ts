@@ -15,8 +15,11 @@
 
 export type PointCase = 'nominative' | 'genitive' | 'accusative' | 'instrumental' | 'locative';
 
-/** What a point is about: the case after a preposition, or the form a number asks of its noun. */
-export type PointKind = 'preposition' | 'number';
+/**
+ * What a point is about: the case after a preposition, the form a number
+ * asks of its noun, or which of two nouns does what (roles.ts).
+ */
+export type PointKind = 'preposition' | 'number' | 'roles';
 
 export interface Point {
 	id: string;
@@ -36,6 +39,8 @@ const preposition = (id: string, cue: string, kase: PointCase, example: string):
 	({ id, kind: 'preposition', cue, case: kase, source: 'cloze', example });
 const number = (id: string, cue: string, kase: PointCase, counts: 'singular' | 'plural', example: string): Point =>
 	({ id, kind: 'number', cue, case: kase, number: counts, source: 'frames', example });
+const roles = (id: string, cue: string, kase: PointCase, example: string): Point =>
+	({ id, kind: 'roles', cue, case: kase, source: 'frames', example });
 
 /**
  * In the order they are best met, which is the order of the lessons
@@ -53,6 +58,7 @@ export const POINTS: readonly Point[] = [
 	preposition('u-acc', 'у / в', 'accusative', 'у місто'),
 	preposition('na-acc', 'на', 'accusative', 'на стіл'),
 	preposition('do-gen', 'до', 'genitive', 'до школи'),
+	roles('who-acc', 'хто кого', 'accusative', 'собаку бачить кіт'),
 	preposition('z-ins', 'з / із / зі', 'instrumental', 'з другом'),
 	preposition('z-gen', 'з / із / зі', 'genitive', 'з міста'),
 	preposition('vid-gen', 'від', 'genitive', 'від мами'),

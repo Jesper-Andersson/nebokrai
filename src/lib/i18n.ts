@@ -273,6 +273,7 @@ const en = {
 		short: {
 			where: 'Location',
 			'where-to': 'Direction',
+			'who-whom': 'Who & Whom',
 			'with-from': 'With & From',
 			numbers: 'Counting',
 			'for-about': 'For & About',
@@ -857,6 +858,7 @@ const en = {
 			'na-acc': 'onto, to: where something goes; for a time or a purpose',
 			'z-ins': 'with, together with',
 			'do-gen': 'to, up to, until',
+			'who-acc': 'who does it is the dictionary form; who it is done to, the accusative',
 			'z-gen': 'from, out of, off',
 			'dlia-gen': 'for',
 			'bez-gen': 'without',
@@ -938,6 +940,19 @@ const en = {
 			/** The verdict names the right answer. */
 			told: { where: 'Where', whereTo: 'Where to' },
 			keys: 'Keys 1 and 2 choose an answer; Enter goes on.'
+		},
+		/** A sentence asked as who does what to whom (PracticeMeaning.svelte, practice/roles.ts), by its verb. */
+		who: {
+			ask: {
+				see: 'Who sees whom?',
+				hear: 'Who hears whom?',
+				call: 'Who is calling whom?',
+				look: 'Who is looking for whom?',
+				love: 'Who loves whom?',
+				feed: 'Who is feeding whom?'
+			} as Record<string, string>,
+			/** Once answered, under the two nouns and their questions. */
+			order: 'The ending decides, not the order of the words.'
 		},
 		/** A rule's card (RuleCard.svelte): it opens over the first sentence of a rule never met, and behind "?" after. */
 		rule: {
@@ -1344,6 +1359,7 @@ const uk: Messages = {
 		short: {
 			where: 'Де',
 			'where-to': 'Куди',
+			'who-whom': 'Хто кого',
 			'with-from': 'З ким і звідки',
 			numbers: 'Лічба',
 			'for-about': 'Для і про',
@@ -1896,6 +1912,7 @@ const uk: Messages = {
 			'na-acc': 'напрямок: куди?; час або мета',
 			'z-ins': 'разом із кимось або чимось',
 			'do-gen': 'напрямок або межа: куди? до якого часу?',
+			'who-acc': 'хто діє — називний відмінок; на кого спрямована дія — знахідний',
 			'z-gen': 'звідки?; з якого матеріалу чи з якої групи',
 			'dlia-gen': 'призначення: для кого? для чого?',
 			'bez-gen': 'відсутність когось або чогось',
@@ -1964,6 +1981,17 @@ const uk: Messages = {
 			gloss: { where: 'місце', whereTo: 'напрямок' },
 			told: { where: 'Де', whereTo: 'Куди' },
 			keys: 'Клавіші 1 і 2 обирають відповідь; Enter веде далі.'
+		},
+		who: {
+			ask: {
+				see: 'Хто кого бачить?',
+				hear: 'Хто кого чує?',
+				call: 'Хто кого кличе?',
+				look: 'Хто кого шукає?',
+				love: 'Хто кого любить?',
+				feed: 'Хто кого годує?'
+			},
+			order: 'Вирішує закінчення, а не порядок слів.'
 		},
 		rule: {
 			new: 'Нове правило',

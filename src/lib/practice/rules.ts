@@ -84,8 +84,19 @@ const NUMBERS: Record<string, readonly EndingRow[]> = {
 	]
 };
 
+/**
+ * Who is done to (roles.ts): only living beings are asked, and only those
+ * whose accusative differs from the dictionary form, so the card shows only
+ * those rows of the accusative: кіт is asked as кота, мама as маму.
+ */
+const ROLES: readonly EndingRow[] = [
+	row('-а, -я', 'кота́, лі́каря', 'masculine', 'animate'),
+	row('-у, -ю', 'ма́му, бабу́сю', 'feminine')
+];
+
 /** The endings a rule's card shows: by the number rule's id, or by the case its preposition asks for. */
 export function endingsOf(point: Point): readonly EndingRow[] {
+	if (point.kind === 'roles') return ROLES;
 	return (point.kind === 'number' ? NUMBERS[point.id] : CASES[point.case]) ?? [];
 }
 

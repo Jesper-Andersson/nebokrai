@@ -1,18 +1,26 @@
 <!-- A sentence of the grammar practice (/practice) asked for its meaning, not
-     filled in: is it about where something is, or where it goes? у, на and
-     під say one with the locative (під: the instrumental) and the other with
-     the accusative, so the noun's ending is all there is to go by.
+     filled in. Two kinds, answered alike by one of two picks:
+
+     Is it about where something is, or where it goes? у, на and під say one
+     with the locative (під: the instrumental) and the other with the
+     accusative (practice/where.ts).
 
        Where, or where to?
        Підніміться на [вершину].
        [1 Де? where]   [2 Куди? where to]
 
-     Once answered, the ending is marked and the rule is said beside its
-     partner: на + accusative → куди?, на + locative → де? на вершині.
-     Answered by one pick, whichever way the round is answered otherwise:
-     keys 1 and 2, Enter goes on. There is no hint: with two answers it would
-     give the answer away, and so would the rule's card, which "?" opens only
-     after answering. The sentences are picked by hand (practice/where.ts). -->
+     Which of two nouns does it? The one in the dictionary form, whatever the
+     order of the words (practice/roles.ts).
+
+       Who sees whom?
+       [Собаку] бачить [кіт].
+       [1 собака → кіт]   [2 кіт → собака]
+
+     Once answered, the ending is marked and the rule is said: на + accusative
+     → куди? beside на + locative → де? на вершині; кіт answers хто?, собаку
+     answers кого?. Keys 1 and 2, Enter goes on. The English is shown only
+     then, as it would answer the question, and so would a hint or the rule's
+     card, which "?" opens only after answering. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
@@ -30,12 +38,15 @@
 	let {
 		gap,
 		point,
+		first = false,
 		result,
 		onanswer,
 		onnext
 	}: {
 		gap: Gap;
 		point: Point;
+		/** The rule is met here for the first time (who-whom only): its card opens over the sentence. */
+		first?: boolean;
 		/** Null until the sentence has been answered; `given` is the answer picked. */
 		result: { outcome: Outcome; given: string } | null;
 		onanswer: (outcome: Outcome, given: string) => void;
@@ -45,21 +56,46 @@
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
 
-	const ANSWERS: readonly WhereAnswer[] = ['where', 'whereTo'];
+	/** A pick: де? or куди?; or which noun the arrow starts from, the one that does it or the one done to. */
+	type Pick = WhereAnswer | 'doer' | 'done';
+
 	const QUESTION: Record<WhereAnswer, string> = { where: 'де?', whereTo: 'куди?' };
 	const SHOWN: Record<WhereAnswer, string> = { where: 'Де?', whereTo: 'Куди?' };
+	const isWhere = (pick: Pick): pick is WhereAnswer => pick === 'where' || pick === 'whereTo';
+
+	/** A who item's verb and the noun that does it; null for a where item. */
+	let who = $derived(gap.kind === 'who' && gap.roles ? gap.roles : null);
+	// The two arrows in either order, drawn once for the sentence (each makes
+	// its own card), so the place of the right one says nothing
+	const flip = Math.random() < 0.5;
+	let picks = $derived<readonly Pick[]>(who ? (flip ? ['doer', 'done'] : ['done', 'doer']) : ['where', 'whereTo']);
+	let right = $derived<Pick>(who ? 'doer' : whereAnswer(gap.point));
 
 	let parts = $derived(split(gap));
-	let right = $derived(whereAnswer(gap.point));
 	/** The preposition as the sentence spells it: в where the rule says у / в. */
 	let preposition = $derived(parts.before.trim().split(/\s+/).at(-1)?.toLowerCase() ?? point.cue);
-	let partner = $derived(pointOf(partnerOf(gap.point)));
-	/** The noun with its ending marked, in the sentence's own spelling: вершин[у]. */
+	let partner = $derived(who ? undefined : pointOf(partnerOf(gap.point)));
+	/** The noun whose ending tells, in the sentence's own spelling, its ending marked: вершин[у], Собак[у]. */
 	let word = $derived(cut(parts.word, endingOf(gap).letters));
+	/** The sentence in pieces round its marked nouns: one for a where item, two for a who item. */
+	let pieces = $derived.by(() => {
+		const marks = [{ start: gap.start, length: gap.length, done: true }];
+		if (who) marks.push({ start: who.doer.start, length: who.doer.length, done: false });
+		marks.sort((a, b) => a.start - b.start);
+		const out: { text: string; mark?: 'done' | 'doer' }[] = [];
+		let at = 0;
+		for (const mark of marks) {
+			out.push({ text: gap.uk.slice(at, mark.start) });
+			out.push({ text: gap.uk.slice(mark.start, mark.start + mark.length), mark: mark.done ? 'done' : 'doer' });
+			at = mark.start + mark.length;
+		}
+		out.push({ text: gap.uk.slice(at) });
+		return out;
+	});
 
-	function choose(answer: WhereAnswer) {
+	function choose(pick: Pick) {
 		if (result) return;
-		onanswer(answer === right ? 'right' : 'missed', answer);
+		onanswer(pick === right ? 'right' : 'missed', pick);
 	}
 
 	// Focus must not scroll: on a phone the page would jump to Next
@@ -96,10 +132,10 @@
 			onnext();
 			return;
 		}
-		const answer = ANSWERS[Number(/^(?:Digit|Numpad)([12])$/.exec(event.code)?.[1]) - 1];
-		if (answer === undefined) return;
+		const pick = picks[Number(/^(?:Digit|Numpad)([12])$/.exec(event.code)?.[1]) - 1];
+		if (pick === undefined) return;
 		event.preventDefault();
-		choose(answer);
+		choose(pick);
 	}
 </script>
 
@@ -115,6 +151,35 @@
 	</p>
 {/snippet}
 
+<!-- кіт answers хто? · собаку answers кого? -->
+{#snippet roles(doer: string)}
+	<p class="takes">
+		<b lang="uk"><Stressed text={doer} /></b>
+		{m.practice.answers}
+		<b lang="uk">хто?</b>
+		<span aria-hidden="true">·</span>
+		<b lang="uk"><Stressed text={gap.answer} /></b>
+		{m.practice.answers}
+		<b lang="uk">кого?</b>
+	</p>
+	<p class="takes">{m.practice.who.order}</p>
+{/snippet}
+
+<!-- What a pick says: Де? where; or кіт → собака -->
+{#snippet label(pick: Pick)}
+	{#if isWhere(pick)}
+		<span class="label">
+			<span class="question" lang="uk">{SHOWN[pick]}</span>
+			<span class="gloss">{m.practice.where.gloss[pick]}</span>
+		</span>
+	{:else if who}
+		{@const [from, to] = pick === 'doer' ? [who.doer.headword, gap.headword] : [gap.headword, who.doer.headword]}
+		<span class="question arrow" lang="uk"
+			><span><Stressed text={from} /></span><Icon name="arrow-right" size={16} /><span><Stressed text={to} /></span></span
+		>
+	{/if}
+{/snippet}
+
 {#snippet next(shown: boolean)}
 	<button type="button" class="ui-btn ui-btn-primary next" onclick={onnext} {@attach shown && focus}>
 		{m.practice.next}
@@ -124,18 +189,21 @@
 {/snippet}
 
 <article class="ui-card card" bind:this={card} style:min-height={fill ? `${fill}px` : undefined}>
-	<!-- The rule's card would answer for the learner: it is there only afterwards -->
-	{#if result}<RuleCard {point} {gap} first={false} onpeek={() => {}} />{/if}
+	<!-- The rule's card would answer for the learner: it is there only
+	     afterwards, or over the first sentence of a rule never met, to teach it -->
+	{#if result || first}<RuleCard {point} {gap} {first} onpeek={() => {}} />{/if}
 	<div class="mid">
-		<p class="ask">{m.practice.where.ask}</p>
+		<p class="ask">{who ? m.practice.who.ask[who.verb] : m.practice.where.ask}</p>
 
 		<div class="shown">
 			<p class="sentence" lang="uk">
-				{#if result}<Sentence text={parts.before} />{:else}{parts.before}{/if}<span class="noun"
-					>{#if result}{word.stem}<span class="end">{word.ending}</span>{:else}{parts.word}{/if}</span
-				>{#if result}<Sentence text={parts.after} />{:else}{parts.after}{/if}
+				{#each pieces as piece, i (i)}{#if piece.mark}<span class="noun"
+							>{#if result && piece.mark === 'done'}{word.stem}<span class="end">{word.ending}</span
+								>{:else}{piece.text}{/if}</span
+						>{:else if result}<Sentence text={piece.text} />{:else}{piece.text}{/if}{/each}
 			</p>
-			<div class="english" lang="en"><Translation text={gap.en} /></div>
+			<!-- Kept unseen until answered, holding its room -->
+			<div class="english" class:spent={!result} lang="en"><Translation text={gap.en} /></div>
 		</div>
 
 		<!-- The verdict and the rule, in room kept from the start -->
@@ -146,17 +214,25 @@
 						<p class="verdict">
 							<Icon name={result.outcome === 'missed' ? 'x' : 'check'} size={18} />
 							<span class="ui-sr-only">{result.outcome === 'missed' ? m.practice.incorrect : m.practice.correct}:</span>
-							{m.practice.where.told[right]}
+							{#if who}{gap.en}{:else if isWhere(right)}{m.practice.where.told[right]}{/if}
 						</p>
-						{@render takes(point.case, right)}
-						{#if partner}{@render takes(partner.case, right === 'where' ? 'whereTo' : 'where', gap.partner)}{/if}
+						{#if who}
+							{@render roles(who.doer.headword)}
+						{:else if isWhere(right)}
+							{@render takes(point.case, right)}
+							{#if partner}{@render takes(partner.case, right === 'where' ? 'whereTo' : 'where', gap.partner)}{/if}
+						{/if}
 					</div>
 				{/if}
 				<div class="ghost" aria-hidden="true" inert>
 					<div class="said">
-						<p class="verdict"><Icon name="check" size={18} />{m.practice.where.told.whereTo}</p>
-						{@render takes(point.case, right)}
-						{@render takes(point.case, right, gap.partner)}
+						<p class="verdict"><Icon name="check" size={18} />{who ? gap.en : m.practice.where.told.whereTo}</p>
+						{#if who}
+							{@render roles(who.doer.headword)}
+						{:else}
+							{@render takes(point.case, 'where')}
+							{@render takes(point.case, 'where', gap.partner)}
+						{/if}
 					</div>
 				</div>
 			</div>
@@ -168,19 +244,16 @@
 			{#if result}{@render next(true)}{:else}<div class="ghost" aria-hidden="true" inert>{@render next(false)}</div>{/if}
 		</div>
 		<div class="choices">
-			{#each ANSWERS as answer, i (answer)}
+			{#each picks as pick, i (pick)}
 				<button
 					type="button"
 					class="ui-btn option"
-					data-is={result ? (answer === right ? 'right' : answer === result.given ? 'wrong' : undefined) : undefined}
+					data-is={result ? (pick === right ? 'right' : pick === result.given ? 'wrong' : undefined) : undefined}
 					disabled={result !== null}
-					onclick={() => choose(answer)}
+					onclick={() => choose(pick)}
 				>
 					<kbd class="ui-kbd">{i + 1}</kbd>
-					<span class="label">
-						<span class="question" lang="uk">{SHOWN[answer]}</span>
-						<span class="gloss">{m.practice.where.gloss[answer]}</span>
-					</span>
+					{@render label(pick)}
 				</button>
 			{/each}
 		</div>
@@ -189,7 +262,10 @@
 
 <p class="under">
 	<span class="keys" class:spent={result}>{m.practice.where.keys}</span>
-	<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+	<!-- A who sentence is made here, not taken from Tatoeba: there is no one to credit -->
+	{#if gap.tatoeba_id}
+		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+	{/if}
 </p>
 
 <style>
@@ -410,6 +486,16 @@
 	.option[data-is='wrong'] {
 		border-color: var(--stress);
 		color: var(--stress);
+	}
+
+	.arrow {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+	}
+
+	.arrow :global(svg) {
+		color: var(--muted);
 	}
 
 	.option[data-is='wrong'] .question {

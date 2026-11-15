@@ -53,9 +53,14 @@ export interface Gap {
 	/**
 	 * How the sentence is asked: with no kind, a noun to fill in; `where`, the
 	 * sentence whole and the question де? or куди?, which the point answers
-	 * (where.ts).
+	 * (where.ts); `who`, which of two nouns does what the verb says (roles.ts).
 	 */
-	kind?: 'where';
+	kind?: 'where' | 'who';
+	/**
+	 * For a who item: the verb, by its key in i18n.ts (`practice.who.ask`),
+	 * and the noun that does it. The gap's own noun is the one done to.
+	 */
+	roles?: { verb: string; doer: { word: string; headword: string; start: number; length: number } };
 	/** For a where item: the noun in the case of the other question, with stress (вершині beside вершину). */
 	partner?: string;
 }

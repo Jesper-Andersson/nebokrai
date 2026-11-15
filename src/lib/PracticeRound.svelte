@@ -159,8 +159,8 @@
 	</div>
 	{#if point}
 		{#key at}
-			{#if gap.kind === 'where'}
-				<PracticeMeaning {gap} {point} {result} onanswer={answer} onnext={goOn} />
+			{#if gap.kind === 'where' || gap.kind === 'who'}
+				<PracticeMeaning {gap} {point} {first} {result} onanswer={answer} onnext={goOn} />
 			{:else}
 				<PracticeGap {gap} {point} {choice} {first} {result} onanswer={answer} onnext={goOn} />
 			{/if}
@@ -181,7 +181,14 @@
 							{#if HINTS[point.case]}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
 						</p>
 						{#each sentences as g (g.tatoeba_id + ':' + g.start + ':' + g.uk)}
-							{#if g.kind === 'where'}
+							{#if g.kind === 'who' && g.roles}
+								<!-- Who does what to whom: the one who does it, and the one done to as the sentence has it -->
+								<p class="pair">
+									<span class="phrase" lang="uk"><Stressed text={g.roles.doer.headword} /></span>
+									<Icon name="arrow-right" size={16} />
+									<span class="phrase" lang="uk"><Stressed text={g.answer} /></span>
+								</p>
+							{:else if g.kind === 'where'}
 								<!-- Asked as де? or куди?: the phrase, and the question it answers -->
 								<p class="pair">
 									<span class="phrase" lang="uk"

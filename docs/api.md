@@ -819,6 +819,34 @@ answer follows from `point`. Any other point named with `:where` is drawn as
 if it were not marked, and a point asked more often than it has such
 sentences gives each once.
 
+The point `who-acc` asks which of two nouns does what the verb says. Its
+sentences are made, as the numbers' are, from a verb and two living beings
+in `src/lib/practice/roles.ts`, the doer first or last at random:
+
+```json
+{
+  "point": "who-acc",
+  "uk": "Собаку бачить кіт.",
+  "en": "The cat sees the dog.",
+  "start": 0, "length": 6,
+  "answer": "соба́ку", "also": [],
+  "number": "singular",
+  "word": "собака", "headword": "соба́ка",
+  "choices": [],
+  "forms": ["собака", "собаки", "собаці", "собаку", "…"],
+  "tatoeba_id": 0,
+  "kind": "who",
+  "roles": { "verb": "see", "doer": { "word": "кіт", "headword": "кіт", "start": 14, "length": 3 } }
+}
+```
+
+- `start`, `length`, `answer` and `word` are the noun done to, in the
+  accusative: its ending is what tells. `roles.doer` is the one that does
+  it, in the dictionary form, and where it stands in `uk`.
+- `roles.verb` names the verb's question in the page's strings ("Who sees
+  whom?"). `choices` is empty: the page offers the two nouns as `кіт →
+  собака` and `собака → кіт`, the first right.
+
 Sent with `Cache-Control: no-store`: asking again must give other sentences.
 `400` with `{ "error": "bad_points", "max": 20 }` when `points` is missing,
 empty or names more than 20. An empty `gaps` for a preposition's point means

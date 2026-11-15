@@ -1,7 +1,8 @@
 // Drawing sentences for a round of grammar practice, and offering each with
 // the forms to choose among. A preposition's sentences are in the `cloze`
 // table (data/import_wiktionary.py, add_cloze); a number's are made from a
-// list of nouns (numbers.ts) and the forms the dictionary has for them. Runs
+// list of nouns (numbers.ts) and the forms the dictionary has for them, and
+// so are the "who does what to whom" sentences (roles.ts). Runs
 // on D1 and on a local SQLite file alike (search/db.ts), so `npm test` checks
 // it against the real sentences.
 import type { Db } from '../search/db.ts';
@@ -9,6 +10,7 @@ import { plain } from '../search/normalize.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
+import { ROLES_POINT, drawRoles, isRolesPoint, rolesCount, rolesGap, type RolesDraw } from './roles.ts';
 import { WHERE, WHERE_MARK, isWherePoint, partnerOf } from './where.ts';
 
 /** The most sentences one request may ask for: two rounds. */
@@ -24,6 +26,7 @@ const CASE_OF: Record<string, PointCase> = { gen: 'genitive', acc: 'accusative',
 export async function pointCounts(db: Db): Promise<Record<string, number>> {
 	const counts = await clozeCounts(db);
 	for (const point of ['one-nom', 'few-nom', 'many-gen']) counts[point] = numberCount(point);
+	counts[ROLES_POINT] = rolesCount();
 	return counts;
 }
 
@@ -114,10 +117,12 @@ function drawWhere(point: string, random: Random, taken: Set<string>): WhereDraw
 export async function drawGaps(db: Db, points: readonly string[], random: Random): Promise<Gap[]> {
 	const asked = points.slice(0, MAX_GAPS);
 	// The meta row is read only where a preposition is asked for: a round of numbers needs no sentences
-	const counts = asked.some((point) => !isNumberPoint(point)) ? await clozeCounts(db) : {};
-	const drawn: ([point: string, n: number] | NumberDraw | WhereDraw)[] = [];
+	const made = (point: string) => isNumberPoint(point) || isRolesPoint(point);
+	const counts = asked.some((point) => !made(point)) ? await clozeCounts(db) : {};
+	const drawn: ([point: string, n: number] | NumberDraw | WhereDraw | RolesDraw)[] = [];
 	const taken = new Set<string>();
 	const counted = new Set<number>();
+	const beings = new Set<string>();
 	for (const named of asked) {
 		const where = named.endsWith(WHERE_MARK) ? named.slice(0, -WHERE_MARK.length) : null;
 		if (where !== null && isWherePoint(where)) {
@@ -126,6 +131,10 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 			continue;
 		}
 		const point = where ?? named;
+		if (isRolesPoint(point)) {
+			drawn.push(drawRoles(random, beings));
+			continue;
+		}
 		if (isNumberPoint(point)) {
 			const draw = drawNumber(point, random, counted);
 			if (draw) drawn.push(draw);
@@ -173,8 +182,15 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	const foundWhere = new Map(whereRows.map((row) => [`${row.point} ${row.tatoeba_id}`, row]));
 	rows.push(...whereRows);
 
-	// The nouns counted: a word can have two entries (стіл, собака), tried in the dictionary's order
-	const words = [...new Set(drawn.flatMap((draw) => ('noun' in draw ? [draw.noun.word] : [])))];
+	// The nouns counted, and those of a who item: a word can have two entries
+	// (стіл, собака), tried in the dictionary's order
+	const words = [
+		...new Set(
+			drawn.flatMap((draw) =>
+				'noun' in draw ? [draw.noun.word] : 'verb' in draw ? [draw.doer.word, draw.done.word] : []
+			)
+		)
+	];
 	const nouns = words.length
 		? await db.all<{ id: number; word: string; headword: string }>(
 				`SELECT id, word, headword FROM entries
@@ -208,6 +224,15 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 				const partner = partnerForm(own, partnerOf(row.point), row.number);
 				gaps.push({ ...gapOf(row, own, random), kind: 'where', ...(partner ? { partner } : {}) });
 			}
+			continue;
+		}
+		if ('verb' in draw) {
+			const entries = (word: string) =>
+				nouns.filter((entry) => entry.word === word).map((entry) => ({ ...entry, forms: forms.get(entry.id) ?? [] }));
+			const gap = entries(draw.doer.word)
+				.flatMap((doer) => entries(draw.done.word).map((done) => rolesGap(draw, doer, done)))
+				.find((made) => made !== null);
+			if (gap) gaps.push(gap);
 			continue;
 		}
 		for (const noun of nouns.filter((entry) => entry.word === draw.noun.word)) {

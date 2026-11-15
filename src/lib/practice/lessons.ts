@@ -25,6 +25,7 @@ export interface Lesson {
 export const LESSONS: readonly Lesson[] = [
 	{ id: 'where', points: ['u-loc', 'na-loc'] },
 	{ id: 'where-to', points: ['u-acc', 'na-acc', 'do-gen'] },
+	{ id: 'who-whom', points: ['who-acc'] },
 	{ id: 'with-from', points: ['z-ins', 'z-gen', 'vid-gen'] },
 	{ id: 'numbers', points: ['one-nom', 'few-nom', 'many-gen'] },
 	{ id: 'for-about', points: ['dlia-gen', 'bez-gen', 'pro-acc', 'za-acc'] },

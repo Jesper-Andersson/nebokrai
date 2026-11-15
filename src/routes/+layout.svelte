@@ -10,7 +10,7 @@
 	import { Tooltip } from 'bits-ui';
 	import logoIcon from '#lib/assets/logo-icon.svg';
 	import Footer from '#lib/Footer.svelte';
-	import { sendHit } from '#lib/hit.ts';
+	import { referringSite, sendHit } from '#lib/hit.ts';
 	import { NOT_FOUND } from '#lib/stats-sections.ts';
 	import Header from '#lib/Header.svelte';
 	import { provideRadio } from '#lib/radio.svelte.ts';
@@ -61,7 +61,12 @@
 	afterNavigate((navigation) => {
 		if (navigation.type === 'goto' && navigation.shallow) return;
 		if (location.pathname === '/stats') return;
-		sendHit({ kind: 'view', path: page.status === 404 ? NOT_FOUND : location.pathname });
+		const path = page.status === 404 ? NOT_FOUND : location.pathname;
+		// The first page of a visit also says which site sent the visitor, by
+		// its host name only; every later page was reached from this site.
+		if (navigation.type === 'enter') {
+			sendHit({ kind: 'view', path, referrer: referringSite(document.referrer, location.hostname) });
+		} else sendHit({ kind: 'view', path });
 	});
 
 	// The quick search lives in the header, and a page can open it too.

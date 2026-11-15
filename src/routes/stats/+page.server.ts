@@ -13,6 +13,8 @@ import { accountStats } from '#lib/server/users.ts';
 import type { PageServerLoad } from './$types';
 
 const RANGES = [7, 30, 90];
+// Each list shows its first rows and opens to the rest: up to this many
+const LISTED = 100;
 
 export const load: PageServerLoad = async ({ locals, url, setHeaders, depends }) => {
 	// The page asks for the counts again every minute while it is open (+page.svelte)
@@ -27,7 +29,7 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, depends })
 	return {
 		days,
 		ranges: RANGES,
-		report: stats ? await statsReport(stats, now, days) : null,
+		report: stats ? await statsReport(stats, now, days, LISTED) : null,
 		accounts: users ? await accountStats(users, now) : null
 	};
 };

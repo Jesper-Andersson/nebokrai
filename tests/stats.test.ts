@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
-	OTHER, addDays, countedPath, countedQuery, ownerIds, recordSearch, recordView, sectionOf, skipCounting,
-	statsDay, statsReport, type Statement, type StatsDb, type Visit
+	DIRECT, MAX_KEYS_A_DAY, OTHER, PAGE_DAYS, addDays, countedPath, countedQuery, countedReferrer, deviceOf, ownerIds,
+	recordSearch, recordView, sectionOf, skipCounting, statsDay, statsReport, type Statement, type StatsDb, type Visit
 } from '../src/lib/server/stats.ts';
 import { NOT_FOUND, readablePath } from '../src/lib/stats-sections.ts';
 import { openMemoryStats } from './local-db.ts';
@@ -245,4 +245,116 @@ test('days are counted by the calendar across a clock change', () => {
 	assert.equal(addDays('2026-03-01', -1), '2026-02-28');
 	assert.equal(sectionOf('/word'), 'words');
 	assert.equal(sectionOf('/practice'), 'learn');
+});
+
+const phone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1';
+const breakdowns = (db: StatsDb) =>
+	db.all<{ kind: string; key: string; count: number }>('SELECT kind, key, count FROM breakdowns ORDER BY kind, key');
+
+test('a visitor’s country, device and referring site are counted once a day', async () => {
+	const db = openMemoryStats();
+	const reader = { ...firefox('1.1.1.1'), country: 'SE' };
+	await recordView(db, '/', reader, 'google.com');
+	// A reload is a first page again, and a search follows: neither counts the visitor twice
+	await recordView(db, '/', reader, 'google.com');
+	await recordSearch(db, 'вода', 5, reader);
+	await recordView(db, '/word/voda', { ip: '2.2.2.2', userAgent: phone, signedIn: false, now: T0, country: 'UA' }, DIRECT);
+	assert.deepEqual(await breakdowns(db), [
+		{ kind: 'country', key: 'SE', count: 1 },
+		{ kind: 'country', key: 'UA', count: 1 },
+		{ kind: 'device', key: 'desktop', count: 1 },
+		{ kind: 'device', key: 'phone', count: 1 },
+		{ kind: 'referrer', key: DIRECT, count: 1 },
+		{ kind: 'referrer', key: 'google.com', count: 1 }
+	]);
+});
+
+test('without a country or a referring site only the device is counted', async () => {
+	const db = openMemoryStats();
+	await recordView(db, '/', firefox('1.1.1.1'));
+	await recordView(db, '/', { ...firefox('2.2.2.2'), country: 'T1' }); // Cloudflare's code for Tor
+	await recordView(db, '/', { ...firefox('3.3.3.3'), country: 'XX' }); // and for "unknown"
+	assert.deepEqual(await breakdowns(db), [{ kind: 'device', key: 'desktop', count: 3 }]);
+});
+
+test('a phone is told from a desktop by its user agent', () => {
+	assert.equal(deviceOf(phone), 'phone');
+	assert.equal(deviceOf('Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36'), 'phone');
+	assert.equal(deviceOf('Mozilla/5.0 (Android 15; Mobile; rv:140.0) Gecko/140.0 Firefox/140.0'), 'phone');
+	assert.equal(deviceOf('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36'), 'desktop');
+	// A tablet reads like a desktop: an iPad says it is a Mac
+	assert.equal(deviceOf('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15'), 'desktop');
+});
+
+test('a referring site is kept as a host name, and the site itself is a direct visit', () => {
+	assert.equal(countedReferrer('google.com', 'nebokrai.app'), 'google.com');
+	assert.equal(countedReferrer('www.reddit.com', 'nebokrai.app'), 'reddit.com');
+	assert.equal(countedReferrer('uk.wikipedia.org', 'nebokrai.app'), 'uk.wikipedia.org');
+	assert.equal(countedReferrer('xn--80aaxitdbjk.xn--j1amh', 'nebokrai.app'), 'xn--80aaxitdbjk.xn--j1amh');
+	assert.equal(countedReferrer('', 'nebokrai.app'), DIRECT);
+	assert.equal(countedReferrer('nebokrai.app', 'nebokrai.app'), DIRECT);
+	assert.equal(countedReferrer('www.nebokrai.app', 'nebokrai.app'), DIRECT);
+	// Not a first page (nothing sent), or not a host name: nothing to count
+	assert.equal(countedReferrer(undefined, 'nebokrai.app'), null);
+	assert.equal(countedReferrer(5, 'nebokrai.app'), null);
+	assert.equal(countedReferrer('https://google.com/search?q=вода', 'nebokrai.app'), null);
+	assert.equal(countedReferrer('Google.com', 'nebokrai.app'), null);
+	assert.equal(countedReferrer('localhost', 'nebokrai.app'), null);
+	assert.equal(countedReferrer(`${'a'.repeat(100)}.com`, 'nebokrai.app'), null);
+});
+
+test('referring sites past the day’s limit are counted together', async () => {
+	const db = openMemoryStats();
+	for (let i = 0; i < MAX_KEYS_A_DAY + 3; i++) await recordView(db, '/', firefox(`10.0.${i >> 8}.${i & 255}`), `site${i}.example`);
+	// One already in the table is still counted under its own name
+	await recordView(db, '/', firefox('9.9.9.9'), 'site0.example');
+	const rows = await db.all<{ key: string; count: number }>(
+		`SELECT key, count FROM breakdowns WHERE kind = 'referrer' AND (count > 1 OR key = ?) ORDER BY key`, [OTHER]);
+	assert.deepEqual(rows, [{ key: OTHER, count: 3 }, { key: 'site0.example', count: 2 }]);
+	const [{ n }] = await db.all<{ n: number }>(`SELECT count(*) AS n FROM breakdowns WHERE kind = 'referrer'`);
+	assert.equal(n, MAX_KEYS_A_DAY + 1);
+});
+
+test('a search with no results but a guess is not a search that found nothing', async () => {
+	const db = openMemoryStats();
+	await recordSearch(db, 'вада', 0, firefox('1.1.1.1'), 3);
+	await recordSearch(db, 'вада', 0, firefox('2.2.2.2'), 3);
+	await recordSearch(db, 'ґудзик', 0, firefox('1.1.1.1'), 0);
+	await recordSearch(db, 'ґудзик', 0, firefox('2.2.2.2'));
+	await recordSearch(db, 'вода', 5, firefox('1.1.1.1'), 2); // results: the guesses beside them do not matter
+	const report = await statsReport(db, T0);
+	assert.deepEqual(report.missing, [{ key: 'ґудзик', count: 2, visitors: 2 }]);
+	const today = report.days.at(-1)!;
+	assert.equal(today.searches, 5);
+	assert.equal(today.empty_searches, 2);
+	assert.deepEqual(report.breakdowns.search, [{ key: 'guessed', count: 2 }]);
+});
+
+test('the report sums the breakdowns over its period, the largest first', async () => {
+	const db = openMemoryStats();
+	const from = (ip: string, country: string, now = T0): Visit => ({ ...firefox(ip, now), country });
+	await recordView(db, '/', from('1.1.1.1', 'UA', T0 - 40 * DAY), 'old.example'); // before the period
+	await recordView(db, '/', from('1.1.1.1', 'UA', T0 - DAY), 'google.com');
+	await recordView(db, '/', from('1.1.1.1', 'UA'), 'google.com');
+	await recordView(db, '/', from('2.2.2.2', 'SE'), DIRECT);
+	await recordView(db, '/', { ...from('3.3.3.3', 'UA'), userAgent: phone }, 'google.com');
+	const report = await statsReport(db, T0, 30, 2);
+	assert.deepEqual(report.breakdowns, {
+		referrer: [{ key: 'google.com', count: 3 }, { key: DIRECT, count: 1 }],
+		country: [{ key: 'UA', count: 3 }, { key: 'SE', count: 1 }],
+		device: [{ key: 'desktop', count: 3 }, { key: 'phone', count: 1 }],
+		search: []
+	});
+	// `top` keys of a kind, not of all kinds together
+	assert.equal((await statsReport(db, T0, 30, 1)).breakdowns.country.length, 1);
+});
+
+test('breakdowns are kept as long as page counts', async () => {
+	const db = openMemoryStats();
+	await recordView(db, '/', firefox('1.1.1.1'));
+	await recordView(db, '/', firefox('1.1.1.1', T0 + PAGE_DAYS * DAY));
+	assert.equal((await db.all('SELECT DISTINCT day FROM breakdowns')).length, 2);
+	const later = T0 + (2 * PAGE_DAYS + 2) * DAY;
+	await recordView(db, '/', firefox('1.1.1.1', later));
+	assert.deepEqual(await db.all('SELECT DISTINCT day FROM breakdowns'), [{ day: statsDay(later) }]);
 });

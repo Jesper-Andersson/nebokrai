@@ -52,6 +52,12 @@
 			зберігаються 90 днів, без зв’язку з тим, хто їх зробив. Браузер з увімкненим Do Not Track або
 			Global Privacy Control ми не рахуємо.
 		</p>
+		<p>
+			Коли ми вперше за день рахуємо відвідувача, до підсумків цього дня додаються ще три числа:
+			країна, яку Cloudflare визначає для запиту, телефон це чи комп’ютер, і сайт, з якого ви
+			прийшли, — лише його назва, наприклад google.com, без адреси сторінки. Це окремі лічильники:
+			вони не пов’язані ні між собою, ні з вашими запитами чи сторінками.
+		</p>
 
 		<h2>Інші сайти</h2>
 		<p>
@@ -111,6 +117,12 @@
 			cannot be turned back into an address, and it is deleted when the day ends. Searches of up to
 			40 characters are kept for 90 days, with nothing that says who made them. A browser set to Do
 			Not Track or Global Privacy Control is not counted.
+		</p>
+		<p>
+			The first time a visitor is counted on a day, three more numbers go up in that day’s totals:
+			the country Cloudflare names for the request, whether it came from a phone or a desktop, and
+			the site that sent you here, by its name only (google.com, say), never the address of the
+			page. They are separate tallies, tied neither to each other nor to your searches or pages.
 		</p>
 
 		<h2>Other sites</h2>

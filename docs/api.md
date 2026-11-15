@@ -390,7 +390,8 @@ or one of whose results was opened.
 
 ```json
 { "kind": "view", "path": "/word/voda" }
-{ "kind": "search", "query": "вода", "results": 5 }
+{ "kind": "view", "path": "/word/voda", "referrer": "google.com" }
+{ "kind": "search", "query": "вода", "results": 5, "suggested": 0 }
 ```
 
 | Field | |
@@ -398,7 +399,26 @@ or one of whose results was opened.
 | `kind` | `view` or `search`. |
 | `path` | `view`: the page's path, or `(not found)` for a page that answered 404. A later page of a list is counted as the list (`/words/a/2` as `/words/a`). Paths outside the site's sections, and ones that cannot be decoded, are counted together as `(other)`. |
 | `query` | `search`: the text searched, at most 200 characters. Counted after normalising (lower case, no stress marks); its text is kept only up to 40 characters, for 90 days. |
-| `results` | `search`: how many results the answer had; `0` counts as a search that found nothing. |
+| `results` | `search`: how many results the answer had; `0` counts as a search that found nothing, unless `suggested` says otherwise. |
+| `suggested` | `search`: how many "did you mean" guesses the answer had. A search with no results but a guess is counted as guessed, not as one that found nothing. Left out, it is `0`. |
+| `referrer` | `view`, on the first page of a visit only: the host name of the site that sent the visitor (`document.referrer`'s host, never the rest of that address), or `""` when there is none or it is this site. A leading `www.` is dropped. Anything that is not a lower-case host name with a dot, of at most 100 characters, is not counted. |
+
+What is kept, all of it as counts per day (Kyiv's date) with nothing that
+says who:
+
+- Views, visitors, signed-in visitors, searches and searches that found
+  nothing, per day, for good.
+- Views per page, for 400 days.
+- Search words of up to 40 characters, with how often each was searched, by
+  how many visitors and how often it found nothing, for 90 days.
+- Three counts made once per visitor per day, when the visitor is first
+  counted that day, kept for 400 days: the referring site (`referrer`, or
+  `(direct)`; only when that first count is the first page of a visit), the
+  country (Cloudflare's two-letter code for the request; not counted when
+  Cloudflare gives none, `XX` or `T1`), and `phone` or `desktop` (from the
+  user agent; a tablet counts as a desktop). A day keeps at most 300
+  different referring sites; later ones are counted together as `(other)`.
+- Searches counted as guessed, per day, for 400 days.
 
 The answer is always `204` with no body, whether or not anything was counted:
 a body that is not JSON or over 1 KB, a user agent that is a program, a

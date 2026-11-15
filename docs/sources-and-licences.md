@@ -71,6 +71,14 @@ to the sites they stand for. Each was taken once from that site's own icon and
 is served from here, so your browser asks none of them for anything. They are
 shown only to say whose link it is, and none of the licences above covers them.
 
+### Typeface
+
+Titles, example sentences and pages of text are set in
+[Zakon](https://mincult.gov.ua/zakon/), Ukraine's national typeface, made by
+Oleksii Chekal, Hennadii Zarechniuk, Dmytro Rastvortsev and Andrii Shevchenko
+for the Ministry of Culture of Ukraine, which gives it for free use by anyone.
+It is served from here, so your browser asks no font service for it.
+
 ### Radio
 
 The radio you can switch on in the settings plays Ukrainian stations, each

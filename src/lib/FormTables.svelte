@@ -351,7 +351,9 @@
 		padding-right: 2rem;
 	}
 
+	/* The forms are words, set like the headword above them */
 	td {
+		font-family: var(--font-headword);
 		font-weight: 600;
 	}
 

@@ -92,6 +92,15 @@
 		licences above covers them.
 	</p>
 
+	<h2>Typeface</h2>
+	<p>
+		Titles, example sentences and pages of text are set in
+		<a href="https://mincult.gov.ua/zakon/">Zakon</a>, Ukraine’s national typeface, made by Oleksii
+		Chekal, Hennadii Zarechniuk, Dmytro Rastvortsev and Andrii Shevchenko for the Ministry of Culture
+		of Ukraine, which gives it for free use by anyone. It is served from here, so your browser asks
+		no font service for it.
+	</p>
+
 	<h2>Radio</h2>
 	<p>
 		The radio you can switch on in the settings plays Ukrainian stations:

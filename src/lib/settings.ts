@@ -14,6 +14,10 @@ export const BACKGROUNDS: Background[] = ['plain', 'field', 'hills'];
 /** Whether the radio button is in the corner of the page (RadioPlayer.svelte). Off until the visitor asks for it. */
 export type RadioButton = 'off' | 'on';
 
+/** The face of titles, example sentences and pages of text: Zakon, or Fixel like the rest of the page. */
+export type FontChoice = 'serif' | 'sans';
+export const FONTS: FontChoice[] = ['serif', 'sans'];
+
 /** A switch that is only on or off. */
 export type OnOff = 'off' | 'on';
 
@@ -22,6 +26,7 @@ export interface Settings {
 	theme: Theme;
 	layout: KeyboardLayout;
 	background: Background;
+	font: FontChoice;
 	radio: RadioButton;
 	/** The headword in Latin letters under it (vodá). On unless turned off. */
 	roman: OnOff;
@@ -39,6 +44,7 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 		theme: theme === 'light' || theme === 'sepia' || theme === 'dark' ? theme : 'system',
 		layout: cookie('kbd') === 'phonetic' ? 'phonetic' : 'standard',
 		background: background === 'field' || background === 'hills' ? background : 'plain',
+		font: cookie('font') === 'sans' ? 'sans' : 'serif',
 		radio: cookie('radio') === 'on' ? 'on' : 'off',
 		roman: cookie('roman') === 'off' ? 'off' : 'on',
 		ipa: cookie('ipa') === 'on' ? 'on' : 'off',
@@ -73,6 +79,15 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 		} else {
 			document.cookie = `bg=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 			root.setAttribute('data-bg', value);
+		}
+	} else if (name === 'font') {
+		// <html data-font="sans"> sets the reading roles in Fixel (app.css).
+		if (value === 'serif') {
+			document.cookie = 'font=; path=/; max-age=0; samesite=lax';
+			root.removeAttribute('data-font');
+		} else {
+			document.cookie = `font=${value}; path=/; max-age=${YEAR}; samesite=lax`;
+			root.setAttribute('data-font', value);
 		}
 	} else if (name === 'radio' || name === 'roman' || name === 'ipa' || name === 'blur') {
 		// Nothing on <html>: the page draws these from the settings object.

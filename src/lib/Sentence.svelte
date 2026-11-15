@@ -37,6 +37,10 @@
 >
 
 <style>
+	span {
+		font-family: var(--font-reading);
+	}
+
 	b {
 		font-weight: 700;
 	}

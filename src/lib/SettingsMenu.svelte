@@ -13,6 +13,7 @@
 	import {
 		applySetting,
 		BACKGROUNDS,
+		FONTS,
 		useSettings,
 		type Background,
 		type KeyboardLayout,
@@ -38,7 +39,7 @@
 	// Small previews of the photos; the plain background shows the page colour.
 	const previews: Record<Background, string | null> = { plain: null, field: fieldThumb, hills: hillsThumb };
 
-	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'radio' | 'roman' | 'ipa' | 'blur'>(
+	function set<K extends 'theme' | 'lang' | 'layout' | 'background' | 'font' | 'radio' | 'roman' | 'ipa' | 'blur'>(
 		name: K,
 		value: string
 	) {
@@ -109,6 +110,26 @@
 							</RadioGroup.Item>
 						{/each}
 					</RadioGroup.Root>
+				</section>
+				<!-- Each choice shows its letters in its own face -->
+				<section>
+					<h2 id="ui-set-font">{m.settings.font}</h2>
+					<RadioGroup.Root
+						class="ui-segmented"
+						orientation="horizontal"
+						aria-labelledby="ui-set-font"
+						aria-describedby="ui-set-font-hint"
+						value={settings.font}
+						onValueChange={(value) => set('font', value)}
+					>
+						{#each FONTS as font (font)}
+							<RadioGroup.Item class="ui-segment" value={font}>
+								<span class="mark {font}" aria-hidden="true">Аа</span>
+								{m.settings.fonts[font]}
+							</RadioGroup.Item>
+						{/each}
+					</RadioGroup.Root>
+					<p class="hint" id="ui-set-font-hint">{m.settings.fontHint}</p>
 				</section>
 				<section class="divided">
 					<h2 id="ui-set-lang">{m.settings.language}</h2>
@@ -306,6 +327,14 @@
 		color: var(--muted);
 		font-family: var(--font-headword);
 		font-weight: 700;
+	}
+
+	.mark.serif {
+		font-family: var(--font-serif);
+	}
+
+	.mark.sans {
+		font-family: var(--font-text);
 	}
 
 	/* The background choices: a small picture with its name under it. */

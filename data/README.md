@@ -30,7 +30,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 47,567 |
 | `forms` | inflected form (declension / conjugation cell) | 529,270 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 79,365 |
-| `examples` | Tatoeba sentence with English translation | 28,670 |
+| `examples` | Tatoeba sentence with English translation | 24,559 |
 | `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,845 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
 
@@ -90,10 +90,37 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (11,857 entries), preferring sentences
-of about five words. A sentence is attached to every entry that has one of its
-words as a form, so a homograph can pick up a sentence meant for its twin.
-`tatoeba_id` links back to the sentence for attribution.
+Up to three Tatoeba sentences per entry (10,365 entries), preferring sentences
+of about five words. `tatoeba_id` links back to the sentence for attribution.
+
+Many spellings belong to more than one entry: `осі` is a form of `вісь`
+("axis") and of `оса` ("wasp"), `мати` is the noun "mother" and the verb "to
+have". `sentence_readings` in `import_wiktionary.py` gives a sentence only to
+the entry it is about, and to none when nothing decides:
+
+- a word in lower case is no name, and one with a capital away from the start
+  of the sentence is nothing but a name (`ти подобаєшся Тому` is Tom);
+- the English translation has a word from one entry's glosses only, the first
+  meaning asked first ("on its axis" is `вісь`; `голова` "head" before
+  `голова` "chairman");
+- the spelling is the dictionary form of one entry, and that entry is the
+  commonest of them (`зараз` "now", not a plural of `зараза`; `став` "pond"
+  does not take «він став знаменитим», since `стати` is commoner).
+
+Until November 2026 a sentence went to every entry with one of its words as a
+form (28,670 sentences for 11,857 entries). Of the 4,111 fewer, most were such
+mix-ups (`віна` "dowry" had sentences with `він`); the rest are spellings that
+nothing decides, such as the two entries `коса` or `що` the conjunction and the
+pronoun. Of 80 decisions on shared spellings read in November 2026, three
+were wrong (`Тому`, `став`, `сів`); the rules about capitals and the
+commonest entry were added for them, and 40 more read after that were right.
+
+To change the rules without a full build, which would give every entry a new
+id:
+
+    python3 data/add_examples.py nebokrai.db data/raw --show оса вісь мати
+
+It makes the table again and prints the sentences of the words named.
 
 ## Sentences with a gap (`cloze`)
 

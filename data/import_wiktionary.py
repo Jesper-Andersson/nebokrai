@@ -403,37 +403,121 @@ def add_frequency(db, index, path, reference=None, max_ratio=20, lemma_weight=4)
                 freq_spellings_capped=capped)
 
 
-def add_tatoeba(db, index, folder, per_entry=3):
-    """Attach up to `per_entry` short translated sentences to each entry."""
-    def rows(name):
-        with bz2.open(os.path.join(folder, name), "rt", encoding="utf-8") as f:
-            for line in f:
-                yield line.rstrip("\n").split("\t")
+# English words that tell nothing about which meaning a translation has: they
+# stand in nearly every sentence, or in the wording of a gloss rather than its
+# sense ("to have", "someone who…"). A pronoun in a gloss ("here you go!", the
+# interjection на) must not match the "you" of "Do you speak Shanghainese?".
+ENGLISH_NOISE = frozenset("""
+    a an the to of and or as not so if then than but
+    i you he she it we they me him her us them my your his its our their
+    this that these those who whom whose which what
+    be am is are was were been being do does did will would can could shall should may might must
+    one someone something somebody anyone anything person thing used etc e g
+""".split())
+# English prepositions are the meaning of a preposition's gloss (на: "on, at")
+# but only wording in any other ("band of warriors in Rus" must not meet "my
+# in-laws"), so they count for prepositions alone.
+ENGLISH_PREPOSITIONS = frozenset("""
+    in on at for with from by into onto about over under after before between
+    through toward towards against without within among near off out up down
+""".split())
 
-    uk = {int(r[0]): r[2] for r in rows("ukr_sentences.tsv.bz2") if len(r) == 3}
-    link = {}
-    for r in rows("ukr-eng_links.tsv.bz2"):
-        link.setdefault(int(r[0]), int(r[1]))
-    wanted = set(link.values())
-    en = {int(r[0]): r[2] for r in rows("eng_sentences.tsv.bz2")
-          if len(r) == 3 and int(r[0]) in wanted}
 
-    # Sentences of about five words first: long enough to show the word in use,
-    # short enough for a flashcard.
-    tokenised = {sid: TOKEN.findall(text) for sid, text in uk.items()}
+def english_words(text, prepositions=True):
+    """The words of an English gloss or sentence that can say which meaning is
+    meant: lowercase, with a final s dropped so that wasps meets wasp, and with
+    the notes in brackets left out ("[with accusative]")."""
+    text = re.sub(r"\[[^]]*\]|\([^)]*\)", " ", text.lower())
+    words = {w[:-1] if len(w) > 3 and w.endswith("s") else w for w in re.findall(r"[a-z]+", text)}
+    return words - ENGLISH_NOISE - (frozenset() if prepositions else ENGLISH_PREPOSITIONS)
+
+
+def starts_sentence(text, at):
+    """Whether the word at `at` begins a sentence of `text`, which Tatoeba
+    entries sometimes hold two of: «Іди сюди! Так, саме ти.»"""
+    before = re.sub(r"[\s\"'«„“(—–-]+$", "", text[:at])
+    return not before or before[-1] in ".!?…"
+
+
+def sentence_readings(db, index):
+    """Return a function that says which entries a word of a Tatoeba sentence
+    shows, given the word as written and the sentence's English translation.
+
+    Many spellings belong to more than one entry: осі is a form of вісь
+    ("axis") and of оса ("wasp"), мати is both the noun "mother" and the verb
+    "to have". A sentence is shown only for the entry it is about, decided in
+    this order; when nothing decides, it is shown for none of them.
+
+    1. A word written in lower case is no proper name: земля is not Земля.
+       One written with a capital away from the start of a sentence is
+       nothing but a name: «ти подобаєшся Тому» is "Tom likes you", not the
+       adverb тому, and Том has no entry.
+    2. A spelling left with one entry is that entry's.
+    3. The translation names one meaning: "The Earth rotates on its axis"
+       has "axis", which is in вісь's glosses and not in оса's. Each entry's
+       first meaning is asked first: голова "head" and голова "chairman"
+       both have "head" among their meanings, but only the first has it first.
+       An interjection's gloss is no meaning to match ("here you go! take
+       it!" for на would claim every "go to the party").
+    4. The spelling is the dictionary form of exactly one of them, and that
+       one is the commonest word of them: зараз is the adverb "now", not a
+       plural of зараза. Being the dictionary form alone is not enough: став
+       is the noun "pond" and the past tense of стати, and «він став
+       знаменитим» is the verb.
+    """
+    lemmas = collections.defaultdict(set)
+    for key, eid in db.execute("SELECT key, entry_id FROM search_keys WHERE kind='word'"):
+        lemmas[key].add(eid)
+    capital, freq = {}, {}
+    for eid, word, f in db.execute("SELECT id, word, freq FROM entries"):
+        capital[eid], freq[eid] = word[:1].isupper(), f
+    first = collections.defaultdict(set)  # entry id -> words of its first gloss
+    every = collections.defaultdict(set)  # entry id -> words of all its glosses
+    for eid, n, gloss, pos in db.execute(
+            "SELECT s.entry_id, s.n, s.gloss, e.pos FROM senses s JOIN entries e ON e.id = s.entry_id"
+            " WHERE e.pos <> 'intj'"):
+        words = english_words(gloss, prepositions=pos == "prep")
+        every[eid] |= words
+        if n == 1:
+            first[eid] = words
+
+    def readings(token, english, starts=True):
+        """`starts`: the word begins its sentence, so a capital says nothing."""
+        key = plain(token)
+        owners = index.get(key, set())
+        if not token[:1].isupper():
+            owners = {e for e in owners if not capital[e]}
+        elif not starts:
+            owners = {e for e in owners if capital[e]}
+        if len(owners) <= 1:
+            return owners
+        said = english_words(english)
+        for glosses in (first, every):
+            named = {e for e in owners if glosses[e] & said}
+            if len(named) == 1:
+                return named
+        heads = owners & lemmas.get(key, set())
+        if len(heads) == 1 and all(freq[e] <= freq[h] for h in heads for e in owners):
+            return heads
+        return set()
+
+    return readings
+
+
+def add_tatoeba(db, index, pairs, per_entry=3):
+    """Attach up to `per_entry` short translated sentences to each entry, each
+    only to the entries `sentence_readings` finds it to be about."""
+    readings = sentence_readings(db, index)
     candidates = collections.defaultdict(list)
-    for sid in sorted(uk, key=lambda i: (abs(len(tokenised[i]) - 5), i)):
-        text = uk[sid]
-        english = en.get(link.get(sid))
-        tokens = tokenised[sid]
-        if not english or not 3 <= len(tokens) <= 12:
-            continue
-        for eid in {e for t in tokens for e in index.get(plain(t), ())}:
+    for sid, text, english in short_first(pairs):
+        found = {e for m in TOKEN.finditer(text)
+                 for e in readings(m.group(), english, starts_sentence(text, m.start()))}
+        for eid in found:
             if len(candidates[eid]) < per_entry:
                 candidates[eid].append((eid, text, english, sid))
     db.executemany("INSERT INTO examples(entry_id, uk, en, tatoeba_id) VALUES (?,?,?,?)",
                    [row for rows_ in candidates.values() for row in rows_])
-    return dict(tatoeba_pairs=sum(1 for i in uk if link.get(i) in en),
+    return dict(tatoeba_pairs=len(pairs),
                 entries_with_tatoeba=len(candidates),
                 tatoeba_examples=sum(len(v) for v in candidates.values()))
 
@@ -718,8 +802,9 @@ def build(src, dst, freq=None, tatoeba=None):
             reference = ukrainian_counts(tatoeba) if tatoeba else None
             stats.update(add_frequency(db, index, freq, reference))
         if tatoeba:
-            stats.update(add_tatoeba(db, index, tatoeba))
-            stats.update(add_cloze(db, index, tatoeba_pairs(tatoeba)))
+            pairs = tatoeba_pairs(tatoeba)
+            stats.update(add_tatoeba(db, index, pairs))
+            stats.update(add_cloze(db, index, pairs))
     db.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT)")
     db.executemany("INSERT INTO meta VALUES (?,?)", [
         ("source", "English Wiktionary via kaikki.org (wiktextract)"),

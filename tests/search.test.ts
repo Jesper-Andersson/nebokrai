@@ -79,6 +79,18 @@ test('word details', { skip }, async () => {
 	assert.equal(read.examples.length, 3);
 	assert.ok(read.forms.every((f) => !f.tags.includes('error-unrecognized-form')));
 
+	// A sentence is shown only for the word it is about. осі is a form of both
+	// вісь ("axis") and оса ("wasp"); «навколо своєї осі» is about the axis.
+	// An older database gives it to both: run data/add_examples.py on it.
+	const [wasp] = await wordDetails(db, 'оса');
+	const [axis] = await wordDetails(db, 'вісь');
+	const hasOsi = (uk: string) => uk.toLowerCase().split(/[^\p{L}]+/u).includes('осі');
+	assert.ok(wasp.examples.length > 0 && !wasp.examples.some((x) => hasOsi(x.uk)));
+	assert.ok(axis.examples.some((x) => hasOsi(x.uk)));
+	const [mother, have] = await wordDetails(db, 'мати');
+	const shared = mother.examples.filter((x) => have.examples.some((y) => y.tatoeba_id === x.tatoeba_id));
+	assert.deepEqual(shared, []);
+
 	assert.ok((await wordDetails(db, 'стан')).length > 1); // several entries, one spelling
 	assert.deepEqual(await wordDetails(db, 'qqqq'), []);
 

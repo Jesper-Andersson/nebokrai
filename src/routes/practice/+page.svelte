@@ -538,6 +538,7 @@
 	}
 
 	.example {
+		font-family: var(--font-headword);
 		font-weight: 600;
 		white-space: nowrap;
 	}

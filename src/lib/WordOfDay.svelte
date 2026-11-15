@@ -81,6 +81,11 @@
 		border-top: 1px dashed var(--border);
 	}
 
+	/* A sentence, set like the example sentences on a word's page */
+	p [lang='uk'] {
+		font-family: var(--font-reading);
+	}
+
 	p {
 		margin: 0;
 		padding-left: 0.75rem;

@@ -36,6 +36,10 @@
 >
 
 <style>
+	span {
+		font-family: var(--font-reading);
+	}
+
 	/* A word to look up reads as the text around it until it is pointed at */
 	button {
 		padding: 0;

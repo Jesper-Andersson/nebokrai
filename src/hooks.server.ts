@@ -109,5 +109,6 @@ const answer: Handle = async ({ event, resolve }) => {
 				.replace('%app.lang%', settings.lang)
 				.replace('%app.theme%', settings.theme === 'system' ? '' : `data-theme="${settings.theme}"`)
 				.replace('%app.bg%', settings.background === 'plain' ? '' : `data-bg="${settings.background}"`)
+				.replace('%app.font%', settings.font === 'serif' ? '' : `data-font="${settings.font}"`)
 	});
 };

@@ -689,6 +689,7 @@
 
 	.other dd {
 		margin: 0;
+		font-family: var(--font-headword);
 	}
 
 	/* What the underlines in the tables mean */

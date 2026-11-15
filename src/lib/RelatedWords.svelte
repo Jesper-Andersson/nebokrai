@@ -90,6 +90,7 @@
 
 	.words {
 		min-width: 0;
+		font-family: var(--font-headword);
 		overflow-wrap: anywhere;
 	}
 

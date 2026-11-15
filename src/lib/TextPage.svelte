@@ -48,6 +48,12 @@
 		line-height: 1.25;
 	}
 
+	/* Running text reads in the serif; a wide page (Resources) is a grid of
+	   cards to scan, so it keeps the interface's sans */
+	article:not(.wide) :global(:is(p, li, dt, dd)) {
+		font-family: var(--font-reading);
+	}
+
 	article :global(.lead) {
 		font-size: var(--text-lg);
 	}

@@ -203,6 +203,7 @@ Some files are not the project's own and keep their own terms:
 | Files | Terms |
 |---|---|
 | `src/lib/assets/fixel/`, `nyght-serif-main/`, `serif/` | Fonts under the SIL Open Font License 1.1; each folder holds its licence. |
+| `src/lib/assets/zakon/` | Zakon, the national typeface of the Ministry of Culture of Ukraine, given for free use by anyone (mincult.gov.ua/zakon); the TTFs as published, the WOFF2 files converted from them unchanged. |
 | `src/lib/logo-paths.ts`, `src/lib/title-paths.ts` | Outlines of Caveat Bold, OFL 1.1 (`src/lib/assets/licences/Caveat-OFL.txt`). |
 | `src/lib/assets/logo-icon.svg`, `static/favicon.ico`, `static/icons/` | Hold outlines of Montserrat ExtraBold, OFL 1.1 (`src/lib/assets/licences/Montserrat-OFL.txt`). |
 | The bars' timings in `src/lib/RadioPlayer.svelte` | From SVG Loaders, MIT (`src/lib/assets/licences/SVG-Loaders-MIT.txt`). |

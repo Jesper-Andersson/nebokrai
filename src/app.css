@@ -1,4 +1,9 @@
-/* Two families. Fixel is the interface, everything read as running text, and
+/* (Zakon, further down, now sets titles, headwords and the Ukrainian words
+   beside them, example sentences and pages of text, unless the visitor picks
+   Sans-serif in the settings. The serif below is kept but unused while Zakon
+   is tried.)
+
+   Two families. Fixel is the interface, everything read as running text, and
    every Ukrainian word set out to be learned: a beginner reads a headword
    letter by letter, and Fixel's letters are the plainest. The serif is for
    page titles only, at sizes where its fine strokes hold. It was tried for
@@ -91,6 +96,55 @@
 	line-gap-override: 29%;
 }
 
+/* Zakon, Ukraine's national typeface for official documents (2026), by
+   Oleksii Chekal, Hennadii Zarechniuk, Dmytro Rastvortsev and Andrii
+   Shevchenko for the Ministry of Culture (mincult.gov.ua/zakon). The
+   Ministry gives its text face "for free use by an unlimited circle of
+   people"; it is served here as published, only repackaged as WOFF2. The
+   original TTF files, version 1.000, are in src/lib/assets/zakon/ttf.
+
+   It is a reading face: Ukrainian example sentences, running text on pages
+   of text, and titles. Its letters are smaller on the body than Fixel's, so
+   `size-adjust` brings a line of Zakon beside Fixel to the same weight on
+   the page. Unlike Fixel it sets one set of vertical measures for every
+   system (USE_TYPO_METRICS), so it needs no overrides, and it places the
+   stress mark over every Ukrainian vowel by itself: вода́, ї́жа. */
+@font-face {
+	font-family: 'Zakon';
+	src: url('./lib/assets/zakon/Zakon-Regular.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+	size-adjust: 106%;
+}
+
+@font-face {
+	font-family: 'Zakon';
+	src: url('./lib/assets/zakon/Zakon-Italic.woff2') format('woff2');
+	font-weight: 400;
+	font-style: italic;
+	font-display: swap;
+	size-adjust: 106%;
+}
+
+@font-face {
+	font-family: 'Zakon';
+	src: url('./lib/assets/zakon/Zakon-Bold.woff2') format('woff2');
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+	size-adjust: 106%;
+}
+
+@font-face {
+	font-family: 'Zakon';
+	src: url('./lib/assets/zakon/Zakon-BoldItalic.woff2') format('woff2');
+	font-weight: 700;
+	font-style: italic;
+	font-display: swap;
+	size-adjust: 106%;
+}
+
 /* Font roles. Components use these, never a family name.
 
    Text in Fixel does not ask for `font-variant-numeric: tabular-nums`. Fixel's
@@ -101,12 +155,35 @@
    for the counts on the flashcards page. */
 :root {
 	--font-text: 'Fixel Text', system-ui, sans-serif;
+	/* The serif of the Font setting, the default; the two roles below take it
+	   unless the visitor picks Sans-serif */
+	--font-serif: 'Zakon', Georgia, serif;
 	/* Page titles */
-	--font-heading: 'Nebokrai Serif', Georgia, serif;
-	/* Ukrainian headwords: weight 800, the only one loaded */
-	--font-headword: 'Fixel Display', 'Fixel Text', system-ui, sans-serif;
+	--font-heading: var(--font-serif);
+	/* Ukrainian example sentences and the running text of pages of text */
+	--font-reading: var(--font-serif);
+	/* Ukrainian headwords. Under Serif they are tried in Zakon Bold (asked for
+	   at weight 800, they take Zakon's 700); under Sans-serif, Fixel Display
+	   ExtraBold, the only weight of it loaded */
+	--font-display: 'Fixel Display', 'Fixel Text', system-ui, sans-serif;
+	--font-headword: var(--font-serif);
 	/* Neither family has the phonetic alphabet; these do where installed */
 	--font-ipa: 'Gentium Plus', 'Charis SIL', 'Doulos SIL', 'Segoe UI', sans-serif;
+}
+
+/* A Ukrainian word picked out in bold inside other text (a form beside a
+   result, a grammar example, the word in a note) is set like a headword, so
+   a word reads in one face wherever it stands: gen. води́ beside вода́ */
+b[lang='uk'] {
+	font-family: var(--font-headword);
+}
+
+/* Font setting, Sans-serif: the whole page in Fixel, and Zakon is never
+   fetched (settings.ts writes the attribute) */
+:root[data-font='sans'] {
+	--font-heading: var(--font-text);
+	--font-reading: var(--font-text);
+	--font-headword: var(--font-display);
 }
 
 /* Sizes, corners and widths: one set, the same in both themes. A component

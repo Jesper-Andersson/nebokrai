@@ -6,7 +6,8 @@ import { test } from 'node:test';
 
 import { mergeCards, nextUp, parseCards, plan, span } from '../src/lib/review/cards.ts';
 import {
-	DEFAULT_SETTINGS, MAX_PLAN_LENGTH, cleanPlan, listDeck, listOfDeck, parseSettings, reviewEstimate, wordsOfDeck
+	DEFAULT_SETTINGS, MAX_PLAN_LENGTH, cleanPlan, listDeck, listOfDeck, newWords, parseSettings, reviewEstimate, reviewWords,
+	wordsOfDeck
 } from '../src/lib/review/decks.ts';
 import {
 	AGAIN, DAY, GOOD, MINUTE, NEW, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard
@@ -158,11 +159,30 @@ test('settings keep list decks, between the saved words and the common ones', ()
 	assert.equal(parseSettings({ ...sent, decks: many }, T0)?.decks.length, 50);
 });
 
+test('reviews come from every deck not paused, new words only from the decks ticked', () => {
+	const saved = ['кіт'];
+	const lists = [{ id: 'list-food-01', words: ['хліб'] }];
+	const common = new Map([['common-500', ['не', 'я']], ['common-1000', ['дім']]]);
+	// Begun on the common words, then only the saved words ticked
+	const cards = new Map([['не', { ...newCard('не', T0 - 2 * DAY), state: 2, due: T0 - DAY }]]) as Map<string, ReviewCard>;
+	const settings = { decks: ['saved'], paused: [] as string[] };
+	assert.deepEqual(reviewWords(settings, saved, lists, common), ['кіт', 'не', 'я', 'дім']);
+	assert.deepEqual(newWords(settings, saved, lists, common), ['кіт']);
+	const today = plan(cards, reviewWords(settings, saved, lists, common), 10, T0, newWords(settings, saved, lists, common));
+	assert.deepEqual(today.due.map((card) => card.word), ['не']);
+	assert.deepEqual(today.fresh, ['кіт']);
+
+	// Paused, a deck gives neither; a list goes with the saved words
+	const paused = { decks: ['list:list-food-01', 'common-500'], paused: ['saved', 'common-500'] };
+	assert.deepEqual(reviewWords(paused, saved, lists, common), ['дім']);
+	assert.deepEqual(newWords(paused, saved, lists, common), []);
+});
+
 test('parseSettings', () => {
 	assert.deepEqual(parseSettings(DEFAULT_SETTINGS), DEFAULT_SETTINGS);
 	assert.deepEqual(
 		parseSettings({ new_per_day: 20, decks: ['common-500', 'saved', 'made-up', 'saved'], updated_at: T0 }, T0 + 1),
-		{ new_per_day: 20, decks: ['saved', 'common-500'], goal_days: 0, plan: '', updated_at: T0 });
+		{ new_per_day: 20, decks: ['saved', 'common-500'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 	assert.equal(parseSettings({ new_per_day: 20, decks: [], updated_at: T0 + DAY }, T0)?.updated_at, T0);
 	for (const bad of [null, 'x', { new_per_day: -1, decks: [] }, { new_per_day: 1000, decks: [] }, { new_per_day: 5 }]) {
 		assert.equal(parseSettings(bad), null);
@@ -170,7 +190,9 @@ test('parseSettings', () => {
 });
 
 test('settings keep a weekly goal and an if-then plan', () => {
-	const sent = { new_per_day: 10, decks: ['saved'], goal_days: 4, plan: 'After my morning coffee', updated_at: T0 };
+	const sent = {
+		new_per_day: 10, decks: ['saved'], paused: [], goal_days: 4, plan: 'After my morning coffee', updated_at: T0
+	};
 	assert.deepEqual(parseSettings(sent, T0), sent);
 	// A goal that cannot be is no goal; the decks are kept all the same.
 	for (const goal_days of [-1, 8, 2.5, '4', null]) {
@@ -179,6 +201,10 @@ test('settings keep a weekly goal and an if-then plan', () => {
 	}
 	assert.equal(parseSettings({ ...sent, goal_days: 7 }, T0)?.goal_days, 7);
 	assert.equal(parseSettings({ ...sent, plan: 42 }, T0)?.plan, '');
+	// Paused decks: only ones there are, in their order; none in settings kept before pausing
+	assert.deepEqual(parseSettings({ ...sent, paused: ['common-500', 'saved', 'list:x', 'made-up'] }, T0)?.paused,
+		['saved', 'common-500']);
+	assert.deepEqual(parseSettings({ ...sent, paused: undefined }, T0)?.paused, []);
 });
 
 test('a plan is kept on one line and cut at 80 characters', () => {

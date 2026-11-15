@@ -11,7 +11,7 @@
 	import { plan } from '#lib/review/cards.ts';
 	import { weekProgress } from '#lib/review/days.ts';
 	import { dayNumber } from '#lib/review/fsrs.ts';
-	import { wordsOfDeck } from '#lib/review/decks.ts';
+	import { COMMON_DECKS, reviewWords } from '#lib/review/decks.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -57,12 +57,15 @@
 	const saved = useSaved();
 	onMount(() => review.peek());
 	$effect(() => {
-		if (review.cards.size) review.fetchDecks(review.settings.decks);
+		// Every deck not paused: a word begun in a deck no longer ticked still comes back
+		if (review.cards.size) {
+			review.fetchDecks(COMMON_DECKS.map((deck) => deck.id as string).filter((id) => !review.settings.paused.includes(id)));
+		}
 	});
 	let due = $derived.by(() => {
 		if (!review.cards.size || !saved.ready) return 0;
 		const savedWords = saved.items.map((item) => item.word);
-		const words = review.settings.decks.flatMap((deck) => wordsOfDeck(deck, savedWords, saved.lists, review.common));
+		const words = reviewWords(review.settings, savedWords, saved.lists, review.common);
 		// New words are not counted: they wait for the visitor, nothing is lost by leaving them.
 		const today = plan(review.cards, words, 0, Date.now());
 		return today.learning.length + today.due.length;

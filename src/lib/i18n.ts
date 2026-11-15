@@ -266,7 +266,7 @@ const en = {
 		learning: (n: number) => `${n} learning`,
 		/** A deck's chip: the figure on it, and a deck not among those reviewed. */
 		due: (n: number) => (n === 1 ? '1 due today' : `${n} due today`),
-		off: 'not switched on',
+		off: 'no new words from it',
 		/** Over the list of lessons: what they are about. */
 		cases: 'Cases',
 		/** Each lesson in a word or two, in the list beside the open one. */
@@ -598,13 +598,13 @@ const en = {
 					heading: 'A day of review',
 					body: [
 						'A day starts at four in the morning, so a review just after midnight counts towards the evening before.',
-						'New cards a day limits only words you have not seen yet. Every card that is due is shown, however many there are.'
+						'New words a day limits only words you have not seen yet. Every card that is due is shown, however many there are.'
 					]
 				},
 				{
 					heading: 'Decks',
 					body: [
-						'Saved words takes every word you saved, lists included. A list can also be switched on by itself. The common-word decks hold the most frequent Ukrainian words, in order of frequency.'
+						'A tick on a deck says where new words come from. Every word you have started keeps coming back for review, ticked or not; to stop a deck’s reviews for a while, pause it from its menu. Saved words takes every word you saved, or only one of your lists. The common-word decks hold the most frequent Ukrainian words, in order of frequency.'
 					]
 				},
 				{
@@ -656,22 +656,52 @@ const en = {
 		fresh: 'New',
 		start: 'Start',
 		nothingToday: 'Nothing left to review today.',
-		noWords: 'Save some words, or switch on a deck of common words, to begin.',
-		decks: 'Decks',
+		noWords: 'Save some words, or tick a deck of common words, to begin.',
+		/** The decks on /review#decks: ticked, a deck gives new words; started words come back from every deck. */
+		newFrom: 'New words from',
+		newFromNote: 'Every word you have started keeps coming back for review, whichever decks are ticked.',
+		newFromOrder: 'New words come from the top ticked one first.',
+		savedScope: {
+			heading: 'Which saved words',
+			all: 'All saved words',
+			/** The button: "List: New", so a list called New does not read as new words */
+			list: (name: string) => `List: ${name}`
+		},
+		deckMenu: (name: string) => `More for ${name}`,
+		pause: 'Pause its reviews',
+		pauseNote: (n: number) =>
+			`${n === 1 ? 'Its 1 started word waits' : `Its ${n.toLocaleString('en-GB')} started words wait`} until you resume. ` +
+			'A word also in another deck keeps coming.',
+		resume: 'Resume its reviews',
+		resumeShort: 'Resume',
+		paused: 'Paused',
+		showWords: 'Show its words',
 		deck: {
 			saved: 'Saved words',
 			'common-500': 'Common words 1–500',
 			'common-1000': 'Common words 501–1,000',
 			'common-2000': 'Common words 1,001–2,000'
 		} as Record<string, string>,
-		// 1,000 as the deck's name writes it ("Common words 1,001–2,000")
-		progress: (started: number, total: number) =>
-			`${started.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} started`,
-		inSaved: 'Included in Saved words',
+		/**
+		 * The decks as rows on /review, where they sit under one heading and
+		 * read as steps; elsewhere (the chips on /learn) they keep `deck` above.
+		 */
+		row: {
+			saved: 'Your saved words',
+			'common-500': 'The first 500',
+			'common-1000': 'The next 500',
+			'common-2000': 'The 1,000 after that'
+		} as Record<string, string>,
+		commonHeading: 'Common words, most frequent first',
+		/** How far a deck has got, as /learn's bar counts it */
+		known: (n: number) => `${n.toLocaleString('en-GB')} known`,
+		learningCount: (n: number) => `${n.toLocaleString('en-GB')} learning`,
+		toGo: (n: number) => `${n.toLocaleString('en-GB')} to go`,
+		notStarted: 'Not started',
 		/** /review?deck= or ?list=: this visit is for one deck alone. */
 		onlyList: (name: string) => `Only the deck “${name}”.`,
 		allDecks: 'Practise all your decks',
-		newPerDay: 'New cards a day',
+		newPerDay: 'New words a day',
 		kept: 'Your reviews are kept in this browser. Sign in on the Saved page to have them on every device.',
 		keptAccount: 'Your reviews are kept in your account.',
 		show: 'Show answer',
@@ -1354,7 +1384,7 @@ const uk: Messages = {
 		wordsKnown: (total) => `з ${total} слів засвоєно`,
 		learning: (n) => `вивчається: ${n}`,
 		due: (n) => `на сьогодні: ${n}`,
-		off: 'не ввімкнено',
+		off: 'нові слова звідси не беруться',
 		cases: 'Відмінки',
 		short: {
 			where: 'Де',
@@ -1671,13 +1701,13 @@ const uk: Messages = {
 					heading: 'День повторень',
 					body: [
 						'День починається о четвертій ранку, тож повторення одразу після півночі зараховується до попереднього вечора.',
-						'«Нових карток на день» обмежує лише слова, яких ви ще не бачили. Усі картки, яким настав час, показуються, скільки б їх не було.'
+						'«Нових слів на день» обмежує лише слова, яких ви ще не бачили. Усі картки, яким настав час, показуються, скільки б їх не було.'
 					]
 				},
 				{
 					heading: 'Колоди',
 					body: [
-						'«Збережені слова» охоплюють усі збережені слова разом зі списками. Список можна ввімкнути й окремо. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти.'
+						'Позначка біля колоди каже, звідки беруться нові слова. Кожне розпочате слово й далі повертається на повторення, позначено колоду чи ні; щоб на якийсь час зупинити повторення колоди, призупиніть її в її меню. «Збережені слова» охоплюють усі збережені слова або лише один ваш список. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти.'
 					]
 				},
 				{
@@ -1729,19 +1759,43 @@ const uk: Messages = {
 		fresh: 'Нові',
 		start: 'Почати',
 		nothingToday: 'На сьогодні повторювати більше нічого.',
-		noWords: 'Щоб почати, збережіть кілька слів або ввімкніть колоду найуживаніших слів.',
-		decks: 'Колоди',
+		noWords: 'Щоб почати, збережіть кілька слів або позначте колоду найуживаніших слів.',
+		newFrom: 'Нові слова з',
+		newFromNote: 'Кожне розпочате слово й далі повертається на повторення, хоч які колоди позначено.',
+		newFromOrder: 'Нові слова беруться спершу з верхньої позначеної колоди.',
+		savedScope: {
+			heading: 'Які збережені слова',
+			all: 'Усі збережені слова',
+			list: (name) => `Список: ${name}`
+		},
+		deckMenu: (name) => `Більше: ${name}`,
+		pause: 'Призупинити повторення',
+		pauseNote: (n) =>
+			`Розпочаті слова (${n}) чекатимуть, доки ви не відновите. Слово, що є і в іншій колоді, повертатиметься далі.`,
+		resume: 'Відновити повторення',
+		resumeShort: 'Відновити',
+		paused: 'Призупинено',
+		showWords: 'Показати слова',
 		deck: {
 			saved: 'Збережені слова',
 			'common-500': 'Найуживаніші слова 1–500',
 			'common-1000': 'Найуживаніші слова 501–1000',
 			'common-2000': 'Найуживаніші слова 1001–2000'
 		},
-		progress: (started, total) => `розпочато ${started} з ${total}`,
-		inSaved: 'Входить до збережених слів',
+		row: {
+			saved: 'Ваші збережені слова',
+			'common-500': 'Перші 500',
+			'common-1000': 'Наступні 500',
+			'common-2000': 'Ще 1000 після них'
+		},
+		commonHeading: 'Найуживаніші слова, від найчастіших',
+		known: (n) => `засвоєно: ${n}`,
+		learningCount: (n) => `вивчається: ${n}`,
+		toGo: (n) => `залишилося: ${n}`,
+		notStarted: 'Ще не розпочато',
 		onlyList: (name) => `Лише колода «${name}».`,
 		allDecks: 'Тренувати всі колоди',
-		newPerDay: 'Нових карток на день',
+		newPerDay: 'Нових слів на день',
 		kept: 'Ваші повторення зберігаються в цьому браузері. Увійдіть на сторінці «Збережене», щоб мати їх на кожному пристрої.',
 		keptAccount: 'Ваші повторення зберігаються у вашому обліковому записі.',
 		show: 'Показати відповідь',

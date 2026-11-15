@@ -249,7 +249,7 @@ export class Review {
 		if (!before) this.#setUnsent(new Set([...this.#unsent].filter((w) => w !== word)));
 	}
 
-	change(settings: Partial<Pick<ReviewSettings, 'new_per_day' | 'decks' | 'goal_days' | 'plan'>>): void {
+	change(settings: Partial<Pick<ReviewSettings, 'new_per_day' | 'decks' | 'paused' | 'goal_days' | 'plan'>>): void {
 		this.settings = { ...this.settings, ...settings, updated_at: Date.now() };
 		store(SETTINGS_KEY, this.settings);
 		void this.sync();

@@ -5,17 +5,24 @@
      (a 13-week calendar, the signed-in share, accounts as narrowing bars and
      the words not found). The top pages and searches are plain tables.
 
+     The second row of two (where people come from, where they are), the
+     "guessed" part of the searches bar and the new accounts a week are "A"
+     of the page "Usage breakdowns" in "Nebokrai design – Word page", picked
+     on 2026-11-15. Every table shows its first rows and opens to the rest
+     with the row the word page keeps its later meanings behind.
+
      Everything comes from src/lib/server/stats.ts and accountStats() in
      users.ts; nothing here is stored in the browser. -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { RadioGroup } from 'bits-ui';
 	import { invalidate } from '$app/navigation';
+	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
-	import type { DayRow } from '#lib/server/stats.ts';
+	import type { DayRow, Ranked } from '#lib/server/stats.ts';
 	import { useSettings } from '#lib/settings.ts';
-	import { SECTION_NAMES, readablePath } from '#lib/stats-sections.ts';
+	import { DIRECT, OTHER, SECTION_NAMES, readablePath } from '#lib/stats-sections.ts';
 
 	let { data } = $props();
 
@@ -63,6 +70,36 @@
 	let signedIn = $derived(days.reduce((sum, d) => sum + d.signed_in_visitors, 0));
 	let searches = $derived(days.reduce((sum, d) => sum + d.searches, 0));
 	let empty = $derived(days.reduce((sum, d) => sum + d.empty_searches, 0));
+	// Searches that found no word but offered a guess: neither found nor nothing
+	let guessed = $derived(report?.breakdowns.search.find((row) => row.key === 'guessed')?.count ?? 0);
+	let found = $derived(Math.max(0, searches - empty - guessed));
+
+	// Rows a table shows before the rest wait behind "N more"
+	const FIRST_ROWS = 8;
+	const MISSING_SHOWN = 20;
+
+	let devices = $derived(
+		(['phone', 'desktop'] as const).map((key) => ({
+			key,
+			count: report?.breakdowns.device.find((row) => row.key === key)?.count ?? 0
+		}))
+	);
+	let deviceTotal = $derived(devices.reduce((sum, d) => sum + d.count, 0));
+
+	// "UA" as the reader's language names it; a code it does not know stays a code
+	const regions = $derived(new Intl.DisplayNames(settings.lang, { type: 'region', fallback: 'code' }));
+	const countryName = (code: string) => {
+		if (code === OTHER) return s.sections.other;
+		try {
+			return regions.of(code) ?? code;
+		} catch {
+			return code;
+		}
+	};
+	const siteName = (key: string) => (key === DIRECT ? s.direct : key === OTHER ? s.sections.other : key);
+
+	let signUps = $derived(data.accounts?.signUps ?? []);
+	let mostSignUps = $derived(Math.max(1, ...signUps));
 	let best = $derived(days.reduce<DayRow | null>((top, d) => (!top || d.visitors > top.visitors ? d : top), null));
 
 	let sectionTotal = $derived(report ? SECTION_NAMES.reduce((sum, name) => sum + report.sections[name], 0) : 0);
@@ -83,6 +120,50 @@
 </script>
 
 <PageMeta title="{m.pageTitle.stats} · Nebokrai" description={m.meta.stats} />
+
+{#snippet pageCell(row: Ranked)}
+	{#if row.key.startsWith('/')}<a href={row.key}>{readablePath(row.key)}</a>
+	{:else}{row.key}{/if}
+{/snippet}
+{#snippet searchCell(row: Ranked)}
+	<a href="/?q={encodeURIComponent(row.key)}" lang="uk">{row.key}</a>
+{/snippet}
+{#snippet siteCell(row: Ranked)}{siteName(row.key)}{/snippet}
+{#snippet countryCell(row: Ranked)}{countryName(row.key)}{/snippet}
+
+{#snippet bodyRows(rows: Ranked[], cell: Snippet<[Ranked]>)}
+	<tbody>
+		{#each rows as row (row.key)}
+			<tr>
+				<td>{@render cell(row)}</td>
+				<td class="n">{number.format(row.count)}</td>
+			</tr>
+		{/each}
+	</tbody>
+{/snippet}
+
+<!-- A table of the largest first: FIRST_ROWS of them, the rest behind a row that opens -->
+{#snippet ranked(rows: Ranked[], what: string, counted: string, cell: Snippet<[Ranked]>)}
+	{#if rows.length}
+		<table>
+			<thead><tr><th>{what}</th><th class="n">{counted}</th></tr></thead>
+			{@render bodyRows(rows.slice(0, FIRST_ROWS), cell)}
+		</table>
+		{#if rows.length > FIRST_ROWS}
+			<details class="more">
+				<summary>
+					{s.moreRows(rows.length - FIRST_ROWS)}
+					<span class="chevron"><Icon name="chevron-right" size={16} /></span>
+				</summary>
+				<table class="rest-rows" aria-label={what}>
+					{@render bodyRows(rows.slice(FIRST_ROWS), cell)}
+				</table>
+			</details>
+		{/if}
+	{:else}
+		<p class="note">{s.none}</p>
+	{/if}
+{/snippet}
 
 <div class="ui-page page">
 	<h1 class="ui-title">{m.pageTitle.stats}</h1>
@@ -155,51 +236,46 @@
 								</li>
 							{/each}
 						</ul>
-						{#if report.pages.length}
-							<table>
-								<thead><tr><th>{s.page}</th><th class="n">{s.views}</th></tr></thead>
-								<tbody>
-									{#each report.pages.slice(0, 8) as row (row.key)}
-										<tr>
-											<td>
-												{#if row.key.startsWith('/')}<a href={row.key}>{readablePath(row.key)}</a>
-												{:else}{row.key}{/if}
-											</td>
-											<td class="n">{number.format(row.count)}</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						{:else}
-							<p class="note">{s.none}</p>
-						{/if}
+						{@render ranked(report.pages, s.page, s.views, pageCell)}
 					</section>
 
 					<section aria-labelledby="stats-searches">
 						<h2 id="stats-searches">{s.searches}</h2>
 						<div class="split" aria-hidden="true">
-							{#if searches - empty}<div class="part found" style:flex-grow={searches - empty}></div>{/if}
+							{#if found}<div class="part found" style:flex-grow={found}></div>{/if}
+							{#if guessed}<div class="part guessed" style:flex-grow={guessed}></div>{/if}
 							{#if empty}<div class="part nothing" style:flex-grow={empty}></div>{/if}
 						</div>
-						<div class="ends">
-							<span>{s.found} {percent(searches - empty, searches)}%</span>
-							<span>{s.nothing} {percent(empty, searches)}%</span>
-						</div>
-						{#if report.searches.length}
-							<table>
-								<thead><tr><th>{s.search}</th><th class="n">{s.times}</th></tr></thead>
-								<tbody>
-									{#each report.searches.slice(0, 8) as row (row.key)}
-										<tr>
-											<td><a href="/?q={encodeURIComponent(row.key)}" lang="uk">{row.key}</a></td>
-											<td class="n">{number.format(row.count)}</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						{:else}
-							<p class="note">{s.none}</p>
+						<ul class="key">
+							<li><span class="swatch found" aria-hidden="true"></span>{s.found} {percent(found, searches)}%</li>
+							<li><span class="swatch guessed" aria-hidden="true"></span>{s.guessed} {percent(guessed, searches)}%</li>
+							<li><span class="swatch nothing" aria-hidden="true"></span>{s.nothing} {percent(empty, searches)}%</li>
+						</ul>
+						{@render ranked(report.searches, s.search, s.times, searchCell)}
+					</section>
+				</div>
+
+				<div class="pair">
+					<section aria-labelledby="stats-from">
+						<h2 id="stats-from">{s.comeFrom}</h2>
+						{@render ranked(report.breakdowns.referrer, s.site, s.visitors, siteCell)}
+					</section>
+
+					<section aria-labelledby="stats-are">
+						<h2 id="stats-are">{s.whereAre}</h2>
+						{#if deviceTotal}
+							<div class="split" aria-hidden="true">
+								{#each devices as device (device.key)}
+									{#if device.count}<div class="part {device.key}" style:flex-grow={device.count}></div>{/if}
+								{/each}
+							</div>
+							<div class="ends">
+								{#each devices as device (device.key)}
+									<span>{s[device.key]} {percent(device.count, deviceTotal)}%</span>
+								{/each}
+							</div>
 						{/if}
+						{@render ranked(report.breakdowns.country, s.country, s.visitors, countryCell)}
 					</section>
 				</div>
 			</div>
@@ -241,6 +317,12 @@
 								</li>
 							{/each}
 						</ul>
+						<h3>{s.newAccounts(signUps.length)}</h3>
+						<div class="weeks" role="img" aria-label="{s.newAccounts(signUps.length)}: {signUps.join(', ')}">
+							{#each signUps as count, week (week)}
+								<span title={number.format(count)} style:height="{(100 * count) / mostSignUps}%"></span>
+							{/each}
+						</div>
 					{:else}
 						<p class="note">{s.noAccounts}</p>
 					{/if}
@@ -251,7 +333,7 @@
 					<p class="note">{s.notFoundNote}</p>
 					{#if report.missing.length}
 						<ul class="chips">
-							{#each report.missing as row (row.key)}
+							{#each report.missing.slice(0, MISSING_SHOWN) as row (row.key)}
 								<li>
 									<a class="ui-chip" href="/?q={encodeURIComponent(row.key)}" lang="uk">
 										{row.key}&nbsp;<span class="count">{number.format(row.count)}</span>
@@ -369,7 +451,7 @@
 
 	.pair {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 		gap: var(--gap-block);
 		margin-top: var(--gap-section);
 	}
@@ -393,15 +475,18 @@
 	}
 
 	.words,
-	.found {
+	.found,
+	.phone {
 		background: var(--accent);
 	}
-	.search {
+	.search,
+	.guessed {
 		background: color-mix(in srgb, var(--accent) 55%, var(--surface));
 	}
 	.learn,
 	.nothing,
-	.signed {
+	.signed,
+	.desktop {
 		background: var(--gold);
 	}
 	.saved {
@@ -463,6 +548,64 @@
 	td a {
 		color: inherit;
 		text-decoration: none;
+	}
+
+	/* The rest of a table, behind the row the word page keeps its later meanings behind */
+	.more {
+		margin-top: var(--gap-stack);
+	}
+
+	.more > summary {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--gap-tight);
+		color: var(--accent);
+		font-size: var(--text-sm);
+		font-weight: 600;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	.more > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.chevron {
+		display: inline-flex;
+		transform: rotate(90deg);
+		transition: transform var(--duration);
+	}
+
+	.more[open] > summary .chevron {
+		transform: rotate(-90deg);
+	}
+
+	.rest-rows {
+		margin-top: var(--gap-inline);
+		border-top: 1px solid var(--surface-2);
+	}
+
+	h3 {
+		margin: var(--gap-block) 0 0;
+		color: var(--muted);
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+
+	/* New accounts, a bar a week */
+	.weeks {
+		display: flex;
+		align-items: flex-end;
+		gap: 3px;
+		height: 3rem;
+		margin-top: var(--gap-stack);
+	}
+
+	.weeks span {
+		flex: 1;
+		min-height: 2px;
+		border-radius: calc(var(--radius-sm) / 2) calc(var(--radius-sm) / 2) 0 0;
+		background: var(--accent);
 	}
 
 	@media (hover: hover) {

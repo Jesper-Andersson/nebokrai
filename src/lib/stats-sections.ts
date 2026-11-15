@@ -11,6 +11,11 @@ export type Section = (typeof SECTION_NAMES)[number];
  */
 export const NOT_FOUND = '(not found)';
 
+/** A visit that no other site sent: a typed address, a bookmark, or a browser that does not say. */
+export const DIRECT = '(direct)';
+/** What is counted together: paths outside the site's sections, and keys past a day's limit. */
+export const OTHER = '(other)';
+
 /** A counted path as it is read: /words/%D0%B0 is /words/а. One that cannot be decoded is shown as it is. */
 export function readablePath(path: string): string {
 	try {

@@ -21,7 +21,9 @@
 //
 // Nothing here imports from SvelteKit, so `npm test` runs it against an
 // in-memory SQLite database (tests/stats.test.ts).
-import { NOT_FOUND, SECTION_NAMES, type Section } from '../stats-sections.ts';
+import { DIRECT, NOT_FOUND, OTHER, SECTION_NAMES, type Section } from '../stats-sections.ts';
+
+export { DIRECT, OTHER };
 
 /** A statement and its parameters. */
 export type Statement = [sql: string, params: unknown[]];
@@ -127,7 +129,6 @@ const SECTIONS = new Set([
 	'', 'about', 'alphabet', 'common-words', 'grammar', 'import', 'learn', 'practice', 'privacy', 'report',
 	'resources', 'review', 'saved', 'sources', 'support', 'words'
 ]);
-export const OTHER = '(other)';
 
 /** Whether a part of an address can be read back: /word/%zz cannot, and would break the page that lists it. */
 function decodes(part: string): boolean {
@@ -184,9 +185,6 @@ export interface Visit {
 	/** Cloudflare's two-letter code for where the request came from; absent on a developer's machine. */
 	country?: string;
 }
-
-/** A visit that no other site sent: a typed address, a bookmark, or a browser that does not say. */
-export const DIRECT = '(direct)';
 
 /**
  * The key a referring site is counted under, from the host name the page

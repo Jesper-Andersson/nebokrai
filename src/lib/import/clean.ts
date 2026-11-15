@@ -76,6 +76,25 @@ export function wordsOf(html: string): string[] {
 	return words;
 }
 
+/** The longest a card's meaning is kept: enough for a line under the word. */
+export const MEANING_MAX = 120;
+
+/**
+ * What a card says the word means: the first of `fields` written in Latin
+ * letters with no Cyrillic, as plain text on one line. The English side of a
+ * card ("picture", "to call, ring"), shown beside a word the dictionary could
+ * not find, so the right one can be picked by hand. Empty if no field is.
+ */
+export function meaningOf(fields: string[]): string {
+	for (const field of fields) {
+		const text = fieldText(field).replace(/\s+/g, ' ').trim();
+		if (/[a-z]/i.test(text) && !isCyrillic(text)) {
+			return text.length > MEANING_MAX ? text.slice(0, MEANING_MAX - 1).trimEnd() + '…' : text;
+		}
+	}
+	return '';
+}
+
 /** How Ukrainian a field looks: 1 if it names a word or two, 0 if it names none. For choosing the field to read. */
 export function looksUkrainian(html: string): number {
 	return wordsOf(html).length ? 1 : 0;

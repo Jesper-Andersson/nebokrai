@@ -14,7 +14,7 @@ import initSqlJs from 'sql.js';
 import { decompress } from 'fzstd';
 
 import { AnkiError, fromSqlJs, patchCollation, readAnki, type AnkiCard } from '../src/lib/import/anki.ts';
-import { cyrillicTwins, fieldText, wordsOf } from '../src/lib/import/clean.ts';
+import { MEANING_MAX, cyrillicTwins, fieldText, meaningOf, wordsOf } from '../src/lib/import/clean.ts';
 import { ankiDays, ankiItems, mainDeck, progressOf, ukrainianFields } from '../src/lib/import/deck.ts';
 import { MISSING_MAX, cleanMissing } from '../src/lib/import/missing.ts';
 import { planImport, wordsToMatch, type Matches } from '../src/lib/import/plan.ts';
@@ -264,6 +264,8 @@ test('one item per note: the Ukrainian field, the card answered last, suspension
 	assert.deepEqual(items[1].words, ['дзвонити', 'задзвонити']);
 	assert.equal(items[3].progress, null);
 	assert.deepEqual(items.map((i) => i.suspended), [false, false, false, false, true, false]);
+	assert.equal(items[0].meaning, 'water', 'the English side, without its picture');
+	assert.equal(items[2].meaning, 'picture');
 
 	const days = ankiDays(col);
 	assert.equal(days[dayKey(at(10))], 1);
@@ -339,6 +341,11 @@ test('text files: a word to a line, columns, Anki text, this site’s own CSV', 
 		'"книга","кни́га","noun","feminine, inanimate","book; volume"\r\n"вода","вода́","noun","feminine","water"\r\n');
 	assert.equal(ours.column, 0);
 	assert.deepEqual(ours.items.map((i) => i.words), [['книга'], ['вода']]);
+	assert.deepEqual(ours.items.map((i) => i.meaning), ['book; volume', 'water'], 'the meanings column, not "noun"');
+	assert.deepEqual(semicolons.items.map((i) => i.meaning), ['water', 'bread']);
+	assert.deepEqual(lines.items.map((i) => i.meaning), ['', '', '']);
+	assert.equal(meaningOf(['<b>' + 'long '.repeat(40) + '</b>']).length, MEANING_MAX);
+	assert.equal(meaningOf(['вода', 'дзвонити (to call)']), '', 'a field with Cyrillic in it is not the English side');
 });
 
 const skip = existsSync('nebokrai.db') ? false : 'nebokrai.db is missing';

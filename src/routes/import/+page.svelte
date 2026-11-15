@@ -9,11 +9,13 @@
      progress (review.svelte.ts), and the words that matched nothing are sent
      to POST /api/words/missing so the dictionary can grow. -->
 <script lang="ts">
-	import { RadioGroup } from 'bits-ui';
+	import { RadioGroup, mergeProps } from 'bits-ui';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import Headword from '#lib/Headword.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import Stressed from '#lib/Stressed.svelte';
+	import Tip from '#lib/Tip.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import type { AnkiCollection } from '#lib/import/anki.ts';
 	import { ankiDays, ankiItems, mainDeck, ukrainianFields, type ImportItem } from '#lib/import/deck.ts';
@@ -166,7 +168,8 @@
 			});
 			matches = { ...matches, ...answer.matches };
 		}
-		await summarise(Object.values(matches).flatMap((match) => (match.word ? [match.word] : [])));
+		// The matched words for the table, and the guesses for their tooltips
+		await summarise(Object.values(matches).flatMap((match) => (match.word ? [match.word] : match.suggestions)));
 	}
 
 	/** The stressed headword and first meaning of each word, for the table. */
@@ -540,7 +543,13 @@
 										onchange={(e) => toggle(row, e.currentTarget.checked)}
 									/>
 								</td>
-								<td class="source">{row.first ? row.item.source : ''}</td>
+								<td class="source">
+									{row.first ? row.item.source : ''}
+									<!-- The card's own English, for choosing its word by hand -->
+									{#if row.first && !row.word && row.item.meaning}
+										<span class="gloss" lang="en">{row.item.meaning}</span>
+									{/if}
+								</td>
 								<td class="word">
 									{#if row.word}
 										<Headword text={summary?.headword || row.word} size="sm" href={wordPath(row.word)} />
@@ -556,9 +565,20 @@
 										{#if row.status !== 'out'}
 											<span class="chips">
 												{#each guesses(row.item) as guess (guess)}
-													<button class="ui-chip" type="button" lang="uk" onclick={() => pick(row.item, guess)}>
-														{guess}
-													</button>
+													{@const known = summaries.get(guess)}
+													<!-- Hover or focus a guess to read what it means before picking it -->
+													<Tip label={known?.glosses.slice(0, 2).join('; ') || guess}>
+														{#snippet trigger(props)}
+															<button
+																{...mergeProps(props, { onclick: () => pick(row.item, guess) })}
+																class="ui-chip"
+																type="button"
+																lang="uk"
+															>
+																<Stressed text={known?.headword || guess} />
+															</button>
+														{/snippet}
+													</Tip>
 												{/each}
 												{#if finding !== row.item.source}
 													<button

@@ -3,8 +3,11 @@
 // own CSV export). The column with the Ukrainian in it is found by looking.
 // Text brings no progress: its words are saved, as new words.
 import { isCyrillic } from '../search/normalize.ts';
-import { fieldText, wordsOf } from './clean.ts';
+import { fieldText, meaningOf, wordsOf } from './clean.ts';
 import type { ImportItem } from './deck.ts';
+
+/** Headings of a column holding what the words mean. */
+const MEANING_HEADINGS = /^(meanings?|english|translations?|definitions?|back)$/i;
 
 export interface TextFile {
 	items: ImportItem[];
@@ -93,13 +96,16 @@ export function readText(input: string): TextFile {
 	if (guidColumn >= 0 && rows.some((r) => GUID.test(r[guidColumn] ?? ''))) {
 		const items = rows.flatMap((r) => {
 			const word = GUID.exec(r[guidColumn] ?? '')?.[1];
-			return word ? [{ source: word, words: [word], progress: null, suspended: false }] : [];
+			return word ? [{ source: word, words: [word], progress: null, suspended: false, meaning: '' }] : [];
 		});
 		return { items, column: guidColumn, columns };
 	}
 
 	// A header row: this site's CSV starts "word,headword,…", and the word column is named
 	let column = rows[0]?.findIndex((c) => c.trim().toLowerCase() === 'word') ?? -1;
+	// A named column of meanings beats guessing: this site's CSV also has part_of_speech, in Latin letters too
+	const headed = rows[0]?.findIndex((c) => MEANING_HEADINGS.test(c.trim())) ?? -1;
+	const meaningColumn = column >= 0 && headed >= 0 ? headed : -1;
 	if (column >= 0) rows = rows.slice(1);
 	else {
 		let most = -1;
@@ -113,7 +119,13 @@ export function readText(input: string): TextFile {
 
 	const items = rows.map((r) => {
 		const cell = r[column] ?? '';
-		return { source: fieldText(cell).replace(/\n+/g, ' · '), words: wordsOf(cell), progress: null, suspended: false };
+		return {
+			source: fieldText(cell).replace(/\n+/g, ' · '),
+			words: wordsOf(cell),
+			progress: null,
+			suspended: false,
+			meaning: meaningOf(meaningColumn >= 0 ? [r[meaningColumn] ?? ''] : r.filter((_, i) => i !== column))
+		};
 	});
 	return { items: items.filter((i) => i.source), column: Math.max(column, 0), columns };
 }

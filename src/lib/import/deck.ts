@@ -6,7 +6,7 @@
 import { dayKey, type DayCounts } from '../review/days.ts';
 import { DAY, LEARNING, RELEARNING, REVIEW, answer, newCard, type CardState, type ReviewCard } from '../review/fsrs.ts';
 import type { AnkiCard, AnkiCollection } from './anki.ts';
-import { fieldText, looksUkrainian, wordsOf } from './clean.ts';
+import { fieldText, looksUkrainian, meaningOf, wordsOf } from './clean.ts';
 
 /** A card's progress, for whichever words it turns out to name. */
 export type Progress = Omit<ReviewCard, 'word'>;
@@ -21,6 +21,8 @@ export interface ImportItem {
 	progress: Progress | null;
 	/** Suspended in Anki. */
 	suspended: boolean;
+	/** What the card says it means, from its English side: "picture". Empty when it has none. */
+	meaning: string;
 }
 
 const STATES: Record<number, CardState> = { 1: LEARNING, 2: REVIEW, 3: RELEARNING };
@@ -116,12 +118,14 @@ export function ankiItems(col: AnkiCollection, now: number, fields = ukrainianFi
 		const cards = byNote.get(note.id);
 		if (!cards) return [];
 		const card = [...cards].sort((a, b) => lastAt(b) - lastAt(a) || b.reps - a.reps || a.ord - b.ord)[0];
-		const field = note.fields[fields.get(note.type) ?? 0] ?? '';
+		const chosen = fields.get(note.type) ?? 0;
+		const field = note.fields[chosen] ?? '';
 		return [{
 			source: fieldText(field).replace(/\n+/g, ' · '),
 			words: wordsOf(field),
 			progress: progressOf(card, col.created, now),
-			suspended: cards.every((c) => c.queue === -1)
+			suspended: cards.every((c) => c.queue === -1),
+			meaning: meaningOf(note.fields.filter((_, i) => i !== chosen))
 		}];
 	});
 }

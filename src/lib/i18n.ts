@@ -660,11 +660,12 @@ const en = {
 		/** The decks on /review#decks: ticked, a deck gives new words; started words come back from every deck. */
 		newFrom: 'New words from',
 		newFromNote: 'Every word you have started keeps coming back for review, whichever decks are ticked.',
-		newFromOrder: 'With more than one ticked, new words come from the top one first.',
+		newFromOrder: 'New words come from the top ticked one first.',
 		savedScope: {
 			heading: 'Which saved words',
 			all: 'All saved words',
-			list: (name: string) => `Only “${name}”`
+			/** The button: "List: New", so a list called New does not read as new words */
+			list: (name: string) => `List: ${name}`
 		},
 		deckMenu: (name: string) => `More for ${name}`,
 		pause: 'Pause its reviews',
@@ -681,9 +682,22 @@ const en = {
 			'common-1000': 'Common words 501–1,000',
 			'common-2000': 'Common words 1,001–2,000'
 		} as Record<string, string>,
-		// 1,000 as the deck's name writes it ("Common words 1,001–2,000")
-		progress: (started: number, total: number) =>
-			`${started.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')} started`,
+		/**
+		 * The decks as rows on /review, where they sit under one heading and
+		 * read as steps; elsewhere (the chips on /learn) they keep `deck` above.
+		 */
+		row: {
+			saved: 'Your saved words',
+			'common-500': 'The first 500',
+			'common-1000': 'The next 500',
+			'common-2000': 'The 1,000 after that'
+		} as Record<string, string>,
+		commonHeading: 'Common words, most frequent first',
+		/** How far a deck has got, as /learn's bar counts it */
+		known: (n: number) => `${n.toLocaleString('en-GB')} known`,
+		learningCount: (n: number) => `${n.toLocaleString('en-GB')} learning`,
+		toGo: (n: number) => `${n.toLocaleString('en-GB')} to go`,
+		notStarted: 'Not started',
 		/** /review?deck= or ?list=: this visit is for one deck alone. */
 		onlyList: (name: string) => `Only the deck “${name}”.`,
 		allDecks: 'Practise all your decks',
@@ -1748,11 +1762,11 @@ const uk: Messages = {
 		noWords: 'Щоб почати, збережіть кілька слів або позначте колоду найуживаніших слів.',
 		newFrom: 'Нові слова з',
 		newFromNote: 'Кожне розпочате слово й далі повертається на повторення, хоч які колоди позначено.',
-		newFromOrder: 'Якщо позначено кілька колод, нові слова беруться спершу з верхньої.',
+		newFromOrder: 'Нові слова беруться спершу з верхньої позначеної колоди.',
 		savedScope: {
 			heading: 'Які збережені слова',
 			all: 'Усі збережені слова',
-			list: (name) => `Лише «${name}»`
+			list: (name) => `Список: ${name}`
 		},
 		deckMenu: (name) => `Більше: ${name}`,
 		pause: 'Призупинити повторення',
@@ -1768,7 +1782,17 @@ const uk: Messages = {
 			'common-1000': 'Найуживаніші слова 501–1000',
 			'common-2000': 'Найуживаніші слова 1001–2000'
 		},
-		progress: (started, total) => `розпочато ${started} з ${total}`,
+		row: {
+			saved: 'Ваші збережені слова',
+			'common-500': 'Перші 500',
+			'common-1000': 'Наступні 500',
+			'common-2000': 'Ще 1000 після них'
+		},
+		commonHeading: 'Найуживаніші слова, від найчастіших',
+		known: (n) => `засвоєно: ${n}`,
+		learningCount: (n) => `вивчається: ${n}`,
+		toGo: (n) => `залишилося: ${n}`,
+		notStarted: 'Ще не розпочато',
 		onlyList: (name) => `Лише колода «${name}».`,
 		allDecks: 'Тренувати всі колоди',
 		newPerDay: 'Нових слів на день',

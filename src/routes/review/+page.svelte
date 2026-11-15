@@ -32,6 +32,7 @@
 	import ReviewKeys from '#lib/ReviewKeys.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
+	import { stateOf } from '#lib/practice/round.ts';
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
 	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
 	import {
@@ -134,6 +135,21 @@
 			?? null);
 	const isTicked = (deck: string) => (deck === SAVED_DECK ? savedScope !== null : review.settings.decks.includes(deck));
 	const isPaused = (deck: string) => review.settings.paused.includes(deck);
+	/** How far a deck has got, as /learn's bar counts it: known, learning (shaky ones too), and the rest. */
+	function progressOf(words: string[]) {
+		const pool = new Set(words);
+		let known = 0;
+		let learning = 0;
+		for (const word of pool) {
+			const state = stateOf(review.cards.get(word), now);
+			if (state === 'known') known += 1;
+			else if (state !== 'new') learning += 1;
+		}
+		return { known, learning, left: pool.size - known - learning, total: pool.size };
+	}
+	/** A share of a bar in per cent; a single word still shows as a sliver. */
+	const share = (n: number, total: number) => (total ? Math.max(n ? 1.5 : 0, (n / total) * 100) : 0);
+
 	/** Where a deck's words can be read: the Saved page, or the page of /common-words it starts on. */
 	function wordsHref(deck: string): string | null {
 		if (deck === SAVED_DECK) return '/saved';
@@ -527,86 +543,113 @@
 		<section class="ui-card options" id="decks">
 			<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
 			<p class="muted hint">{m.review.newFromNote}</p>
-			<ul class="decks" aria-labelledby="new-from">
-				{#each DECK_IDS as deck (deck)}
-					{@const all = wordsOf(deck)}
-					{@const begun = all.filter((word) => review.cards.has(word)).length}
-					{@const paused = isPaused(deck)}
-					{@const href = wordsHref(deck)}
-					<li>
-						<!-- A paused deck gives no new words; its tick is kept for when it is resumed -->
-						<input
-							type="checkbox"
-							id="deck-{deck}"
-							checked={isTicked(deck) && !paused}
-							disabled={paused}
-							onchange={(event) => tick(deck, event.currentTarget.checked)}
-						/>
-						<div class="about">
-							<span class="title">
-								<label for="deck-{deck}" class:paused>{deckName(deck)}</label>
-								{#if paused}<span class="ui-badge">{m.review.paused}</span>{/if}
-							</span>
-							<span class="muted">
-								{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
-									{m.review.progress(begun, all.length)}
-								{/if}
-								{#if paused}
-									· <button type="button" class="resume" onclick={() => pause(deck, false)}>
-										{m.review.resumeShort}
-									</button>
-								{/if}
-							</span>
-							<!-- Which saved words: all, or one list. Only worth asking when there are lists. -->
-							{#if deck === SAVED_DECK && savedScope && !paused && saved.lists.length}
-								<DropdownMenu.Root>
-									<DropdownMenu.Trigger class="ui-btn scope">
-										{savedScope === SAVED_DECK ? m.review.savedScope.all : m.review.savedScope.list(deckName(savedScope))}
-										<Icon name="chevron-down" size={14} />
-									</DropdownMenu.Trigger>
-									<DropdownMenu.Portal>
-										<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
-											<DropdownMenu.RadioGroup value={savedScope} onValueChange={chooseSaved}>
-												<DropdownMenu.GroupHeading class="ui-menu-heading">
-													{m.review.savedScope.heading}
-												</DropdownMenu.GroupHeading>
-												<DropdownMenu.RadioItem class="ui-menu-item" value={SAVED_DECK}>
-													{m.review.savedScope.all}
-													<span class="ui-menu-count">{savedWords.length}</span>
-												</DropdownMenu.RadioItem>
-												{#each saved.lists as list (list.id)}
-													<DropdownMenu.RadioItem class="ui-menu-item" value={listDeck(list.id)}>
-														{m.review.savedScope.list(list.name)}
-														<span class="ui-menu-count">{list.words.length}</span>
-													</DropdownMenu.RadioItem>
-												{/each}
-											</DropdownMenu.RadioGroup>
-										</DropdownMenu.Content>
-									</DropdownMenu.Portal>
-								</DropdownMenu.Root>
+			<!-- A deck as a row: its tick, its name, a few of its words, how far it has got, and a menu -->
+			{#snippet deckRow(deck: string)}
+				{@const all = wordsOf(deck)}
+				{@const begun = all.filter((word) => review.cards.has(word)).length}
+				{@const progress = progressOf(all)}
+				{@const paused = isPaused(deck)}
+				{@const href = wordsHref(deck)}
+				<li>
+					<!-- A paused deck gives no new words; its tick is kept for when it is resumed -->
+					<input
+						type="checkbox"
+						id="deck-{deck}"
+						checked={isTicked(deck) && !paused}
+						disabled={paused}
+						onchange={(event) => tick(deck, event.currentTarget.checked)}
+					/>
+					<div class="about">
+						<span class="title">
+							<label for="deck-{deck}" class:paused>{m.review.row[deck] ?? deckName(deck)}</label>
+							{#if paused}<span class="ui-badge">{m.review.paused}</span>{/if}
+						</span>
+						{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
+							<!-- A few of its words, so that a step reads as a level: не, я, в, ти… -->
+							{#if deck !== SAVED_DECK && all.length}
+								<span class="muted" lang="uk">{all.slice(0, 3).join(', ')}…</span>
 							{/if}
-						</div>
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger class="ui-icon-btn more" aria-label={m.review.deckMenu(deckName(deck))}>
-								<Icon name="more" size={18} />
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Portal>
-								<DropdownMenu.Content class="ui-popover ui-menu deck-menu" align="end" sideOffset={4} collisionPadding={8}>
-									<DropdownMenu.Item class="ui-menu-item" onSelect={() => pause(deck, !paused)}>
-										{paused ? m.review.resume : m.review.pause}
-										{#if !paused}<span class="ui-menu-note">{m.review.pauseNote(begun)}</span>{/if}
-									</DropdownMenu.Item>
-									{#if href}
-										<DropdownMenu.Item class="ui-menu-item">
-											{#snippet child({ props })}
-												<a {...props} {href}>{m.review.showWords}</a>
-											{/snippet}
-										</DropdownMenu.Item>
+							<span class="bar" aria-hidden="true">
+								<i class="known" style:width="{share(progress.known, progress.total)}%"></i>
+								<i class="learning" style:width="{share(progress.learning, progress.total)}%"></i>
+							</span>
+						{/if}
+						<span class="counts">
+							{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
+								{#if progress.known || progress.learning}
+									{#if progress.known}<span><i class="key known"></i>{m.review.known(progress.known)}</span>{/if}
+									{#if progress.learning}
+										<span><i class="key learning"></i>{m.review.learningCount(progress.learning)}</span>
 									{/if}
-								</DropdownMenu.Content>
-							</DropdownMenu.Portal>
-						</DropdownMenu.Root>
-					</li>
+									<span>{m.review.toGo(progress.left)}</span>
+								{:else}
+									<span>{m.review.notStarted}</span>
+								{/if}
+							{/if}
+							{#if paused}
+								<button type="button" class="resume" onclick={() => pause(deck, false)}>
+									{m.review.resumeShort}
+								</button>
+							{/if}
+						</span>
+						<!-- Which saved words: all, or one list. Only worth asking when there are lists. -->
+						{#if deck === SAVED_DECK && savedScope && !paused && saved.lists.length}
+							<DropdownMenu.Root>
+								<DropdownMenu.Trigger class="ui-btn scope">
+									{savedScope === SAVED_DECK ? m.review.savedScope.all : m.review.savedScope.list(deckName(savedScope))}
+									<Icon name="chevron-down" size={14} />
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Portal>
+									<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
+										<DropdownMenu.RadioGroup value={savedScope} onValueChange={chooseSaved}>
+											<DropdownMenu.GroupHeading class="ui-menu-heading">
+												{m.review.savedScope.heading}
+											</DropdownMenu.GroupHeading>
+											<DropdownMenu.RadioItem class="ui-menu-item" value={SAVED_DECK}>
+												{m.review.savedScope.all}
+												<span class="ui-menu-count">{savedWords.length}</span>
+											</DropdownMenu.RadioItem>
+											{#each saved.lists as list (list.id)}
+												<DropdownMenu.RadioItem class="ui-menu-item" value={listDeck(list.id)}>
+													{list.name}
+													<span class="ui-menu-count">{list.words.length}</span>
+												</DropdownMenu.RadioItem>
+											{/each}
+										</DropdownMenu.RadioGroup>
+									</DropdownMenu.Content>
+								</DropdownMenu.Portal>
+							</DropdownMenu.Root>
+						{/if}
+					</div>
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger class="ui-icon-btn more" aria-label={m.review.deckMenu(deckName(deck))}>
+							<Icon name="more" size={18} />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Portal>
+							<DropdownMenu.Content class="ui-popover ui-menu deck-menu" align="end" sideOffset={4} collisionPadding={8}>
+								<DropdownMenu.Item class="ui-menu-item" onSelect={() => pause(deck, !paused)}>
+									{paused ? m.review.resume : m.review.pause}
+									{#if !paused}<span class="ui-menu-note">{m.review.pauseNote(begun)}</span>{/if}
+								</DropdownMenu.Item>
+								{#if href}
+									<DropdownMenu.Item class="ui-menu-item">
+										{#snippet child({ props })}
+											<a {...props} {href}>{m.review.showWords}</a>
+										{/snippet}
+									</DropdownMenu.Item>
+								{/if}
+							</DropdownMenu.Content>
+						</DropdownMenu.Portal>
+					</DropdownMenu.Root>
+				</li>
+			{/snippet}
+			<ul class="decks" aria-labelledby="new-from">
+				{@render deckRow(SAVED_DECK)}
+			</ul>
+			<h3 class="ui-label" id="common-words">{m.review.commonHeading}</h3>
+			<ul class="decks" aria-labelledby="common-words">
+				{#each COMMON_DECKS as deck (deck.id)}
+					{@render deckRow(deck.id)}
 				{/each}
 			</ul>
 			<p class="muted hint">{m.review.newFromOrder}</p>
@@ -992,6 +1035,42 @@
 		text-decoration: underline;
 		text-underline-offset: 0.15em;
 		cursor: pointer;
+	}
+
+	/* How far a deck has got: known in the accent, learning paler, as on /learn */
+	.bar {
+		display: flex;
+		width: 100%;
+		height: 0.45rem;
+		margin-top: 0.3rem;
+		overflow: hidden;
+		border-radius: var(--radius-pill);
+		background: var(--surface-2);
+	}
+
+	.known {
+		background: var(--accent);
+	}
+
+	.learning {
+		background: color-mix(in srgb, var(--accent) 45%, var(--surface));
+	}
+
+	.counts {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		column-gap: 0.75rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.key {
+		display: inline-block;
+		width: 0.55rem;
+		height: 0.55rem;
+		margin-right: 0.35rem;
+		border-radius: var(--radius-pill);
 	}
 
 	.about :global(.scope) {

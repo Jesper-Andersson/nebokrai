@@ -9,6 +9,7 @@ import { plain } from '../search/normalize.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
+import { WHERE, WHERE_MARK, isWherePoint } from './where.ts';
 
 /** The most sentences one request may ask for: two rounds. */
 export const MAX_GAPS = 20;
@@ -70,9 +71,29 @@ function shuffled<T>(items: readonly T[], random: Random): T[] {
 	return out;
 }
 
+/** A sentence picked for a where item: its point and its Tatoeba id (where.ts). */
+interface WhereDraw {
+	where: string;
+	id: number;
+}
+
+/** One of a point's where sentences not yet taken this round, or none when all are. */
+function drawWhere(point: string, random: Random, taken: Set<string>): WhereDraw | null {
+	const ids = WHERE[point];
+	let at = Math.floor(random() * ids.length);
+	for (let tries = 0; tries < ids.length && taken.has(`${point} t${ids[at]}`); tries++) at = (at + 1) % ids.length;
+	if (taken.has(`${point} t${ids[at]}`)) return null;
+	taken.add(`${point} t${ids[at]}`);
+	return { where: point, id: ids[at] };
+}
+
 /**
  * One sentence for each of `points`, in their order; a point named twice
  * gets two different sentences. A point with no sentences is passed over.
+ *
+ * A point named with `:where` (`u-acc:where`) is asked as де? or куди?: its
+ * sentence is one of those picked by hand in where.ts, and comes back with
+ * `kind: 'where'`. A point with no such sentences is drawn as if unmarked.
  *
  * A sentence is found by its number within the point, drawn here, so a round
  * reads ten rows of `cloze` and not the thousand a point may have.
@@ -81,10 +102,17 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	const asked = points.slice(0, MAX_GAPS);
 	// The meta row is read only where a preposition is asked for: a round of numbers needs no sentences
 	const counts = asked.some((point) => !isNumberPoint(point)) ? await clozeCounts(db) : {};
-	const drawn: ([point: string, n: number] | NumberDraw)[] = [];
+	const drawn: ([point: string, n: number] | NumberDraw | WhereDraw)[] = [];
 	const taken = new Set<string>();
 	const counted = new Set<number>();
-	for (const point of asked) {
+	for (const named of asked) {
+		const where = named.endsWith(WHERE_MARK) ? named.slice(0, -WHERE_MARK.length) : null;
+		if (where !== null && isWherePoint(where)) {
+			const draw = drawWhere(where, random, taken);
+			if (draw) drawn.push(draw);
+			continue;
+		}
+		const point = where ?? named;
 		if (isNumberPoint(point)) {
 			const draw = drawNumber(point, random, counted);
 			if (draw) drawn.push(draw);
@@ -113,8 +141,27 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 		: [];
 	const found = new Map(rows.map((row) => [`${row.point} ${row.n}`, row]));
 
+	// A where item's sentence is named by its Tatoeba id (where.ts). The index
+	// on (point, n) narrows the search to the point's rows, so this reads up to
+	// a point's thousand or so, not the whole table; an index on tatoeba_id
+	// would make it one, at the next rebuild of the dictionary.
+	const wheres = drawn.filter((draw): draw is WhereDraw => 'where' in draw);
+	const whereRows = wheres.length
+		? await db.all<ClozeRow>(
+				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id,
+				        e.word, e.headword
+				 FROM json_each(?) j
+				 CROSS JOIN cloze c
+				   ON c.point = json_extract(j.value, '$[0]') AND c.tatoeba_id = json_extract(j.value, '$[1]')
+				 JOIN entries e ON e.id = c.entry_id`,
+				[JSON.stringify(wheres.map((draw) => [draw.where, draw.id]))]
+			)
+		: [];
+	const foundWhere = new Map(whereRows.map((row) => [`${row.point} ${row.tatoeba_id}`, row]));
+	rows.push(...whereRows);
+
 	// The nouns counted: a word can have two entries (стіл, собака), tried in the dictionary's order
-	const words = [...new Set(drawn.flatMap((draw) => (Array.isArray(draw) ? [] : [draw.noun.word])))];
+	const words = [...new Set(drawn.flatMap((draw) => ('noun' in draw ? [draw.noun.word] : [])))];
 	const nouns = words.length
 		? await db.all<{ id: number; word: string; headword: string }>(
 				`SELECT id, word, headword FROM entries
@@ -139,6 +186,11 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 		if (Array.isArray(draw)) {
 			const row = found.get(`${draw[0]} ${draw[1]}`);
 			if (row) gaps.push(gapOf(row, forms.get(row.entry_id) ?? [], random));
+			continue;
+		}
+		if ('where' in draw) {
+			const row = foundWhere.get(`${draw.where} ${draw.id}`);
+			if (row) gaps.push({ ...gapOf(row, forms.get(row.entry_id) ?? [], random), kind: 'where' });
 			continue;
 		}
 		for (const noun of nouns.filter((entry) => entry.word === draw.noun.word)) {

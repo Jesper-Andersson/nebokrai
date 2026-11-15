@@ -9,6 +9,7 @@ import {
 import { checkTyped, type Typed } from '../review/recall.ts';
 import { isCyrillic, plain } from '../search/normalize.ts';
 import { cardKey, type Point } from './points.ts';
+import { WHERE_MARK, isWherePoint } from './where.ts';
 
 /** A number from 0 up to, not including, 1: Math.random, or a fixed sequence in a test. */
 export type Random = () => number;
@@ -49,6 +50,12 @@ export interface Gap {
 	/** Every form of the noun, as `plain()` writes them. */
 	forms: string[];
 	tatoeba_id: number;
+	/**
+	 * How the sentence is asked: with no kind, a noun to fill in; `where`, the
+	 * sentence whole and the question де? or куди?, which the point answers
+	 * (where.ts).
+	 */
+	kind?: 'where';
 }
 
 /**
@@ -156,6 +163,21 @@ export function planWeak(
 	if (!chosen.length) return [];
 	const dealt = Array.from({ length: ROUND }, (_, i) => chosen[i % chosen.length]);
 	return apart(shuffled(dealt, random), undefined);
+}
+
+/** About one sentence in this many of a met у, на or під point is asked as де? or куди?. */
+const WHERE_EVERY = 3;
+
+/**
+ * A round's points as /api/practice is asked for them: some sentences of
+ * у, на and під named `u-acc:where`, to be asked as де? or куди? and not
+ * filled in. Only a point met before the round is asked so: a new rule is
+ * first learnt by filling it in.
+ */
+export function askWhere(plan: readonly string[], cards: ReadonlyMap<string, ReviewCard>, random: Random): string[] {
+	return plan.map((id) =>
+		isWherePoint(id) && cards.has(cardKey(id)) && random() < 1 / WHERE_EVERY ? id + WHERE_MARK : id
+	);
 }
 
 /** The same points with as few as can be asked twice running; `before` is what was asked last. */

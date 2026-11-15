@@ -26,7 +26,8 @@
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
 	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
 	import {
-		COMMON_DECKS, NEW_PER_DAY, SAVED_DECK, listDeck, listOfDeck, wordsOfDeck
+		COMMON_DECKS, MAX_GOAL_DAYS, MAX_PLAN_LENGTH, NEW_PER_DAY, SAVED_DECK, cleanPlan, listDeck, listOfDeck,
+		reviewEstimate, wordsOfDeck
 	} from '#lib/review/decks.ts';
 	import {
 		AGAIN, GOOD, REVIEW, answer, dayNumber, newCard, preview, type Grade, type ReviewCard
@@ -106,6 +107,7 @@
 	let words = $derived(
 		(only ? wordsOf(only) : review.settings.decks.flatMap(wordsOf)).filter((word) => !gone.has(word)));
 	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now));
+	let estimate = $derived(reviewEstimate(review.settings.new_per_day));
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
 	let info = $derived(current ? content.get(current.word) : undefined);
@@ -487,6 +489,36 @@
 					<RadioGroup.Item class="ui-segment" value={String(n)}>{n}</RadioGroup.Item>
 				{/each}
 			</RadioGroup.Root>
+			<!-- What the choice will cost once the cards come back: from a simulation of the scheduler (decks.ts) -->
+			<p class="muted hint">{m.review.goal.estimate(estimate.answers, estimate.minutes)}</p>
+
+			<!-- The weekly goal and the if-then plan, shown on /learn (GoalCard) -->
+			<h2 class="ui-label" id="weekly-goal">{m.review.goal.label}</h2>
+			<RadioGroup.Root
+				class="ui-segmented"
+				orientation="horizontal"
+				aria-labelledby="weekly-goal"
+				value={String(review.settings.goal_days)}
+				onValueChange={(value) => review.change({ goal_days: Number(value) })}
+			>
+				{#each Array.from({ length: MAX_GOAL_DAYS + 1 }, (_, i) => i) as n (n)}
+					<RadioGroup.Item class="ui-segment" value={String(n)}>{n || m.review.goal.none}</RadioGroup.Item>
+				{/each}
+			</RadioGroup.Root>
+			<p class="muted hint">{m.review.goal.hint}</p>
+
+			<label class="ui-label" for="goal-plan">{m.review.goal.plan}</label>
+			<input
+				id="goal-plan"
+				class="ui-field plan"
+				type="text"
+				maxlength={MAX_PLAN_LENGTH}
+				autocomplete="off"
+				placeholder={m.review.goal.planExample}
+				value={review.settings.plan}
+				onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
+			/>
+			<p class="muted hint">{m.review.goal.planHint}</p>
 			<p class="muted">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 		</section>
 
@@ -722,6 +754,17 @@
 
 	.options :global(.ui-segmented) {
 		justify-self: start;
+		max-width: 100%;
+	}
+
+	/* The if-then plan: one line, as wide as it is likely to need */
+	.plan {
+		max-width: 28rem;
+	}
+
+	/* A hint belongs to the control above it, not to the next heading */
+	.hint {
+		margin-top: -0.5rem;
 	}
 
 	/* The pile: the card on show, and the edges of up to two more under it */

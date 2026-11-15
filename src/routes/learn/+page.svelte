@@ -23,9 +23,9 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import ActivityCard from '#lib/learn/ActivityCard.svelte';
 	import Doors from '#lib/learn/Doors.svelte';
+	import GoalCard from '#lib/learn/GoalCard.svelte';
 	import GrammarCard from '#lib/learn/GrammarCard.svelte';
 	import ReferenceTiles from '#lib/learn/ReferenceTiles.svelte';
-	import StreakCard from '#lib/learn/StreakCard.svelte';
 	import VocabularyCard from '#lib/learn/VocabularyCard.svelte';
 	import { POINTS, cardKey, isPointKey } from '#lib/practice/points.ts';
 	import { plan } from '#lib/review/cards.ts';
@@ -194,7 +194,7 @@
 		</div>
 	{:else}
 		<aside class="rail">
-			<StreakCard {now} {ready} />
+			<GoalCard {now} {ready} />
 			<ActivityCard {now} {ready} />
 			<!-- Where all this is kept, for someone who has no account to keep it in -->
 			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}

@@ -1,11 +1,12 @@
 <!-- Reviews by day as a calendar, in the manner of Anki's Review Heatmap
      add-on: a column a week, Monday at the top, the darker the square the
      more cards were reviewed that day. The weeks after today show, in grey,
-     how many cards fall due. Above it the streak and the other counts made
-     from the same days (src/lib/review/days.ts). -->
+     how many cards fall due. Above it the days practised this month and in
+     the best month, and the other counts made from the same days
+     (src/lib/review/days.ts). No streak: see GoalCard for why. -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
-	import { keyOfDay, reviewStats, type DayCounts } from '#lib/review/days.ts';
+	import { keyOfDay, reviewStats, weekProgress, type DayCounts } from '#lib/review/days.ts';
 	import { DAY } from '#lib/review/fsrs.ts';
 	import { useSettings } from '#lib/settings.ts';
 
@@ -40,6 +41,7 @@
 	const date = (n: number) => new Date(n * DAY);
 
 	let stats = $derived(reviewStats(days, today));
+	let month = $derived(weekProgress(days, today));
 	let start = $derived(today - weekday(today) - PAST * 7);
 
 	interface Cell {
@@ -133,8 +135,8 @@
 
 <section class="ui-card heatmap">
 	<dl>
-		<div><dt>{m.review.heatmap.streak}</dt><dd>{m.review.heatmap.days(stats.streak)}</dd></div>
-		<div><dt>{m.review.heatmap.longest}</dt><dd>{m.review.heatmap.days(stats.longest)}</dd></div>
+		<div><dt>{m.review.heatmap.thisMonth}</dt><dd>{m.review.heatmap.days(month.month)}</dd></div>
+		<div><dt>{m.review.heatmap.bestMonth}</dt><dd>{m.review.heatmap.days(month.bestMonth)}</dd></div>
 		<div><dt>{m.review.heatmap.average}</dt><dd>{m.review.heatmap.cards(whole(stats.average))}</dd></div>
 		<div><dt>{m.review.heatmap.learned}</dt><dd>{Math.round(stats.share * 100)}%</dd></div>
 	</dl>

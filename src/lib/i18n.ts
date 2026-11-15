@@ -583,9 +583,11 @@ const en = {
 					]
 				},
 				{
-					heading: 'The streak',
+					heading: 'Your weekly goal',
 					body: [
-						'The flame shows how many days in a row you have reviewed at least one card. It is lit once you have reviewed today; a day without reviews ends the streak only when the day is over.'
+						'Choose on how many days a week you mean to practise, and when, in your own words: “When I have my morning coffee”. A plan that names the moment makes it likelier you keep to it.',
+						'The ring on Learn fills for each day this week, Monday to Sunday, with at least one review, and closes once the goal is met. Days beyond the goal count too. A missed day takes nothing away: the week only counts what you did.',
+						'More new cards a day means more reviews later: each new card a day brings about nine reviews a day after three months.'
 					]
 				},
 				{
@@ -602,8 +604,25 @@ const en = {
 		openDue: (n: number) => `Flashcards: ${n} to review`,
 		/** Not built yet: shown greyed out, so the way it will go is visible. */
 		planned: { note: '(planned)', deck: 'Import a deck', list: 'Import into a list' },
-		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
-		streakWaits: 'Review a card today to keep it',
+		/** The weekly goal: set on /review, shown on /learn (GoalCard) and in the header. */
+		goal: {
+			label: 'Weekly goal',
+			none: 'None',
+			hint: 'Days a week. A missed day takes nothing away.',
+			plan: 'Your plan',
+			planExample: 'When I have my morning coffee',
+			planHint: 'When and where you will practise, in your own words.',
+			estimate: (answers: number, minutes: number) =>
+				`About ${answers} reviews a day after three months (${minutes} ${minutes === 1 ? 'minute' : 'minutes'}).`,
+			thisWeek: 'This week',
+			ofDays: (n: number, goal: number) => `${n} of ${goal} days`,
+			met: (goal: number) => `Goal of ${goal} met`,
+			week: (n: number, goal: number) =>
+				n >= goal ? `This week: ${n === 1 ? '1 day' : `${n} days`}, goal of ${goal} met` : `This week: ${n} of ${goal} days`,
+			practised: 'Days practised',
+			thisMonth: 'practised this month',
+			set: 'Set a weekly goal'
+		},
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
 		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
@@ -648,8 +667,8 @@ const en = {
 		},
 		swipe: 'Tap the card for the answer, then swipe it left for Again or right for Good.',
 		heatmap: {
-			streak: 'Current streak',
-			longest: 'Longest streak',
+			thisMonth: 'This month',
+			bestMonth: 'Best month',
 			average: 'Daily average',
 			learned: 'Days learned',
 			days: (n: number) => (n === 1 ? '1 day' : `${n} days`),
@@ -1536,9 +1555,11 @@ const uk: Messages = {
 					]
 				},
 				{
-					heading: 'Серія',
+					heading: 'Ваша мета на тиждень',
 					body: [
-						'Вогник показує, скільки днів поспіль ви повторили хоча б одну картку. Він горить, коли ви вже повторювали сьогодні; день без повторень обриває серію лише тоді, коли закінчиться.'
+						'Виберіть, скільки днів на тиждень ви хочете займатися і коли, своїми словами: «Коли п’ю ранкову каву». План, що називає мить, допомагає його дотримати.',
+						'Кільце на сторінці «Навчання» заповнюється за кожен день цього тижня, з понеділка до неділі, коли ви повторили хоча б одну картку, і замикається, щойно мету досягнуто. Дні понад мету теж зараховано. Пропущений день нічого не забирає: тиждень лічить лише те, що ви зробили.',
+						'Більше нових карток на день — більше повторень згодом: кожна нова картка на день дає приблизно дев’ять повторень на день через три місяці.'
 					]
 				},
 				{
@@ -1554,8 +1575,26 @@ const uk: Messages = {
 		},
 		planned: { note: '(заплановано)', deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
-		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
-		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',
+		goal: {
+			label: 'Мета на тиждень',
+			none: 'Немає',
+			hint: 'Днів на тиждень. Пропущений день нічого не забирає.',
+			plan: 'Ваш план',
+			planExample: 'Коли п’ю ранкову каву',
+			planHint: 'Коли й де ви займатиметеся, своїми словами.',
+			estimate: (answers, minutes) =>
+				`Приблизно ${counted(answers, 'повторення', 'повторення', 'повторень')} на день через три місяці (${counted(minutes, 'хвилина', 'хвилини', 'хвилин')}).`,
+			thisWeek: 'Цього тижня',
+			ofDays: (n, goal) => `${n} з ${counted(goal, 'дня', 'днів', 'днів')}`,
+			met: (goal) => `Мету досягнуто: ${counted(goal, 'день', 'дні', 'днів')}`,
+			week: (n, goal) =>
+				n >= goal
+					? `Цього тижня: ${counted(n, 'день', 'дні', 'днів')}, мету досягнуто`
+					: `Цього тижня: ${n} з ${counted(goal, 'дня', 'днів', 'днів')}`,
+			practised: 'Дні занять',
+			thisMonth: 'із заняттями цього місяця',
+			set: 'Поставити мету на тиждень'
+		},
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
 		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
@@ -1597,8 +1636,8 @@ const uk: Messages = {
 		},
 		swipe: 'Торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).',
 		heatmap: {
-			streak: 'Поточна серія',
-			longest: 'Найдовша серія',
+			thisMonth: 'Цього місяця',
+			bestMonth: 'Найкращий місяць',
 			average: 'У середньому за день',
 			learned: 'Днів із заняттями',
 			days: (n) => counted(n, 'день', 'дні', 'днів'),

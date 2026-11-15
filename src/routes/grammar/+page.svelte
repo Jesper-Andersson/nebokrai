@@ -349,6 +349,60 @@
 		display: block;
 	}
 
+	/* A wide screen: the contents stand at the side and stay there, so any of
+	   the eight groups is one press away from anywhere in a page ten screens
+	   long. The sheets beside them are narrower for it, and a line of
+	   explanation is about 80 letters, where across the whole 72rem it ran to
+	   130. Only the names fit the rail; what is in a group and how many are
+	   left to the wider list. */
+	@media (min-width: 64rem) {
+		.guide {
+			grid-template-columns: 17rem minmax(0, 1fr);
+			align-items: start;
+		}
+
+		/* Beside all eight sheets, one row each */
+		.guide > header {
+			position: sticky;
+			top: 4.75rem;
+			grid-row: 1 / span 8;
+			padding: 1.1rem 1.1rem 0.5rem;
+		}
+
+		.guide > section {
+			grid-column: 2;
+		}
+
+		/* The size of a group's own heading: the title is one of nine things in
+		   the rail here, not the head of the page */
+		.guide > header h1 {
+			font-size: 1.45rem;
+			line-height: 1.2;
+		}
+
+		nav {
+			grid-template-rows: none;
+			grid-auto-flow: row;
+			margin-top: 0.75rem;
+		}
+
+		nav a {
+			grid-template-areas: 'n name';
+			grid-template-columns: 1.4rem minmax(0, 1fr);
+			padding-block: 0.5rem;
+		}
+
+		nav a:last-child {
+			border-bottom: 0;
+		}
+
+		.words,
+		.count,
+		.back {
+			display: none;
+		}
+	}
+
 	@media (max-width: 1000px) {
 		.sheet,
 		dl div {

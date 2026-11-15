@@ -10,12 +10,14 @@
 
      With "Hide translations" on, the meanings are blurred as the example's
      English is: the learner did not choose this word, so it can be guessed
-     first. Latin letters and the phonetic alphabet are left to the word's
+     first, and the word itself in the example opens no card (Sentence.svelte)
+     while every other word does. Latin letters and the phonetic alphabet are left to the word's
      page, as a search result leaves them. -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { WordOfDay } from '#lib/word-of-day.ts';
+	import Sentence from './Sentence.svelte';
 	import Translation from './Translation.svelte';
 	import WordCard from './WordCard.svelte';
 
@@ -38,7 +40,7 @@
 		<WordCard entry={card} framed={false} hideMeanings />
 		<div class="example">
 			<p>
-				<span lang="uk">{entry.example.uk}</span>
+				<Sentence text={entry.example.uk} own={new Set(entry.own)} />
 				<Translation text={entry.example.en} />
 				<!-- Tatoeba's licence asks for the sentence's source to be named -->
 				<a class="credit" href="https://tatoeba.org/sentences/show/{entry.example.tatoeba_id}">
@@ -79,11 +81,6 @@
 		margin: 0.25rem 1rem 0;
 		padding-top: 0.6rem;
 		border-top: 1px dashed var(--border);
-	}
-
-	/* A sentence, set like the example sentences on a word's page */
-	p [lang='uk'] {
-		font-family: var(--font-reading);
 	}
 
 	p {

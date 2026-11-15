@@ -37,6 +37,8 @@ test('the entry for a day', { skip }, async () => {
 	assert.ok(entry.freq_rank !== null && entry.freq_rank >= rankForDay(day));
 	assert.ok(entry.senses.length >= 1 && entry.senses.length <= 3);
 	assert.ok(entry.example.uk && entry.example.en && entry.example.tatoeba_id);
+	// The word in its sentence stands out and opens no card: керівництвом, of керівництво
+	assert.deepEqual(entry.own, ['керівництвом']);
 
 	// A month of words: all different, and none a word to keep off the front page
 	const rude = ['vulgar', 'offensive', 'derogatory', 'slang'];

@@ -2,14 +2,19 @@
 // does, and the card's theme and font. A change is kept at once; open pages
 // follow it.
 import { browser } from 'wxt/browser';
+import { SITE } from '../../lib/api.ts';
 import { messagesFor } from '../../lib/messages.ts';
 import { FONTS, HOVER_KEYS, readSettings, THEMES, writeSettings, type Settings } from '../../lib/settings.ts';
 
 const m = messagesFor(browser.i18n.getUILanguage()).options;
 
 for (const element of document.querySelectorAll<HTMLElement>('[data-text]')) {
-	element.textContent = m[element.dataset.text as 'hoverKey' | 'doubleClick' | 'theme' | 'font'];
+	element.textContent = m[element.dataset.text as 'hoverKey' | 'doubleClick' | 'theme' | 'font' | 'sent'];
 }
+
+const privacy = document.getElementById('privacy') as HTMLAnchorElement;
+privacy.textContent = m.privacy;
+privacy.href = `${SITE}/privacy`;
 
 const settings = await readSettings();
 

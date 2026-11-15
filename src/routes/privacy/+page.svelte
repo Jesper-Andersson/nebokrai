@@ -1,5 +1,5 @@
 <!-- What the site keeps about a visitor. It says what the code does: read it
-     again whenever users.ts, oauth.ts, reports.ts, missing-words.ts, stats.ts or the report endpoint
+     again whenever users.ts, oauth.ts, reports.ts, missing-words.ts, stats.ts, the browser extension (extension/) or the report endpoint
      changes what is kept, or a page starts loading something from another
      site. It was a section of the About page until 2026-11-13. -->
 <script lang="ts">
@@ -71,6 +71,23 @@
 			ви відкриваєте. Доки ви не натиснули «Слухати», жодна станція нічого не отримує.
 		</p>
 
+		<h2>Розширення для браузера</h2>
+		<p>
+			Розширення Nebokrai надсилає щось лише тоді, коли ви питаєте про слово: двічі клацаєте його
+			або наводите на нього вказівник, тримаючи вибрану клавішу. Надсилається це слово і по одному
+			слову з кожного боку від нього, щоб пару на кшталт «будь ласка» було прочитано як одне ціле.
+			Сторінку, її адресу чи будь-що інше з прочитаного розширення не надсилає; ці запити не містять
+			файлів cookie, ми їх не рахуємо й не зберігаємо. Коли ви натискаєте закладку, щоб зберегти
+			слово, цей запит виконується з вашим входом на цьому сайті, так само, як коли ви зберігаєте
+			слово тут. Налаштування розширення зберігає ваш браузер.
+		</p>
+		<p>
+			Отримане розширення використовує лише для того, щоб показувати й зберігати слова, про які ви
+			питаєте. Ми нічого не продаємо, не передаємо іншим і не використовуємо для реклами.
+			Використання ваших даних відповідає правилам Chrome Web Store щодо даних користувачів, зокрема
+			вимогам про обмежене використання.
+		</p>
+
 		<h2>Запитання</h2>
 		<p>Пишіть на <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
 	{:else}
@@ -129,6 +146,22 @@
 			The radio you can switch on in the settings plays straight from each station’s server: when
 			you start a station, your browser connects to it, and it sees your IP address as any site you
 			visit does. Until you press Play, no station hears from you.
+		</p>
+
+		<h2>The browser extension</h2>
+		<p>
+			The Nebokrai extension sends something only when you ask about a word, by double-clicking it
+			or by holding the key you chose with the pointer on it: that word and the word on each side
+			of it, so that a pair such as будь ласка is read as one. It does not send the page, its
+			address or anything else you read; these requests carry no cookie, and we neither count nor
+			store them. When you press the bookmark to save a word, that request is made with your
+			sign-in on this site, just as when you save a word here. The extension’s settings are kept by
+			your browser.
+		</p>
+		<p>
+			The extension uses what it receives only to show and save the words you ask about. Nothing is
+			sold, passed on or used for advertising. Its use of your data follows the Chrome Web Store
+			User Data Policy, including the Limited Use requirements.
 		</p>
 
 		<h2>Questions</h2>

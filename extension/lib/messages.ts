@@ -26,7 +26,10 @@ const en = {
 		theme: 'Theme of the card:',
 		themes: { system: 'System', light: 'Light', sepia: 'Sepia', dark: 'Dark' } as Record<string, string>,
 		font: 'Font of Ukrainian words:',
-		fonts: { serif: 'Serif', sans: 'Sans-serif' } as Record<string, string>
+		fonts: { serif: 'Serif', sans: 'Sans-serif' } as Record<string, string>,
+		/** What leaves the page, said where the reader sets the extension up; the site's privacy page says the same at length */
+		sent: 'When you ask about a word, that word and the word on each side of it are sent to nebokrai.app. Saving a word uses your sign-in there. Nothing else leaves the page.',
+		privacy: 'Privacy'
 	},
 	pos: {
 		noun: 'noun', verb: 'verb', adj: 'adjective', adv: 'adverb', name: 'name',
@@ -66,7 +69,9 @@ const uk: typeof en = {
 		theme: 'Тема картки:',
 		themes: { system: 'Як у системі', light: 'Світлий', sepia: 'Сепія', dark: 'Темний' },
 		font: 'Шрифт українських слів:',
-		fonts: { serif: 'З засічками', sans: 'Без засічок' }
+		fonts: { serif: 'З засічками', sans: 'Без засічок' },
+		sent: 'Коли ви питаєте про слово, це слово і по одному слову з кожного боку від нього надсилаються на nebokrai.app. Для збереження слова використовується ваш вхід на сайті. Більше нічого сторінку не залишає.',
+		privacy: 'Приватність'
 	},
 	pos: {
 		noun: 'іменник', verb: 'дієслово', adj: 'прикметник', adv: 'прислівник', name: 'власна назва',

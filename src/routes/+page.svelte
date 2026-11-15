@@ -9,6 +9,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import WordCard from '#lib/WordCard.svelte';
+	import PickUp from '#lib/PickUp.svelte';
 	import WordOfDay from '#lib/WordOfDay.svelte';
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { searchReporter } from '#lib/hit.ts';
@@ -236,6 +237,8 @@
 	{#if data.wordOfDay}
 		<div class="daily" class:with-keyboard={keyboard.open}><WordOfDay entry={data.wordOfDay} /></div>
 	{/if}
+	<!-- Not while the on-screen keyboard is open: it is there to type with -->
+	{#if !keyboard.open}<PickUp />{/if}
 {:else if failed}
 	<p class="note">{m.home.failed}</p>
 {:else if found}

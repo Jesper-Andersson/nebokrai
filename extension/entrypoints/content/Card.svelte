@@ -4,10 +4,11 @@
        скля́нка  noun · feminine
        скля́нку: accusative singular
        glass (drinking vessel)
-       Open word →                 Sources
+       Open word →                  [save]
+       Data: Wiktionary, VESUM
 
      It lives in a shadow root, so the page's styles do not reach it and its
-     own do not leak out. Sizes are in px, not rem: a rem here would be the
+     own do not leak out. Sizes are in px (times the Size setting), not rem: a rem here would be the
      page's, and pages set that to anything. -->
 <script lang="ts">
 	import type { Gloss } from '../../../src/lib/gloss.ts';
@@ -112,6 +113,7 @@
 		class="card"
 		data-theme={look.theme}
 		data-font={look.font}
+		data-size={look.size}
 		role="dialog"
 		aria-label="Nebokrai"
 		style:left="{x}px"
@@ -173,11 +175,7 @@
 				{:else}
 					<span></span>
 				{/if}
-				<!-- The credit Wiktionary's and VESUM's licences ask for is on that page -->
 				<span class="right">
-					<a class="quiet" href="{SITE}/sources" target="_blank" rel="noopener"
-						>{account ? m.sources : `Nebokrai · ${m.sources}`}</a
-					>
 					{#if account?.signedIn}
 						<button
 							type="button"
@@ -216,6 +214,11 @@
 			{#if mine?.problem}
 				<p role="alert">{m[mine.problem]}</p>
 			{/if}
+			<!-- The credit Wiktionary's and VESUM's licences ask for, in full on that
+			     page. A line of its own: beside the bookmark it read as part of saving. -->
+			<p class="credit">
+				<a class="quiet" href="{SITE}/sources" target="_blank" rel="noopener">{m.credit}</a>
+			</p>
 		{/if}
 	</div>
 {/if}
@@ -238,16 +241,16 @@
 		z-index: 2147483647;
 		box-sizing: border-box;
 		display: grid;
-		gap: 5px;
-		width: min(336px, calc(100vw - 16px));
-		padding: 13px 14px;
+		gap: calc(5px * var(--k));
+		width: min(calc(336px * var(--k)), calc(100vw - 16px));
+		padding: calc(13px * var(--k)) calc(14px * var(--k));
 		border: 1px solid var(--border);
-		border-radius: 16px;
+		border-radius: calc(16px * var(--k));
 		background: var(--surface);
 		box-shadow: var(--shadow-pop);
 		color: var(--ink);
 		font:
-			400 14px/1.45 system-ui,
+			400 calc(14px * var(--k)) / 1.45 system-ui,
 			sans-serif;
 		text-align: left;
 	}
@@ -302,6 +305,24 @@
 		--font-uk: 'Noto Serif', Cambria, 'Times New Roman', 'Liberation Serif', serif;
 	}
 
+	/* The Size setting: every length of the card is a multiple of --k, so the
+	   card grows as a whole, text and room together. */
+	.card {
+		--k: 1;
+	}
+
+	.card[data-size='small'] {
+		--k: 0.88;
+	}
+
+	.card[data-size='large'] {
+		--k: 1.15;
+	}
+
+	.card[data-size='larger'] {
+		--k: 1.3;
+	}
+
 	.card[data-font='sans'] {
 		--font-uk: system-ui, sans-serif;
 	}
@@ -318,11 +339,11 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 0 10px;
+		gap: 0 calc(10px * var(--k));
 	}
 
 	.head b {
-		font-size: 19px;
+		font-size: calc(19px * var(--k));
 		font-weight: 800;
 	}
 
@@ -335,7 +356,7 @@
 	}
 
 	.meaning {
-		font-size: 18px;
+		font-size: calc(18px * var(--k));
 		font-weight: 700;
 		line-height: 1.3;
 	}
@@ -343,9 +364,9 @@
 	.facts {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		gap: 2px 12px;
+		gap: calc(2px * var(--k)) calc(12px * var(--k));
 		margin: 0;
-		padding-top: 6px;
+		padding-top: calc(6px * var(--k));
 		border-top: 1px solid var(--border);
 	}
 
@@ -362,7 +383,7 @@
 	}
 
 	.also {
-		padding-top: 6px;
+		padding-top: calc(6px * var(--k));
 		border-top: 1px solid var(--border);
 		color: var(--ink-2);
 	}
@@ -371,29 +392,31 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		margin-top: 3px;
-		padding-top: 5px;
+		gap: calc(12px * var(--k));
+		margin-top: calc(3px * var(--k));
+		padding-top: calc(5px * var(--k));
 		border-top: 1px solid var(--border);
 	}
 
 	.right {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: calc(12px * var(--k));
 	}
 
 	.bookmark {
 		display: grid;
-		padding: 2px;
+		padding: calc(2px * var(--k));
 		border: 0;
-		border-radius: 6px;
+		border-radius: calc(6px * var(--k));
 		background: none;
 		color: var(--muted);
 		cursor: pointer;
 	}
 
 	.bookmark svg {
+		width: calc(18px * var(--k));
+		height: calc(18px * var(--k));
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 2;
@@ -412,17 +435,17 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 6px;
+		gap: calc(6px * var(--k));
 	}
 
 	.chip {
-		padding: 2px 10px;
+		padding: calc(2px * var(--k)) calc(10px * var(--k));
 		border: 1px solid var(--border-strong);
 		border-radius: 999px;
 		background: var(--surface);
 		color: var(--ink-2);
 		font: inherit;
-		font-size: 13px;
+		font-size: calc(13px * var(--k));
 		cursor: pointer;
 	}
 
@@ -445,6 +468,10 @@
 		text-decoration: none;
 	}
 
+	.credit {
+		font-size: calc(12px * var(--k));
+	}
+
 	a.quiet {
 		color: var(--muted);
 		font-weight: 400;
@@ -457,6 +484,6 @@
 	a:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
-		border-radius: 2px;
+		border-radius: calc(2px * var(--k));
 	}
 </style>

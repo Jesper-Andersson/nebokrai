@@ -4,6 +4,9 @@ import { defineConfig } from 'wxt';
 // default for Firefox. The only site the extension talks to is nebokrai.app,
 // and only from the background script, so the site needs no CORS headers.
 // The icons in public/icon/ are drawn by `npm run app-icons` in the site.
+const dev = process.env.WXT_API_BASE ? new URL(process.env.WXT_API_BASE) : null;
+const devHost = dev && `${dev.protocol}//${dev.hostname}/*`;
+
 export default defineConfig({
 	modules: ['@wxt-dev/module-svelte'],
 	// The site's own modules import each other as `#lib/…`
@@ -14,8 +17,9 @@ export default defineConfig({
 		homepage_url: 'https://nebokrai.app',
 		// Only for the reader's own choices on the options page
 		permissions: ['storage'],
-		// A build for a dev server (WXT_API_BASE=http://localhost:5173) may ask that server too
-		host_permissions: ['https://nebokrai.app/*', ...(process.env.WXT_API_BASE ? [process.env.WXT_API_BASE + '/*'] : [])],
+		// A build for a dev server (WXT_API_BASE=http://localhost:5173) may ask that
+		// server too. Without the port: Firefox refuses a permission that names one.
+		host_permissions: ['https://nebokrai.app/*', ...(devHost ? [devHost] : [])],
 		...(browser === 'firefox' && {
 			browser_specific_settings: {
 				gecko: {

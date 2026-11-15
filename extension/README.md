@@ -48,7 +48,7 @@ To ask a local dev server instead of nebokrai.app, put `WXT_API_BASE=http://loca
 |---|---|
 | Content script on `http://*/*` and `https://*/*` | A Ukrainian word can be on any page. The script only listens for a double-click and for the pointer while the chosen key is held; it reads the one text under the pointer and draws the card. |
 | Host permission `https://nebokrai.app/*` | The one site it talks to: the dictionary answer, and saving a word with the reader's session there. |
-| `storage` | The reader's four choices on the options page. |
+| `storage` | The reader's choices on the options page. |
 | Firefox: `data_collection_permissions: websiteContent` | The word asked about and the word on each side of it are text of the page, and are sent to nebokrai.app. |
 
 Nothing is sent until the reader asks about a word. The page, its address and the rest of its text never leave
@@ -58,9 +58,9 @@ it. [nebokrai.app/privacy](https://nebokrai.app/privacy) says the same for reade
 
 Each store step is the owner's to take. Before the first submission:
 
-- [ ] Run the Firefox build in Firefox, saving included (so far it has only been built).
-- [ ] Run the Chrome build in Chrome itself (so far tried in Edge).
-- [ ] Screenshots at 1280×800: the card on a page, the saved state, the options page.
+- [x] Run the Firefox build in Firefox 140 or later: done in Firefox 160 on 2026-11-15 (double-click, hover, saving).
+- [x] Run the Chrome build in Chrome itself: done in Chrome 157 on 2026-11-15 (double-click, hover, saving, themes, sizes).
+- [x] Screenshots at 1280 by 800 are in `store/screenshots/`: the card, a saved word, sepia, dark, the options page.
 - [ ] Chrome Web Store: developer account with 2-step verification, non-trader declaration; on the privacy tab
       the single purpose below, the reasons from the table above, "website content" and "authentication
       information" as the data handled, and the privacy page's address.

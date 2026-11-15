@@ -8,7 +8,8 @@ const en = {
 	search: 'Search for it',
 	loading: 'Looking it up…',
 	noEntry: 'A Ukrainian word with no dictionary entry yet.',
-	sources: 'Sources',
+	/** The credit the two licences ask for, linked to the site's Sources page */
+	credit: 'Data: Wiktionary, VESUM',
 	form: 'Form',
 	case: 'Case',
 	grammar: 'Grammar',
@@ -27,6 +28,8 @@ const en = {
 		themes: { system: 'System', light: 'Light', sepia: 'Sepia', dark: 'Dark' } as Record<string, string>,
 		font: 'Font of Ukrainian words:',
 		fonts: { serif: 'Serif', sans: 'Sans-serif' } as Record<string, string>,
+		size: 'Size of the card and its text:',
+		sizes: { small: 'Small', medium: 'Medium', large: 'Large', larger: 'Larger' } as Record<string, string>,
 		/** What leaves the page, said where the reader sets the extension up; the site's privacy page says the same at length */
 		sent: 'When you ask about a word, that word and the word on each side of it are sent to nebokrai.app. Saving a word uses your sign-in there. Nothing else leaves the page.',
 		privacy: 'Privacy'
@@ -51,7 +54,7 @@ const uk: typeof en = {
 	search: 'Пошукати його',
 	loading: 'Шукаю…',
 	noEntry: 'Українське слово, якого ще немає в словнику.',
-	sources: 'Джерела',
+	credit: 'Дані: Вікісловник, ВЕСУМ',
 	form: 'Форма',
 	case: 'Відмінок',
 	grammar: 'Граматика',
@@ -70,6 +73,8 @@ const uk: typeof en = {
 		themes: { system: 'Як у системі', light: 'Світлий', sepia: 'Сепія', dark: 'Темний' },
 		font: 'Шрифт українських слів:',
 		fonts: { serif: 'З засічками', sans: 'Без засічок' },
+		size: 'Розмір картки та її тексту:',
+		sizes: { small: 'Малий', medium: 'Середній', large: 'Великий', larger: 'Більший' },
 		sent: 'Коли ви питаєте про слово, це слово і по одному слову з кожного боку від нього надсилаються на nebokrai.app. Для збереження слова використовується ваш вхід на сайті. Більше нічого сторінку не залишає.',
 		privacy: 'Приватність'
 	},

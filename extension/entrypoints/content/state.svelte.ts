@@ -1,10 +1,10 @@
 // What the card shows now. The content script writes it, Card.svelte draws it.
 import type { GlossAnswer } from '../../../src/lib/gloss.ts';
 import type { SavedReply } from '../../lib/api.ts';
-import type { Font, Theme } from '../../lib/settings.ts';
+import type { Font, Size, Theme } from '../../lib/settings.ts';
 
-/** The reader's theme and font (the options page), which the card wears. */
-export const look = $state({ theme: 'system' as Theme, font: 'serif' as Font });
+/** The reader's theme, font and size (the options page), which the card wears. */
+export const look = $state({ theme: 'system' as Theme, font: 'serif' as Font, size: 'medium' as Size });
 
 export const card = $state({
 	open: false,

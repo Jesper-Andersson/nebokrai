@@ -8,19 +8,23 @@ export type HoverKey = 'ctrl' | 'alt' | 'shift' | 'off';
 export type Theme = 'system' | 'light' | 'sepia' | 'dark';
 /** The face of Ukrainian words on the card. Serif is the default, as on the site. */
 export type Font = 'serif' | 'sans';
+/** How large the card is drawn, text and all. */
+export type Size = 'small' | 'medium' | 'large' | 'larger';
 
 export interface Settings {
 	hoverKey: HoverKey;
 	doubleClick: boolean;
 	theme: Theme;
 	font: Font;
+	size: Size;
 }
 
 export const HOVER_KEYS: HoverKey[] = ['ctrl', 'alt', 'shift', 'off'];
 export const THEMES: Theme[] = ['system', 'light', 'sepia', 'dark'];
 export const FONTS: Font[] = ['serif', 'sans'];
+export const SIZES: Size[] = ['small', 'medium', 'large', 'larger'];
 
-export const DEFAULTS: Settings = { hoverKey: 'ctrl', doubleClick: true, theme: 'system', font: 'serif' };
+export const DEFAULTS: Settings = { hoverKey: 'ctrl', doubleClick: true, theme: 'system', font: 'serif', size: 'medium' };
 
 const one = <T extends string>(all: T[], value: unknown, otherwise: T): T =>
 	all.includes(value as T) ? (value as T) : otherwise;
@@ -30,7 +34,8 @@ function clean(stored: Record<string, unknown>): Settings {
 		hoverKey: one(HOVER_KEYS, stored.hoverKey, DEFAULTS.hoverKey),
 		doubleClick: typeof stored.doubleClick === 'boolean' ? stored.doubleClick : DEFAULTS.doubleClick,
 		theme: one(THEMES, stored.theme, DEFAULTS.theme),
-		font: one(FONTS, stored.font, DEFAULTS.font)
+		font: one(FONTS, stored.font, DEFAULTS.font),
+		size: one(SIZES, stored.size, DEFAULTS.size)
 	};
 }
 

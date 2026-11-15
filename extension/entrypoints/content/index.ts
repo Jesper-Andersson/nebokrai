@@ -47,6 +47,7 @@ export default defineContentScript({
 			settings = now;
 			look.theme = now.theme;
 			look.font = now.font;
+			look.size = now.size;
 		});
 
 		let host: HTMLElement | undefined;

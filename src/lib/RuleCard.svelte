@@ -272,11 +272,19 @@
 		white-space: nowrap;
 	}
 
-	/* The words stay on one line; on a phone the label beside them wraps instead */
+	/* The words stay on one line where there is room. Below that they break
+	   after a comma (води́, землі́, / ста́нції at 360 px), which keeps the label
+	   beside them inside the card: a label is one word and cannot break */
 	:global(.ui-rule-endings td[lang='uk']) {
 		font-family: var(--font-reading);
 		font-size: var(--text-lg);
 		white-space: nowrap;
+	}
+
+	@media (max-width: 420px) {
+		:global(.ui-rule-endings td[lang='uk']) {
+			white-space: normal;
+		}
 	}
 
 	:global(.ui-rule-kind),
@@ -326,6 +334,13 @@
 		width: 100%;
 		min-height: 2.9rem;
 		margin-top: 0.25rem;
+	}
+
+	/* No Enter key to press on a touch screen */
+	@media (hover: none) {
+		:global(.ui-rule-go kbd) {
+			display: none;
+		}
 	}
 
 	/* A phone: a sheet from the foot of the screen, under the thumb */

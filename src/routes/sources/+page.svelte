@@ -92,6 +92,14 @@
 		licences above covers them.
 	</p>
 
+	<h2>Icons of ways to donate</h2>
+	<p>
+		The icons in the donation menu on the <a href="/about">About</a> page belong to Ko-fi,
+		Liberapay and GitHub. Liberapay’s and GitHub’s are the marks their own sites serve; Ko-fi’s is
+		the heart cup from the sticker set by Sammy Doo that Ko-fi gives its creators. All are served
+		from here and shown only to say whose link it is, and none of the licences above covers them.
+	</p>
+
 	<h2>Typeface</h2>
 	<p>
 		Titles, example sentences and pages of text are set in

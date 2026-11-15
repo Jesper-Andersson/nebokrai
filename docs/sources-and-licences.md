@@ -71,6 +71,15 @@ to the sites they stand for. Each was taken once from that site's own icon and
 is served from here, so your browser asks none of them for anything. They are
 shown only to say whose link it is, and none of the licences above covers them.
 
+### Icons of ways to donate
+
+The icons in the donation menu on the [About page](https://nebokrai.app/about)
+belong to Ko-fi, Liberapay and GitHub. Liberapay's and GitHub's are the marks
+their own sites serve; Ko-fi's is the heart cup from the sticker set by Sammy
+Doo that Ko-fi gives its creators, shrunk to 64 px. All are served from here
+(`static/donate/`) and shown only to say whose link it is, and none of the
+licences above covers them.
+
 ### Typeface
 
 Titles, example sentences and pages of text are set in

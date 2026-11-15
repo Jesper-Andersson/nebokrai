@@ -806,6 +806,40 @@ select {
 	}
 }
 
+/* A row of chips or keys to pick from (the ranges of Common words, the
+   alphabet above a letter's words). It wraps where there is room; on a phone
+   it keeps to one line that scrolls sideways, so the list under it starts on
+   the first screen: on Common words at 360 px the first word moves up from
+   588 px to 365. The row reaches the sheet's edges by taking back the sheet's
+   padding (--sheet-pad, ListPage.svelte) and fades out at the right, where
+   there is more. showCurrent() (scroll-row.ts) scrolls the chosen one into
+   view. The page sets the gap and the space above and below (margin-block). */
+.ui-scroll-row {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+	.ui-scroll-row {
+		flex-wrap: nowrap;
+		margin-inline: calc(-1 * var(--sheet-pad, 1rem));
+		/* The end padding is as wide as the fade, so the last item clears it */
+		padding-inline: var(--sheet-pad, 1rem) 2rem;
+		overflow-x: auto;
+		scrollbar-width: none;
+		/* A mask only takes the alpha: black here means shown, in every theme */
+		mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
+	}
+
+	.ui-scroll-row::-webkit-scrollbar {
+		display: none;
+	}
+
+	.ui-scroll-row > * {
+		flex: none;
+	}
+}
+
 /* A small thing to click: a search to try, a kind of report. Pressed or
    chosen, it fills with the accent colour. A chip may be a button
    (aria-pressed) or a label around a hidden radio button. */

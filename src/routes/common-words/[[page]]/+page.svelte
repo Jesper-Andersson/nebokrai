@@ -5,6 +5,7 @@
 	import Headword from '#lib/Headword.svelte';
 	import ListPage from '#lib/ListPage.svelte';
 	import { COMMON_PER_PAGE, commonPath } from '#lib/browse.ts';
+	import { showCurrent } from '#lib/scroll-row.ts';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -22,7 +23,7 @@
 </script>
 
 {#snippet pager()}
-	<nav class="pager" aria-label={m.browse.commonPages}>
+	<nav class="pager ui-scroll-row" aria-label={m.browse.commonPages} {@attach showCurrent(data.page)}>
 		{#each { length: data.pages }, i}
 			<a class="ui-chip" href={commonPath(i + 1)} aria-current={i + 1 === data.page ? 'page' : undefined}>
 				{range(i + 1)}
@@ -57,11 +58,10 @@
 </ListPage>
 
 <style>
+	/* A row that wraps, and scrolls sideways on a phone (ui-scroll-row) */
 	.pager {
-		display: flex;
-		flex-wrap: wrap;
 		gap: 0.4rem;
-		margin: 1rem 0;
+		margin-block: 1rem;
 	}
 
 	.pager a[aria-current='page'] {

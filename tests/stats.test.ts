@@ -1,12 +1,13 @@
 // Visitor and search counting (src/lib/server/stats.ts), against an
 // in-memory database. Needs no dictionary data.
 import assert from 'node:assert/strict';
-import { beforeEach, test } from 'node:test';
+import { test } from 'node:test';
 
 import {
-	OTHER, addDays, countedPath, countedQuery, recordSearch, recordView, resetClearedForTests, sectionOf, skipCounting,
-	statsDay, statsReport, type Visit
+	OTHER, addDays, countedPath, countedQuery, ownerIds, recordSearch, recordView, sectionOf, skipCounting,
+	statsDay, statsReport, type Statement, type StatsDb, type Visit
 } from '../src/lib/server/stats.ts';
+import { NOT_FOUND, readablePath } from '../src/lib/stats-sections.ts';
 import { openMemoryStats } from './local-db.ts';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -14,8 +15,6 @@ const DAY = 24 * 60 * 60 * 1000;
 const T0 = Date.UTC(2026, 10, 14, 10);
 const firefox = (ip: string, now = T0, signedIn = false): Visit =>
 	({ ip, userAgent: 'Mozilla/5.0 Firefox/140.0', signedIn, now });
-
-beforeEach(resetClearedForTests);
 
 test('a day is Kyiv’s date', () => {
 	assert.equal(statsDay(T0), '2026-11-14');
@@ -114,6 +113,100 @@ test('paths are counted by the site’s own sections only', () => {
 	assert.equal(countedPath('/word/a/b'), OTHER);
 	assert.equal(countedPath('/word/<script>'), OTHER);
 	assert.equal(countedPath('http://x.example/'), OTHER);
+	assert.equal(countedPath('/import'), '/import');
+});
+
+test('a page of a list is counted as its list', () => {
+	assert.equal(countedPath('/words/%D0%B0/2'), '/words/%D0%B0');
+	assert.equal(countedPath('/words/%D0%B0/x'), OTHER);
+	assert.equal(countedPath('/common-words/7'), '/common-words');
+	assert.equal(countedPath('/common-words'), '/common-words');
+	assert.equal(countedPath('/about/2'), '/about/2');
+});
+
+test('an address that cannot be decoded is not kept, and never breaks the page that lists it', () => {
+	assert.equal(countedPath('/word/%zz'), OTHER);
+	assert.equal(countedPath('/word/%E0%A4%A'), OTHER);
+	assert.equal(readablePath('/words/%D0%B0'), '/words/а');
+	assert.equal(readablePath('/word/%zz'), '/word/%zz');
+});
+
+test('pages that do not exist are counted together', async () => {
+	const db = openMemoryStats();
+	assert.equal(countedPath(NOT_FOUND), NOT_FOUND);
+	assert.equal(sectionOf(NOT_FOUND), 'other');
+	await recordView(db, NOT_FOUND, firefox('1.1.1.1'));
+	await recordView(db, NOT_FOUND, firefox('2.2.2.2'));
+	assert.deepEqual((await statsReport(db, T0)).pages, [{ key: NOT_FOUND, count: 2 }]);
+});
+
+test('the average is over whole days since counting began, not over the period', async () => {
+	const db = openMemoryStats();
+	assert.equal((await statsReport(db, T0)).visitorsADay, 0);
+	// The first day: today is all there is, so it is the average
+	await recordView(db, '/', firefox('1.1.1.1'));
+	await recordView(db, '/', firefox('2.2.2.2'));
+	assert.equal((await statsReport(db, T0)).visitorsADay, 2);
+	// Two days later: 2 and 4 visitors on the whole days, today's 1 is left out
+	for (const ip of ['1.1.1.1', '2.2.2.2', '3.3.3.3', '4.4.4.4']) await recordView(db, '/', firefox(ip, T0 + DAY));
+	await recordView(db, '/', firefox('1.1.1.1', T0 + 2 * DAY));
+	const report = await statsReport(db, T0 + 2 * DAY, 30);
+	assert.equal(report.days.length, 30);
+	assert.equal(report.visitorsADay, 3);
+	// A period shorter than the history averages its own whole days: yesterday's 4
+	assert.equal((await statsReport(db, T0 + 2 * DAY, 2)).visitorsADay, 4);
+});
+
+test('old rows are cleared once a day, when the day’s salt is made', async () => {
+	const db = openMemoryStats();
+	const deletes: string[] = [];
+	const counting: StatsDb = {
+		all: db.all,
+		async run(sql, params) {
+			if (sql.startsWith('DELETE')) deletes.push(sql);
+			await db.run(sql, params);
+		}
+	};
+	await recordView(counting, '/', firefox('1.1.1.1'));
+	const first = deletes.length;
+	assert.ok(first > 0);
+	await recordView(counting, '/', firefox('2.2.2.2'));
+	await recordSearch(counting, 'вода', 1, firefox('2.2.2.2'));
+	assert.equal(deletes.length, first);
+	await recordView(counting, '/', firefox('1.1.1.1', T0 + DAY));
+	assert.equal(deletes.length, 2 * first);
+});
+
+test('a database that takes several statements at once gets a view in three trips', async () => {
+	const db = openMemoryStats();
+	await recordView(db, '/', firefox('9.9.9.9')); // the day's salt is made
+	let trips = 0;
+	const batching: StatsDb = {
+		async all(sql, params) {
+			trips += 1;
+			return db.all(sql, params);
+		},
+		async run(sql, params) {
+			trips += 1;
+			await db.run(sql, params);
+		},
+		async batch(statements: Statement[]) {
+			trips += 1;
+			const out = [];
+			for (const [sql, params] of statements) out.push(await db.all(sql, params));
+			return out;
+		}
+	};
+	await recordView(batching, '/saved', firefox('1.1.1.1'));
+	await recordView(batching, '/saved', firefox('1.1.1.1', T0, true));
+	assert.equal(trips, 6);
+	const today = (await statsReport(db, T0, 1)).days[0];
+	assert.deepEqual([today.views, today.visitors, today.signed_in_visitors], [3, 2, 1]);
+});
+
+test('the owner’s account ids are read from a comma-separated secret', () => {
+	assert.deepEqual(ownerIds(' a1, b2 ,,'), ['a1', 'b2']);
+	assert.deepEqual(ownerIds(undefined), []);
 });
 
 test('a search is counted as one word however it is typed', () => {

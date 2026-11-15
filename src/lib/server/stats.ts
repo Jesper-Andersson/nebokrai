@@ -15,12 +15,28 @@
 //
 // Nothing here imports from SvelteKit, so `npm test` runs it against an
 // in-memory SQLite database (tests/stats.test.ts).
-import { SECTION_NAMES, type Section } from '../stats-sections.ts';
+import { NOT_FOUND, SECTION_NAMES, type Section } from '../stats-sections.ts';
 
-/** The database as this file needs it: read rows, or run a statement. */
+/** A statement and its parameters. */
+export type Statement = [sql: string, params: unknown[]];
+
+/**
+ * The database as this file needs it: read rows, or run a statement. `batch`
+ * is for a database that is a network trip away (D1): several statements in
+ * one trip and one transaction, each answering with its rows. Without it the
+ * statements are run one by one.
+ */
 export interface StatsDb {
 	all<T = Record<string, unknown>>(sql: string, params?: unknown[]): Promise<T[]>;
 	run(sql: string, params?: unknown[]): Promise<void>;
+	batch?(statements: Statement[]): Promise<Record<string, unknown>[][]>;
+}
+
+async function runTogether(db: StatsDb, statements: Statement[]): Promise<Record<string, unknown>[][]> {
+	if (db.batch) return db.batch(statements);
+	const out: Record<string, unknown>[][] = [];
+	for (const [sql, params] of statements) out.push(await db.all(sql, params));
+	return out;
 }
 
 /** One statement per item: D1 prepares a single statement at a time. */
@@ -88,26 +104,42 @@ export function statsDay(now: number): string {
 // The site's own sections. Anything else (a mistyped address, a scanner
 // trying /wp-admin) is counted as OTHER, so the table cannot fill with junk.
 const SECTIONS = new Set([
-	'', 'about', 'alphabet', 'common-words', 'grammar', 'learn', 'practice', 'privacy', 'report', 'resources',
-	'review', 'saved', 'sources', 'support', 'words'
+	'', 'about', 'alphabet', 'common-words', 'grammar', 'import', 'learn', 'practice', 'privacy', 'report',
+	'resources', 'review', 'saved', 'sources', 'support', 'words'
 ]);
 export const OTHER = '(other)';
+
+/** Whether a part of an address can be read back: /word/%zz cannot, and would break the page that lists it. */
+function decodes(part: string): boolean {
+	try {
+		decodeURIComponent(part);
+		return true;
+	} catch {
+		return false;
+	}
+}
 
 /**
  * The path a page view is counted under: /word/voda keeps its word, a
  * section keeps one level below it (/words/a), the query string is dropped.
+ * A later page of a list is its list: /words/a/2 is /words/a, and
+ * /common-words/7 is /common-words. A page that does not exist arrives as
+ * NOT_FOUND (+layout.svelte) and is kept as that.
  */
 export function countedPath(path: string): string {
+	if (path === NOT_FOUND) return NOT_FOUND;
 	if (typeof path !== 'string' || !path.startsWith('/') || path.length > 200) return OTHER;
 	const parts = path.split(/[?#]/)[0].split('/').slice(1);
 	if (parts.at(-1) === '' && parts.length > 1) parts.pop();
 	const [section, sub, ...rest] = parts;
+	const page = /^\d{1,4}$/;
+	if (section === 'words' && rest.length === 1 && page.test(rest[0])) rest.pop();
 	if (rest.length) return OTHER;
-	const segment = /^[\w%.-]{1,100}$/;
-	if (section === 'word') return sub && segment.test(sub) ? `/word/${sub}` : OTHER;
+	const segment = (part: string) => /^[\w%.-]{1,100}$/.test(part) && decodes(part);
+	if (section === 'word') return sub && segment(sub) ? `/word/${sub}` : OTHER;
 	if (!SECTIONS.has(section)) return OTHER;
-	if (sub === undefined) return `/${section}`;
-	return segment.test(sub) ? `/${section}/${sub}` : OTHER;
+	if (sub === undefined || (section === 'common-words' && page.test(sub))) return `/${section}`;
+	return segment(sub) ? `/${section}/${sub}` : OTHER;
 }
 
 /** A search as it is counted: one spacing, lower case, no stress marks (во́да and вода are one word). */
@@ -134,94 +166,108 @@ export interface Visit {
 const hex = (bytes: ArrayBuffer | Uint8Array) =>
 	[...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
 
-// Days already cleared by this Worker. Two Workers clearing the same day is
-// harmless: the deletes find nothing the second time.
-let clearedFor = '';
+/** The account ids in the secret STATS_USER_IDS: who may read /stats, and whose own visits are not counted. */
+export function ownerIds(secret: string | undefined): string[] {
+	return (secret ?? '').split(',').map((id) => id.trim()).filter(Boolean);
+}
 
 /** Delete what only mattered for a finished day, and counts past their keeping time. */
-export async function clearOld(db: StatsDb, now: number): Promise<void> {
+async function clearOld(db: StatsDb, now: number): Promise<void> {
 	const today = statsDay(now);
-	if (clearedFor === today) return;
 	await db.run('DELETE FROM visitors WHERE day < ?', [today]);
 	await db.run('DELETE FROM search_visitors WHERE day < ?', [today]);
 	await db.run('DELETE FROM salts WHERE day < ?', [today]);
 	await db.run('DELETE FROM searches WHERE day < ?', [statsDay(now - SEARCH_DAYS * DAY_MS)]);
 	await db.run('DELETE FROM page_views WHERE day < ?', [statsDay(now - PAGE_DAYS * DAY_MS)]);
-	clearedFor = today;
 }
 
-/** Forget which days were cleared (tests move the clock backwards). */
-export function resetClearedForTests(): void {
-	clearedFor = '';
-}
-
-/** Count the visitor for today, once, and return their hash. */
-async function countVisitor(db: StatsDb, day: string, visit: Visit): Promise<string> {
+/**
+ * Count the visitor for today, once. Returns their hash, and the statements
+ * that add them to the day's totals, for the caller to send with its own.
+ *
+ * Three trips to the database for a count: the day's salt, the visitor, and
+ * the totals. Old rows are cleared by whichever request makes the day's
+ * salt, so once a day and not once per Worker started.
+ */
+async function countVisitor(db: StatsDb, day: string, visit: Visit): Promise<{ hash: string; totals: Statement[] }> {
 	let [row] = await db.all<{ salt: string }>('SELECT salt FROM salts WHERE day = ?', [day]);
 	if (!row) {
 		const salt = hex(crypto.getRandomValues(new Uint8Array(32)));
 		await db.run('INSERT OR IGNORE INTO salts (day, salt) VALUES (?, ?)', [day, salt]);
 		// Another request may have made the day's salt first: use the one that was kept.
 		[row] = await db.all<{ salt: string }>('SELECT salt FROM salts WHERE day = ?', [day]);
+		// Two requests clearing the same day is harmless: the second finds nothing.
+		await clearOld(db, visit.now);
 	}
 	const data = new TextEncoder().encode(`${row.salt}\n${visit.ip}\n${visit.userAgent}`);
 	const hash = hex(await crypto.subtle.digest('SHA-256', data));
 
-	await db.run('INSERT OR IGNORE INTO daily (day) VALUES (?)', [day]);
 	const signedIn = visit.signedIn ? 1 : 0;
-	const added = await db.all(
-		'INSERT OR IGNORE INTO visitors (day, hash, signed_in) VALUES (?, ?, ?) RETURNING 1 AS added',
-		[day, hash, signedIn]
-	);
+	const [, added] = await runTogether(db, [
+		['INSERT OR IGNORE INTO daily (day) VALUES (?)', [day]],
+		['INSERT OR IGNORE INTO visitors (day, hash, signed_in) VALUES (?, ?, ?) RETURNING 1 AS added', [day, hash, signedIn]]
+	]);
+	const totals: Statement[] = [];
 	if (added.length) {
-		await db.run(
+		totals.push([
 			'UPDATE daily SET visitors = visitors + 1, signed_in_visitors = signed_in_visitors + ? WHERE day = ?',
 			[signedIn, day]
-		);
+		]);
 	} else if (signedIn) {
-		// Read signed out earlier today, signed in now: one visitor, now a signed-in one.
-		const changed = await db.all(
-			'UPDATE visitors SET signed_in = 1 WHERE day = ? AND hash = ? AND signed_in = 0 RETURNING 1 AS changed',
-			[day, hash]
+		// Read signed out earlier today, signed in now: one visitor, now a signed-in
+		// one. The total first, while the visitor's row still says signed out.
+		totals.push(
+			[
+				`UPDATE daily SET signed_in_visitors = signed_in_visitors + 1 WHERE day = ?
+				 AND EXISTS (SELECT 1 FROM visitors WHERE day = ? AND hash = ? AND signed_in = 0)`,
+				[day, day, hash]
+			],
+			['UPDATE visitors SET signed_in = 1 WHERE day = ? AND hash = ?', [day, hash]]
 		);
-		if (changed.length) await db.run('UPDATE daily SET signed_in_visitors = signed_in_visitors + 1 WHERE day = ?', [day]);
 	}
-	return hash;
+	return { hash, totals };
 }
 
 /** Count one page view. */
 export async function recordView(db: StatsDb, path: string, visit: Visit): Promise<void> {
-	await clearOld(db, visit.now);
 	const day = statsDay(visit.now);
-	await countVisitor(db, day, visit);
-	await db.run('UPDATE daily SET views = views + 1 WHERE day = ?', [day]);
-	await db.run(
-		`INSERT INTO page_views (day, path, views) VALUES (?, ?, 1)
-		 ON CONFLICT (day, path) DO UPDATE SET views = views + 1`,
-		[day, countedPath(path)]
-	);
+	const { totals } = await countVisitor(db, day, visit);
+	await runTogether(db, [
+		...totals,
+		['UPDATE daily SET views = views + 1 WHERE day = ?', [day]],
+		[
+			`INSERT INTO page_views (day, path, views) VALUES (?, ?, 1)
+			 ON CONFLICT (day, path) DO UPDATE SET views = views + 1`,
+			[day, countedPath(path)]
+		]
+	]);
 }
 
 /** Count one search, and what it found. */
 export async function recordSearch(db: StatsDb, query: string, results: number, visit: Visit): Promise<void> {
 	const text = countedQuery(query);
 	if (!text) return;
-	await clearOld(db, visit.now);
 	const day = statsDay(visit.now);
-	const hash = await countVisitor(db, day, visit);
+	const { hash, totals } = await countVisitor(db, day, visit);
 	const empty = results > 0 ? 0 : 1;
-	await db.run('UPDATE daily SET searches = searches + 1, empty_searches = empty_searches + ? WHERE day = ?', [empty, day]);
-	if (text.length > MAX_QUERY_KEPT) return;
-	const first = await db.all(
-		'INSERT OR IGNORE INTO search_visitors (day, query, hash) VALUES (?, ?, ?) RETURNING 1 AS first',
-		[day, text, hash]
-	);
-	await db.run(
-		`INSERT INTO searches (day, query, count, visitors, empty) VALUES (?, ?, 1, ?, ?)
-		 ON CONFLICT (day, query) DO UPDATE SET count = count + 1, visitors = visitors + excluded.visitors,
-		 empty = empty + excluded.empty`,
-		[day, text, first.length ? 1 : 0, empty]
-	);
+	const writes: Statement[] = [
+		...totals,
+		['UPDATE daily SET searches = searches + 1, empty_searches = empty_searches + ? WHERE day = ?', [empty, day]]
+	];
+	if (text.length <= MAX_QUERY_KEPT) {
+		writes.push(
+			['INSERT OR IGNORE INTO search_visitors (day, query, hash) VALUES (?, ?, ?)', [day, text, hash]],
+			// visitors: counted from the rows above, which now include this one
+			[
+				`INSERT INTO searches (day, query, count, visitors, empty)
+				 VALUES (?, ?, 1, (SELECT count(*) FROM search_visitors WHERE day = ? AND query = ?), ?)
+				 ON CONFLICT (day, query) DO UPDATE SET count = count + 1, visitors = excluded.visitors,
+				 empty = empty + excluded.empty`,
+				[day, text, day, text, empty]
+			]
+		);
+	}
+	await runTogether(db, writes);
 }
 
 export interface DayRow {
@@ -243,6 +289,7 @@ const LEARN = new Set(['learn', 'practice', 'review', 'grammar', 'alphabet', 'co
 /** Which part of the site a counted path is in: /word/voda and /words/a are words, / is search. */
 export function sectionOf(path: string): Section {
 	if (path === '/') return 'search';
+	if (!path.startsWith('/')) return 'other'; // OTHER and NOT_FOUND
 	const top = path.split('/')[1];
 	if (top === 'word' || top === 'words') return 'words';
 	if (LEARN.has(top)) return 'learn';
@@ -253,6 +300,12 @@ export function sectionOf(path: string): Section {
 export interface StatsReport {
 	/** The last `days` days, oldest first, a day without visits as zeros. */
 	days: DayRow[];
+	/**
+	 * Visitors a day on average, over the whole days of the period on which
+	 * anything was counted at all: not the days before counting began, and not
+	 * today, which is not over (unless today is all there is).
+	 */
+	visitorsADay: number;
 	/** Visitors a day for the calendar: whole weeks from a Monday, the last one up to today. */
 	calendar: { day: string; visitors: number }[];
 	sections: Record<Section, number>;
@@ -317,8 +370,13 @@ export async function statsReport(db: StatsDb, now: number, days = 30, top = 20)
 		 GROUP BY query ORDER BY count DESC, query LIMIT ?`,
 		[since, top]
 	);
+	const [{ began }] = await db.all<{ began: string | null }>('SELECT min(day) AS began FROM daily');
+	const period = range(since).map((day) => byDay.get(day) ?? zero(day));
+	const counted = began ? period.filter((d) => d.day >= began) : [];
+	const whole = counted.length > 1 ? counted.slice(0, -1) : counted;
 	return {
-		days: range(since).map((day) => byDay.get(day) ?? zero(day)),
+		days: period,
+		visitorsADay: whole.length ? Math.round(whole.reduce((sum, d) => sum + d.visitors, 0) / whole.length) : 0,
 		calendar: range(calendarFrom).map((day) => ({ day, visitors: byDay.get(day)?.visitors ?? 0 })),
 		sections,
 		pages,

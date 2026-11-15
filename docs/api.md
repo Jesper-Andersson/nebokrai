@@ -396,14 +396,16 @@ or one of whose results was opened.
 | Field | |
 |---|---|
 | `kind` | `view` or `search`. |
-| `path` | `view`: the page's path. Paths outside the site's sections are counted together as `(other)`. |
+| `path` | `view`: the page's path, or `(not found)` for a page that answered 404. A later page of a list is counted as the list (`/words/a/2` as `/words/a`). Paths outside the site's sections, and ones that cannot be decoded, are counted together as `(other)`. |
 | `query` | `search`: the text searched, at most 200 characters. Counted after normalising (lower case, no stress marks); its text is kept only up to 40 characters, for 90 days. |
 | `results` | `search`: how many results the answer had; `0` counts as a search that found nothing. |
 
 The answer is always `204` with no body, whether or not anything was counted:
 a body that is not JSON or over 1 KB, a user agent that is a program, a
-browser sending `DNT: 1` or `Sec-GPC: 1`, or more than 300 counts in 10
-minutes from one address are all dropped without an error. No cookie is set
+browser sending `DNT: 1` or `Sec-GPC: 1`, a signed-in owner of the site
+(`STATS_USER_IDS`), or more than 300 counts in 10 minutes from one address
+are all dropped without an error. A browser driven by a program
+(`navigator.webdriver`) does not send the request at all. No cookie is set
 and the IP address is not stored (see `stats.ts`). A request whose `Origin`
 names another site gets the site-wide `403 cross_site`.
 

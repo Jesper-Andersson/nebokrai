@@ -6,11 +6,13 @@
 //
 // The IP address is only an ingredient of the day's visitor hash and is never
 // stored. A program, or a browser sending Do Not Track or Global Privacy
-// Control, is not counted.
+// Control, is not counted. Nor is the site's owner (the accounts that may
+// read /stats): on a small site their own testing would be a large share.
 import { waitUntil } from 'cloudflare:workers';
 import { dev } from '$app/env';
+import { STATS_USER_IDS } from '$app/env/private';
 import { rateKey, readJson } from '#lib/server/request.ts';
-import { recordSearch, recordView, skipCounting, type Visit } from '#lib/server/stats.ts';
+import { ownerIds, recordSearch, recordView, skipCounting, type Visit } from '#lib/server/stats.ts';
 import { getStatsDb } from '#lib/server/stats-db.ts';
 import type { RequestHandler } from './$types';
 
@@ -38,6 +40,7 @@ const done = () => new Response(null, { status: 204 });
 
 export const POST: RequestHandler = async ({ request, locals, getClientAddress }) => {
 	if (skipCounting(request.headers)) return done();
+	if (locals.user && ownerIds(STATS_USER_IDS).includes(locals.user.id)) return done();
 	const body = await readJson(request, MAX_BODY);
 	if (body instanceof Response || typeof body !== 'object' || body === null) return done();
 	const { kind, path, query, results } = body as Record<string, unknown>;

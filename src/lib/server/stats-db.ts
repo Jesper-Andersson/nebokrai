@@ -17,7 +17,8 @@ let local: Promise<StatsDb> | undefined;
 export async function getStatsDb(): Promise<StatsDb | undefined> {
 	// `dev` first: see getDatabases() in db.ts.
 	if (dev) return STATS_IN_DEV ? (local ??= openLocal()) : undefined;
-	const d1 = env.STATS;
+	// batch(): every D1 database has it; the shared type names only what users.ts needs
+	const d1 = env.STATS as (typeof env.STATS & { batch(statements: unknown[]): Promise<{ results?: unknown[] }[]> }) | undefined;
 	if (!d1) return undefined;
 	if (!d1Ready) {
 		// A failure here leaves the flag unset, so the next request tries again
@@ -30,6 +31,11 @@ export async function getStatsDb(): Promise<StatsDb | undefined> {
 		},
 		async run(sql: string, params: unknown[] = []) {
 			await d1.prepare(sql).bind(...params).run();
+		},
+		// One trip and one transaction for the statements of a count
+		async batch(statements) {
+			const answers = await d1.batch(statements.map(([sql, params]) => d1.prepare(sql).bind(...params)));
+			return answers.map((answer) => (answer.results ?? []) as Record<string, unknown>[]);
 		}
 	};
 }

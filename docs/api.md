@@ -810,7 +810,10 @@ A point of у, на or під can be named with `:where` (`u-acc:where`,
 `pid-acc`). Its sentence is then one of a list picked by hand in
 `src/lib/practice/where.ts`, where the question де? (locative or
 instrumental: where something is) or куди? (accusative: where it goes)
-plainly fits, and it comes back with the same shape plus `"kind": "where"`.
+plainly fits, and it comes back with the same shape plus `"kind": "where"`
+and `partner`: the noun in the case of the other question, with stress
+(`"partner": "вершині"` beside `"answer": "вершину"`), left out where the
+dictionary has no such form.
 The page shows that sentence whole and asks which question it answers; the
 answer follows from `point`. Any other point named with `:where` is drawn as
 if it were not marked, and a point asked more often than it has such

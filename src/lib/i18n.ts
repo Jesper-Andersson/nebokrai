@@ -41,7 +41,14 @@ function sameNote(prefix: string, endings: string[], note: string): Record<strin
 }
 
 const en = {
-	nav: { label: 'Main', dictionary: 'Dictionary', learn: 'Learn', resources: 'Resources', saved: 'Saved' },
+	nav: {
+		label: 'Main',
+		dictionary: 'Dictionary',
+		learn: 'Learn',
+		resources: 'Resources',
+		saved: 'Saved',
+		skip: 'Skip to content'
+	},
 	/** The header's link to /support, and that page's title. */
 	support: { label: 'Support Ukraine', hint: 'Where to donate: United24 and other funds, by what they do' },
 	/** The search that opens from the header, or with Ctrl+K. */
@@ -330,6 +337,7 @@ const en = {
 		commonLead: 'The words you\'ll meet most often, with the most common listed first.',
 		commonSource: 'Counted from film and television subtitles, so everyday speech weighs more than books.',
 		commonPages: 'Parts of the list',
+		commonPagesEnd: 'Parts of the list, at the end',
 		wordsTitle: 'All words',
 		wordsLead: 'Every word in the dictionary under its first letter, in alphabetical order.',
 		wordsCommon: 'Or start with the 1,000 most common words.',
@@ -1265,7 +1273,14 @@ const en = {
 export type Messages = typeof en;
 
 const uk: Messages = {
-	nav: { label: 'Головне меню', dictionary: 'Словник', learn: 'Навчання', resources: 'Ресурси', saved: 'Збережене' },
+	nav: {
+		label: 'Головне меню',
+		dictionary: 'Словник',
+		learn: 'Навчання',
+		resources: 'Ресурси',
+		saved: 'Збережене',
+		skip: 'Перейти до вмісту'
+	},
 	support: { label: 'Підтримати Україну', hint: 'Куди задонатити: United24 та інші фонди, за тим, що вони роблять' },
 	quick: {
 		open: 'Пошук',
@@ -1525,6 +1540,7 @@ const uk: Messages = {
 		commonLead: 'Слова, які трапляються найчастіше: спершу найуживаніші.',
 		commonSource: 'Підраховано за субтитрами до фільмів і серіалів, тому розмовна мова важить більше за книжну.',
 		commonPages: 'Частини списку',
+		commonPagesEnd: 'Частини списку, унизу',
 		wordsTitle: 'Усі слова',
 		wordsLead: 'Кожне слово словника під своєю першою літерою, за абеткою.',
 		wordsCommon: 'Або почніть із 1000 найуживаніших слів.',

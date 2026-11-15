@@ -84,7 +84,7 @@
 </script>
 
 <Popover.Root bind:open {onOpenChange}
-	><Popover.Trigger class="ui-gloss-word" openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
+	><Popover.Trigger class={[...text].length === 1 ? 'ui-gloss-word short' : 'ui-gloss-word'} openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
 		>{text}</Popover.Trigger
 	><Popover.Portal>
 		<Popover.Content class="ui-popover ui-gloss" sideOffset={6} collisionPadding={8}>

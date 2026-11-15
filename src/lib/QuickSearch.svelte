@@ -28,6 +28,7 @@
 
 	let found = $state.raw<LookupResult | null>(null);
 	let failed = $state(false);
+	let hasRows = $derived(!!found && found.results.length + found.suggestions.length > 0);
 	// The highlighted row. Set to the first answer when answers arrive, so
 	// Enter opens the best match without an arrow key first.
 	let selected = $state('');
@@ -114,13 +115,20 @@
 					/>
 					<kbd class="ui-kbd">Esc</kbd>
 				</div>
-				<Command.List class="ui-quick-list">
+				<!-- A listbox with nothing to choose is announced as an empty list
+				     (WCAG 4.1.2), so while there are no rows the list is hidden and the
+				     hint or "no matches" stands beside it, where a screen reader reads
+				     it out. The list stays in the page: the box points at it. -->
+				{#if failed || !found || !hasRows}
+					<div class="ui-quick-list" role="status">
+						<p class="ui-quick-note">
+							{failed ? m.home.failed : !found ? m.quick.hint : m.home.noMatches(found.query)}
+						</p>
+					</div>
+				{/if}
+				<Command.List class="ui-quick-list" hidden={failed || !hasRows}>
 					<Command.Viewport>
-						{#if failed}
-							<p class="ui-quick-note">{m.home.failed}</p>
-						{:else if !found}
-							<p class="ui-quick-note">{m.quick.hint}</p>
-						{:else}
+						{#if found}
 							{#each found.results as entry (key(entry))}
 								{@render row(entry)}
 							{/each}
@@ -135,8 +143,6 @@
 										{/each}
 									</Command.GroupItems>
 								</Command.Group>
-							{:else if !found.results.length}
-								<p class="ui-quick-note">{m.home.noMatches(found.query)}</p>
 							{/if}
 						{/if}
 					</Command.Viewport>

@@ -106,9 +106,12 @@
 
 <Tooltip.Provider delayDuration={350}>
 	<div class="frame">
+		<!-- The first thing Tab reaches, so a keyboard skips the eight stops of
+		     the header (WCAG 2.4.1). Hidden until it has focus. -->
+		<a class="skip" href="#main">{m.nav.skip}</a>
 		<Header />
 
-		<main>
+		<main id="main" tabindex="-1">
 			{@render children()}
 		</main>
 
@@ -141,6 +144,28 @@
 	main {
 		flex: 1;
 		padding-bottom: 3rem;
+	}
+
+	/* The skip link lands focus on <main>, which is not a control: no ring round the whole page */
+	main:focus {
+		outline: none;
+	}
+
+	.skip {
+		position: absolute;
+		z-index: 100;
+		top: 0.5rem;
+		left: 0.5rem;
+		padding: 0.6rem 0.9rem;
+		border-radius: var(--radius-md);
+		background: var(--surface);
+		color: var(--ink);
+		font-weight: 700;
+		transform: translateY(-200%);
+	}
+
+	.skip:focus-visible {
+		transform: none;
 	}
 
 	/* Over a photo (app.css) the top of the photo is its brightest part, so

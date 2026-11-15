@@ -454,6 +454,18 @@
 		line-height: 1.4;
 	}
 
+	/* On a phone the menu is taller than the screen: 1,149px in 780 at
+	   390×844, with nothing to say there is more below. Without the lines
+	   that explain a setting it is 856px, and all but the account's last
+	   line fits. The lines are still there for a screen reader, which reads
+	   them as each control's description (aria-describedby reaches a hidden
+	   element). */
+	@media (max-width: 600px) {
+		.hint {
+			display: none;
+		}
+	}
+
 	.keys {
 		color: var(--ink-2);
 		font-weight: 600;

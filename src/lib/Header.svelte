@@ -591,10 +591,11 @@
 		}
 	}
 
-	/* Phones. The name's line has no room for "Підтримати Україну", and the
-	   words must stay, so the link takes a slim line of its own above the
-	   name. The tools' box dissolves to let it out. The tabs share the width,
-	   a little lower than on a desktop. */
+	/* Phones. The bar is two lines: the mark, "Support Ukraine" and the tools,
+	   then the tabs. Until 2026-11-15 the link had a slim line of its own
+	   above the name, and the bar took 116px of every screen; it takes 84px
+	   now. The tools' box dissolves to let the link out, to stand beside the
+	   name. The tabs share the width, a little lower than on a desktop. */
 	@media (max-width: 740px) {
 		.inner {
 			padding: 0 0.6rem;
@@ -604,34 +605,33 @@
 			display: contents;
 		}
 
-		/* The name gives way before the tools wrap: with a phone's text set
-		   larger, the deck count and the streak (now the weekly goal) left no room for the settings
-		   button, and it fell to a line of its own on the left (2026-11-14).
-		   A basis of 0 keeps the line from wrapping; the name then grows back
-		   to its full width wherever there is room for it, and pushes the
-		   tools to the right edge. */
 		.logo {
-			flex: 1 1 0;
-			min-width: 7rem;
-			max-width: max-content;
+			flex: none;
 			height: 2.75rem;
-			margin-right: auto;
+			margin-right: 0.35rem;
 		}
 
-		.logo :global(svg) {
-			flex-shrink: 1;
-			min-width: 0;
-		}
-
-		/* The words stay: a slim line of their own above the name (user,
-		   2026-11-14, taking back the heart alone of #33) */
+		/* The words stay (user, 2026-11-14, taking back the heart alone of
+		   #33). The link pushes the tools to the right edge, and is what gives
+		   way before they wrap: with a phone's text set larger, the deck count
+		   and the weekly goal once left no room for the settings button, and
+		   it fell to a line of its own (2026-11-14). A basis of 0 keeps the
+		   line from wrapping: the link takes what room is left, and its words
+		   end in an ellipsis when that is too little, which is better than a
+		   third line. */
 		.support {
-			order: -1;
-			flex: 0 0 100%;
-			height: 2rem;
+			flex: 1 1 0;
+			justify-content: flex-start;
+			min-width: 0;
+			height: 2.75rem;
 			padding: 0;
-			border-bottom: 1px solid var(--border);
 			font-size: var(--text-xs);
+		}
+
+		.support-label {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
 		.support svg {
@@ -672,6 +672,30 @@
 		   width back to the name */
 		.search.away {
 			display: none;
+		}
+	}
+
+	/* A narrow phone has no room for the name and «Підтримати Україну» on one
+	   line (the two and three tools need about 480px), so the mark stands
+	   alone for the name; the footer and the page's title still spell it. The
+	   wordmark is cut to nothing, not removed, so the link home keeps its
+	   name for a screen reader. The tools stand closer together. */
+	@media (max-width: 520px) {
+		.inner {
+			column-gap: 0.15rem;
+		}
+
+		/* Not in a practice round (below): the link is away there, and the
+		   name has the line to itself as before */
+		:global(html:not([data-practising])) .logo img {
+			top: 0;
+		}
+
+		:global(html:not([data-practising])) .logo :global(svg) {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			clip-path: inset(50%);
 		}
 	}
 

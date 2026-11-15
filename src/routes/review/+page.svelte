@@ -1018,6 +1018,26 @@
 		.setup .today:not(.begin) {
 			padding-block: 0.7rem;
 		}
+
+		/* A newcomer's card in place of Today: on one line too, the icon
+		   before the words, as low as Today would be */
+		.setup .begin {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem 0.75rem;
+			padding: 0.9rem 1rem;
+			text-align: start;
+		}
+
+		.setup .begin p:not(.muted) {
+			flex: 1;
+			font-size: var(--text-sm);
+		}
+
+		.setup .begin .muted {
+			flex-basis: 100%;
+		}
 	}
 
 	/* On a phone the title and Undo and Stop do not fit on one line: the

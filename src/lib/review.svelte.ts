@@ -12,7 +12,7 @@
 // review, an older state of the card would lose to it.
 //
 // How many cards were reviewed each day is counted beside the cards, for the
-// heatmap and the streak. Each browser counts its own reviews and sends the
+// heatmap and the weekly goal. Each browser counts its own reviews and sends the
 // account its own numbers; the account answers with the other browsers' sum.
 // A number sent twice is the same number, so nothing is ever counted double.
 //
@@ -249,7 +249,7 @@ export class Review {
 		if (!before) this.#setUnsent(new Set([...this.#unsent].filter((w) => w !== word)));
 	}
 
-	change(settings: Partial<Pick<ReviewSettings, 'new_per_day' | 'decks'>>): void {
+	change(settings: Partial<Pick<ReviewSettings, 'new_per_day' | 'decks' | 'goal_days' | 'plan'>>): void {
 		this.settings = { ...this.settings, ...settings, updated_at: Date.now() };
 		store(SETTINGS_KEY, this.settings);
 		void this.sync();

@@ -1,7 +1,7 @@
 # Search API
 
-The contract between the front end and the dictionary data. Two endpoints, both
-`GET`, both returning JSON. The code behind them is in `src/lib/search/`.
+The contract between the front end and the dictionary data. Three endpoints, all
+`GET`, all returning JSON. The code behind them is in `src/lib/search/`.
 The routes are `src/routes/api/search/+server.ts` and
 `src/routes/api/word/[word]/+server.ts`. The Details page (`/word/<slug>`)
 reads the database directly instead of calling `/api/word`.
@@ -10,6 +10,7 @@ reads the database directly instead of calling `/api/word`.
 |---|---|---|
 | `/api/search?q=…` | results page | `lookup()` in `suggest.ts` |
 | `/api/word/…` | Details page | `wordDetails()` in `word.ts` |
+| `/api/gloss?w=…` | the card over a word in a sentence | `glossFor()` in `src/lib/gloss.ts` |
 
 Saved words and accounts have endpoints of their own, described at the end
 under [Saved words and accounts](#saved-words-and-accounts). The radio has one,
@@ -293,6 +294,62 @@ Two forms can share the same labels. That means the cell has two variants
 
 `404` with `{ "error": "not_found", "word": "…" }`.
 
+## `GET /api/gloss?w=<word>&before=<word>&after=<word>`
+
+The small card that opens over a word in an example sentence
+(`src/lib/GlossWord.svelte`). Asked once, when the card first opens.
+
+| Parameter | | |
+|---|---|---|
+| `w` | required | The word as the sentence has it: `склянку`. |
+| `before` | optional | The word just before it, only when a space alone stands between them. |
+| `after` | optional | The word just after it, on the same terms. |
+
+Each is at most 40 characters; a longer one gets `400` with
+`{ "error": "word_too_long" }`. An empty `w` answers
+`{ "phrase": null, "readings": [] }`.
+
+The word is first read together with `before`, then with `after`, because
+some pairs are entries of their own. For `w=ласка&before=будь&after=склянку`:
+
+```json
+{
+  "phrase": {
+    "word": "будь ласка",
+    "headword": "будь ла́ска",
+    "pos": "phrase",
+    "tags": [],
+    "forms": [],
+    "meaning": "please"
+  },
+  "readings": [
+    { "word": "ласка", "headword": "ла́ска", "pos": "noun", "tags": ["animal-not-person", "feminine"],
+      "forms": [], "meaning": "weasel (mammal, Mustela nivalis)" },
+    { "word": "ласка", "headword": "ла́ска", "pos": "noun", "tags": ["feminine", "inanimate"],
+      "forms": [], "meaning": "caress, endearment" }
+  ]
+}
+```
+
+For `w=склянку` the one reading has the form that was found, grouped as
+`groupMatched()` in `src/lib/forms.ts` groups it:
+`"forms": [{ "form": "скля́нку", "labels": ["accusative singular"] }]`.
+
+| Field | Meaning |
+|---|---|
+| `phrase` | The pair as one entry, or `null`. Only an entry whose `word` has a space counts. |
+| `readings` | Up to three entries the word is, or is a form of, most likely first. Empty when the dictionary does not know the word. |
+| `word`, `headword`, `pos`, `tags` | As in `/api/search`. Link with `wordPath(word)`. |
+| `forms` | Which forms the word is: empty when it is the word itself. |
+| `meaning` | The first meaning, or `null` for a word only VESUM knows. |
+| `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
+
+Only entries that are the word or one of its forms are given: a word that
+starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor
+is a letter, a symbol or a part of a word (`у` is the preposition, not the
+letter У).
+There are no "did you mean" guesses.
+
 ## `GET /api/radio/now/<station>`
 
 The song a station of the radio is playing. `<station>` is an `id` from
@@ -368,6 +425,7 @@ VESUM's help, but everything in it is the Wiktionary entry.
 |---|---|
 | `400` | `limit` is not a number. |
 | `400` | `/api/search` with `q` over 100 characters. Body: `{ "error": "query_too_long" }`. |
+| `400` | `/api/gloss` with a word over 40 characters. Body: `{ "error": "word_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `404` | `/api/radio/now/…` for a station that is not in the list. |
 | `400` | `/api/practice` with no `points`, or more than 20. Body: `{ "error": "bad_points", "max": 20 }`. |
@@ -375,11 +433,11 @@ VESUM's help, but everything in it is the Wiktionary entry.
 
 ## Caching
 
-The two dictionary endpoints answer the same thing to every visitor, so a
-`200` is sent with
+The dictionary endpoints (`/api/search`, `/api/word/…`, `/api/gloss`) answer
+the same thing to every visitor, so a `200` is sent with
 `Cache-Control: public, max-age=300, s-maxage=3600` and kept in Cloudflare's
-cache for an hour (`src/lib/server/cache.ts`). Parameters other than `q` and
-`limit` are ignored and do not make a separate cache entry.
+cache for an hour (`src/lib/server/cache.ts`). Parameters other than the ones
+each endpoint lists are ignored and do not make a separate cache entry.
 
 `/api/radio/now/…` is kept the same way but for 15 seconds
 (`max-age=15, s-maxage=15`): a station is asked at most four times a minute in
@@ -564,6 +622,30 @@ entry's first Tatoeba sentence, or `null`; credit it with a link to
 `https://tatoeba.org/sentences/show/<tatoeba_id>`. Nothing in the answer comes
 from VESUM.
 
+With `"recall": true` in the body, as the review page sends it, each card also
+has a `recall` field: what typing the word needs (`src/lib/review/recall.ts`).
+
+```json
+"recall": {
+  "forms": ["вода", "води", "вод", "воді", "водам", "воду", "водою", "водами", "водах", "водо"],
+  "gap": {
+    "start": 27, "length": 4, "plain": "води", "also": [],
+    "readings": [
+      { "form": "во́ди", "tags": [["nominative", "plural"], ["accusative", "plural"]] },
+      { "form": "води́", "tags": [["genitive", "singular"]] }
+    ]
+  }
+}
+```
+
+`forms` is every spelling of the word, the dictionary form first, as `plain()`
+writes them (no stress, lower case). `gap` is where `example.uk` has the word,
+in UTF-16 code units, or `null` if the card has no sentence or the sentence has
+the word in no form the dictionary lists. `plain` is the word as the sentence
+has it, `also` its other spellings of the same form (брату beside братові), and
+`readings` what that spelling can be, grouped by stress; a vocative reading is
+left out where there is another. The exports never ask for it.
+
 ### Flashcard review
 
 The review page (`/review`) schedules flashcards in the browser with FSRS-6
@@ -605,8 +687,11 @@ Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794
   is the `now` of an earlier answer; `0` asks for all of them. Without
   `since` the list is empty: a browser with more than 500 cards to send
   leaves it out of every request but the last.
-- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "updated_at": 1794400000000 }`:
-  how many new words a day, and which decks are switched on. A deck is
+- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "goal_days": 4, "plan": "After my
+  morning coffee", "updated_at": 1794400000000 }`: how many new words a day, which decks are switched on,
+  on how many days a week the visitor means to practise (1 to 7; `0` is no goal), and their if-then plan
+  in their own words (one line, at most 80 characters; `""` is none). Settings without `goal_days` or
+  `plan`, or with a malformed one, are read as having no goal or no plan. A deck is
   `saved` (every saved word), `list:<id>` (one of the visitor's lists, by the
   list's id; at most 50 are kept) or a deck of common words. Whether a list
   still exists is not checked here: a deleted list is a deck with no words,

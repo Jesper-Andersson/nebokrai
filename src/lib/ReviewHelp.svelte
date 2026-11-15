@@ -1,6 +1,6 @@
 <!-- How the flashcards work, behind a question mark beside the review page's
      title: what the two answers do, how FSRS chooses when a card comes back,
-     the day's limits, the streak, and where the reviews are kept. A Bits UI
+     the day's limits, the weekly goal, and where the reviews are kept. A Bits UI
      Dialog: the text is too long for a popover on a phone. -->
 <script lang="ts">
 	import { Dialog } from 'bits-ui';

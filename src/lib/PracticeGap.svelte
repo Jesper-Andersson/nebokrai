@@ -24,12 +24,17 @@
      the middle of the free room, and at the foot a bar under the thumb with
      what answers (the four forms, or Check and the on-screen keyboard) and
      then Next. Everything that answering shows has its room kept from the
-     start, so nothing moves when it appears. -->
+     start, so nothing moves when it appears.
+
+     Once answered, every other word of the sentence opens a card that says
+     what it is (Sentence.svelte, GlossWord.svelte). The answer itself does
+     not: its headword is already under the sentence. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Collapsible } from 'melt/builders';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import Sentence from '#lib/Sentence.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
 	import Translation from '#lib/Translation.svelte';
@@ -161,8 +166,12 @@
 		if (target?.closest('[role="dialog"]')) return;
 		if (result) {
 			const on = event.code === 'Enter' || event.code === 'NumpadEnter' || event.code === 'Space';
-			// A focused button or link is pressed by these keys itself
-			if (!on || target?.closest('button, a, input')) return;
+			// A focused button or link is pressed by these keys itself. A word of
+			// the sentence is focused by pressing it for its card, so Enter still
+			// goes on, as the Next button says; Space opens the card again.
+			const pressable = target?.closest('button, a, input');
+			const word = pressable?.classList.contains('ui-gloss-word') && event.code !== 'Space';
+			if (!on || (pressable && !word)) return;
 			event.preventDefault();
 			onnext();
 			return;
@@ -227,7 +236,7 @@
 
 		<div class="shown">
 			<p class="sentence" lang="uk">
-				{parts.before}{#if result}<b class="filled" data-outcome={result.outcome}>{parts.word}</b
+				{#if result}<Sentence text={parts.before} />{:else}{parts.before}{/if}{#if result}<b class="filled" data-outcome={result.outcome}>{parts.word}</b
 					>{:else if choice}<span class="blank" style:--letters={gap.length} aria-label={m.practice.yourAnswer}></span
 					>{:else}<input
 						bind:this={field}
@@ -244,7 +253,7 @@
 						maxlength="60"
 						inputmode={keyboardOpen ? 'none' : undefined}
 						{@attach (!touch || keyboardOpen) && focus}
-					/>{/if}{parts.after}
+					/>{/if}{#if result}<Sentence text={parts.after} />{:else}{parts.after}{/if}
 			</p>
 			<div class="english" lang="en"><Translation text={gap.en} /></div>
 			<p class="cue">

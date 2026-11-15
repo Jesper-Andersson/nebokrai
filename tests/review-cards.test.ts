@@ -5,9 +5,11 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { mergeCards, nextUp, parseCards, plan, span } from '../src/lib/review/cards.ts';
-import { DEFAULT_SETTINGS, listDeck, listOfDeck, parseSettings, wordsOfDeck } from '../src/lib/review/decks.ts';
 import {
-	AGAIN, DAY, GOOD, MINUTE, NEW, REVIEW, answer, newCard, type Rating, type ReviewCard
+	DEFAULT_SETTINGS, MAX_PLAN_LENGTH, cleanPlan, listDeck, listOfDeck, parseSettings, reviewEstimate, wordsOfDeck
+} from '../src/lib/review/decks.ts';
+import {
+	AGAIN, DAY, GOOD, MINUTE, NEW, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard
 } from '../src/lib/review/fsrs.ts';
 
 // Midday local time: no step here crosses 04:00.
@@ -160,9 +162,61 @@ test('parseSettings', () => {
 	assert.deepEqual(parseSettings(DEFAULT_SETTINGS), DEFAULT_SETTINGS);
 	assert.deepEqual(
 		parseSettings({ new_per_day: 20, decks: ['common-500', 'saved', 'made-up', 'saved'], updated_at: T0 }, T0 + 1),
-		{ new_per_day: 20, decks: ['saved', 'common-500'], updated_at: T0 });
+		{ new_per_day: 20, decks: ['saved', 'common-500'], goal_days: 0, plan: '', updated_at: T0 });
 	assert.equal(parseSettings({ new_per_day: 20, decks: [], updated_at: T0 + DAY }, T0)?.updated_at, T0);
 	for (const bad of [null, 'x', { new_per_day: -1, decks: [] }, { new_per_day: 1000, decks: [] }, { new_per_day: 5 }]) {
 		assert.equal(parseSettings(bad), null);
 	}
+});
+
+test('settings keep a weekly goal and an if-then plan', () => {
+	const sent = { new_per_day: 10, decks: ['saved'], goal_days: 4, plan: 'After my morning coffee', updated_at: T0 };
+	assert.deepEqual(parseSettings(sent, T0), sent);
+	// A goal that cannot be is no goal; the decks are kept all the same.
+	for (const goal_days of [-1, 8, 2.5, '4', null]) {
+		assert.deepEqual(parseSettings({ ...sent, goal_days }, T0)?.goal_days, 0);
+		assert.deepEqual(parseSettings({ ...sent, goal_days }, T0)?.decks, ['saved']);
+	}
+	assert.equal(parseSettings({ ...sent, goal_days: 7 }, T0)?.goal_days, 7);
+	assert.equal(parseSettings({ ...sent, plan: 42 }, T0)?.plan, '');
+});
+
+test('a plan is kept on one line and cut at 80 characters', () => {
+	assert.equal(cleanPlan('  Після\nранкової\tкави  '), 'Після ранкової кави');
+	assert.equal(cleanPlan('a\u0000b​c d'), 'a b c d');
+	assert.equal(cleanPlan('ї'.repeat(100)), 'ї'.repeat(MAX_PLAN_LENGTH));
+	// Cut by code point: an emoji outside the BMP is never left half there.
+	assert.equal([...cleanPlan('😀'.repeat(90))].length, MAX_PLAN_LENGTH);
+	assert.equal(cleanPlan(undefined), '');
+});
+
+test('the review estimate follows the scheduler', () => {
+	assert.deepEqual(reviewEstimate(10), { answers: 90, minutes: 15 });
+	assert.deepEqual(reviewEstimate(20), { answers: 180, minutes: 30 });
+	// Ten new cards a day for ninety days, answered as FSRS expects: "Good" on
+	// a first sight, recall at the chance it predicts, then the learning steps.
+	let seed = 12345;
+	const rand = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+	let cards: ReviewCard[] = [];
+	const counts: number[] = [];
+	for (let day = 0; day < 90; day++) {
+		const now = T0 + day * DAY;
+		let answers = 0;
+		const work = (start: ReviewCard, first: boolean): ReviewCard => {
+			let card = answer(start, first || rand() < retrievability(start, now) ? GOOD : AGAIN, now);
+			let at = now;
+			answers += 1;
+			while (card.state !== REVIEW) {
+				at = Math.max(at + 60_000, card.due);
+				card = answer(card, rand() < 0.8 ? GOOD : AGAIN, at);
+				answers += 1;
+			}
+			return card;
+		};
+		cards = cards.map((card) => (dayNumber(card.due) <= dayNumber(now) ? work(card, false) : card));
+		for (let i = 0; i < 10; i++) cards.push(work(newCard(`w${day}-${i}`, now), true));
+		counts.push(answers);
+	}
+	const lastTen = counts.slice(80).reduce((a, b) => a + b, 0) / 10;
+	assert.ok(Math.abs(lastTen - reviewEstimate(10).answers) / reviewEstimate(10).answers < 0.2, `${lastTen} a day`);
 });

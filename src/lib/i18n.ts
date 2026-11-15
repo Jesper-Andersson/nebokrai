@@ -374,8 +374,15 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
-		/** On each word of an example sentence */
-		lookUp: 'Look up this word',
+		/** The card over a word of an example sentence (GlossWord.svelte) */
+		gloss: {
+			open: 'Open word',
+			/** Before the other words the same spelling can be: "Also ла́ска noun: caress" */
+			also: 'Also',
+			missing: 'This word is not in the dictionary yet.',
+			search: 'Search for it',
+			loading: 'Looking it up…'
+		},
 		/** Above the entries of за́мок and замо́к */
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
@@ -555,13 +562,22 @@ const en = {
 			open: 'How the flashcards work',
 			close: 'Close',
 			title: 'How the flashcards work',
-			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it.',
+			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have known for a while comes the other way round: you type it.',
 			sections: [
 				{
 					heading: 'Again and Good',
 					body: [
 						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
 						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
+					]
+				},
+				{
+					heading: 'Typing the answer',
+					body: [
+						'A new word is shown to you first, Ukrainian side up. Once you have recognised it after a gap of a few days and it is expected to hold for a week, its card shows the meaning instead, and you type the Ukrainian word. Recalling a word yourself fixes it better than recognising it, but only once you know it well enough to manage. A word you forget goes back to the Ukrainian side until it holds again.',
+						'Stuck, you can show the first letter, then choose the word from four. Typed after the first letter, it still counts as known; chosen from four, it comes back soon.',
+						'Then the card shows a sentence with the word left out, and you type the form the sentence needs: склянку води, not склянку вода. Latin letters work too: vody.',
+						'The answer your typing suggests is the one in blue: Good if you recalled the word, even with another ending, and Again if you did not. You can still pick the other. Typing can be switched off under the decks.'
 					]
 				},
 				{
@@ -586,9 +602,11 @@ const en = {
 					]
 				},
 				{
-					heading: 'The streak',
+					heading: 'Your weekly goal',
 					body: [
-						'The flame shows how many days in a row you have reviewed at least one card. It is lit once you have reviewed today; a day without reviews ends the streak only when the day is over.'
+						'Choose on how many days a week you mean to practise, and when, in your own words: “When I have my morning coffee”. A plan that names the moment makes it likelier you keep to it.',
+						'The ring on Learn fills for each day this week, Monday to Sunday, with at least one review, and closes once the goal is met. Days beyond the goal count too. A missed day takes nothing away: the week only counts what you did.',
+						'More new cards a day means more reviews later: each new card a day brings about nine reviews a day after three months.'
 					]
 				},
 				{
@@ -605,8 +623,25 @@ const en = {
 		openDue: (n: number) => `Flashcards: ${n} to review`,
 		/** Not built yet: shown greyed out, so the way it will go is visible. */
 		planned: { note: '(planned)', deck: 'Import a deck', list: 'Import into a list' },
-		streakDays: (n: number) => (n === 1 ? 'A streak of 1 day' : `A streak of ${n} days`),
-		streakWaits: 'Review a card today to keep it',
+		/** The weekly goal: set on /review, shown on /learn (GoalCard) and in the header. */
+		goal: {
+			label: 'Weekly goal',
+			none: 'None',
+			hint: 'Days a week. A missed day takes nothing away.',
+			plan: 'Your plan',
+			planExample: 'When I have my morning coffee',
+			planHint: 'When and where you will practise, in your own words.',
+			estimate: (answers: number, minutes: number) =>
+				`About ${answers} reviews a day after three months (${minutes} ${minutes === 1 ? 'minute' : 'minutes'}).`,
+			thisWeek: 'This week',
+			ofDays: (n: number, goal: number) => `${n} of ${goal} days`,
+			met: (goal: number) => `Goal of ${goal} met`,
+			week: (n: number, goal: number) =>
+				n >= goal ? `This week: ${n === 1 ? '1 day' : `${n} days`}, goal of ${goal} met` : `This week: ${n} of ${goal} days`,
+			practised: 'Days practised',
+			thisMonth: 'practised this month',
+			set: 'Set a weekly goal'
+		},
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
 		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
@@ -651,8 +686,8 @@ const en = {
 		},
 		swipe: 'Tap the card for the answer, then swipe it left for Again or right for Good.',
 		heatmap: {
-			streak: 'Current streak',
-			longest: 'Longest streak',
+			thisMonth: 'This month',
+			bestMonth: 'Best month',
 			average: 'Daily average',
 			learned: 'Days learned',
 			days: (n: number) => (n === 1 ? '1 day' : `${n} days`),
@@ -670,6 +705,28 @@ const en = {
 		undo: 'Undo',
 		undone: 'Answer taken back',
 		openWord: 'Open in the dictionary',
+		/** Typing the answer to a word reviewed before (RecallCard.svelte). */
+		recall: {
+			heading: 'Answers',
+			setting: 'Type the words you know well',
+			settingNote: 'The meaning is shown, and you type the Ukrainian word, then its form in a sentence.',
+			inUkrainian: 'In Ukrainian:',
+			typeWord: 'Type the word',
+			typeForm: 'The word as the sentence needs it',
+			latin: 'Latin letters work too.',
+			close: 'Close: check the spelling and try again.',
+			formAsk: 'Now the form this sentence needs.',
+			/** The form's name, as the grammar tags give it: "genitive singular". */
+			formIs: (name: string) => `Right word, another form: the sentence needs the ${name}.`,
+			formLook: 'Right word, another form. The words around the gap decide which.',
+			youTyped: 'You typed',
+			dontKnow: 'I don’t know',
+			check: 'Check',
+			firstLetter: 'Show the first letter',
+			chooseFour: 'Choose from four',
+			pick: 'Pick the word',
+			startsWith: (letter: string) => `It starts with ${letter}`
+		},
 		left: (n: number) => `${n} left`,
 		end: 'Stop',
 		loading: 'Loading the cards…',
@@ -1331,7 +1388,13 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
-		lookUp: 'Знайти це слово',
+		gloss: {
+			open: 'Відкрити слово',
+			also: 'Також',
+			missing: 'Цього слова в словнику ще немає.',
+			search: 'Пошукати його',
+			loading: 'Шукаю…'
+		},
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
@@ -1511,13 +1574,22 @@ const uk: Messages = {
 			open: 'Як працюють картки',
 			close: 'Закрити',
 			title: 'Як працюють картки',
-			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його.',
+			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже знаєте якийсь час, приходить навпаки: ви його друкуєте.',
 			sections: [
 				{
 					heading: '«Ще раз» і «Добре»',
 					body: [
 						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
 						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
+					]
+				},
+				{
+					heading: 'Друкування відповіді',
+					body: [
+						'Нове слово спершу показується українським боком догори. Коли ви впізнали його після перерви в кілька днів і воно має триматися тиждень, картка показує значення, а ви друкуєте українське слово. Самому згадати слово корисніше, ніж його впізнати, але лише тоді, коли ви знаєте його досить, щоб упоратися. Забуте слово повертається українським боком, доки знову не закріпиться.',
+						'Якщо не виходить, можна показати першу літеру, а потім вибрати слово з чотирьох. Надруковане після першої літери слово все одно вважається знаним; вибране з чотирьох повернеться незабаром.',
+						'Потім картка показує речення з пропуском, і ви друкуєте форму, якої потребує речення: склянку води, а не склянку вода. Можна й латиницею: vody.',
+						'Відповідь, яку підказує надруковане, виділено синім: «Добре», якщо ви згадали слово, хай і з іншим закінченням, і «Ще раз», якщо не згадали. Можна вибрати й іншу. Друкування можна вимкнути під колодами.'
 					]
 				},
 				{
@@ -1542,9 +1614,11 @@ const uk: Messages = {
 					]
 				},
 				{
-					heading: 'Серія',
+					heading: 'Ваша мета на тиждень',
 					body: [
-						'Вогник показує, скільки днів поспіль ви повторили хоча б одну картку. Він горить, коли ви вже повторювали сьогодні; день без повторень обриває серію лише тоді, коли закінчиться.'
+						'Виберіть, скільки днів на тиждень ви хочете займатися і коли, своїми словами: «Коли п’ю ранкову каву». План, що називає мить, допомагає його дотримати.',
+						'Кільце на сторінці «Навчання» заповнюється за кожен день цього тижня, з понеділка до неділі, коли ви повторили хоча б одну картку, і замикається, щойно мету досягнуто. Дні понад мету теж зараховано. Пропущений день нічого не забирає: тиждень лічить лише те, що ви зробили.',
+						'Більше нових карток на день — більше повторень згодом: кожна нова картка на день дає приблизно дев’ять повторень на день через три місяці.'
 					]
 				},
 				{
@@ -1560,8 +1634,26 @@ const uk: Messages = {
 		},
 		planned: { note: '(заплановано)', deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
-		streakDays: (n) => `Серія: ${counted(n, 'день', 'дні', 'днів')}`,
-		streakWaits: 'Повторіть сьогодні хоч одну картку, щоб її зберегти',
+		goal: {
+			label: 'Мета на тиждень',
+			none: 'Немає',
+			hint: 'Днів на тиждень. Пропущений день нічого не забирає.',
+			plan: 'Ваш план',
+			planExample: 'Коли п’ю ранкову каву',
+			planHint: 'Коли й де ви займатиметеся, своїми словами.',
+			estimate: (answers, minutes) =>
+				`Приблизно ${counted(answers, 'повторення', 'повторення', 'повторень')} на день через три місяці (${counted(minutes, 'хвилина', 'хвилини', 'хвилин')}).`,
+			thisWeek: 'Цього тижня',
+			ofDays: (n, goal) => `${n} з ${counted(goal, 'дня', 'днів', 'днів')}`,
+			met: (goal) => `Мету досягнуто: ${counted(goal, 'день', 'дні', 'днів')}`,
+			week: (n, goal) =>
+				n >= goal
+					? `Цього тижня: ${counted(n, 'день', 'дні', 'днів')}, мету досягнуто`
+					: `Цього тижня: ${n} з ${counted(goal, 'дня', 'днів', 'днів')}`,
+			practised: 'Дні занять',
+			thisMonth: 'із заняттями цього місяця',
+			set: 'Поставити мету на тиждень'
+		},
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
 		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
@@ -1603,8 +1695,8 @@ const uk: Messages = {
 		},
 		swipe: 'Торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).',
 		heatmap: {
-			streak: 'Поточна серія',
-			longest: 'Найдовша серія',
+			thisMonth: 'Цього місяця',
+			bestMonth: 'Найкращий місяць',
 			average: 'У середньому за день',
 			learned: 'Днів із заняттями',
 			days: (n) => counted(n, 'день', 'дні', 'днів'),
@@ -1622,6 +1714,26 @@ const uk: Messages = {
 		undo: 'Скасувати',
 		undone: 'Відповідь скасовано',
 		openWord: 'Відкрити у словнику',
+		recall: {
+			heading: 'Відповіді',
+			setting: 'Друкувати слова, які ви добре знаєте',
+			settingNote: 'Показується значення, а ви друкуєте українське слово, потім його форму в реченні.',
+			inUkrainian: 'Українською:',
+			typeWord: 'Надрукуйте слово',
+			typeForm: 'Слово в тій формі, якої потребує речення',
+			latin: 'Можна й латиницею.',
+			close: 'Майже: перевірте написання і спробуйте ще раз.',
+			formAsk: 'Тепер форма, якої потребує це речення.',
+			formIs: (name) => `Слово правильне, форма інша. Речення потребує форми: ${name}.`,
+			formLook: 'Слово правильне, форма інша. Яка саме, підкажуть слова довкола пропуску.',
+			youTyped: 'Ви надрукували',
+			dontKnow: 'Не знаю',
+			check: 'Перевірити',
+			firstLetter: 'Показати першу літеру',
+			chooseFour: 'Вибрати з чотирьох',
+			pick: 'Виберіть слово',
+			startsWith: (letter) => `Починається на ${letter}`
+		},
 		left: (n) => `залишилося ${n}`,
 		end: 'Зупинити',
 		loading: 'Завантаження карток…',

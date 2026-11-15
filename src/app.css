@@ -267,11 +267,6 @@ b[lang='uk'] {
 	--right: #1f7a3d; /* a right answer: 5.4:1 on the surface */
 	--right-soft: #e3f4e7;
 	--play: #1f8ac0;
-	/* The streak's flame on the header's flashcards button: its tip, its body
-	   and the number written on it */
-	--flame-tip: #f0541e;
-	--flame: #ffa726;
-	--flame-ink: #5a2500;
 	/* The wordmark in the header: pure white on the dark page, and the text
 	   colour on the light one, where white would not show */
 	--logo-ink: #16181d;
@@ -326,11 +321,6 @@ b[lang='uk'] {
 	--right: #6fcf8a;
 	--right-soft: #173322;
 	--play: #5cb8e6;
-	/* The streak's flame on the header's flashcards button: its tip, its body
-	   and the number written on it */
-	--flame-tip: #ff6a2b;
-	--flame: #ffb03a;
-	--flame-ink: #5a2500;
 	--logo-ink: #ffffff;
 	--pill-1-line: #4fae67;
 	--pill-2-line: #5b95d9;
@@ -376,11 +366,6 @@ b[lang='uk'] {
 		--right: #6fcf8a;
 		--right-soft: #173322;
 		--play: #5cb8e6;
-		/* The streak's flame on the header's flashcards button: its tip, its body
-		   and the number written on it */
-		--flame-tip: #ff6a2b;
-		--flame: #ffb03a;
-		--flame-ink: #5a2500;
 		--logo-ink: #ffffff;
 		--pill-1-line: #4fae67;
 		--pill-2-line: #5b95d9;
@@ -429,11 +414,6 @@ b[lang='uk'] {
 	--right: #1a6331;
 	--right-soft: #cfe3c0;
 	--play: #1a6283;
-	/* The streak's flame on the header's flashcards button: its tip, its body
-	   and the number written on it */
-	--flame-tip: #d9481c;
-	--flame: #f09a24;
-	--flame-ink: #5a2500;
 	--logo-ink: #3b2f20;
 	--pill-1-line: #2c7338;
 	--pill-2-line: #2f629c;
@@ -1009,6 +989,106 @@ select {
 	font-weight: 600;
 	text-decoration: underline;
 	text-underline-offset: 3px;
+}
+
+/* A word of an example sentence that opens its card (GlossWord.svelte). It
+   reads as the text around it until it is pointed at or open: a dotted line
+   under it then, and the accent line while its card is open. */
+.ui-gloss-word {
+	padding: 0;
+	border: 0;
+	border-radius: 2px;
+	background: none;
+	color: inherit;
+	font: inherit;
+	letter-spacing: inherit;
+	cursor: pointer;
+	user-select: text;
+}
+
+@media (hover: hover) {
+	.ui-gloss-word:hover {
+		text-decoration: underline dotted;
+		text-underline-offset: 3px;
+	}
+}
+
+.ui-gloss-word[data-state='open'] {
+	text-decoration: underline solid var(--accent);
+	text-decoration-thickness: 2px;
+	text-underline-offset: 4px;
+}
+
+/* The card: the grammar note's size and spacing, the word first */
+.ui-popover.ui-gloss {
+	display: grid;
+	gap: 0.3rem;
+	width: min(21rem, calc(100vw - 16px));
+	padding: 0.8rem 0.9rem;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 1.45;
+}
+
+.ui-gloss p {
+	margin: 0;
+}
+
+.ui-gloss-head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.6rem;
+}
+
+.ui-gloss-head b {
+	font-family: var(--font-headword);
+	font-size: var(--headword-sm);
+	font-weight: 800;
+}
+
+.ui-gloss-muted {
+	color: var(--muted);
+}
+
+.ui-gloss-meaning {
+	font-size: 1rem;
+}
+
+.ui-gloss-also {
+	padding-top: 0.4rem;
+	border-top: 1px solid var(--border);
+	color: var(--ink-2);
+}
+
+.ui-gloss-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 0.2rem;
+	padding-top: 0.3rem;
+	border-top: 1px solid var(--border);
+}
+
+.ui-gloss-actions a,
+.ui-gloss-actions button:not(.ui-icon-btn) {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--accent);
+	font: inherit;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+@media (hover: hover) {
+	.ui-gloss-actions a:hover,
+	.ui-gloss-actions button:not(.ui-icon-btn):hover {
+		color: var(--link-hover);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
 }
 
 /* A short list of things to do (Bits UI DropdownMenu): a popover as wide as

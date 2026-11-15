@@ -9,7 +9,7 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { plan } from '#lib/review/cards.ts';
-	import { keyOfDay, reviewStats } from '#lib/review/days.ts';
+	import { weekProgress } from '#lib/review/days.ts';
 	import { dayNumber } from '#lib/review/fsrs.ts';
 	import { wordsOfDeck } from '#lib/review/decks.ts';
 	import { useReview } from '#lib/review.svelte.ts';
@@ -68,19 +68,21 @@
 		return today.learning.length + today.due.length;
 	});
 
-	// The streak, in a flame on the same button. The flame burns once a card
-	// has been reviewed today; until then it is an outline, the streak still
-	// standing but not yet kept.
-	let streak = $derived.by(() => {
-		const today = dayNumber(Date.now());
-		return { days: reviewStats(review.days, today).streak, lit: (review.days[keyOfDay(today)] ?? 0) > 0 };
+	// The weekly goal on the same button, as /learn's ring draws it: days
+	// practised this week against the goal ("3/4"). It replaced a streak of
+	// days in a row (2026-11-15), whose flame asked to be kept alive. Without
+	// a goal there is nothing to count against, and nothing is shown.
+	let goal = $derived.by(() => {
+		const days = review.settings.goal_days;
+		if (!days) return null;
+		const done = weekProgress(review.days, dayNumber(Date.now())).week;
+		return { days, done, met: done >= days };
 	});
+	// The small ring: r = 7.5 in a 20-unit box
+	const ROUND = 2 * Math.PI * 7.5;
 	let cardsLabel = $derived(
-		[
-			due ? m.review.openDue(due) : m.review.open,
-			...(streak.days ? [m.review.streakDays(streak.days)] : []),
-			...(streak.days && !streak.lit ? [m.review.streakWaits] : [])
-		].join('. '));
+		[due ? m.review.openDue(due) : m.review.open, ...(goal ? [m.review.goal.week(goal.done, goal.days)] : [])]
+			.join('. '));
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -160,24 +162,22 @@
 			>
 				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
 				<Icon name="cards" size={20} />
-				{#if streak.days}
-					<span class="streak" class:lit={streak.lit} aria-hidden="true">
-						{Math.min(streak.days, 999)}
-						<!-- Red at the tip and amber below; the drawing has room around
-						     the flame for its flicker -->
-						<svg class="flame" viewBox="1 -2 22 26">
-							<defs>
-								<linearGradient id="ui-flame-body" x1="0" y1="0" x2="0" y2="1">
-									<stop offset="0%" style="stop-color: var(--flame-tip)" />
-									<stop offset="70%" style="stop-color: var(--flame)" />
-								</linearGradient>
-							</defs>
-							<path
-								class="body"
-								fill="url(#ui-flame-body)"
-								d="M13 1c.6 3.2 3 4.9 4.7 7.2 1.4 1.9 2.3 4 2.3 6.3A8 8 0 0 1 4 14.5c0-2.6 1.1-4.9 2.7-6.6.3 1.6 1 2.7 2.2 3.3C8.6 7.6 10 3.6 13 1z"
-							/>
+				{#if goal}
+					<span class="goal" class:met={goal.met} aria-hidden="true">
+						<svg class="ring" viewBox="0 0 20 20">
+							<circle class="track" cx="10" cy="10" r="7.5" />
+							{#if !goal.met && goal.done}
+								<circle
+									class="fill"
+									cx="10"
+									cy="10"
+									r="7.5"
+									stroke-dasharray="{(goal.done / goal.days) * ROUND} {ROUND}"
+									transform="rotate(-90 10 10)"
+								/>
+							{/if}
 						</svg>
+						{goal.done}/{goal.days}
 					</span>
 				{/if}
 			</a>
@@ -404,12 +404,13 @@
 	}
 
 	/* The way to the flashcards, and what waits there, read in a row: how
-	   many are due, the cards, then the days of the streak and its flame. Until
+	   many are due, the cards, then the week against the goal (until
+	   2026-11-15, the days of a streak and its flame). Until
 	   2026-11-13 the count sat on the button's upper left corner and the flame,
 	   with the days written in it, on its upper right: two marks piled on one
 	   small icon, the flame hanging over the edge of the bar. Side by side
 	   each can be read, and the button is as wide as what it has to say: with
-	   nothing due and no streak it is the square it was. */
+	   nothing due and no goal it is the square it was. */
 	.cards {
 		gap: 0.3rem;
 		width: auto;
@@ -431,61 +432,33 @@
 		color: var(--accent);
 	}
 
-	/* The streak, a little apart from the count. Not yet kept today, the
-	   flame is an outline and its figure grey. */
-	.streak {
+	/* The week against the goal, a little apart from the count: a small ring
+	   and "3/4". Met, the ring is whole and green. */
+	.goal {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.1rem;
+		gap: 0.2rem;
 		margin-left: 0.3rem;
-		color: var(--muted);
-	}
-
-	.flame {
-		width: 1rem;
-		height: 1.18rem;
-		/* The flame stands on the figures' baseline, not on the room under it */
-		margin-top: -0.2rem;
-	}
-
-	.streak:not(.lit) .body {
-		fill: none;
-		stroke: var(--muted);
-		stroke-width: 1.6;
-		stroke-linejoin: round;
-	}
-
-	/* Lit: a card has been reviewed today. It flickers, swaying from
-	   its foot, and its figure takes the text colour. No glow round it: the
-	   colour is enough. */
-	.streak.lit {
 		color: var(--ink);
 	}
 
-	.streak.lit .body {
-		transform-box: fill-box;
-		transform-origin: 50% 100%;
-		animation: flame-sway 1.7s ease-in-out infinite alternate;
+	.ring {
+		width: 1.1rem;
+		height: 1.1rem;
+		fill: none;
+		stroke-width: 3;
 	}
 
-	@keyframes flame-sway {
-		from {
-			transform: scale(1, 0.96) skewX(-2.5deg);
-		}
-
-		50% {
-			transform: scale(0.97, 1.04) skewX(1.5deg);
-		}
-
-		to {
-			transform: scale(1.02, 0.98) skewX(3deg);
-		}
+	.track {
+		stroke: var(--border);
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.streak.lit .body {
-			animation: none;
-		}
+	.fill {
+		stroke: var(--accent);
+	}
+
+	.goal.met .track {
+		stroke: var(--right);
 	}
 
 	@media (pointer: coarse) {
@@ -629,7 +602,7 @@
 		}
 
 		/* The name gives way before the tools wrap: with a phone's text set
-		   larger, the deck count and the streak left no room for the settings
+		   larger, the deck count and the streak (now the weekly goal) left no room for the settings
 		   button, and it fell to a line of its own on the left (2026-11-14).
 		   A basis of 0 keeps the line from wrapping; the name then grows back
 		   to its full width wherever there is room for it, and pushes the

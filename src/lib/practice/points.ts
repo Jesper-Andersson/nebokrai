@@ -88,7 +88,7 @@ export const POINT_CASES: readonly PointCase[] = ['locative', 'accusative', 'gen
 export const isNumber = (point: Point): boolean => point.kind === 'number';
 
 // A point's schedule is kept with the flashcards' (review.svelte.ts), under a
-// name no word has, so the account holds it and the streak counts it with no
+// name no word has, so the account holds it and the weekly goal counts it with no
 // table of its own. The flashcards leave alone a card whose word is in no deck.
 const KEY_PREFIX = 'grammar:';
 

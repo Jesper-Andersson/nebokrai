@@ -1,9 +1,9 @@
-// Names of days for the Learn page's rail (StreakCard, ActivityCard). A day
+// Names of days for the Learn page's rail (GoalCard, ActivityCard). A day
 // is a number of days since 1970 (fsrs.ts `dayNumber`), read in UTC so that
 // the name is the day's own wherever the browser is.
 import { DAY } from '../review/fsrs.ts';
 
-/** "Fri" or "F" under a bar or a flame. */
+/** "Fri" or "F" under a bar or a dot. */
 export const weekday = (locale: string, n: number, width: 'short' | 'narrow'): string =>
 	new Intl.DateTimeFormat(locale, { weekday: width, timeZone: 'UTC' }).format(n * DAY);
 

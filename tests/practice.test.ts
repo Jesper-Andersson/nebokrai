@@ -12,7 +12,10 @@ import { LESSONS, lessonRows, openLesson } from '../src/lib/practice/lessons.ts'
 import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
-import { ROUND, checkAnswer, gradePoint, planRound, planWeak, ratingOf, split, stateOf, type Gap } from '../src/lib/practice/round.ts';
+import {
+	ROUND, checkAnswer, climb, cut, endingOf, gradePoint, hintStep, noteKey, planRound, planWeak, ratingOf, split, stateOf,
+	struckEnding, type Gap
+} from '../src/lib/practice/round.ts';
 import { AGAIN, DAY, GOOD, HARD, LEARNING, REVIEW, answer, newCard, type ReviewCard } from '../src/lib/review/fsrs.ts';
 import { plain } from '../src/lib/search/normalize.ts';
 import { openLocal } from './local-db.ts';
@@ -283,6 +286,91 @@ test('a round of weak spots is the shaky points, filled up to a mix from the lea
 	assert.deepEqual(planWeak(ids, reviewed(['bez-gen'], 0), NOW, seeded()), Array(ROUND).fill('bez-gen'));
 });
 
+// --- The ladder of hints ---
+
+test("an answer's ending is cut where most of the noun's forms part from it, with its stress", () => {
+	assert.deepEqual(endingOf(SUGAR), { stem: 'цу́кр', ending: 'у', letters: 4 });
+	const water: Gap = {
+		...SUGAR, answer: 'води́', word: 'вода', headword: 'вода́',
+		forms: ['вода', 'води', 'воді', 'воду', 'водою', 'водо', 'вод', 'водам', 'водами', 'водах']
+	};
+	assert.deepEqual(endingOf(water), { stem: 'вод', ending: 'и́', letters: 3 });
+	// A second spelling of the case is not a form to part from
+	const table: Gap = {
+		...SUGAR, answer: 'столі́', also: ['столу'], word: 'стіл', headword: 'стіл',
+		forms: ['стіл', 'стола', 'столу', 'столі', 'столом', 'столи', 'столів']
+	};
+	assert.equal(endingOf(table).ending, 'і́');
+	const ball: Gap = { ...SUGAR, answer: "м'яче́м", word: "м'яч", forms: ["м'яч", "м'яча", "м'ячу", "м'ячем", "м'ячі", "м'ячів"] };
+	assert.deepEqual(endingOf(ball), { stem: "м'яч", ending: 'е́м', letters: 4 });
+});
+
+test('a genitive plural with no ending, and a form the same as the dictionary has, have no ending', () => {
+	const books: Gap = {
+		...SUGAR, answer: 'кни́г', number: 'plural', word: 'книга',
+		forms: ['книга', 'книги', 'книзі', 'книгу', 'книгою', 'книг', 'книгам', 'книгами', 'книгах']
+	};
+	assert.equal(endingOf(books).ending, '');
+	const day: Gap = {
+		...SUGAR, answer: 'де́нь', word: 'день', forms: ['день', 'дня', 'дню', 'днем', 'дні', 'днів', 'дням', 'днями', 'днях']
+	};
+	assert.deepEqual(endingOf(day), { stem: 'де́нь', ending: '', letters: 4 });
+});
+
+test("a word is cut after so many letters, its stress mark kept with the vowel", () => {
+	assert.deepEqual(cut('цу́кру', 3), { stem: 'цу́к', ending: 'ру' });
+	assert.deepEqual(cut('води́', 3), { stem: 'вод', ending: 'и́' });
+	assert.deepEqual(cut('Цукру', 4), { stem: 'Цукр', ending: 'у' });
+});
+
+test('a wrong try shows what of it stays and what is struck out', () => {
+	const sugar = endingOf(SUGAR);
+	assert.deepEqual(struckEnding('цукор', sugar), { kept: 'цук', struck: 'ор' });
+	assert.deepEqual(struckEnding(' Цукром ', sugar), { kept: 'Цукр', struck: 'ом' });
+	assert.deepEqual(struckEnding('сіль', sugar), { kept: '', struck: 'сіль' });
+	assert.equal(struckEnding('tsukor', sugar), null);
+	assert.equal(struckEnding('  ', sugar), null);
+});
+
+test('each wrong try climbs one step, and the third gives the answer as missed', () => {
+	const sugar = endingOf(SUGAR);
+	assert.deepEqual(climb(0, 'right', sugar), { step: 0, outcome: 'right' });
+	for (const found of ['form', 'close', 'wrong'] as const) {
+		assert.deepEqual(climb(0, found, sugar), { step: 1, outcome: null });
+	}
+	assert.deepEqual(climb(1, 'right', sugar), { step: 1, outcome: 'helped' });
+	assert.deepEqual(climb(1, 'form', sugar), { step: 2, outcome: null });
+	assert.deepEqual(climb(2, 'right', sugar), { step: 2, outcome: 'helped' });
+	assert.deepEqual(climb(2, 'wrong', sugar), { step: 3, outcome: 'missed' });
+	assert.equal(ratingOf([climb(1, 'right', sugar).outcome!]), HARD);
+	assert.equal(ratingOf([climb(2, 'wrong', sugar).outcome!]), AGAIN);
+});
+
+test('an answer with no ending skips the step that would point at one', () => {
+	const snow = endingOf({ ...SUGAR, answer: 'сні́г', word: 'сніг', forms: ['сніг', 'снігу', 'снігом', 'снігові'] });
+	assert.deepEqual(climb(0, 'form', snow), { step: 2, outcome: null });
+	assert.deepEqual(climb(2, 'form', snow), { step: 3, outcome: 'missed' });
+	assert.equal(hintStep(0, snow), 2);
+});
+
+test('"Hint" climbs as far as the rule and no further', () => {
+	const sugar = endingOf(SUGAR);
+	assert.equal(hintStep(0, sugar), 1);
+	assert.equal(hintStep(1, sugar), 2);
+	assert.equal(hintStep(2, sugar), 2);
+});
+
+test('a note on an ending is found by case, number and ending, in both languages', () => {
+	const bez = pointOf('bez-gen')!;
+	assert.equal(noteKey(bez, SUGAR, endingOf(SUGAR)), 'genitive:singular:у');
+	for (const lang of ['en', 'uk'] as const) {
+		const notes = messagesFor(lang).practice.notes;
+		assert.match(notes['genitive:singular:у'], /цукру/);
+		assert.equal(notes['genitive:singular:ом'], undefined);
+	}
+	assert.deepEqual(Object.keys(messagesFor('uk').practice.notes), Object.keys(messagesFor('en').practice.notes));
+});
+
 // --- The sentences ---
 
 const skip = existsSync('nebokrai.db') ? false : 'nebokrai.db is missing';
@@ -335,6 +423,19 @@ test('the noun standing after a preposition that asks for one case of it', { ski
 	for (const row of rows) {
 		assert.equal(plain(row.uk.slice(row.start, row.start + row.length)), plain(row.form));
 		assert.match(row.uk.slice(0, row.start).toLowerCase(), /(^|[^Ѐ-ӿ])без $/);
+	}
+});
+
+test("every sentence's answer parts into a stem and an ending that the sentence's own spelling parts at too", { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	for (const seed of [5, 6, 7]) {
+		for (const gap of await drawGaps(db, found.slice(0, MAX_GAPS), seeded(seed))) {
+			const ending = endingOf(gap);
+			assert.equal(ending.stem + ending.ending, gap.answer.normalize('NFC'), gap.uk);
+			assert.ok(ending.letters > 0, gap.uk);
+			const { word } = split(gap);
+			assert.equal(plain(cut(word, ending.letters).ending), plain(ending.ending), gap.uk);
+		}
 	}
 });
 

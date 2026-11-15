@@ -7,7 +7,8 @@ import {
 	AGAIN, GOOD, HARD, RELEARNING, REVIEW, answer, dayNumber, newCard, retrievability, type Rating, type ReviewCard
 } from '../review/fsrs.ts';
 import { checkTyped, type Typed } from '../review/recall.ts';
-import { cardKey } from './points.ts';
+import { isCyrillic, plain } from '../search/normalize.ts';
+import { cardKey, type Point } from './points.ts';
 
 /** A number from 0 up to, not including, 1: Math.random, or a fixed sequence in a test. */
 export type Random = () => number;
@@ -183,11 +184,123 @@ export function checkAnswer(gap: Gap, given: string): Typed {
 }
 
 /**
- * How one sentence went: answered rightly unaided, rightly with help (the
- * case was shown, or a first try had the right word in the wrong form), or
- * missed.
+ * How one sentence went: answered rightly unaided, rightly with help (a hint
+ * was shown, asked for or after a wrong try), or missed.
  */
 export type Outcome = 'right' | 'helped' | 'missed';
+
+/**
+ * How far up the ladder of hints a typed sentence has come: 0, none yet;
+ * 1, the ending to change (цук~~ор~~ → цукр_); 2, the rule (без → genitive);
+ * 3, the answer itself, and the sentence is missed.
+ */
+export type Step = 0 | 1 | 2 | 3;
+
+/** The answer as stem and ending, each with its stress: цу́кр + у, вод + и́. */
+export interface Ending {
+	stem: string;
+	ending: string;
+	/** The stem's length in letters, stress marks not counted: where to cut the sentence's own spelling. */
+	letters: number;
+}
+
+const STRESS = '́';
+
+/** How many letters two words start with alike. */
+function shared(a: string, b: string): number {
+	let n = 0;
+	while (n < a.length && n < b.length && a[n] === b[n]) n++;
+	return n;
+}
+
+/**
+ * A word cut after so many letters, a stress mark staying with its vowel:
+ * цу́кру after 4 is цу́кр + у. Capitals and apostrophes count as letters, as
+ * `plain()` keeps one letter for each.
+ */
+export function cut(text: string, letters: number): { stem: string; ending: string } {
+	const chars = [...text.normalize('NFC')];
+	let at = 0;
+	let seen = 0;
+	while (at < chars.length && (seen < letters || chars[at] === STRESS)) {
+		if (chars[at] !== STRESS) seen++;
+		at++;
+	}
+	return { stem: chars.slice(0, at).join(''), ending: chars.slice(at).join('') };
+}
+
+/**
+ * Where the answer's ending starts. The stem is the start the answer shares
+ * with most of the noun's other forms: цукру shares цукр with цукром, цукрі,
+ * цукрові and more, and цук only with цукор. On a tie the shorter wins, so
+ * канікулах is канікул + ах, not канікула + х. A form the same as the
+ * dictionary's (сніг after на, день after у) has no ending, though день's
+ * other forms would cut it д + ень. Over the 7,845 sentences of November 2026
+ * this gives цукр|у, гітар|і, рук|ах; where a consonant changes before the
+ * ending it is counted in (вечір|ці), which is what changes.
+ */
+export function endingOf(gap: Gap): Ending {
+	const wanted = plain(gap.answer);
+	let letters = [...wanted].length;
+	if (wanted !== plain(gap.word)) {
+		const counts = new Map<number, number>();
+		for (const form of gap.forms) {
+			if (form === wanted || gap.also.includes(form)) continue;
+			const n = shared(wanted, form);
+			counts.set(n, (counts.get(n) ?? 0) + 1);
+		}
+		let best = 0;
+		let most = 0;
+		for (const [n, count] of counts) {
+			if (count > most || (count === most && n < best)) [best, most] = [n, count];
+		}
+		if (best > 0) letters = best;
+	}
+	return { ...cut(gap.answer, letters), letters };
+}
+
+/**
+ * A wrong try against the stem: what of it stays and what is struck out.
+ * цукор against цукр keeps цук and strikes ор; цукром keeps цукр and strikes
+ * ом. A try in Latin letters is not shown against Cyrillic: null.
+ */
+export function struckEnding(given: string, ending: Ending): { kept: string; struck: string } | null {
+	const typed = given.trim();
+	if (!typed || !isCyrillic(plain(typed))) return null;
+	const kept = shared(plain(typed), plain(ending.stem));
+	return { kept: cut(typed, kept).stem, struck: cut(typed, kept).ending };
+}
+
+/** One step up the ladder. An answer with no ending skips the first step: сніг_ would point at an ending not there. */
+function up(step: Step, ending: Ending): Step {
+	return Math.min(3, step + (step === 0 && !ending.ending ? 2 : 1)) as Step;
+}
+
+/**
+ * The step after a typed try, and the sentence's outcome once there is one.
+ * Right is right unaided only with no hint shown; any other try, a form of
+ * the noun, a word near it or another word, climbs one step, and the third
+ * step gives the answer and counts as missed.
+ */
+export function climb(step: Step, found: Typed, ending: Ending): { step: Step; outcome: Outcome | null } {
+	if (found === 'right') return { step, outcome: step === 0 ? 'right' : 'helped' };
+	const next = up(step, ending);
+	return { step: next, outcome: next === 3 ? 'missed' : null };
+}
+
+/** The step after "Hint" is pressed: up as far as the rule, never to the answer. */
+export function hintStep(step: Step, ending: Ending): Step {
+	return Math.min(2, up(step, ending)) as Step;
+}
+
+/**
+ * Where a note on the answer's ending is looked up (`practice.notes` in
+ * i18n.ts): the case, the number and the ending, `genitive:singular:у`. Most
+ * endings have none, and then nothing is shown.
+ */
+export function noteKey(point: Point, gap: Gap, ending: Ending): string {
+	return `${point.case}:${gap.number}:${plain(ending.ending)}`;
+}
 
 /** What a point's sentences in one round say of it: one miss outweighs the rest, and help outweighs none. */
 export function ratingOf(outcomes: readonly Outcome[]): Rating {

@@ -35,6 +35,11 @@ function counted(n: number, one: string, few: string, many: string): string {
 	return `${n} ${many}`;
 }
 
+/** One note under several keys: the endings it is said of, `genitive:singular:` and then each ending. */
+function sameNote(prefix: string, endings: string[], note: string): Record<string, string> {
+	return Object.fromEntries(endings.map((ending) => [prefix + ending, note]));
+}
+
 const en = {
 	nav: { label: 'Main', dictionary: 'Dictionary', learn: 'Learn', resources: 'Resources', saved: 'Saved' },
 	/** The header's link to /support, and that page's title. */
@@ -879,11 +884,32 @@ const en = {
 		ask: { choice: 'Which form fits the gap?', type: 'Type the word in the form that fits the gap' },
 		/** Beside the word to put in, when the gap wants its plural. */
 		plural: 'plural',
+		/** Choosing among four: shows the rule before choosing. */
 		hint: 'Show the case',
-		/** A typed answer that is the right word in another form: one more try. */
-		nudge: 'The right word, but not in this form. Try once more.',
+		/** Typing: each press shows one more hint, the ending to change and then the rule. */
+		hintMore: 'Hint',
+		/** A typed answer that is the right word in another form: the ending to change is shown under it. */
+		nudge: 'Right word, wrong ending.',
+		/** A typed answer that is no form of the noun: "Not a form of цукор." */
+		notAForm: 'Not a form of',
 		/** A Latin answer near the word: spelled another way, or not finished. */
 		close: 'Almost. Check the spelling and try once more.',
+		/**
+		 * Said of the answer's ending once it is given, by case, number and
+		 * ending (`noteKey` in practice/round.ts). Most endings have none.
+		 */
+		notes: {
+			'genitive:singular:у': 'Many masculine nouns for substances, places and ideas take -у, not -а: цукру, лісу, сміху.',
+			'genitive:singular:ю': 'Many masculine nouns for substances, places and ideas take -ю, not -я: чаю, болю.',
+			...sameNote('genitive:singular:', ['и', 'і'], '-и after a hard consonant, -і after a soft one or ж, ч, ш: води, землі, їжі.'),
+			'genitive:singular:ї': 'After a vowel or an apostrophe, -і is spelled -ї: станції, Італії.',
+			'locative:singular:у': 'Masculine and neuter nouns ending in к, г or х often take -у: на даху, у ліжку.',
+			...sameNote('locative:singular:', ['ці', 'зі', 'сі'], 'Before -і, к turns to ц, г to з and х to с: у вечірці, на дорозі.'),
+			'accusative:singular:':
+				'The accusative is the dictionary form for masculine and neuter things and for feminine nouns in -ь: на сніг, у місто, про смерть.',
+			...sameNote('accusative:singular:', ['а', 'я'], 'Masculine nouns for people and animals take the genitive form: батька, лікаря.'),
+			'genitive:plural:': 'Many feminine and neuter nouns have no ending in the genitive plural: змін, слів.'
+		} as Record<string, string>,
 		/** The button that shows or puts away the on-screen keyboard. */
 		keyboard: 'Keyboard',
 		/** Between a case's name and its questions: "genitive answers кого? чого?" */
@@ -1872,8 +1898,24 @@ const uk: Messages = {
 		ask: { choice: 'Яка форма пасує до пропуску?', type: 'Наберіть слово у формі, що пасує до пропуску' },
 		plural: 'множина',
 		hint: 'Показати відмінок',
-		nudge: 'Слово правильне, а форма не та. Спробуйте ще раз.',
+		hintMore: 'Підказка',
+		nudge: 'Слово правильне, а закінчення ні.',
+		notAForm: 'Це не форма слова',
 		close: 'Майже. Перевірте написання і спробуйте ще раз.',
+		notes: {
+			'genitive:singular:у':
+				'Багато іменників чоловічого роду, що називають речовини, місця й поняття, мають -у, а не -а: цукру, лісу, сміху.',
+			'genitive:singular:ю':
+				'Багато іменників чоловічого роду, що називають речовини, місця й поняття, мають -ю, а не -я: чаю, болю.',
+			...sameNote('genitive:singular:', ['и', 'і'], '-и після твердого приголосного, -і після м’якого та після ж, ч, ш: води, землі, їжі.'),
+			'genitive:singular:ї': 'Після голосного чи апострофа -і пишеться як -ї: станції, Італії.',
+			'locative:singular:у': 'Іменники чоловічого й середнього роду на к, г, х часто мають -у: на даху, у ліжку.',
+			...sameNote('locative:singular:', ['ці', 'зі', 'сі'], 'Перед -і к змінюється на ц, г — на з, х — на с: у вечірці, на дорозі.'),
+			'accusative:singular:':
+				'Знахідний збігається зі словниковою формою в неживих іменників чоловічого й середнього роду та в жіночого роду на -ь: на сніг, у місто, про смерть.',
+			...sameNote('accusative:singular:', ['а', 'я'], 'Іменники чоловічого роду, що називають людей і тварин, у знахідному мають форму родового: батька, лікаря.'),
+			'genitive:plural:': 'Багато іменників жіночого й середнього роду в родовому множини не мають закінчення: змін, слів.'
+		},
 		keyboard: 'Клавіатура',
 		answers: 'відповідає на питання',
 		yourAnswer: 'Ваша відповідь',

@@ -13,12 +13,19 @@
        У мене 5 _____ .        книга
        5–20, 25… → genitive plural
 
-     The case can be shown before answering, and a typed answer that is the
-     right word in the wrong form gets one more try with the case shown. Either
-     way the sentence then counts as answered with help, not as missed. The
-     page makes one of these for each sentence, so nothing here outlives it;
-     what the answers do to the rule's schedule the page decides
-     (src/lib/practice/round.ts).
+     A typed answer that will not do climbs a ladder of hints, one step a try:
+     first the ending to change, then the rule, then the answer itself with
+     its ending marked and, where there is one, a note on that ending.
+
+       цук~~ор~~ → цукр_          без (without) → genitive        цу́кр[у]
+                                                              Many masculine…
+
+     A right answer after the first or second step counts as answered with
+     help; the third step counts as missed. "Hint" climbs the same steps
+     unasked, as far as the rule. Choosing among four has one pick, and the
+     rule can be shown before it. The page makes one of these for each
+     sentence, so nothing here outlives it; the steps and what the answers do
+     to the rule's schedule are src/lib/practice/round.ts.
 
      On a phone the card fills the screen under the header: the sentence in
      the middle of the free room, and at the foot a bar under the thumb with
@@ -42,7 +49,10 @@
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { isNumber, type Point } from '#lib/practice/points.ts';
-	import { checkAnswer, split, type Gap, type Outcome } from '#lib/practice/round.ts';
+	import {
+		checkAnswer, climb, cut, endingOf, hintStep, noteKey, split, struckEnding, type Gap, type Outcome, type Step
+	} from '#lib/practice/round.ts';
+	import type { Typed } from '#lib/review/recall.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -71,32 +81,42 @@
 	let parts = $derived(split(gap));
 	let right = $derived(plain(gap.answer));
 
-	/** The case was asked for before answering. */
-	let hinted = $state(false);
-	/** A first typed answer was the right word in another form, or (in Latin) near it. */
-	let nudged = $state(false);
-	/** Near in Latin only: the spelling is what to look at, not the ending. */
-	let close = $state(false);
+	/** The answer as stem and ending: цу́кр + у. */
+	let ending = $derived(endingOf(gap));
+	/** What is said of the answer's ending once it is given, where anything is. */
+	let note = $derived(m.practice.notes[noteKey(point, gap, ending)]);
+
+	/** How many hints are showing (round.ts, `Step`). Choosing has one: the rule, at step 2. */
+	let step = $state<Step>(0);
+	/** The last typed try that did not do, and what it was. */
+	let last = $state<{ given: string; found: Typed } | null>(null);
 	let typed = $state('');
 	let field: HTMLInputElement | undefined = $state();
 
+	/** The first step's line: the try with its ending struck out (цук~~ор~~), when it was a form of the noun. */
+	let struck = $derived(last?.found === 'form' ? struckEnding(last.given, ending) : null);
+
 	function choose(option: string) {
 		if (result) return;
-		onanswer(plain(option) === right ? (hinted ? 'helped' : 'right') : 'missed', option);
+		onanswer(plain(option) === right ? (step ? 'helped' : 'right') : 'missed', option);
 	}
 
 	function submit(event: SubmitEvent) {
 		event.preventDefault();
 		if (result || !typed.trim()) return;
 		const found = checkAnswer(gap, typed);
-		if (found === 'right') onanswer(hinted || nudged ? 'helped' : 'right', typed);
-		else if ((found === 'form' || found === 'close') && !nudged) {
-			// The word is known and the ending is not, or a Latin answer is near it:
-			// the case is shown, and the field waits for another try
-			nudged = true;
-			close = found === 'close';
-			field?.select();
-		} else onanswer('missed', typed);
+		const next = climb(step, found, ending);
+		if (next.outcome) return onanswer(next.outcome, typed);
+		// One more hint, and the field waits for another try
+		step = next.step;
+		last = { given: typed, found };
+		field?.select();
+	}
+
+	function hint() {
+		step = choice ? 2 : hintStep(step, ending);
+		// Back to the field, but on a phone not into its own keyboard unasked
+		if (!touch || keyboardOpen) field?.focus({ preventScroll: true });
 	}
 
 	// The on-screen keyboard's keys write at the end: the field holds one short word
@@ -207,7 +227,7 @@
 	</div>
 {/snippet}
 
-<!-- ✓ Right   екзамен → екзамені -->
+<!-- ✓ Right   екзамен → екзамені; missed, the ending marked: цу́кор → цу́кр[у] -->
 {#snippet verdict(result: { outcome: Outcome; given: string })}
 	<p class="verdict">
 		<Icon name={result.outcome === 'missed' ? 'x' : 'check'} size={18} />
@@ -217,8 +237,32 @@
 	<p class="answer">
 		<Headword text={gap.headword} size="sm" href={wordPath(gap.word)} />
 		<Icon name="arrow-right" size={16} />
-		<Headword text={gap.answer} size="sm" />
+		{#if result.outcome === 'missed' && ending.ending}
+			<span class="marked" lang="uk"><Stressed text={ending.stem} /><span class="end"><Stressed text={ending.ending} /></span></span>
+		{:else}
+			<Headword text={gap.answer} size="sm" />
+		{/if}
 	</p>
+{/snippet}
+
+<!-- The first step: what to change, цук~~ор~~ → цукр_, under what was wrong
+     with the try. `shown` false keeps its room unseen. -->
+{#snippet ladder(shown: boolean)}
+	<div class="ladder">
+		<!-- Only the first step says what was wrong; at the second the rule says the rest -->
+		<p class="nudge" class:unseen={shown && step !== 1}>
+			{#if !shown || last?.found === 'close'}{m.practice.close}
+			{:else if last?.found === 'wrong'}{m.practice.notAForm} <b lang="uk">{gap.word}</b>.
+			{:else if last}{m.practice.nudge}{/if}
+		</p>
+		<p class="line" lang="uk">
+			{#if struck?.struck}
+				<span>{struck.kept}<s class="struck">{struck.struck}</s></span>
+				<Icon name="arrow-right" size={14} />
+			{/if}
+			<span>{plain(ending.stem)}<span class="blank-end" style:--letters={[...plain(ending.ending)].length}></span></span>
+		</p>
+	</div>
 {/snippet}
 
 <!-- Next: in the bar, where the thumb already is -->
@@ -236,7 +280,10 @@
 
 		<div class="shown">
 			<p class="sentence" lang="uk">
-				{#if result}<Sentence text={parts.before} />{:else}{parts.before}{/if}{#if result}<b class="filled" data-outcome={result.outcome}>{parts.word}</b
+				{#if result}<Sentence text={parts.before} />{:else}{parts.before}{/if}{#if result}<b class="filled" data-outcome={result.outcome}
+						>{#if result.outcome === 'missed' && ending.ending}{@const word = cut(parts.word, ending.letters)}{word.stem}<span
+								class="end">{word.ending}</span
+							>{:else}{parts.word}{/if}</b
 					>{:else if choice}<span class="blank" style:--letters={gap.length} aria-label={m.practice.yourAnswer}></span
 					>{:else}<input
 						bind:this={field}
@@ -262,36 +309,48 @@
 			</p>
 		</div>
 
-		<!-- The verdict, kept in place unseen until there is one; when typing with
-		     the on-screen keyboard it comes in the keyboard's place instead -->
-		{#if !inDock}
-			<div class="outcome" data-outcome={result?.outcome} role="status">
-				{#if result}
-					{@render verdict(result)}
-				{:else}
-					<!-- The same shape, naming the headword twice rather than the answer -->
-					<div class="ghost" aria-hidden="true" inert>
-						<p class="verdict"><Icon name="check" size={18} />{m.practice.correct}</p>
-						<p class="answer">
-							<Headword text={gap.headword} size="sm" />
-							<Icon name="arrow-right" size={16} />
-							<Headword text={gap.headword} size="sm" />
-						</p>
+		<!-- What answering tells, on a grey ground once the answer had to be given -->
+		<div class="after" class:shown-answer={result?.outcome === 'missed' && !inDock}>
+			<!-- One place for the first step's line while typing and then the
+			     verdict, kept unseen until either is there. Typing with the
+			     on-screen keyboard, the verdict comes in the keyboard's place. -->
+			<div class="slot outcome" data-outcome={result?.outcome} role="status">
+				{#if result && !inDock}
+					<div class="told">
+						{@render verdict(result)}
+						<!-- Once missed, what is said of the answer's ending -->
+						{#if result.outcome === 'missed' && note}<p class="note">{note}</p>{/if}
 					</div>
+				{:else if !result && !choice && (step === 1 || (step === 2 && ending.ending))}
+					{@render ladder(true)}
 				{/if}
+				<div class="ghost" aria-hidden="true" inert>
+					{#if !inDock}
+						<!-- The verdict's shape, naming the headword twice rather than the answer -->
+						<div class="told">
+							<p class="verdict"><Icon name="check" size={18} />{m.practice.correct}</p>
+							<p class="answer">
+								<Headword text={gap.headword} size="sm" />
+								<Icon name="arrow-right" size={16} />
+								<Headword text={gap.headword} size="sm" />
+							</p>
+							{#if note}<p class="note">{note}</p>{/if}
+						</div>
+					{/if}
+					{#if !choice}{@render ladder(false)}{/if}
+				</div>
 			</div>
-		{/if}
 
-		<!-- "Show the case" and the rule share one place, as tall as the rule -->
-		<div class="help" class:spent={result && inDock} inert={result !== null && inDock}>
-			{#if nudged && !result}<p class="nudge" role="status">{close ? m.practice.close : m.practice.nudge}</p>{/if}
-			<div class="slot">
-				{#if hinted || nudged || (result && !inDock)}
-					{@render rule()}
-				{:else}
-					<button type="button" class="link" onclick={() => (hinted = true)}>{m.practice.hint}</button>
-					<div class="ghost" aria-hidden="true" inert>{@render rule()}</div>
-				{/if}
+			<div class="help" class:spent={result && inDock} inert={result !== null && inDock}>
+				<!-- "Hint" and the rule share one place, as tall as the rule -->
+				<div class="slot">
+					{#if step >= 2 || (result && !inDock)}
+						{@render rule()}
+					{:else}
+						<button type="button" class="link" onclick={hint}>{choice ? m.practice.hint : m.practice.hintMore}</button>
+						<div class="ghost" aria-hidden="true" inert>{@render rule()}</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
@@ -339,6 +398,7 @@
 				{#if inDock && result}
 					<div class="outcome panel" data-outcome={result.outcome} role="status">
 						{@render verdict(result)}
+						{#if result.outcome === 'missed' && note}<p class="note">{note}</p>{/if}
 						{@render rule()}
 					</div>
 				{/if}
@@ -481,10 +541,89 @@
 		visibility: hidden;
 	}
 
-	.outcome {
+	.unseen {
+		visibility: hidden;
+	}
+
+	/* The verdict and the rule, on a grey ground once the answer had to be
+	   given; the padding is there from the start, so the ground comes in
+	   without moving anything */
+	.after {
+		display: grid;
+		justify-items: center;
+		gap: 0.9rem;
+		width: min(100%, 26rem);
+		padding: 0.6rem 1rem;
+		border-radius: var(--radius-md);
+	}
+
+	.after.shown-answer {
+		background: var(--surface-2);
+	}
+
+	.outcome,
+	.told {
 		display: grid;
 		justify-items: center;
 		gap: 0.35rem;
+	}
+
+	/* The first step: цук~~ор~~ → цукр_ */
+	.ladder {
+		display: grid;
+		justify-items: center;
+		gap: 0.3rem;
+	}
+
+	.line {
+		display: inline-flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: center;
+		gap: 0.4rem;
+		color: var(--ink);
+		font-family: var(--font-headword);
+		font-size: var(--headword-sm);
+		font-weight: 700;
+	}
+
+	.line :global(svg) {
+		align-self: center;
+		color: var(--muted);
+	}
+
+	.struck {
+		color: var(--stress);
+		text-decoration-thickness: 2px;
+	}
+
+	/* The ending to write, as long as it is: a rule like the gap's own */
+	.blank-end {
+		display: inline-block;
+		width: calc(max(1, var(--letters)) * 0.6em);
+		margin-left: 0.05em;
+		border-bottom: 2px solid var(--flag-line);
+	}
+
+	/* The answer's ending, once given: in the sentence and after the arrow */
+	.end {
+		color: var(--accent);
+		box-shadow: inset 0 -2px 0 var(--flag-line);
+	}
+
+	.marked {
+		color: var(--ink);
+		font-family: var(--font-headword);
+		font-size: var(--headword-sm);
+		font-weight: 800;
+		line-height: 1.2;
+	}
+
+	.note {
+		max-width: 22rem;
+		color: var(--ink-2);
+		font-size: var(--text-sm);
+		line-height: 1.4;
 	}
 
 	.verdict {

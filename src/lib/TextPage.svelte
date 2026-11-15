@@ -81,5 +81,18 @@
 			margin-top: 1rem;
 			padding: 1.1rem 1.1rem 1.3rem;
 		}
+
+		/* On a phone the page itself is the sheet: no frame, and the text gets
+		   the width the frame and its padding took, 328 px of 360 instead of
+		   293. Over a background photo the frame stays, to keep text readable */
+		:global(:root:not([data-bg])) article {
+			width: 100%;
+			margin: 0.25rem 0 1.5rem;
+			padding: 0.75rem 1rem 1rem;
+			border: 0;
+			border-radius: 0;
+			background: none;
+			box-shadow: none;
+		}
 	}
 </style>

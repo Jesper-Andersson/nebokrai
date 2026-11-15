@@ -5,6 +5,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import ListPage from '#lib/ListPage.svelte';
 	import { ALPHABET, OTHER, letterPath } from '#lib/browse.ts';
+	import { showCurrent } from '#lib/scroll-row.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -25,7 +26,7 @@
 </script>
 
 <ListPage {title} {metaTitle} {description}>
-	<nav class="alphabet" aria-label={m.browse.alphabet}>
+	<nav class="alphabet ui-scroll-row" aria-label={m.browse.alphabet} {@attach showCurrent(data.letter)}>
 		{#each ALPHABET as letter (letter)}
 			<a href={letterPath(letter)} lang="uk" aria-current={letter === data.letter ? 'true' : undefined}>
 				{letter.toUpperCase()}
@@ -37,7 +38,7 @@
 	{#if other}<p class="lead">{m.browse.otherLead}</p>{/if}
 
 	{#if data.pages.length > 1}
-		<nav class="pages" aria-label={m.browse.pages} lang="uk">
+		<nav class="pages ui-scroll-row" aria-label={m.browse.pages} lang="uk" {@attach showCurrent(data.page)}>
 			{#each data.pages as page, i (i)}
 				<a
 					class="ui-chip"
@@ -73,11 +74,11 @@
 
 <style>
 	/* The alphabet as a row of keys: every letter the same square to press */
+	/* Both rows wrap, and on a phone each keeps to one line that scrolls
+	   sideways (ui-scroll-row) */
 	.alphabet {
-		display: flex;
-		flex-wrap: wrap;
 		gap: 0.25rem;
-		margin: 1rem 0;
+		margin-block: 1rem;
 	}
 
 	.alphabet a {
@@ -113,10 +114,8 @@
 	}
 
 	.pages {
-		display: flex;
-		flex-wrap: wrap;
 		gap: 0.4rem;
-		margin: 1rem 0;
+		margin-block: 1rem;
 	}
 
 	/* Columns as wide as most words need; the browser fits as many as there

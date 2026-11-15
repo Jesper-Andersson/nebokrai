@@ -59,9 +59,25 @@
 	}
 
 	@media (max-width: 600px) {
+		/* --sheet-pad is the side padding, which a row that scrolls sideways
+		   (`ui-scroll-row`, app.css) gives back to reach the sheet's edges */
 		article {
+			--sheet-pad: 1.1rem;
 			margin-top: 1rem;
-			padding: 1.1rem 1.1rem 1.3rem;
+			padding: 1.1rem var(--sheet-pad) 1.3rem;
+		}
+
+		/* As on a page of text (TextPage.svelte): no frame on a phone, except
+		   over a background photo */
+		:global(:root:not([data-bg])) article {
+			--sheet-pad: 1rem;
+			width: 100%;
+			margin: 0.25rem 0 1.5rem;
+			padding: 0.75rem var(--sheet-pad) 1rem;
+			border: 0;
+			border-radius: 0;
+			background: none;
+			box-shadow: none;
 		}
 	}
 </style>

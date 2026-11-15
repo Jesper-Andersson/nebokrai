@@ -17,6 +17,7 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { cardKey, pointOf, type Point } from '#lib/practice/points.ts';
 	import { gradePoint, planRound, planWeak, type Gap, type Outcome } from '#lib/practice/round.ts';
+	import { introduces } from '#lib/practice/rules.ts';
 	import type { ReviewCard } from '#lib/review/fsrs.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -56,6 +57,8 @@
 
 	let at = $derived(outcomes.length - (result ? 1 : 0));
 	let gap = $derived(gaps[at]);
+	/** The first sentence of a rule that had no card when the round began: its rule's card opens over it. */
+	let first = $derived(introduces(gaps.map((g) => g.point), at, (point) => before.get(point) !== undefined));
 
 	async function start() {
 		const plan = weak
@@ -152,7 +155,7 @@
 	</div>
 	{#if point}
 		{#key at}
-			<PracticeGap {gap} {point} {choice} {result} onanswer={answer} onnext={goOn} />
+			<PracticeGap {gap} {point} {choice} {first} {result} onanswer={answer} onnext={goOn} />
 		{/key}
 	{/if}
 {:else}

@@ -35,12 +35,18 @@
 
      Once answered, every other word of the sentence opens a card that says
      what it is (Sentence.svelte, GlossWord.svelte). The answer itself does
-     not: its headword is already under the sentence. -->
+     not: its headword is already under the sentence.
+
+     The "?" in the card's corner opens the rule's card (RuleCard.svelte):
+     the endings of its case and three real sentences. It opens unasked over
+     the first sentence of a rule never met (`first`); opened from "?" on a
+     later sentence before answering, it counts as a hint, as "Hint" does. -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Collapsible } from 'melt/builders';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import RuleCard from '#lib/RuleCard.svelte';
 	import Sentence from '#lib/Sentence.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
@@ -61,12 +67,15 @@
 		gap,
 		point,
 		choice,
+		first = false,
 		result,
 		onanswer,
 		onnext
 	}: {
 		gap: Gap;
 		point: Point;
+		/** The rule is met here for the first time: its card opens over the sentence. */
+		first?: boolean;
 		/** Answered by choosing among the gap's four forms; otherwise by typing. */
 		choice: boolean;
 		/** Null until the sentence has been answered. */
@@ -93,12 +102,26 @@
 	let typed = $state('');
 	let field: HTMLInputElement | undefined = $state();
 
+	/** The rule's card was opened from "?" before answering: a right answer is then one with help. */
+	let peeked = $state(false);
+
+	function peek() {
+		if (!result && !first) peeked = true;
+	}
+
+	/** As the rule's card closes over a sentence to be typed, the field takes the keys again. */
+	function refocus(): boolean {
+		if (result || choice || !field || (touch && !keyboardOpen)) return false;
+		field.focus({ preventScroll: true });
+		return true;
+	}
+
 	/** The first step's line: the try with its ending struck out (цук~~ор~~), when it was a form of the noun. */
 	let struck = $derived(last?.found === 'form' ? struckEnding(last.given, ending) : null);
 
 	function choose(option: string) {
 		if (result) return;
-		onanswer(plain(option) === right ? (step ? 'helped' : 'right') : 'missed', option);
+		onanswer(plain(option) === right ? (step || peeked ? 'helped' : 'right') : 'missed', option);
 	}
 
 	function submit(event: SubmitEvent) {
@@ -106,7 +129,7 @@
 		if (result || !typed.trim()) return;
 		const found = checkAnswer(gap, typed);
 		const next = climb(step, found, ending);
-		if (next.outcome) return onanswer(next.outcome, typed);
+		if (next.outcome) return onanswer(next.outcome === 'right' && peeked ? 'helped' : next.outcome, typed);
 		// One more hint, and the field waits for another try
 		step = next.step;
 		last = { given: typed, found };
@@ -275,6 +298,7 @@
 {/snippet}
 
 <article class="ui-card card" bind:this={card} style:min-height={fill ? `${fill}px` : undefined}>
+	<RuleCard {point} {gap} {first} onpeek={peek} {refocus} />
 	<div class="mid">
 		<p class="ask">{choice ? m.practice.ask.choice : m.practice.ask.type}</p>
 
@@ -418,6 +442,8 @@
 
 <style>
 	.card {
+		/* The rule's "?" sits in its top corner (RuleCard.svelte) */
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		gap: 1.1rem;

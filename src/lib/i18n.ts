@@ -929,7 +929,23 @@ const en = {
 		missed: 'To look at again',
 		allRight: 'Nothing missed.',
 		again: 'Another round',
-		back: 'Back to the rules'
+		back: 'Back to the rules',
+		/** A rule's card (RuleCard.svelte): it opens over the first sentence of a rule never met, and behind "?" after. */
+		rule: {
+			/** Above the rule, the first time it is met. */
+			new: 'New rule',
+			/** The "?" in the corner of a sentence's card. */
+			open: 'The rule',
+			/** Where an ending would be, for a word that keeps its dictionary form: у місто. */
+			same: 'unchanged',
+			endings: 'Endings',
+			examples: 'In real sentences',
+			/** Closes the card the first time, onto the rule's first sentence. */
+			tryIt: 'Try it',
+			/** Closes it when it was opened from "?". */
+			resume: 'Back to the sentence',
+			close: 'Close'
+		}
 	},
 	/** /stats: the visit counts, for the site's owner only (src/lib/server/stats.ts). */
 	stats: {
@@ -1933,7 +1949,17 @@ const uk: Messages = {
 		missed: 'Варто глянути ще раз',
 		allRight: 'Жодної помилки.',
 		again: 'Ще раунд',
-		back: 'Назад до правил'
+		back: 'Назад до правил',
+		rule: {
+			new: 'Нове правило',
+			open: 'Правило',
+			same: 'без змін',
+			endings: 'Закінчення',
+			examples: 'У справжніх реченнях',
+			tryIt: 'Спробувати',
+			resume: 'Назад до речення',
+			close: 'Закрити'
+		}
 	},
 	stats: {
 		visitors: 'Відвідувачі',

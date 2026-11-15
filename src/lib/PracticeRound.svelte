@@ -12,12 +12,15 @@
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PracticeGap from '#lib/PracticeGap.svelte';
+	import PracticeMeaning from '#lib/PracticeMeaning.svelte';
+	import Stressed from '#lib/Stressed.svelte';
 	import Term from '#lib/Term.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { cardKey, pointOf, type Point } from '#lib/practice/points.ts';
-	import { gradePoint, planRound, planWeak, type Gap, type Outcome } from '#lib/practice/round.ts';
+	import { askWhere, gradePoint, planRound, planWeak, split, type Gap, type Outcome } from '#lib/practice/round.ts';
 	import { introduces } from '#lib/practice/rules.ts';
+	import { whereAnswer } from '#lib/practice/where.ts';
 	import type { ReviewCard } from '#lib/review/fsrs.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -68,7 +71,8 @@
 		stage = 'loading';
 		const mine = ++asked;
 		try {
-			const res = await fetch(`/api/practice?points=${plan.join(',')}`);
+			// Some sentences of у, на and під rules already met are asked as де? or куди?
+			const res = await fetch(`/api/practice?points=${askWhere(plan, review.cards, Math.random).join(',')}`);
 			if (!res.ok) throw new Error(String(res.status));
 			const found: Gap[] = (await res.json()).gaps;
 			if (mine !== asked) return;
@@ -155,7 +159,11 @@
 	</div>
 	{#if point}
 		{#key at}
-			<PracticeGap {gap} {point} {choice} {first} {result} onanswer={answer} onnext={goOn} />
+			{#if gap.kind === 'where'}
+				<PracticeMeaning {gap} {point} {result} onanswer={answer} onnext={goOn} />
+			{:else}
+				<PracticeGap {gap} {point} {choice} {first} {result} onanswer={answer} onnext={goOn} />
+			{/if}
 		{/key}
 	{/if}
 {:else}
@@ -173,11 +181,22 @@
 							{#if HINTS[point.case]}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
 						</p>
 						{#each sentences as g (g.tatoeba_id + ':' + g.start + ':' + g.uk)}
-							<p class="pair">
-								<Headword text={g.headword} size="sm" href={wordPath(g.word)} />
-								<Icon name="arrow-right" size={16} />
-								<Headword text={g.answer} size="sm" />
-							</p>
+							{#if g.kind === 'where'}
+								<!-- Asked as де? or куди?: the phrase, and the question it answers -->
+								<p class="pair">
+									<span class="phrase" lang="uk"
+										>{split(g).before.trim().split(/\s+/).at(-1)?.toLowerCase()} <Stressed text={g.answer} /></span
+									>
+									<Icon name="arrow-right" size={16} />
+									<b lang="uk">{whereAnswer(g.point) === 'where' ? 'де?' : 'куди?'}</b>
+								</p>
+							{:else}
+								<p class="pair">
+									<Headword text={g.headword} size="sm" href={wordPath(g.word)} />
+									<Icon name="arrow-right" size={16} />
+									<Headword text={g.answer} size="sm" />
+								</p>
+							{/if}
 						{/each}
 					</li>
 				{/each}
@@ -272,6 +291,14 @@
 		justify-content: center;
 		gap: 0.25rem 0.5rem;
 		color: var(--muted);
+	}
+
+	.phrase,
+	.pair b {
+		color: var(--ink);
+		font-family: var(--font-headword);
+		font-size: var(--headword-sm);
+		font-weight: 800;
 	}
 
 	.answers {

@@ -13,9 +13,10 @@ import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
 import {
-	ROUND, checkAnswer, climb, cut, endingOf, gradePoint, hintStep, noteKey, planRound, planWeak, ratingOf, split, stateOf,
-	struckEnding, type Gap
+	ROUND, askWhere, checkAnswer, climb, cut, endingOf, gradePoint, hintStep, noteKey, planRound, planWeak, ratingOf, split,
+	stateOf, struckEnding, type Gap
 } from '../src/lib/practice/round.ts';
+import { WHERE, whereAnswer } from '../src/lib/practice/where.ts';
 import { AGAIN, DAY, GOOD, HARD, LEARNING, REVIEW, answer, newCard, type ReviewCard } from '../src/lib/review/fsrs.ts';
 import { plain } from '../src/lib/search/normalize.ts';
 import { openLocal } from './local-db.ts';
@@ -519,4 +520,51 @@ test('numbers ask for книга, книги and книг, and a round of them r
 	assert.equal(only('брат few-nom'), 'бра\u0301ти');
 	assert.equal(only('сестра few-nom'), 'сестри\u0301');
 	assert.equal(only('рік many-gen'), 'ро\u0301ків');
+});
+
+test('a met у, на or під point is sometimes asked as де? or куди?; a new one and any other point never', () => {
+	const met = reviewed(['u-acc', 'na-loc', 'bez-gen'], 1);
+	const plan = Array.from({ length: 30 }, (_, i) => ['u-acc', 'na-loc', 'bez-gen', 'pid-ins'][i % 4]);
+	const asked = askWhere(plan, met, seeded());
+	assert.equal(asked.length, plan.length);
+	assert.ok(asked.includes('u-acc:where'));
+	assert.ok(asked.includes('na-loc:where'));
+	assert.ok(asked.every((id, i) => id === plan[i] || id === plan[i] + ':where'));
+	// bez-gen has no де or куди to ask; pid-ins was never met
+	assert.ok(!asked.includes('bez-gen:where'));
+	assert.ok(!asked.includes('pid-ins:where'));
+	assert.deepEqual(askWhere(plan, new Map(), seeded()), plan);
+});
+
+test('the де and куди sentences are told apart by their case', () => {
+	assert.equal(whereAnswer('u-acc'), 'whereTo');
+	assert.equal(whereAnswer('pid-acc'), 'whereTo');
+	assert.equal(whereAnswer('na-loc'), 'where');
+	assert.equal(whereAnswer('pid-ins'), 'where');
+	for (const [point, list] of Object.entries(WHERE)) {
+		assert.ok(pointOf(point), point);
+		assert.equal(new Set(list).size, list.length, `${point} names a sentence twice`);
+	}
+});
+
+test('every де and куди sentence is in the database under its point, gives nothing away, and is drawn as one', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	for (const [point, list] of Object.entries(WHERE)) {
+		const rows = await db.all<{ tatoeba_id: number; uk: string }>(
+			'SELECT tatoeba_id, uk FROM cloze WHERE point = ? AND tatoeba_id IN (SELECT value FROM json_each(?))',
+			[point, JSON.stringify(list)]
+		);
+		const missing = list.filter((id) => !rows.some((row) => row.tatoeba_id === id));
+		assert.deepEqual(missing, [], `${point}: not in the cloze table`);
+		for (const row of rows) assert.doesNotMatch(row.uk, /(^|[^а-яіїєґ'])(де|куди)([^а-яіїєґ']|$)/iu, row.uk);
+	}
+	const gaps = await drawGaps(db, ['u-acc:where', 'na-loc:where', 'bez-gen', 'bez-gen:where'], seeded());
+	assert.deepEqual(gaps.map((gap) => [gap.point, gap.kind]), [
+		['u-acc', 'where'], ['na-loc', 'where'], ['bez-gen', undefined], ['bez-gen', undefined]
+	]);
+	assert.ok(WHERE['u-acc'].includes(gaps[0].tatoeba_id));
+	// Asked more often than it has sentences, a point gives each once and then no more
+	const all = await drawGaps(db, Array(MAX_GAPS).fill('pid-acc:where'), seeded());
+	assert.equal(all.length, WHERE['pid-acc'].length);
+	assert.equal(new Set(all.map((gap) => gap.tatoeba_id)).size, all.length);
 });

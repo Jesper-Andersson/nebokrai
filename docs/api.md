@@ -805,6 +805,20 @@ A number's sentence has the same shape, with these differences:
   stress of the genitive singular (дві сестри́, два бра́ти), which is not
   always the stress the forms table gives the plural (се́стри, брати́).
 
+A point of у, на or під can be named with `:where` (`u-acc:where`,
+`na-loc:where`, `pid-ins:where`, and the same for `u-loc`, `na-acc`,
+`pid-acc`). Its sentence is then one of a list picked by hand in
+`src/lib/practice/where.ts`, where the question де? (locative or
+instrumental: where something is) or куди? (accusative: where it goes)
+plainly fits, and it comes back with the same shape plus `"kind": "where"`
+and `partner`: the noun in the case of the other question, with stress
+(`"partner": "вершині"` beside `"answer": "вершину"`), left out where the
+dictionary has no such form.
+The page shows that sentence whole and asks which question it answers; the
+answer follows from `point`. Any other point named with `:where` is drawn as
+if it were not marked, and a point asked more often than it has such
+sentences gives each once.
+
 Sent with `Cache-Control: no-store`: asking again must give other sentences.
 `400` with `{ "error": "bad_points", "max": 20 }` when `points` is missing,
 empty or names more than 20. An empty `gaps` for a preposition's point means

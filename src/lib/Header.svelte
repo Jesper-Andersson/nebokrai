@@ -495,10 +495,8 @@
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was
-	   the heaviest thing in the bar. It keeps its words wherever there is
-	   room; on a phone it is the heart alone, with the words for a screen
-	   reader and as its title (user, 2026-11-14: the words' own line cost
-	   the search results a row). */
+	   the heaviest thing in the bar. It keeps its words at every width; a
+	   heart alone does not say where it leads. */
 	.support {
 		display: flex;
 		flex: none;
@@ -617,11 +615,10 @@
 		}
 	}
 
-	/* Phones. The name's line has no room for "Підтримати Україну", so the
-	   link is its heart, beside the name, and the words are kept for a screen
-	   reader. The tools' box dissolves to let it sit by the name. The tabs
-	   share the width, a little lower than on a desktop: the bar is two lines
-	   here, and every line it saves is one more search result on screen. */
+	/* Phones. The name's line has no room for "Підтримати Україну", and the
+	   words must stay, so the link takes a slim line of its own above the
+	   name. The tools' box dissolves to let it out. The tabs share the width,
+	   a little lower than on a desktop. */
 	@media (max-width: 740px) {
 		.inner {
 			padding: 0 0.6rem;
@@ -631,24 +628,39 @@
 			display: contents;
 		}
 
+		/* The name gives way before the tools wrap: with a phone's text set
+		   larger, the deck count and the streak left no room for the settings
+		   button, and it fell to a line of its own on the left (2026-11-14).
+		   A basis of 0 keeps the line from wrapping; the name then grows back
+		   to its full width wherever there is room for it, and pushes the
+		   tools to the right edge. */
 		.logo {
-			height: 2.75rem;
-		}
-
-		.support {
-			width: 2.75rem;
+			flex: 1 1 0;
+			min-width: 7rem;
+			max-width: max-content;
 			height: 2.75rem;
 			margin-right: auto;
-			padding: 0;
 		}
 
-		.support-label {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip-path: inset(50%);
-			white-space: nowrap;
+		.logo :global(svg) {
+			flex-shrink: 1;
+			min-width: 0;
+		}
+
+		/* The words stay: a slim line of their own above the name (user,
+		   2026-11-14, taking back the heart alone of #33) */
+		.support {
+			order: -1;
+			flex: 0 0 100%;
+			height: 2rem;
+			padding: 0;
+			border-bottom: 1px solid var(--border);
+			font-size: var(--text-xs);
+		}
+
+		.support svg {
+			width: 15px;
+			height: 15px;
 		}
 
 		.divider {
@@ -677,6 +689,13 @@
 		.search {
 			width: 2.75rem;
 			height: 2.75rem;
+		}
+
+		/* The tools stand against the right edge here, and the search button
+		   is the leftmost of them: taking it away moves nothing, and gives its
+		   width back to the name */
+		.search.away {
+			display: none;
 		}
 	}
 

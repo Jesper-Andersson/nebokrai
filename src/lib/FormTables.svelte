@@ -62,7 +62,8 @@
 {#snippet name(label: string, hinted: boolean)}
 	{@const term = termOfLabel(label)}
 	{#if term}<Term id={term}>{formLabel(m, label)}</Term>{:else}{formLabel(m, label)}{/if}
-	{#if hinted && term && HINTS[term]}<span class="hint" lang="uk">{HINTS[term]}</span>{/if}
+	<!-- A no-break space keeps "на" with its question, so a narrow column breaks between the two -->
+	{#if hinted && term && HINTS[term]}<span class="hint" lang="uk">{HINTS[term].replaceAll('на ', 'на ')}</span>{/if}
 {/snippet}
 
 <!-- The forms of one cell: one to a line, each with the note that tells it from the others -->
@@ -110,7 +111,7 @@
 	     Singular and Plural get none: "вони" over one column alone explains nothing. -->
 	{@const gendered = table.columns.some((col) => GENDERS.includes(col))}
 	<div {...tabbed ? tabs.getContent(table.title) : {}} class="table-wrap">
-		<table>
+		<table class:gendered>
 			<!-- Read out, not shown, when the tab above already names the table -->
 			<caption class:ui-sr-only={tabbed}>
 				{#if tabbed}{formLabel(m, table.title)}{:else}{@render name(table.title, false)}{/if}
@@ -125,6 +126,14 @@
 			{/if}
 			<tbody>
 				{#each table.rows as row (row.label)}
+					<!-- On a phone an adjective's case gets a line of its own above its four
+					     forms, so that the forms have the whole width. Only drawn: the row's
+					     own header below still names the row to a screen reader. -->
+					{#if gendered}
+						<tr class="case" aria-hidden="true">
+							<th colspan={table.columns.length}>{@render name(row.label, true)}</th>
+						</tr>
+					{/if}
 					<tr>
 						<!-- A verb's rows have their pronouns in the cells -->
 						<th scope="row">{@render name(row.label, !row.leads)}</th>
@@ -285,9 +294,12 @@
 	/* A table as a book prints one: a rule under its name and hairlines between
 	   the rows, with no frame and no filled header. The entry around it is
 	   already a card. */
+	/* A container, so that an adjective's table can change its layout by the
+	   room it has, which beside the meanings is less than the screen suggests */
 	.table-wrap {
 		max-width: 100%;
 		overflow-x: auto;
+		container-type: inline-size;
 	}
 
 	/* The `hidden` attribute of a tab that is not chosen must win over the rule above */
@@ -359,5 +371,109 @@
 	.none {
 		color: var(--muted);
 		font-weight: 400;
+	}
+
+	/* A phone: the noun table was 380px in a 320px card, and the plural ran
+	   out of sight ("небокраї" showed as "небо", 2026-11-15). Narrower gaps,
+	   the case question may break ("на кому? / на чому?") and the type is a
+	   step smaller, so both columns fit without scrolling, on a 412px phone
+	   even with its text set to 120%. */
+	@media (max-width: 600px) {
+		table {
+			font-size: var(--text-sm);
+		}
+
+		th {
+			font-size: var(--text-xs);
+		}
+
+		th,
+		td {
+			padding: 0.35rem 0.4rem;
+		}
+
+		tr > :last-child {
+			padding-right: 0;
+		}
+
+		tbody th {
+			padding-right: 0.75rem;
+		}
+
+		.hint {
+			white-space: normal;
+		}
+	}
+
+	/* An adjective's four columns (він, воно, вона, вони) did not fit beside
+	   the case names: 87px over on a 412px phone with text at 120%, and 90px
+	   over in the forms column beside the meanings, which is never wider than
+	   411px. Where the box is narrower than the table needs, the case moves to
+	   a line above its forms, "Genitive кого? чого?", and a hairline parts the
+	   genders. Measured in rem, so a larger text size switches it sooner. */
+	@container (max-width: 40rem) {
+		.gendered thead > tr > :first-child,
+		.gendered tbody > tr:not(.case) > th {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+
+		.gendered .case {
+			display: table-row;
+		}
+
+		.gendered .case > th {
+			width: auto;
+			padding: 0.5rem 0 0;
+			border-bottom: 0;
+			white-space: normal;
+		}
+
+		.gendered .case .hint {
+			display: inline;
+			margin-left: 0.4rem;
+		}
+
+		.gendered td {
+			padding: 0.15rem 0.4rem 0.4rem;
+		}
+
+		.gendered thead th {
+			padding-inline: 0.4rem;
+		}
+
+		.gendered tr > :last-child {
+			padding-right: 0;
+		}
+
+		.gendered td:first-of-type,
+		.gendered thead th:first-of-type {
+			padding-left: 0;
+		}
+
+		/* Four covered forms of 6rem did not fit either: each fills its column,
+		   which hides as much, since the columns are as wide as their names */
+		.gendered .cover {
+			width: 100%;
+			min-width: 0;
+		}
+
+		.gendered td:first-of-type > .cover:first-child {
+			margin-left: 0;
+		}
+
+		.gendered td + td,
+		.gendered thead th + th {
+			border-left: 1px solid var(--border);
+		}
+	}
+
+	/* Where there is room the case keeps its place at the start of the row */
+	.case {
+		display: none;
 	}
 </style>

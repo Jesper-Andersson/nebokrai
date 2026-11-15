@@ -17,6 +17,7 @@ import {
 	stateOf, struckEnding, type Gap
 } from '../src/lib/practice/round.ts';
 import { WHERE, whereAnswer } from '../src/lib/practice/where.ts';
+import { BEINGS, VERBS, drawRoles, rolesCount } from '../src/lib/practice/roles.ts';
 import { AGAIN, DAY, GOOD, HARD, LEARNING, REVIEW, answer, newCard, type ReviewCard } from '../src/lib/review/fsrs.ts';
 import { plain } from '../src/lib/search/normalize.ts';
 import { openLocal } from './local-db.ts';
@@ -33,7 +34,7 @@ function seeded(seed = 1) {
 const NOW = Date.UTC(2026, 10, 13, 12);
 const ids = POINTS.map((point) => point.id);
 /** The points whose sentences are found in the database: the prepositions'. */
-const found = POINTS.filter((point) => !isNumber(point)).map((point) => point.id);
+const found = POINTS.filter((point) => point.source === 'cloze').map((point) => point.id);
 const numbers = POINTS.filter(isNumber).map((point) => point.id);
 
 /** Cards for `points`, each answered "Good" until it is under review, the last time `daysAgo` days back. */
@@ -567,4 +568,50 @@ test('every де and куди sentence is in the database under its point, gives
 	const all = await drawGaps(db, Array(MAX_GAPS).fill('pid-acc:where'), seeded());
 	assert.equal(all.length, WHERE['pid-acc'].length);
 	assert.equal(new Set(all.map((gap) => gap.tatoeba_id)).size, all.length);
+});
+
+test('a who sentence names a verb and two different beings, the doer a person where the verb wants one', () => {
+	assert.ok(rolesCount() > 500);
+	const beings = new Set<string>();
+	for (let seed = 1; seed <= 200; seed++) {
+		const draw = drawRoles(seeded(seed), beings);
+		assert.notEqual(draw.doer.word, draw.done.word);
+		if (draw.verb.people) assert.ok(draw.doer.person, `${draw.doer.word} ${draw.verb.uk}`);
+	}
+	// Nothing outside the lists, and every verb has its question in both languages
+	for (const lang of ['en', 'uk'] as const) {
+		for (const verb of VERBS) assert.ok(messagesFor(lang).practice.who.ask[verb.key], `${lang} ${verb.key}`);
+	}
+});
+
+test('every being is in the dictionary with an accusative that is not its dictionary form', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const gaps = [];
+	for (let seed = 1; seed <= 40; seed++) gaps.push(...(await drawGaps(db, Array(MAX_GAPS).fill('who-acc'), seeded(seed))));
+	assert.equal(gaps.length, 40 * MAX_GAPS, 'a who sentence could not be made');
+	const doers = new Set<string>();
+	const done = new Set<string>();
+	let doerLast = 0;
+	for (const gap of gaps) {
+		assert.equal(gap.kind, 'who');
+		assert.ok(gap.roles);
+		const object = gap.uk.slice(gap.start, gap.start + gap.length);
+		const subject = gap.uk.slice(gap.roles.doer.start, gap.roles.doer.start + gap.roles.doer.length);
+		assert.equal(plain(object), plain(gap.answer), gap.uk);
+		assert.equal(plain(subject), plain(gap.roles.doer.word), gap.uk);
+		assert.notEqual(plain(object), plain(gap.word), gap.uk);
+		assert.ok(VERBS.some((verb) => gap.uk.includes(` ${verb.uk} `)), gap.uk);
+		assert.ok(gap.en.startsWith('The '), gap.en);
+		if (gap.roles.doer.start > gap.start) doerLast += 1;
+		doers.add(gap.roles.doer.word);
+		done.add(gap.word);
+	}
+	// Both orders, and every being in both roles
+	assert.ok(doerLast > gaps.length / 4 && doerLast < (gaps.length * 3) / 4);
+	assert.equal(done.size, BEINGS.length);
+	assert.equal(doers.size, BEINGS.length);
+	// A round of them reads no sentences: the nouns and their forms only
+	const quiet = openLocal('nebokrai.db');
+	await drawGaps(quiet, ['who-acc', 'who-acc'], seeded());
+	assert.equal(quiet.queries, 2);
 });

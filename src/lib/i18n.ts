@@ -371,8 +371,15 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
-		/** On each word of an example sentence */
-		lookUp: 'Look up this word',
+		/** The card over a word of an example sentence (GlossWord.svelte) */
+		gloss: {
+			open: 'Open word',
+			/** Before the other words the same spelling can be: "Also ла́ска noun: caress" */
+			also: 'Also',
+			missing: 'This word is not in the dictionary yet.',
+			search: 'Search for it',
+			loading: 'Looking it up…'
+		},
 		/** Above the entries of за́мок and замо́к */
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
@@ -1356,7 +1363,13 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
-		lookUp: 'Знайти це слово',
+		gloss: {
+			open: 'Відкрити слово',
+			also: 'Також',
+			missing: 'Цього слова в словнику ще немає.',
+			search: 'Пошукати його',
+			loading: 'Шукаю…'
+		},
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',

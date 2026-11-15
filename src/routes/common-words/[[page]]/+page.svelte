@@ -56,7 +56,7 @@
 	</ol>
 
 	{@render pager(m.browse.commonPagesEnd)}
-	<p class="muted">{m.browse.commonSource} <a href="/sources">{m.footer.sources}</a>.</p>
+	<p class="muted">{m.browse.commonSource} <a href="/sources">{m.footer.sourcesPage}</a>.</p>
 </ListPage>
 
 <style>

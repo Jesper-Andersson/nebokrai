@@ -16,7 +16,8 @@
 <TextPage title={m.pageTitle.privacy} description={m.meta.privacy}>
 	{#if settings.lang === 'uk'}
 		<p class="lead">
-			На Nebokrai немає реклами й відстеження. Файли cookie потрібні лише для входу й налаштувань.
+			На Nebokrai немає реклами й відстеження. Файли cookie потрібні лише для входу, для
+			налаштувань і щоб пам’ятати, яке оновлення сайту ви бачили останнім.
 		</p>
 
 		<h2>Збережені слова й обліковий запис</h2>
@@ -75,8 +76,8 @@
 		<p>Пишіть на <a href="mailto:{EMAIL}">{EMAIL}</a>.</p>
 	{:else}
 		<p class="lead">
-			Nebokrai has no ads and no tracking. Cookies are used only for signing in and for your
-			settings.
+			Nebokrai has no ads and no tracking. Cookies are used only for signing in, for your
+			settings and to remember the last site update you saw.
 		</p>
 
 		<h2>Saved words and your account</h2>

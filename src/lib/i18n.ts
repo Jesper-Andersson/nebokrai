@@ -237,10 +237,23 @@ const en = {
 		report: 'Report an issue',
 		data: 'Dictionary data from Wiktionary and Tatoeba',
 		about: 'About',
-		sources: 'Sources and licences',
+		/** Short in the footer, so that its links stay on one row beside the name */
+		sources: 'Sources',
+		/** The page's whole name, for a link inside a sentence (/common-words) */
+		sourcesPage: 'Sources and licences',
 		privacy: 'Privacy',
 		words: 'All words',
+		updates: 'Updates',
+		/** Read out after "Updates" while its link is coloured: the colour alone would say nothing to a screen reader. */
+		updatesUnread: 'new entries',
 		discord: 'Discord'
+	},
+	/** /updates: what was added and changed (src/lib/updates.ts holds the entries). */
+	updates: {
+		intro: 'What was added to Nebokrai and what changed, newest first.',
+		kinds: { new: 'New', changed: 'Changed' },
+		/** The heading of a month's round-up of small fixes */
+		fixes: 'Smaller fixes'
 	},
 	/** /learn: the four pages for learning, each as a card that leads to it. */
 	learn: {
@@ -1130,7 +1143,7 @@ const en = {
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
-		privacy: 'Privacy', stats: 'Usage', import: 'Import words'
+		privacy: 'Privacy', stats: 'Usage', import: 'Import words', updates: 'Updates'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1159,6 +1172,7 @@ const en = {
 		alphabet: 'Learn to read the Ukrainian alphabet: all 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
 		practice: 'Practise Ukrainian grammar in real sentences: fill the gap after a preposition with the right case. Ten sentences a round, and each rule returns before you forget it.',
 		report: 'Tell us about a mistake in the dictionary or a problem with the site.',
+		updates: 'What is new on Nebokrai: the features added and the things changed, by date, newest first, each with a link to where it can be seen.',
 		/** What static/og.png shows, for those who cannot see it (scripts/og-image.ts draws it). */
 		picture: 'Nebokrai, a Ukrainian–English dictionary. The entry for небокрай, “horizon”, with its stress marked and an example sentence.',
 		/** книга: meaning in English, stress and declension */
@@ -1460,10 +1474,18 @@ const uk: Messages = {
 		report: 'Повідомити про помилку',
 		data: 'Дані словника з Вікісловника й Tatoeba',
 		about: 'Про проєкт',
-		sources: 'Джерела й ліцензії',
+		sources: 'Джерела',
+		sourcesPage: 'Джерела й ліцензії',
 		privacy: 'Приватність',
 		words: 'Усі слова',
+		updates: 'Оновлення',
+		updatesUnread: 'є нове',
 		discord: 'Discord'
+	},
+	updates: {
+		intro: 'Що додано на Nebokrai і що змінилося, від найновішого.',
+		kinds: { new: 'Нове', changed: 'Змінено' },
+		fixes: 'Дрібні виправлення'
 	},
 	learn: {
 		kind: { cards: 'Картки', grammar: 'Граматика' },
@@ -2275,7 +2297,7 @@ const uk: Messages = {
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
-		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів'
+		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів', updates: 'Оновлення'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
@@ -2298,6 +2320,7 @@ const uk: Messages = {
 		alphabet: 'Навчіться читати українську абетку: усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
 		practice: 'Вправляйте українську граматику на справжніх реченнях: заповніть пропуск після прийменника потрібним відмінком. Десять речень у раунді, а кожне правило повертається, перш ніж забудеться.',
 		report: 'Повідомте про помилку в словнику або про проблему на сайті.',
+		updates: 'Що нового на Nebokrai: додані можливості та зміни за датами, від найновішого, з посиланням на те, де це можна побачити.',
 		picture: 'Nebokrai, українсько-англійський словник. Стаття «небокрай» (horizon) з наголосом і прикладом речення.',
 		wordTitle: (word, has) =>
 			`${word}: ${listOf([

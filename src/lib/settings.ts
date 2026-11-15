@@ -34,11 +34,19 @@ export interface Settings {
 	ipa: OnOff;
 	/** The English under an example sentence, and the word of the day's meanings, blurred until pressed (Translation.svelte). On unless turned off. */
 	blur: OnOff;
+	/**
+	 * Not a choice of the visitor's: the id of the newest entry on /updates this
+	 * browser has seen (src/lib/updates.ts), or '' on a first visit. It is a
+	 * cookie like the rest so that the server can colour the footer's link on
+	 * the first paint.
+	 */
+	seen: string;
 }
 
 export function readSettings(cookie: (name: string) => string | undefined): Settings {
 	const theme = cookie('theme');
 	const background = cookie('bg');
+	const seen = cookie('seen') ?? '';
 	return {
 		lang: cookie('lang') === 'uk' ? 'uk' : 'en',
 		theme: theme === 'light' || theme === 'sepia' || theme === 'dark' ? theme : 'system',
@@ -48,7 +56,9 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 		radio: cookie('radio') === 'on' ? 'on' : 'off',
 		roman: cookie('roman') === 'off' ? 'off' : 'on',
 		ipa: cookie('ipa') === 'on' ? 'on' : 'off',
-		blur: cookie('blur') === 'off' ? 'off' : 'on'
+		blur: cookie('blur') === 'off' ? 'off' : 'on',
+		// Anything that is not shaped like an id counts as a first visit
+		seen: /^\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(seen) ? seen : ''
 	};
 }
 
@@ -93,6 +103,8 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 		// Nothing on <html>: the page draws these from the settings object.
 		if (value !== SWITCH_DEFAULTS[name as keyof typeof SWITCH_DEFAULTS]) document.cookie = `${name}=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 		else document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
+	} else if (name === 'seen') {
+		document.cookie = `seen=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	} else {
 		document.cookie = `kbd=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	}

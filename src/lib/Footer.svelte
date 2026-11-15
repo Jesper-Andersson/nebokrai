@@ -5,7 +5,9 @@
 	import { page } from '$app/state';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
-	import { useSettings } from '#lib/settings.ts';
+	import { onMount } from 'svelte';
+	import { applySetting, useSettings } from '#lib/settings.ts';
+	import { hasUnseen, latestId } from '#lib/updates.ts';
 	import Grammar from './Grammar.svelte';
 	import Headword from './Headword.svelte';
 
@@ -28,11 +30,25 @@
 	// After them comes the one way out of the site: the community's Discord.
 	const links = $derived([
 		{ href: '/about', label: m.footer.about },
+		{ href: '/updates', label: m.footer.updates },
 		{ href: '/words', label: m.footer.words },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/privacy', label: m.footer.privacy },
 		{ href: '/report', label: m.footer.report }
 	]);
+
+	// Something on /updates is newer than what this browser last saw there: its
+	// link takes the accent colour until the page is opened. Never on a first
+	// visit, when there is nothing to catch up on (hasUnseen).
+	let unread = $derived(hasUnseen(settings.seen));
+
+	// A first visit: note the newest entry without showing anything, so that
+	// the next thing added is the first one this visitor is told about.
+	onMount(() => {
+		if (settings.seen) return;
+		applySetting('seen', latestId());
+		settings.seen = latestId();
+	});
 
 	// /words is the current page on /words/п too
 	const current = (href: string) => page.url.pathname === href || page.url.pathname.startsWith(href + '/');
@@ -51,7 +67,11 @@
 
 		<nav aria-label={m.footer.label}>
 			{#each links as link (link.href)}
-				<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
+				{#if link.href === '/updates' && unread}
+					<a class="unread" href={link.href}>{link.label}<span class="ui-sr-only">{', '}{m.footer.updatesUnread}</span></a>
+				{:else}
+					<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
+				{/if}
 			{/each}
 			<a class="ui-btn discord" href={DISCORD} rel="noopener">
 				<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -135,6 +155,12 @@
 
 	nav a[aria-current='page'] {
 		color: var(--ink);
+	}
+
+	/* Something new on /updates: the accent colour and nothing more, the way
+	   the header shows how many flashcards are due */
+	nav a.unread {
+		color: var(--accent);
 	}
 
 	/* The gold line of the header's current page, here under whatever the

@@ -20,7 +20,7 @@ import { getContext, setContext } from 'svelte';
 import {
 	cleanListName, nameTaken, newListId, parseLists, pruneLists, renamed, withList, withWords, withoutList, withoutWords
 } from './lists.ts';
-import { MAX_LISTS, MAX_SAVED, type ExportedMarks, type SavedWord, type WordList } from './saved.ts';
+import { MAX_LISTS, MAX_LIST_NAME, MAX_SAVED, type ExportedMarks, type SavedWord, type WordList } from './saved.ts';
 
 const LIST_KEY = 'saved';
 /** The id of the account the stored list is a copy of. Absent while signed out. */
@@ -384,6 +384,58 @@ export class SavedWords {
 			if (!ok && !nameTaken(this.lists, before.name)) this.#setLists(withList(this.lists, before));
 		});
 		return before;
+	}
+
+	/**
+	 * Save many words at once, in this order, and put them all in a list named
+	 * `listName` (made if there is none by that name). The import page's last
+	 * step. Signed in, it is one POST /api/saved/merge, which skips words
+	 * beyond the limit and folds the list into one of the same name. Returns
+	 * how many words were newly saved, or null if the account refused.
+	 */
+	async importWords(words: string[], listName: string): Promise<number | null> {
+		const now = Date.now();
+		const fresh = words.filter((w) => !this.has(w)).slice(0, Math.max(0, MAX_SAVED - this.items.length));
+		// A moment apart, so the Saved page, newest first, shows them in the file's order
+		const items = fresh.map((word, i) => ({ word, saved_at: now - i }));
+		const saved = new Set([...this.items.map((i) => i.word), ...fresh]);
+		const name = cleanListName([...listName].slice(0, MAX_LIST_NAME).join(''));
+		const existing = name ? this.lists.find((l) => nameTaken([l], name)) : undefined;
+		const list: WordList | null = !name
+			? null
+			: existing ?? (this.lists.length < MAX_LISTS ? { id: newListId(), name, created_at: now, words: [] } : null);
+
+		const before = { items: this.items, lists: this.lists };
+		this.#set([...items, ...this.items].sort((a, b) => b.saved_at - a.saved_at));
+		if (list) {
+			const inList = words.filter((w) => saved.has(w));
+			this.#setLists(existing ? withWords(this.lists, list.id, inList) : withList(this.lists, { ...list, words: inList }));
+		}
+		if (!this.#userId) return fresh.length;
+
+		const sentList = list && this.lists.find((l) => l.id === list.id);
+		const answer = this.#queue.then(async () => {
+			try {
+				const res = await fetch('/api/saved/merge', {
+					method: 'POST',
+					headers: { 'content-type': 'application/json' },
+					body: JSON.stringify({ words: items, lists: sentList ? [sentList] : [] })
+				});
+				if (!res.ok) return false;
+				const account: { words: SavedWord[]; exported?: ExportedMarks; lists?: unknown } = await res.json();
+				this.#set(account.words);
+				this.#setExported(new Map(Object.entries(account.exported ?? {})));
+				if (Array.isArray(account.lists)) this.#setLists(parseLists(account.lists));
+				return true;
+			} catch {
+				return false; // offline
+			}
+		});
+		this.#queue = answer;
+		if (await answer) return fresh.length;
+		this.#set(before.items);
+		this.#setLists(before.lists);
+		return null;
 	}
 
 	/** Put saved words into a list (`on`), or take them out of it. */

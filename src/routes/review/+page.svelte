@@ -641,10 +641,7 @@
 						<span><i class="key learning"></i>{m.review.keyLearning}</span>
 						<span>{m.review.newFromNote}</span>
 					</p>
-					<!-- Not built yet: shown so that the way it will go is visible -->
-					<button type="button" class="ui-btn ui-btn-planned planned" disabled>
-						{m.review.planned.deck} <span>{m.review.planned.note}</span>
-					</button>
+					<a class="ui-btn import" href="/import?to=review">{m.review.imports.deck}</a>
 				</section>
 			</div>
 
@@ -1403,12 +1400,8 @@
 		text-decoration: none;
 	}
 
-	.planned {
+	.import {
 		justify-self: start;
-	}
-
-	.planned span {
-		font-weight: 400;
 	}
 
 	.options :global(.ui-segmented) {

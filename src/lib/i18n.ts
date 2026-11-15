@@ -627,8 +627,8 @@ const en = {
 			moreLink: 'the algorithm, by the Open Spaced Repetition project'
 		},
 		openDue: (n: number) => `Flashcards: ${n} to review`,
-		/** Not built yet: shown greyed out, so the way it will go is visible. */
-		planned: { note: '(planned)', deck: 'Import a deck', list: 'Import into a list' },
+		/** Links to the Import page. */
+		imports: { deck: 'Import a deck', list: 'Import into a list' },
 		/** The weekly goal: set on /review, shown on /learn (GoalCard) and in the header. */
 		goal: {
 			label: 'Weekly goal',
@@ -1064,10 +1064,65 @@ const en = {
 		off: 'Nothing is counted here: the STATS database is not bound, or STATS_IN_DEV is not set in npm run dev.',
 		noAccounts: 'No account database here.'
 	},
+	/** The Import page (/import): an Anki deck or a word list, read in the browser. */
+	import: {
+		title: 'Import words',
+		intro: 'Bring in an Anki deck with its progress, so your reviews carry on where Anki left off, or a list of words from a text or CSV file.',
+		choose: 'Choose a file',
+		kinds: 'Anki decks (.apkg, .colpkg), text files (.txt) and spreadsheets (.csv, .tsv).',
+		private: 'Pictures and sound stay in Anki. The file is read on this device and not uploaded.',
+		reading: 'Reading the file…',
+		matching: 'Finding the words in the dictionary…',
+		errors: {
+			unreadable: 'This file could not be read. Is it an Anki deck or a text file?',
+			empty: 'No Ukrainian words were found in this file.',
+			network: 'The dictionary could not be reached. Try again in a moment.',
+			save: 'The words could not be saved to your account. Try again in a moment.'
+		},
+		anki: 'Anki deck',
+		text: 'Word list',
+		cards: (n: number) => `${n.toLocaleString('en')} cards`,
+		lines: (n: number) => `${n.toLocaleString('en')} lines`,
+		another: 'Choose another file',
+		ready: (n: number, progress: boolean) => `words ready${progress ? ', with their progress' : ''}.`,
+		known: (n: number) => `${n.toLocaleString('en')} known`,
+		learning: (n: number) => `${n.toLocaleString('en')} learning`,
+		fresh: (n: number) => `${n.toLocaleString('en')} new`,
+		field: 'Ukrainian is in the field',
+		list: 'Into the list',
+		suspended: (n: number) => `Also import the ${n.toLocaleString('en')} cards suspended in Anki. They come back as ordinary cards.`,
+		go: (n: number) => `Import ${n.toLocaleString('en')} words`,
+		going: 'Importing…',
+		full: (n: number) => `Saved holds 5,000 words at most: ${n.toLocaleString('en')} of these will not fit.`,
+		missing: 'Words the dictionary does not have are sent to us, without your name, so that we can add them.',
+		download: (n: number) => `Download the ${n.toLocaleString('en')} not imported as a text file`,
+		tabs: { label: 'Show', all: 'All', none: 'No match', several: 'Several', suspended: 'Suspended' },
+		columns: { include: 'Import', card: 'Anki card', line: 'In the file', word: 'Word here', progress: 'Progress', next: 'Next review' },
+		state: { known: 'known', learning: 'learning', fresh: 'new', none: 'skipped', suspended: 'suspended', out: 'left out' },
+		include: (what: string) => `Import ${what}`,
+		noMatch: 'no match',
+		guess: 'Did you mean',
+		find: 'Find it',
+		findLabel: (what: string) => `Find the dictionary word for ${what}`,
+		findHint: 'Ukrainian or English',
+		nothing: 'Nothing found',
+		picked: 'chosen by you',
+		undo: 'Undo',
+		empty: 'No cards here.',
+		more: (n: number) => `Show ${n} more`,
+		done: {
+			title: 'Imported',
+			saved: (n: number, list: string) => `${n.toLocaleString('en')} words saved, in the list “${list}”.`,
+			cards: (n: number) => `${n.toLocaleString('en')} flashcards keep their progress.`,
+			review: 'Go to flashcards',
+			list: 'Open the list',
+			again: 'Import another file'
+		}
+	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
-		privacy: 'Privacy', stats: 'Usage'
+		privacy: 'Privacy', stats: 'Usage', import: 'Import words'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1091,6 +1146,7 @@ const en = {
 			`Ukrainian words beginning with ${letter}, from ${first} to ${last}, each with its meaning in English, stress and forms.`,
 		other: 'Dictionary entries that begin with no Ukrainian letter: signs, and words written in other alphabets.',
 		saved: 'The words you saved, kept in this browser or in your account.',
+		import: 'Import an Anki deck with its progress, or a list of Ukrainian words from a text or CSV file. The file is read in your browser and not uploaded.',
 		review: 'Flashcards for your saved words and the commonest Ukrainian words, scheduled so that each word comes back shortly before you would forget it.',
 		alphabet: 'Learn to read the Ukrainian alphabet: all 33 letters with their sounds and Latin spelling, and a drill on letters and real words that remembers the ones you miss.',
 		practice: 'Practise Ukrainian grammar in real sentences: fill the gap after a preposition with the right case. Ten sentences a round, and each rule returns before you forget it.',
@@ -1759,7 +1815,7 @@ const uk: Messages = {
 			more: 'Докладніше про FSRS:',
 			moreLink: 'алгоритм від проєкту Open Spaced Repetition (англійською)'
 		},
-		planned: { note: '(заплановано)', deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
+		imports: { deck: 'Імпортувати колоду', list: 'Імпортувати до списку' },
 		openDue: (n) => `Картки: ${counted(n, 'слово', 'слова', 'слів')} на повторення`,
 		goal: {
 			label: 'Мета на тиждень',
@@ -2145,10 +2201,65 @@ const uk: Messages = {
 		off: 'Тут нічого не рахується: базу STATS не підключено, або в npm run dev не задано STATS_IN_DEV.',
 		noAccounts: 'Тут немає бази облікових записів.'
 	},
+	import: {
+		title: 'Імпорт слів',
+		intro: 'Перенесіть колоду Anki разом із поступом, щоб повторення тривали з того місця, де ви зупинилися в Anki, або список слів із текстового чи CSV-файлу.',
+		choose: 'Вибрати файл',
+		kinds: 'Колоди Anki (.apkg, .colpkg), текстові файли (.txt) і таблиці (.csv, .tsv).',
+		private: 'Зображення й звук лишаються в Anki. Файл читається на цьому пристрої й нікуди не надсилається.',
+		reading: 'Читаю файл…',
+		matching: 'Шукаю слова в словнику…',
+		errors: {
+			unreadable: 'Не вдалося прочитати файл. Це колода Anki чи текстовий файл?',
+			empty: 'У файлі не знайдено українських слів.',
+			network: 'Словник недоступний. Спробуйте ще раз за хвилину.',
+			save: 'Не вдалося зберегти слова в обліковому записі. Спробуйте ще раз за хвилину.'
+		},
+		anki: 'Колода Anki',
+		text: 'Список слів',
+		cards: (n) => counted(n, 'картка', 'картки', 'карток'),
+		lines: (n) => counted(n, 'рядок', 'рядки', 'рядків'),
+		another: 'Вибрати інший файл',
+		ready: (n, progress) =>
+			`${counted(n, 'слово готове', 'слова готові', 'слів готово').replace(/^\d+ /, '')}${progress ? ' разом із поступом' : ''}.`,
+		known: (n) => `вивчені: ${n}`,
+		learning: (n) => `вивчаються: ${n}`,
+		fresh: (n) => `нові: ${n}`,
+		field: 'Українська в полі',
+		list: 'До списку',
+		suspended: (n) => `Також імпортувати ${counted(n, 'картку', 'картки', 'карток')}, призупинені в Anki. Вони стануть звичайними картками.`,
+		go: (n) => `Імпортувати ${counted(n, 'слово', 'слова', 'слів')}`,
+		going: 'Імпортую…',
+		full: (n) => `До збереженого вміщається щонайбільше 5000 слів: ${counted(n, 'слово', 'слова', 'слів')} з цих не вмістяться.`,
+		missing: 'Слова, яких немає в словнику, надсилаються нам без вашого імені, щоб ми могли їх додати.',
+		download: (n) => `Завантажити неімпортовані (${n}) текстовим файлом`,
+		tabs: { label: 'Показати', all: 'Усі', none: 'Без відповідника', several: 'Кілька слів', suspended: 'Призупинені' },
+		columns: { include: 'Імпортувати', card: 'Картка Anki', line: 'У файлі', word: 'Слово тут', progress: 'Поступ', next: 'Наступне повторення' },
+		state: { known: 'вивчене', learning: 'вивчається', fresh: 'нове', none: 'пропущено', suspended: 'призупинене', out: 'вилучено' },
+		include: (what) => `Імпортувати «${what}»`,
+		noMatch: 'немає в словнику',
+		guess: 'Можливо',
+		find: 'Знайти',
+		findLabel: (what) => `Знайти слово в словнику для «${what}»`,
+		findHint: 'Українською чи англійською',
+		nothing: 'Нічого не знайдено',
+		picked: 'вибрано вами',
+		undo: 'Скасувати',
+		empty: 'Тут немає карток.',
+		more: (n) => `Показати ще ${n}`,
+		done: {
+			title: 'Імпортовано',
+			saved: (n, list) => `${counted(n, 'слово збережено', 'слова збережено', 'слів збережено')} до списку «${list}».`,
+			cards: (n) => `${counted(n, 'картка зберігає', 'картки зберігають', 'карток зберігають')} свій поступ.`,
+			review: 'До карток',
+			list: 'Відкрити список',
+			again: 'Імпортувати інший файл'
+		}
+	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
-		privacy: 'Приватність', stats: 'Відвідуваність'
+		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
@@ -2166,6 +2277,7 @@ const uk: Messages = {
 			`Українські слова на літеру ${letter}, від «${first}» до «${last}», кожне зі значенням англійською, наголосом і формами.`,
 		other: 'Статті словника, що не починаються з української літери: знаки та слова, записані іншими абетками.',
 		saved: 'Слова, які ви зберегли: у цьому браузері або у вашому обліковому записі.',
+		import: 'Імпортуйте колоду Anki разом із поступом або список українських слів із текстового чи CSV-файлу. Файл читається у вашому браузері.',
 		review: 'Картки для збережених і найуживаніших українських слів: кожне слово повертається незадовго до того, як ви його забули б.',
 		alphabet: 'Навчіться читати українську абетку: усі 33 літери зі звуками й латинським записом та вправи на літерах і справжніх словах, які пам’ятають ваші помилки.',
 		practice: 'Вправляйте українську граматику на справжніх реченнях: заповніть пропуск після прийменника потрібним відмінком. Десять речень у раунді, а кожне правило повертається, перш ніж забудеться.',

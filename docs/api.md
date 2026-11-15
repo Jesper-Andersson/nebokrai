@@ -496,6 +496,8 @@ them into named [lists](#lists).
 | `POST /api/lists/<id>/words` | yes | Put saved words into a list, or take words out of it. `{ "ok": true }`. |
 | `POST /api/words/summary` | no | Headword and meanings for a list of words. |
 | `POST /api/words/cards` | no | What a flashcard holds, for a list of words. |
+| `POST /api/words/match` | no | The dictionary word each word of an imported list is. |
+| `POST /api/words/missing` | no | Words an import found in no entry, kept for adding to the dictionary. |
 | `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
 | `GET /api/review/deck/<deck>` | no | The words of a ready-made review deck. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
@@ -589,6 +591,54 @@ In the order asked. A word with no entry is left out. `word` must be the exact
 spelling (`Київ`, not `київ`). A spelling with several entries is summarised
 by its most common one. `pos` is that entry's part of speech, as in a search
 result. `glosses` holds the first meanings, at most three.
+
+### `POST /api/words/match`
+
+Which dictionary word each word of an imported list is: the Import page asks
+this about the words it read from an Anki deck or a text file. The file
+itself is read in the browser and never sent. Changes nothing.
+
+Body: `{ "words": ["вода́", "автобусом", "київ", "картинка"] }`, at most 500
+words. With `"suggest": true`, at most 20, and a word with no match also gets
+guesses.
+
+Response `200`:
+
+```json
+{
+  "matches": {
+    "вода́": { "word": "вода", "suggestions": [] },
+    "автобусом": { "word": "автобус", "suggestions": [] },
+    "київ": { "word": "Київ", "suggestions": [] },
+    "картинка": { "word": null, "suggestions": [] }
+  }
+}
+```
+
+A word is matched by its own spelling first, with stress marks and letter
+case set aside, and then as an inflected form of a word (`автобусом`). Where
+several entries share a spelling, the one spelled exactly as written wins,
+then the most common. `word` is the entry's exact spelling, the one
+`/api/saved` and `/api/review/sync` take. `suggestions` holds at most three
+words, most likely first, and is empty unless `suggest` was asked for.
+
+### `POST /api/words/missing`
+
+Words an import found in no dictionary entry, sent by the Import page when
+the visitor imports, so that the dictionary can grow where learners need it.
+Only the words are sent: not the rest of the card, and nothing about who sent
+them. A word the visitor left out of the import is not sent.
+
+Body: `{ "words": ["картинка", "ґоблін"] }`, at most 200 words. A word with no
+Cyrillic letter, an empty one or one over 100 characters is dropped.
+
+Response `200`: `{ "stored": 2 }`, the number of words kept. Each import that
+names a word counts once more for it, so the words most worth adding can be
+found first. They are kept in the private reports database, never in the
+dictionary's own (`src/lib/server/missing-words.ts` says how to read them).
+
+Errors: `400 invalid_words` when `words` is not a list of at most 200;
+`429 too_many` after 20 requests in ten minutes from one address.
 
 ### `POST /api/words/cards`
 

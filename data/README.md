@@ -248,7 +248,7 @@ back is one deploy.
     npx wrangler d1 execute nebokrai-dict-<date> --remote --file=data/raw/nebokrai.sql
 
 1. Put the new database's name and id in `wrangler.jsonc` (binding `DB`).
-2. `npm run deploy`.
+2. Merge that change into `main`, which deploys it, or run `npm run deploy`.
 3. Purge the cache in the Cloudflare dashboard. Search answers are cached for
    an hour and entry ids change with every rebuild, so until the purge a
    cached answer can carry an id that now belongs to another word.

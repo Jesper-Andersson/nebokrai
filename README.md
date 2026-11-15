@@ -146,6 +146,13 @@ that sends email. `wrangler.jsonc` describes all of it.
 | `USERS` | `nebokrai-users` | accounts, sessions, saved words |
 | `REPORTS` | `nebokrai-reports` | "Report an issue" reports |
 
+**Merging into `main` deploys.** Once CI's checks pass on `main`, its
+`deploy` job builds the site, publishes it with `wrangler deploy` and checks
+that `/` and `/word/voda` answer. Only the newest commit on `main` goes out.
+The job needs two secrets on the GitHub environment `production`:
+`CLOUDFLARE_API_TOKEN` (made from the "Edit Cloudflare Workers" template) and
+`CLOUDFLARE_ACCOUNT_ID`. By hand, from a checkout of `main`:
+
 ```sh
 npx wrangler login    # once per machine
 npm run deploy        # builds, then publishes to nebokrai.app
@@ -160,7 +167,9 @@ Things to know:
 
 - **`static/words.json` is not in git.** Make it before building
   (`python3 data/export_wordlist.py nebokrai.db static/words.json`), or the
-  deployed site has no word list.
+  deployed site has no word list. No page loads it yet, so the deploys from
+  CI, which has no `nebokrai.db`, go out without it. Once a page does, CI
+  must get the file another way.
 - **The four sign-in values are secrets**, set once with
   `npx wrangler secret put GITHUB_CLIENT_ID` and so on. The redirect address
   to register at each provider is `https://nebokrai.app/auth/callback/github`

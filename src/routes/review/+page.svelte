@@ -9,7 +9,11 @@
      decks, a calendar of the reviews done each day, with the streak.
      A list of saved words (saved.ts) can be a deck of its own; and
      /review?list=<id>, where the Saved page's Practise button leads from a
-     list, practises that list alone for the visit without changing the decks. -->
+     list, practises that list alone for the visit without changing the decks.
+     A word that has held for a week is answered by typing instead (RecallCard.svelte):
+     its meaning is shown, the Ukrainian word typed, then its form in the
+     card's sentence; the answer it suggests comes first. The visitor can
+     switch typing off under the decks. -->
 <script lang="ts">
 	import { RadioGroup, Switch } from 'bits-ui';
 	import { onMount, untrack } from 'svelte';
@@ -18,6 +22,7 @@
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import RecallCard from '#lib/RecallCard.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
 	import ReviewHelp from '#lib/ReviewHelp.svelte';
 	import ReviewKeys from '#lib/ReviewKeys.svelte';
@@ -35,6 +40,7 @@
 	import {
 		DEFAULT_KEYS, actionFor, bindable, isDefault, keyLabel, parseBindings, rebind, type Action
 	} from '#lib/review/keys.ts';
+	import { suggested, typable, type Recalled } from '#lib/review/recall.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -72,6 +78,33 @@
 	/** Counts the cards shown, so that each new one comes up afresh. */
 	let shown = $state(0);
 	const LEAVE_MS = 260;
+
+	// Typing the answer: on for a word that has held for a week (typable,
+	// review/recall.ts), where the card has what typing needs. Whether it is
+	// on at all is kept in this browser only, like the keys.
+	const TYPING_KEY = 'review-typing';
+	let typingOn = $state(true);
+	/** How the typed card went, once it has; the step it is on meanwhile. */
+	let recalled = $state.raw<Recalled | null>(null);
+	let recallStep = $state<'word' | 'form' | 'done'>('word');
+
+	onMount(() => {
+		try {
+			typingOn = localStorage.getItem(TYPING_KEY) !== '0';
+		} catch {
+			// storage blocked: typing stays on
+		}
+	});
+
+	function setTyping(on: boolean) {
+		typingOn = on;
+		try {
+			if (on) localStorage.removeItem(TYPING_KEY);
+			else localStorage.setItem(TYPING_KEY, '0');
+		} catch {
+			// storage blocked: the choice lasts until the page is closed
+		}
+	}
 
 	onMount(() => {
 		void review.load();
@@ -116,6 +149,11 @@
 	let glosses = $derived([...new Set(info?.glosses)]);
 	let ahead = $derived(current ? preview(current, now) : null);
 	let canUndo = $derived(last !== null && review.canUndo(last.word));
+	let typing = $derived(typingOn && typable(current) && !!info?.recall);
+	/** The words loaded for today, to offer beside a word that is to be picked out from four. */
+	let others = $derived([...content.values()]);
+	/** The answer offered first: what the typing suggests, or Good as ever. */
+	let suggestion = $derived(typing && recalled ? suggested(recalled) : 'good');
 
 	// /review?start, where /learn's "first words" lead: the deck was switched
 	// on there, and the first card comes up without a second button to find.
@@ -164,7 +202,7 @@
 				const res = await fetch('/api/words/cards', {
 					method: 'POST',
 					headers: { 'content-type': 'application/json' },
-					body: JSON.stringify({ words: batch })
+					body: JSON.stringify({ words: batch, recall: true })
 				});
 				if (!res.ok) throw new Error(String(res.status));
 				const found: WordCard[] = (await res.json()).words;
@@ -186,6 +224,8 @@
 		now = Date.now();
 		current = nextUp(today, now);
 		flipped = false;
+		recalled = null;
+		recallStep = 'word';
 		leaving = null;
 		shown += 1;
 	}
@@ -235,6 +275,8 @@
 		now = Date.now();
 		current = last.before ?? newCard(last.word, now);
 		flipped = false;
+		recalled = null;
+		recallStep = 'word';
 		leaving = null;
 		shown += 1;
 		last = null;
@@ -255,8 +297,8 @@
 		let moved = false;
 		const down = (event: PointerEvent) => {
 			if (event.pointerType === 'mouse' || leaving) return;
-			// Links and the play button keep their own taps.
-			if (event.target instanceof Element && event.target.closest('a, button')) return;
+			// Links, the play button and the fields to type in keep their own taps.
+			if (event.target instanceof Element && event.target.closest('a, button, input')) return;
 			pointer = event.pointerId;
 			startX = event.clientX;
 			startY = event.clientY;
@@ -277,7 +319,8 @@
 			if (event.pointerId !== pointer) return;
 			pointer = -1;
 			if (!moved) {
-				if (!flipped && Math.abs(event.clientX - startX) < 12 && Math.abs(event.clientY - startY) < 12) flipped = true;
+				// A card to type is turned by its answer, not by a tap
+				if (!flipped && !typing && Math.abs(event.clientX - startX) < 12 && Math.abs(event.clientY - startY) < 12) flipped = true;
 				return;
 			}
 			const far = Math.abs(drag) > Math.min(110, node.offsetWidth / 4);
@@ -372,8 +415,9 @@
 		if (action === 'replay') {
 			if (info.audio_url) play(info.audio_url);
 		} else if (action === 'show') {
-			if (flipped) give(GOOD);
-			else flipped = true;
+			// Typed, the answer it suggests; a card still to type is not shown before it is
+			if (flipped) give(suggestion === 'again' ? AGAIN : GOOD);
+			else if (!typing) flipped = true;
 		} else give(action === 'again' ? AGAIN : GOOD);
 	}
 
@@ -519,6 +563,18 @@
 				onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
 			/>
 			<p class="muted hint">{m.review.goal.planHint}</p>
+
+			<h2 class="ui-label">{m.review.recall.heading}</h2>
+			<ul>
+				<li>
+					<span class="name" id="typing">{m.review.recall.setting}</span>
+					<span class="muted">{m.review.recall.settingNote}</span>
+					<Switch.Root class="ui-switch" aria-labelledby="typing" checked={typingOn} onCheckedChange={setTyping}>
+						<Switch.Thumb class="ui-switch-thumb" />
+					</Switch.Root>
+				</li>
+			</ul>
+
 			<p class="muted">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
 		</section>
 
@@ -540,6 +596,20 @@
 					style:transform={drag ? `translateX(${drag}px) rotate(${drag / 30}deg)` : undefined}
 					{@attach swipe}
 				>
+					{#if typing && info.recall}
+						<RecallCard
+							{info}
+							recall={info.recall}
+							{glosses}
+							{others}
+							bind:step={recallStep}
+							ondone={(how) => {
+								recalled = how;
+								flipped = true;
+							}}
+							onplay={play}
+						/>
+					{:else}
 					<div class="front">
 						<Headword text={info.headword} size="lg" tag="span" />
 						{#if info.audio_url}
@@ -567,19 +637,47 @@
 							<a class="more" href={wordPath(info.word)}>{m.review.openWord}</a>
 						</div>
 					{/if}
+					{/if}
 				</article>
 			{/key}
 		</div>
 
 		{#if flipped && ahead}
+			<!-- Typed, the answer the typing suggests is the one in blue, and has
+			     the focus, so Enter gives it -->
+			{@const first = (node: HTMLElement) => {
+				if (typing) node.focus({ preventScroll: true });
+			}}
 			<div class="answers">
-				<button type="button" class="ui-btn answer again" onclick={() => give(AGAIN)}>
+				<button
+					type="button"
+					class="ui-btn answer again"
+					class:ui-btn-primary={suggestion === 'again'}
+					onclick={() => give(AGAIN)}
+					{@attach suggestion === 'again' && first}
+				>
 					<span class="when">{label(ahead.again - now)}</span>
 					<span class="what"><Icon name="arrow-left" size={16} />{m.review.again} <kbd class="ui-kbd">{keyLabel(keys.again)}</kbd></span>
 				</button>
-				<button type="button" class="ui-btn ui-btn-primary answer" onclick={() => give(GOOD)}>
+				<button
+					type="button"
+					class="ui-btn answer"
+					class:ui-btn-primary={suggestion === 'good'}
+					onclick={() => give(GOOD)}
+					{@attach suggestion === 'good' && first}
+				>
 					<span class="when">{label(ahead.good - now)}</span>
 					<span class="what">{m.review.good} <kbd class="ui-kbd">{keyLabel(keys.good)}</kbd><Icon name="arrow-right" size={16} /></span>
+				</button>
+			</div>
+		{:else if typing}
+			<!-- They answer the card's form (RecallCard.svelte); Enter in a field checks -->
+			<div class="answers">
+				<button type="submit" form="recall-answer" class="ui-btn" data-give-up>
+					{recallStep === 'word' ? m.review.recall.dontKnow : m.review.show}
+				</button>
+				<button type="submit" form="recall-answer" class="ui-btn ui-btn-primary">
+					{m.review.recall.check} <kbd class="ui-kbd">Enter</kbd>
 				</button>
 			</div>
 		{:else}
@@ -598,7 +696,7 @@
 					onreset={() => setKeys(DEFAULT_KEYS)}
 				/>
 			</div>
-			<span class="muted touch">{m.review.swipe}</span>
+			{#if !typing || flipped}<span class="muted touch">{m.review.swipe}</span>{/if}
 		</div>
 	{:else if current}
 		<section class="ui-card end" role="status">

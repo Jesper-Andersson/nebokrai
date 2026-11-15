@@ -371,8 +371,15 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
-		/** On each word of an example sentence */
-		lookUp: 'Look up this word',
+		/** The card over a word of an example sentence (GlossWord.svelte) */
+		gloss: {
+			open: 'Open word',
+			/** Before the other words the same spelling can be: "Also ла́ска noun: caress" */
+			also: 'Also',
+			missing: 'This word is not in the dictionary yet.',
+			search: 'Search for it',
+			loading: 'Looking it up…'
+		},
 		/** Above the entries of за́мок and замо́к */
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
 		forms: 'Forms',
@@ -552,13 +559,22 @@ const en = {
 			open: 'How the flashcards work',
 			close: 'Close',
 			title: 'How the flashcards work',
-			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it.',
+			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have known for a while comes the other way round: you type it.',
 			sections: [
 				{
 					heading: 'Again and Good',
 					body: [
 						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
 						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
+					]
+				},
+				{
+					heading: 'Typing the answer',
+					body: [
+						'A new word is shown to you first, Ukrainian side up. Once you have recognised it after a gap of a few days and it is expected to hold for a week, its card shows the meaning instead, and you type the Ukrainian word. Recalling a word yourself fixes it better than recognising it, but only once you know it well enough to manage. A word you forget goes back to the Ukrainian side until it holds again.',
+						'Stuck, you can show the first letter, then choose the word from four. Typed after the first letter, it still counts as known; chosen from four, it comes back soon.',
+						'Then the card shows a sentence with the word left out, and you type the form the sentence needs: склянку води, not склянку вода. Latin letters work too: vody.',
+						'The answer your typing suggests is the one in blue: Good if you recalled the word, even with another ending, and Again if you did not. You can still pick the other. Typing can be switched off under the decks.'
 					]
 				},
 				{
@@ -686,6 +702,28 @@ const en = {
 		undo: 'Undo',
 		undone: 'Answer taken back',
 		openWord: 'Open in the dictionary',
+		/** Typing the answer to a word reviewed before (RecallCard.svelte). */
+		recall: {
+			heading: 'Answers',
+			setting: 'Type the words you know well',
+			settingNote: 'The meaning is shown, and you type the Ukrainian word, then its form in a sentence.',
+			inUkrainian: 'In Ukrainian:',
+			typeWord: 'Type the word',
+			typeForm: 'The word as the sentence needs it',
+			latin: 'Latin letters work too.',
+			close: 'Close: check the spelling and try again.',
+			formAsk: 'Now the form this sentence needs.',
+			/** The form's name, as the grammar tags give it: "genitive singular". */
+			formIs: (name: string) => `Right word, another form: the sentence needs the ${name}.`,
+			formLook: 'Right word, another form. The words around the gap decide which.',
+			youTyped: 'You typed',
+			dontKnow: 'I don’t know',
+			check: 'Check',
+			firstLetter: 'Show the first letter',
+			chooseFour: 'Choose from four',
+			pick: 'Pick the word',
+			startsWith: (letter: string) => `It starts with ${letter}`
+		},
 		left: (n: number) => `${n} left`,
 		end: 'Stop',
 		loading: 'Loading the cards…',
@@ -1344,7 +1382,13 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
-		lookUp: 'Знайти це слово',
+		gloss: {
+			open: 'Відкрити слово',
+			also: 'Також',
+			missing: 'Цього слова в словнику ще немає.',
+			search: 'Пошукати його',
+			loading: 'Шукаю…'
+		},
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
 		conjugation: 'Дієвідмінювання',
@@ -1524,13 +1568,22 @@ const uk: Messages = {
 			open: 'Як працюють картки',
 			close: 'Закрити',
 			title: 'Як працюють картки',
-			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його.',
+			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже знаєте якийсь час, приходить навпаки: ви його друкуєте.',
 			sections: [
 				{
 					heading: '«Ще раз» і «Добре»',
 					body: [
 						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
 						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
+					]
+				},
+				{
+					heading: 'Друкування відповіді',
+					body: [
+						'Нове слово спершу показується українським боком догори. Коли ви впізнали його після перерви в кілька днів і воно має триматися тиждень, картка показує значення, а ви друкуєте українське слово. Самому згадати слово корисніше, ніж його впізнати, але лише тоді, коли ви знаєте його досить, щоб упоратися. Забуте слово повертається українським боком, доки знову не закріпиться.',
+						'Якщо не виходить, можна показати першу літеру, а потім вибрати слово з чотирьох. Надруковане після першої літери слово все одно вважається знаним; вибране з чотирьох повернеться незабаром.',
+						'Потім картка показує речення з пропуском, і ви друкуєте форму, якої потребує речення: склянку води, а не склянку вода. Можна й латиницею: vody.',
+						'Відповідь, яку підказує надруковане, виділено синім: «Добре», якщо ви згадали слово, хай і з іншим закінченням, і «Ще раз», якщо не згадали. Можна вибрати й іншу. Друкування можна вимкнути під колодами.'
 					]
 				},
 				{
@@ -1655,6 +1708,26 @@ const uk: Messages = {
 		undo: 'Скасувати',
 		undone: 'Відповідь скасовано',
 		openWord: 'Відкрити у словнику',
+		recall: {
+			heading: 'Відповіді',
+			setting: 'Друкувати слова, які ви добре знаєте',
+			settingNote: 'Показується значення, а ви друкуєте українське слово, потім його форму в реченні.',
+			inUkrainian: 'Українською:',
+			typeWord: 'Надрукуйте слово',
+			typeForm: 'Слово в тій формі, якої потребує речення',
+			latin: 'Можна й латиницею.',
+			close: 'Майже: перевірте написання і спробуйте ще раз.',
+			formAsk: 'Тепер форма, якої потребує це речення.',
+			formIs: (name) => `Слово правильне, форма інша. Речення потребує форми: ${name}.`,
+			formLook: 'Слово правильне, форма інша. Яка саме, підкажуть слова довкола пропуску.',
+			youTyped: 'Ви надрукували',
+			dontKnow: 'Не знаю',
+			check: 'Перевірити',
+			firstLetter: 'Показати першу літеру',
+			chooseFour: 'Вибрати з чотирьох',
+			pick: 'Виберіть слово',
+			startsWith: (letter) => `Починається на ${letter}`
+		},
 		left: (n) => `залишилося ${n}`,
 		end: 'Зупинити',
 		loading: 'Завантаження карток…',

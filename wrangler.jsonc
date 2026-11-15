@@ -1,4 +1,4 @@
-// How the site runs on Cloudflare Workers. README.md ("Deploying") has the
+// How the site runs on Cloudflare Workers. docs/deploying.md has the
 // steps; data/README.md ("Publishing to D1") has the dictionary upload.
 {
 	"$schema": "node_modules/wrangler/config-schema.json",

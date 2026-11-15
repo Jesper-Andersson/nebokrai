@@ -26,6 +26,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import { COMMON_PER_PAGE, COMMON_WORDS, commonPath } from '#lib/browse.ts';
 	import PageMeta from '#lib/PageMeta.svelte';
+	import PaceEstimate from '#lib/PaceEstimate.svelte';
 	import RecallCard from '#lib/RecallCard.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
 	import ReviewHelp from '#lib/ReviewHelp.svelte';
@@ -35,6 +36,7 @@
 	import { stateOf } from '#lib/practice/round.ts';
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
 	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
+	import { daysPerWeek, pace } from '#lib/review/pace.ts';
 	import {
 		COMMON_DECKS, DECK_IDS, MAX_GOAL_DAYS, MAX_PLAN_LENGTH, NEW_PER_DAY, SAVED_DECK, cleanPlan, listDeck, listOfDeck,
 		newWords, reviewEstimate, reviewWords, wordsOfDeck
@@ -177,6 +179,19 @@
 			.filter((word) => !gone.has(word)));
 	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now, newFrom));
 	let estimate = $derived(reviewEstimate(review.settings.new_per_day));
+
+	// Your pace: how often the visitor has practised lately, and where the
+	// number of new words a day takes them through the common words. Only once
+	// all three decks of them are here: with one missing the order is wrong.
+	let practice = $derived(daysPerWeek(review.days, dayNumber(now), review.settings.goal_days));
+	let paceNow = $derived.by(() => {
+		if (!COMMON_DECKS.every((deck) => review.common.has(deck.id))) return null;
+		const common = COMMON_DECKS.flatMap((deck) => review.common.get(deck.id) ?? []);
+		const queue = newWords(review.settings, savedWords, saved.lists, review.common);
+		return pace(queue, common, (word) => review.cards.has(word), review.settings.new_per_day, practice.perWeek, now);
+	});
+	/** On a phone, whether the goal, plan and typing are unfolded */
+	let habitOpen = $state(false);
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
 	let info = $derived(current ? content.get(current.word) : undefined);
@@ -489,7 +504,7 @@
 
 <PageMeta title="{m.pageTitle.review} · Nebokrai" description={m.meta.review} />
 
-<div class="ui-page page">
+<div class="ui-page page" class:wide={!started}>
 	<header>
 		<h1 class="ui-title">{m.pageTitle.review}</h1>
 		<ReviewHelp />
@@ -504,222 +519,269 @@
 	</header>
 
 	{#if !started}
-		<p class="lead">{m.review.lead}</p>
-
-		{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
-			<!-- No deck has a word in it: three noughts over a Start that cannot be
-			     pressed say nothing, so the way to begin is said in their place.
-			     The decks to switch on are the next thing down the page. -->
-			<section class="ui-card today begin">
-				<Icon name="cards" size={28} />
-				<p>{m.review.noWords}</p>
-				{#if only}
-					<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
-				{/if}
-			</section>
-		{:else}
-			<section class="ui-card today" aria-busy={!ready}>
-				<dl>
-					<div><dt>{m.review.learning}</dt><dd>{ready ? today.learning.length : '–'}</dd></div>
-					<div><dt>{m.review.due}</dt><dd>{ready ? today.due.length : '–'}</dd></div>
-					<div><dt>{m.review.fresh}</dt><dd>{ready ? today.fresh.length : '–'}</dd></div>
-				</dl>
-				<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
-					{m.review.start}
-				</button>
-				{#if only}
-					<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
-				{/if}
-				{#if ready && !left}
-					<p class="muted">
-						{m.review.nothingToday}
-						{#if nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
-					</p>
-				{/if}
-			</section>
-		{/if}
-
-		<!-- /review#decks is where /learn's "Manage decks" leads -->
-		<section class="ui-card options" id="decks">
-			<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
-			<p class="muted hint">{m.review.newFromNote}</p>
-			<!-- A deck as a row: its tick, its name, a few of its words, how far it has got, and a menu -->
-			{#snippet deckRow(deck: string)}
-				{@const all = wordsOf(deck)}
-				{@const begun = all.filter((word) => review.cards.has(word)).length}
-				{@const progress = progressOf(all)}
-				{@const paused = isPaused(deck)}
-				{@const href = wordsHref(deck)}
-				<li>
-					<!-- A paused deck gives no new words; its tick is kept for when it is resumed -->
-					<input
-						type="checkbox"
-						id="deck-{deck}"
-						checked={isTicked(deck) && !paused}
-						disabled={paused}
-						onchange={(event) => tick(deck, event.currentTarget.checked)}
-					/>
-					<div class="about">
-						<span class="title">
-							<label for="deck-{deck}" class:paused>{m.review.row[deck] ?? deckName(deck)}</label>
-							{#if paused}<span class="ui-badge">{m.review.paused}</span>{/if}
-						</span>
-						{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
-							<!-- A few of its words, so that a step reads as a level: не, я, в, ти… -->
-							{#if deck !== SAVED_DECK && all.length}
-								<span class="muted" lang="uk">{all.slice(0, 3).join(', ')}…</span>
-							{/if}
-							<span class="bar" aria-hidden="true">
-								<i class="known" style:width="{share(progress.known, progress.total)}%"></i>
-								<i class="learning" style:width="{share(progress.learning, progress.total)}%"></i>
+		<!-- Before a round: the decks; Today and the pace; the settings, folded,
+		     and the calendar. One column on a phone, two or three wider. -->
+		<div class="setup">
+			<div class="column one">
+				<!-- /review#decks is where /learn's "Manage decks" leads -->
+				<section class="ui-card options" id="decks">
+					<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
+				<!-- A deck as a row: its tick, its name, a few of its words, how far it has got, and a menu -->
+				{#snippet deckRow(deck: string)}
+					{@const all = wordsOf(deck)}
+					{@const begun = all.filter((word) => review.cards.has(word)).length}
+					{@const progress = progressOf(all)}
+					{@const paused = isPaused(deck)}
+					{@const href = wordsHref(deck)}
+					<li>
+						<!-- A paused deck gives no new words; its tick is kept for when it is resumed -->
+						<input
+							type="checkbox"
+							id="deck-{deck}"
+							checked={isTicked(deck) && !paused}
+							disabled={paused}
+							onchange={(event) => tick(deck, event.currentTarget.checked)}
+						/>
+						<div class="about">
+							<span class="title">
+								<label for="deck-{deck}" class:paused>{m.review.row[deck] ?? deckName(deck)}</label>
+								{#if paused}<span class="ui-badge">{m.review.paused}</span>{/if}
+								<!-- A few of its words, so that a step reads as a level: не, я, в… -->
+								{#if deck !== SAVED_DECK && all.length}<small lang="uk">{all.slice(0, 3).join(', ')}…</small>{/if}
 							</span>
-						{/if}
-						<span class="counts">
-							{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
-								{#if progress.known || progress.learning}
-									{#if progress.known}<span><i class="key known"></i>{m.review.known(progress.known)}</span>{/if}
-									{#if progress.learning}
-										<span><i class="key learning"></i>{m.review.learningCount(progress.learning)}</span>
-									{/if}
-									<span>{m.review.toGo(progress.left)}</span>
-								{:else}
-									<span>{m.review.notStarted}</span>
+							<span class="line">
+								{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
+									<span class="bar" aria-hidden="true">
+										<i class="known" style:width="{share(progress.known, progress.total)}%"></i>
+										<i class="learning" style:width="{share(progress.learning, progress.total)}%"></i>
+									</span>
+									<span
+										class="amount"
+										title={progress.known || progress.learning
+											? [m.review.known(progress.known), m.review.learningCount(progress.learning), m.review.toGo(progress.left)].join(' · ')
+											: m.review.notStarted}
+									>
+										{m.review.ofTotal(progress.known + progress.learning, progress.total)}
+									</span>
 								{/if}
-							{/if}
-							{#if paused}
-								<button type="button" class="resume" onclick={() => pause(deck, false)}>
-									{m.review.resumeShort}
-								</button>
-							{/if}
-						</span>
-						<!-- Which saved words: all, or one list. Only worth asking when there are lists. -->
-						{#if deck === SAVED_DECK && savedScope && !paused && saved.lists.length}
-							<DropdownMenu.Root>
-								<DropdownMenu.Trigger class="ui-btn scope">
-									{savedScope === SAVED_DECK ? m.review.savedScope.all : m.review.savedScope.list(deckName(savedScope))}
-									<Icon name="chevron-down" size={14} />
-								</DropdownMenu.Trigger>
-								<DropdownMenu.Portal>
-									<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
-										<DropdownMenu.RadioGroup value={savedScope} onValueChange={chooseSaved}>
-											<DropdownMenu.GroupHeading class="ui-menu-heading">
-												{m.review.savedScope.heading}
-											</DropdownMenu.GroupHeading>
-											<DropdownMenu.RadioItem class="ui-menu-item" value={SAVED_DECK}>
-												{m.review.savedScope.all}
-												<span class="ui-menu-count">{savedWords.length}</span>
-											</DropdownMenu.RadioItem>
-											{#each saved.lists as list (list.id)}
-												<DropdownMenu.RadioItem class="ui-menu-item" value={listDeck(list.id)}>
-													{list.name}
-													<span class="ui-menu-count">{list.words.length}</span>
+								{#if paused}
+									<button type="button" class="resume" onclick={() => pause(deck, false)}>
+										{m.review.resumeShort}
+									</button>
+								{/if}
+							</span>
+							<!-- Which saved words: all, or one list. Only worth asking when there are lists. -->
+							{#if deck === SAVED_DECK && savedScope && !paused && saved.lists.length}
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger class="ui-btn scope">
+										{savedScope === SAVED_DECK ? m.review.savedScope.all : m.review.savedScope.list(deckName(savedScope))}
+										<Icon name="chevron-down" size={14} />
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Portal>
+										<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
+											<DropdownMenu.RadioGroup value={savedScope} onValueChange={chooseSaved}>
+												<DropdownMenu.GroupHeading class="ui-menu-heading">
+													{m.review.savedScope.heading}
+												</DropdownMenu.GroupHeading>
+												<DropdownMenu.RadioItem class="ui-menu-item" value={SAVED_DECK}>
+													{m.review.savedScope.all}
+													<span class="ui-menu-count">{savedWords.length}</span>
 												</DropdownMenu.RadioItem>
-											{/each}
-										</DropdownMenu.RadioGroup>
-									</DropdownMenu.Content>
-								</DropdownMenu.Portal>
-							</DropdownMenu.Root>
-						{/if}
-					</div>
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger class="ui-icon-btn more" aria-label={m.review.deckMenu(deckName(deck))}>
-							<Icon name="more" size={18} />
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Portal>
-							<DropdownMenu.Content class="ui-popover ui-menu deck-menu" align="end" sideOffset={4} collisionPadding={8}>
-								<DropdownMenu.Item class="ui-menu-item" onSelect={() => pause(deck, !paused)}>
-									{paused ? m.review.resume : m.review.pause}
-									{#if !paused}<span class="ui-menu-note">{m.review.pauseNote(begun)}</span>{/if}
-								</DropdownMenu.Item>
-								{#if href}
-									<DropdownMenu.Item class="ui-menu-item">
-										{#snippet child({ props })}
-											<a {...props} {href}>{m.review.showWords}</a>
-										{/snippet}
+												{#each saved.lists as list (list.id)}
+													<DropdownMenu.RadioItem class="ui-menu-item" value={listDeck(list.id)}>
+														{list.name}
+														<span class="ui-menu-count">{list.words.length}</span>
+													</DropdownMenu.RadioItem>
+												{/each}
+											</DropdownMenu.RadioGroup>
+										</DropdownMenu.Content>
+									</DropdownMenu.Portal>
+								</DropdownMenu.Root>
+							{/if}
+						</div>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger class="ui-icon-btn more" aria-label={m.review.deckMenu(deckName(deck))}>
+								<Icon name="more" size={18} />
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Portal>
+								<DropdownMenu.Content class="ui-popover ui-menu deck-menu" align="end" sideOffset={4} collisionPadding={8}>
+									<DropdownMenu.Item class="ui-menu-item" onSelect={() => pause(deck, !paused)}>
+										{paused ? m.review.resume : m.review.pause}
+										{#if !paused}<span class="ui-menu-note">{m.review.pauseNote(begun)}</span>{/if}
 									</DropdownMenu.Item>
-								{/if}
-							</DropdownMenu.Content>
-						</DropdownMenu.Portal>
-					</DropdownMenu.Root>
-				</li>
-			{/snippet}
-			<ul class="decks" aria-labelledby="new-from">
-				{@render deckRow(SAVED_DECK)}
-			</ul>
-			<h3 class="ui-label" id="common-words">{m.review.commonHeading}</h3>
-			<ul class="decks" aria-labelledby="common-words">
-				{#each COMMON_DECKS as deck (deck.id)}
-					{@render deckRow(deck.id)}
-				{/each}
-			</ul>
-			<p class="muted hint">{m.review.newFromOrder}</p>
-			<!-- Not built yet: shown so that the way it will go is visible -->
-			<button type="button" class="ui-btn ui-btn-planned planned" disabled>
-				{m.review.planned.deck} <span>{m.review.planned.note}</span>
-			</button>
+									{#if href}
+										<DropdownMenu.Item class="ui-menu-item">
+											{#snippet child({ props })}
+												<a {...props} {href}>{m.review.showWords}</a>
+											{/snippet}
+										</DropdownMenu.Item>
+									{/if}
+								</DropdownMenu.Content>
+							</DropdownMenu.Portal>
+						</DropdownMenu.Root>
+					</li>
+				{/snippet}
+					<ul class="decks" aria-labelledby="new-from">
+						{@render deckRow(SAVED_DECK)}
+					</ul>
+					<h3 class="ui-label" id="common-words">{m.review.commonHeading}</h3>
+					<ul class="decks" aria-labelledby="common-words">
+						{#each COMMON_DECKS as deck (deck.id)}
+							{@render deckRow(deck.id)}
+						{/each}
+					</ul>
+					<!-- The colours of every bar above, said once -->
+					<p class="legend">
+						<span><i class="key known"></i>{m.review.keyKnown}</span>
+						<span><i class="key learning"></i>{m.review.keyLearning}</span>
+						<span>{m.review.newFromNote}</span>
+					</p>
+					<!-- Not built yet: shown so that the way it will go is visible -->
+					<button type="button" class="ui-btn ui-btn-planned planned" disabled>
+						{m.review.planned.deck} <span>{m.review.planned.note}</span>
+					</button>
+				</section>
+			</div>
 
-			<h2 class="ui-label" id="new-per-day">{m.review.newPerDay}</h2>
-			<RadioGroup.Root
-				class="ui-segmented"
-				orientation="horizontal"
-				aria-labelledby="new-per-day"
-				value={String(review.settings.new_per_day)}
-				onValueChange={(value) => review.change({ new_per_day: Number(value) })}
-			>
-				{#each NEW_PER_DAY as n (n)}
-					<RadioGroup.Item class="ui-segment" value={String(n)}>{n}</RadioGroup.Item>
-				{/each}
-			</RadioGroup.Root>
-			<!-- What the choice will cost once the cards come back: from a simulation of the scheduler (decks.ts) -->
-			<p class="muted hint">{m.review.goal.estimate(estimate.answers, estimate.minutes)}</p>
+			<div class="column two">
+				{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
+					<!-- No deck has a word in it: three noughts over a Start that cannot be
+					     pressed say nothing, so the way to begin is said in their place.
+					     The decks to tick are the next thing down the page. -->
+					<section class="ui-card today begin">
+						<Icon name="cards" size={28} />
+						<p>{m.review.noWords}</p>
+						{#if only}
+							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
+						{/if}
+					</section>
+				{:else}
+					<!-- Today on one line: the three counts, then Start -->
+					<section class="ui-card today" aria-busy={!ready}>
+						<dl>
+							<div><dd>{ready ? today.learning.length : '–'}</dd><dt>{m.review.learning}</dt></div>
+							<div><dd>{ready ? today.due.length : '–'}</dd><dt>{m.review.due}</dt></div>
+							<div><dd>{ready ? today.fresh.length : '–'}</dd><dt>{m.review.fresh}</dt></div>
+						</dl>
+						<button type="button" class="ui-btn ui-btn-primary" disabled={!ready || !left} onclick={start}>
+							{m.review.start}
+						</button>
+						{#if only}
+							<p class="muted">{m.review.onlyList(deckName(only))} <a href="/review">{m.review.allDecks}</a></p>
+						{/if}
+						{#if ready && !left}
+							<p class="muted">
+								{m.review.nothingToday}
+								{#if nextDue < Infinity && nextDue > now}{m.review.next(label(nextDue - now))}{/if}
+							</p>
+						{/if}
+					</section>
+				{/if}
 
-			<!-- The weekly goal and the if-then plan, shown on /learn (GoalCard) -->
-			<h2 class="ui-label" id="weekly-goal">{m.review.goal.label}</h2>
-			<RadioGroup.Root
-				class="ui-segmented"
-				orientation="horizontal"
-				aria-labelledby="weekly-goal"
-				value={String(review.settings.goal_days)}
-				onValueChange={(value) => review.change({ goal_days: Number(value) })}
-			>
-				{#each Array.from({ length: MAX_GOAL_DAYS + 1 }, (_, i) => i) as n (n)}
-					<RadioGroup.Item class="ui-segment" value={String(n)}>{n || m.review.goal.none}</RadioGroup.Item>
-				{/each}
-			</RadioGroup.Root>
-			<p class="muted hint">{m.review.goal.hint}</p>
+				<!-- The number of new words a day, and where it leads (review/pace.ts) -->
+				<section class="ui-card options pace-card">
+					<h2 class="ui-label">{m.review.pace.heading}</h2>
+					<div class="setting">
+						<span class="muted" id="new-per-day">{m.review.newPerDay}</span>
+						<RadioGroup.Root
+							class="ui-segmented"
+							orientation="horizontal"
+							aria-labelledby="new-per-day"
+							value={String(review.settings.new_per_day)}
+							onValueChange={(value) => review.change({ new_per_day: Number(value) })}
+						>
+							{#each NEW_PER_DAY as n (n)}
+								<RadioGroup.Item class="ui-segment" value={String(n)}>{n}</RadioGroup.Item>
+							{/each}
+						</RadioGroup.Root>
+					</div>
+					{#if paceNow}
+						<PaceEstimate
+							pace={paceNow}
+							newPerDay={review.settings.new_per_day}
+							perWeek={practice.perWeek}
+							basis={practice.basis}
+							{now}
+						/>
+					{/if}
+					<!-- What the choice will cost once the cards come back: from a simulation of the scheduler (decks.ts) -->
+					<p class="muted hint">{m.review.goal.estimate(estimate.answers, estimate.minutes)}</p>
+				</section>
 
-			<label class="ui-label" for="goal-plan">{m.review.goal.plan}</label>
-			<input
-				id="goal-plan"
-				class="ui-field plan"
-				type="text"
-				maxlength={MAX_PLAN_LENGTH}
-				autocomplete="off"
-				placeholder={m.review.goal.planExample}
-				value={review.settings.plan}
-				onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
-			/>
-			<p class="muted hint">{m.review.goal.planHint}</p>
+			</div>
 
-			<h2 class="ui-label">{m.review.recall.heading}</h2>
-			<ul>
-				<li>
-					<span class="name" id="typing">{m.review.recall.setting}</span>
-					<span class="muted">{m.review.recall.settingNote}</span>
-					<Switch.Root class="ui-switch" aria-labelledby="typing" checked={typingOn} onCheckedChange={setTyping}>
-						<Switch.Thumb class="ui-switch-thumb" />
-					</Switch.Root>
-				</li>
-			</ul>
+			<div class="column three">
+				<!-- Settings changed once in a while fold away under a line that says
+				     how they are set, at every width: the page then fits one screen -->
+				<section class="ui-card options habit" class:open={habitOpen}>
+					<!-- Said, not shown: a second label over "Weekly goal" only repeated it -->
+					<h2 class="ui-sr-only">{m.review.habit.heading}</h2>
+					<button
+						type="button"
+						class="fold"
+						aria-expanded={habitOpen}
+						aria-controls="habit"
+						onclick={() => (habitOpen = !habitOpen)}
+					>
+						<span>
+							<b>{m.review.habit.toggle}</b>
+							<span class="muted">
+								{review.settings.goal_days ? m.review.habit.days(review.settings.goal_days) : m.review.habit.noGoal}
+								· {typingOn ? m.review.habit.typingOn : m.review.habit.typingOff}
+							</span>
+						</span>
+						<Icon name="chevron-down" size={18} />
+					</button>
+					<div class="body" id="habit">
+						<!-- The weekly goal and the if-then plan, shown on /learn (GoalCard) -->
+						<h3 class="ui-label" id="weekly-goal">{m.review.goal.label}</h3>
+						<RadioGroup.Root
+							class="ui-segmented"
+							orientation="horizontal"
+							aria-labelledby="weekly-goal"
+							value={String(review.settings.goal_days)}
+							onValueChange={(value) => review.change({ goal_days: Number(value) })}
+						>
+							{#each Array.from({ length: MAX_GOAL_DAYS + 1 }, (_, i) => i) as n (n)}
+								<RadioGroup.Item class="ui-segment" value={String(n)}>{n || m.review.goal.none}</RadioGroup.Item>
+							{/each}
+						</RadioGroup.Root>
+						<p class="muted hint">{m.review.goal.hint}</p>
 
-			<p class="muted">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
-		</section>
+						<label class="ui-label" for="goal-plan">{m.review.goal.plan}</label>
+						<input
+							id="goal-plan"
+							class="ui-field plan"
+							type="text"
+							maxlength={MAX_PLAN_LENGTH}
+							autocomplete="off"
+							placeholder={m.review.goal.planExample}
+							value={review.settings.plan}
+							onchange={(event) => review.change({ plan: cleanPlan(event.currentTarget.value) })}
+						/>
+						<p class="muted hint">{m.review.goal.planHint}</p>
 
-		<!-- The calendar comes with the first review: before it, every count on
-		     it is nought and every square empty -->
-		{#if ready && (Object.keys(review.days).length || Object.keys(forecast).length)}
-			<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
-		{/if}
+						<h3 class="ui-label">{m.review.recall.heading}</h3>
+						<div class="typing">
+							<span class="name" id="typing">{m.review.recall.setting}</span>
+							<span class="muted">{m.review.recall.settingNote}</span>
+							<Switch.Root class="ui-switch" aria-labelledby="typing" checked={typingOn} onCheckedChange={setTyping}>
+								<Switch.Thumb class="ui-switch-thumb" />
+							</Switch.Root>
+						</div>
+					</div>
+				</section>
+
+				<!-- The calendar comes with the first review: before it, every count on
+				     it is nought and every square empty. Under the settings, the shortest column; near the end on a phone. -->
+				{#if ready && (Object.keys(review.days).length || Object.keys(forecast).length)}
+					<div class="heat">
+						<ReviewHeatmap days={review.days} {forecast} today={dayNumber(now)} />
+					</div>
+				{/if}
+				<p class="muted kept">{saved.signedIn ? m.review.keptAccount : m.review.kept}</p>
+			</div>
+		</div>
 	{:else if current && info}
 		<div class="pile">
 			{#if left > 2}<div class="ui-card under two"></div>{/if}
@@ -872,6 +934,112 @@
 		padding-top: 1.75rem;
 	}
 
+	/* Before a round. On a phone every card in one column, the calendar last;
+	   from a tablet up, two columns, the settings and calendar under the decks;
+	   on a desktop three, so that the whole page is on one screen of a laptop. */
+	.setup {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+		align-items: start;
+	}
+
+	.column {
+		display: contents;
+	}
+
+	/* On a phone Today first, then the decks; the calendar after the settings,
+	   and the note on where reviews are kept last of all */
+	.today {
+		order: -1;
+	}
+
+	.heat {
+		order: 1;
+	}
+
+	.kept {
+		order: 2;
+	}
+
+	/* After the rules above, which these override */
+	@media (min-width: 60rem) {
+		.page.wide {
+			max-width: var(--page-wide);
+		}
+
+		.setup {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-areas: 'one two' 'three two';
+		}
+
+		.column {
+			display: grid;
+			gap: 1rem;
+			align-content: start;
+		}
+
+		.one {
+			grid-area: one;
+		}
+
+		.two {
+			grid-area: two;
+		}
+
+		.three {
+			grid-area: three;
+		}
+	}
+
+	@media (min-width: 75rem) {
+		.page.wide {
+			max-width: var(--frame-width);
+			padding-top: 1rem;
+		}
+
+		.setup {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-areas: 'one two three';
+		}
+
+		/* A little less air, so that the page fits the screen of a laptop */
+		.setup,
+		.column {
+			gap: 0.75rem;
+		}
+
+		/* Inside .setup, to outweigh the rules for every card further down */
+		.setup .options {
+			gap: 0.75rem;
+			padding: 1rem;
+		}
+
+		.setup .today:not(.begin) {
+			padding-block: 0.7rem;
+		}
+
+		/* A newcomer's card in place of Today: on one line too, the icon
+		   before the words, as low as Today would be */
+		.setup .begin {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5rem 0.75rem;
+			padding: 0.9rem 1rem;
+			text-align: start;
+		}
+
+		.setup .begin p:not(.muted) {
+			flex: 1;
+			font-size: var(--text-sm);
+		}
+
+		.setup .begin .muted {
+			flex-basis: 100%;
+		}
+	}
+
 	/* On a phone the title and Undo and Stop do not fit on one line: the
 	   buttons go to a second, on the right */
 	header {
@@ -896,10 +1064,6 @@
 		margin: 0;
 	}
 
-	.lead {
-		color: var(--on-page);
-	}
-
 	.muted {
 		color: var(--muted);
 		font-size: var(--text-sm);
@@ -913,10 +1077,28 @@
 		padding: 1.25rem;
 	}
 
-	.today,
-	.end {
+	.end,
+	.begin {
 		justify-items: center;
 		text-align: center;
+	}
+
+	/* Today on one line: the counts, then Start at the far end */
+	.today:not(.begin) {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 1rem;
+		padding-block: 0.9rem;
+	}
+
+	.today:not(.begin) .ui-btn {
+		margin-left: auto;
+	}
+
+	/* A note under the counts takes a line of its own */
+	.today:not(.begin) p {
+		flex-basis: 100%;
 	}
 
 	/* Before there is a word to review: a dashed sheet, as the Saved page has
@@ -937,17 +1119,19 @@
 
 	dl {
 		display: flex;
-		gap: 2rem;
+		gap: 1.25rem;
 	}
 
 	dt {
 		color: var(--muted);
-		font-size: var(--text-sm);
+		font-size: var(--text-xs);
 	}
 
 	dd {
 		font-family: var(--font-heading);
-		font-size: var(--title);
+		font-size: var(--text-xl);
+		font-weight: 700;
+		line-height: 1.15;
 		font-variant-numeric: tabular-nums;
 	}
 
@@ -961,7 +1145,7 @@
 	/* A deck: its tick, what it is, and a menu for the rarer things */
 	.decks li {
 		display: grid;
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: auto minmax(0, 1fr) auto;
 		align-items: start;
 		column-gap: 0.75rem;
 	}
@@ -1008,18 +1192,34 @@
 	.about {
 		display: grid;
 		justify-items: start;
-		gap: 0.1rem;
+		gap: 0.3rem;
+		min-width: 0;
 	}
 
+	/* The name, then a few of its words, cut short rather than wrapped */
 	.title {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
+		align-items: baseline;
 		gap: 0.5rem;
+		max-width: 100%;
+		min-width: 0;
 	}
 
 	.title label {
+		flex: none;
 		cursor: pointer;
+	}
+
+	.title :global(.ui-badge) {
+		flex: none;
+	}
+
+	.title small {
+		overflow: hidden;
+		color: var(--muted);
+		font-size: var(--text-xs);
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.title label.paused {
@@ -1038,14 +1238,28 @@
 	}
 
 	/* How far a deck has got: known in the accent, learning paler, as on /learn */
+	.line {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		width: 100%;
+	}
+
 	.bar {
 		display: flex;
-		width: 100%;
-		height: 0.45rem;
-		margin-top: 0.3rem;
+		flex: 1;
+		height: 0.4rem;
 		overflow: hidden;
 		border-radius: var(--radius-pill);
-		background: var(--surface-2);
+		/* The ink, faint: shows on a plain page and over a photo, in every theme */
+		background: color-mix(in srgb, var(--ink) 12%, transparent);
+	}
+
+	.amount {
+		color: var(--muted);
+		font-size: var(--text-xs);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 
 	.known {
@@ -1056,13 +1270,14 @@
 		background: color-mix(in srgb, var(--accent) 45%, var(--surface));
 	}
 
-	.counts {
+	/* What the colours of the bars mean, once for every deck */
+	.legend {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		column-gap: 0.75rem;
+		gap: 0.25rem 1rem;
 		color: var(--muted);
-		font-size: var(--text-sm);
+		font-size: var(--text-xs);
 	}
 
 	.key {
@@ -1074,14 +1289,103 @@
 	}
 
 	.about :global(.scope) {
-		margin-top: 0.4rem;
+		margin-top: 0.2rem;
 		font-size: var(--text-sm);
 	}
 
 	/* Level with the deck's name, not with the line under it */
 	.decks :global(.more) {
-		margin-top: -0.45rem;
+		margin-top: -0.5rem;
 		color: var(--muted);
+	}
+
+	.pace-card {
+		gap: 0.75rem;
+	}
+
+	/* A setting on one line: what it is, then its choices */
+	.setting {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 1rem;
+	}
+
+	/* Goal, plan and typing: folded under a line that says how they are set */
+	.habit .body {
+		display: none;
+	}
+
+	.habit.open .body {
+		display: grid;
+	}
+
+	.body {
+		gap: 0.75rem;
+	}
+
+	.fold {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--ink);
+		font: inherit;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	.fold > span {
+		display: grid;
+		gap: 0.1rem;
+	}
+
+	.fold b {
+		font-weight: 600;
+	}
+
+	.fold :global(svg) {
+		flex: none;
+		color: var(--muted);
+		transition: transform var(--duration);
+	}
+
+	.habit.open .fold :global(svg) {
+		transform: rotate(180deg);
+	}
+
+
+	/* The typing switch: its name and what it does, the switch beside them */
+	.typing {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		column-gap: 0.75rem;
+	}
+
+	.typing .muted {
+		grid-row: 2;
+	}
+
+	.typing :global(.ui-switch) {
+		grid-row: 1 / span 2;
+		grid-column: 2;
+	}
+
+	.kept {
+		text-align: center;
+	}
+
+	@media (min-width: 60rem) {
+		.kept {
+			padding-inline: 0.25rem;
+			font-size: var(--text-xs);
+			text-align: start;
+		}
 	}
 
 	/* The menu sits at the end of <body>: a long note must wrap, not stretch it */

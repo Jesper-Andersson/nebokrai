@@ -568,7 +568,7 @@ const en = {
 			open: 'How the flashcards work',
 			close: 'Close',
 			title: 'How the flashcards work',
-			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have known for a while comes the other way round: you type it.',
+			intro: 'Flashcards from your saved words and from the commonest words; each comes back shortly before you would forget it. Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have known for a while comes the other way round: you type it.',
 			sections: [
 				{
 					heading: 'Again and Good',
@@ -604,7 +604,7 @@ const en = {
 				{
 					heading: 'Decks',
 					body: [
-						'A tick on a deck says where new words come from. Every word you have started keeps coming back for review, ticked or not; to stop a deck’s reviews for a while, pause it from its menu. Saved words takes every word you saved, or only one of your lists. The common-word decks hold the most frequent Ukrainian words, in order of frequency.'
+						'A tick on a deck says where new words come from. Every word you have started keeps coming back for review, ticked or not; to stop a deck’s reviews for a while, pause it from its menu. Saved words takes every word you saved, or only one of your lists. The common-word decks hold the most frequent Ukrainian words, in order of frequency. With more than one ticked, new words come from the top one first.'
 					]
 				},
 				{
@@ -650,7 +650,6 @@ const en = {
 		},
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
-		lead: 'Flashcards from your saved words and from the commonest words. Each card comes back shortly before you would forget it.',
 		learning: 'Learning',
 		due: 'To review',
 		fresh: 'New',
@@ -659,8 +658,39 @@ const en = {
 		noWords: 'Save some words, or tick a deck of common words, to begin.',
 		/** The decks on /review#decks: ticked, a deck gives new words; started words come back from every deck. */
 		newFrom: 'New words from',
-		newFromNote: 'Every word you have started keeps coming back for review, whichever decks are ticked.',
-		newFromOrder: 'New words come from the top ticked one first.',
+		newFromNote: 'Started words come back, ticked or not.',
+		/** A deck's words begun (known or learning), out of all of them */
+		ofTotal: (n: number, total: number) => `${n.toLocaleString('en-GB')} of ${total.toLocaleString('en-GB')}`,
+		/** The colours of the bars, said once under the decks */
+		keyKnown: 'known',
+		keyLearning: 'learning',
+		pace: {
+			heading: 'Your pace',
+			/** basis: 'lately' (from the reviews of the last weeks), 'goal' or 'daily' */
+			lead: (n: number, perWeek: number, basis: string) =>
+				`Where ${n} a day takes you, ${
+					basis === 'lately' ? `practising ${perWeek} ${perWeek === 1 ? 'day' : 'days'} a week as lately`
+					: basis === 'goal' ? `at your goal of ${perWeek} ${perWeek === 1 ? 'day' : 'days'} a week`
+					: 'practising every day'
+				}:`,
+			begun: (n: number, total: number) =>
+				`${n.toLocaleString('en-GB')} of the ${total.toLocaleString('en-GB')} commonest words begun.`,
+			mark: (count: number) => count.toLocaleString('en-GB'),
+			done: 'done',
+			never: 'not at this pace',
+			none: 'With no new words a day, the common words stay where they are.',
+			allBegun: (total: number) => `All ${total.toLocaleString('en-GB')} common words are begun.`,
+			/** For screen readers, in place of the chart: "500: Feb 2027" */
+			reached: (count: number, when: string) => `${count.toLocaleString('en-GB')}: ${when}`
+		},
+		habit: {
+			heading: 'Habit',
+			toggle: 'Goal, plan and answers',
+			days: (n: number) => (n === 1 ? '1 day a week' : `${n} days a week`),
+			noGoal: 'No weekly goal',
+			typingOn: 'typing on',
+			typingOff: 'typing off'
+		},
 		savedScope: {
 			heading: 'Which saved words',
 			all: 'All saved words',
@@ -1671,7 +1701,7 @@ const uk: Messages = {
 			open: 'Як працюють картки',
 			close: 'Закрити',
 			title: 'Як працюють картки',
-			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже знаєте якийсь час, приходить навпаки: ви його друкуєте.',
+			intro: 'Картки зі збережених і найуживаніших слів; кожна повертається незадовго до того, як ви забули б слово. На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже знаєте якийсь час, приходить навпаки: ви його друкуєте.',
 			sections: [
 				{
 					heading: '«Ще раз» і «Добре»',
@@ -1707,7 +1737,7 @@ const uk: Messages = {
 				{
 					heading: 'Колоди',
 					body: [
-						'Позначка біля колоди каже, звідки беруться нові слова. Кожне розпочате слово й далі повертається на повторення, позначено колоду чи ні; щоб на якийсь час зупинити повторення колоди, призупиніть її в її меню. «Збережені слова» охоплюють усі збережені слова або лише один ваш список. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти.'
+						'Позначка біля колоди каже, звідки беруться нові слова. Кожне розпочате слово й далі повертається на повторення, позначено колоду чи ні; щоб на якийсь час зупинити повторення колоди, призупиніть її в її меню. «Збережені слова» охоплюють усі збережені слова або лише один ваш список. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти. Якщо позначено кілька колод, нові слова беруться спершу з верхньої.'
 					]
 				},
 				{
@@ -1753,7 +1783,6 @@ const uk: Messages = {
 		},
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
-		lead: 'Картки зі збережених і найуживаніших слів. Кожна картка повертається незадовго до того, як ви забули б слово.',
 		learning: 'Вивчаються',
 		due: 'Повторити',
 		fresh: 'Нові',
@@ -1761,8 +1790,34 @@ const uk: Messages = {
 		nothingToday: 'На сьогодні повторювати більше нічого.',
 		noWords: 'Щоб почати, збережіть кілька слів або позначте колоду найуживаніших слів.',
 		newFrom: 'Нові слова з',
-		newFromNote: 'Кожне розпочате слово й далі повертається на повторення, хоч які колоди позначено.',
-		newFromOrder: 'Нові слова беруться спершу з верхньої позначеної колоди.',
+		newFromNote: 'Розпочаті слова повертаються, позначено колоду чи ні.',
+		ofTotal: (n, total) => `${n} з ${total}`,
+		keyKnown: 'засвоєно',
+		keyLearning: 'вивчається',
+		pace: {
+			heading: 'Ваш темп',
+			lead: (n, perWeek, basis) =>
+				`Куди вас приведуть ${n} нових слів на день, ${
+					basis === 'lately' ? `якщо займатися ${perWeek} дн. на тиждень, як останнім часом`
+					: basis === 'goal' ? `за вашою метою ${perWeek} дн. на тиждень`
+					: 'якщо займатися щодня'
+				}:`,
+			begun: (n, total) => `Розпочато ${n} з ${total} найуживаніших слів.`,
+			mark: (count) => String(count),
+			done: 'готово',
+			never: 'не за цього темпу',
+			none: 'Без нових слів на день найуживаніші слова лишаються, де були.',
+			allBegun: (total) => `Усі ${total} найуживаніших слів розпочато.`,
+			reached: (count, when) => `${count}: ${when}`
+		},
+		habit: {
+			heading: 'Звичка',
+			toggle: 'Мета, план і відповіді',
+			days: (n) => `${n} дн. на тиждень`,
+			noGoal: 'Без мети на тиждень',
+			typingOn: 'друк увімкнено',
+			typingOff: 'друк вимкнено'
+		},
 		savedScope: {
 			heading: 'Які збережені слова',
 			all: 'Усі збережені слова',

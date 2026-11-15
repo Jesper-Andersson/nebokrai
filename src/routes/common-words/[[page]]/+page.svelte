@@ -22,8 +22,10 @@
 	const parts = (pos: string[]) => pos.map((p) => posLabel(m, p).toLocaleLowerCase(settings.lang)).join(', ');
 </script>
 
-{#snippet pager()}
-	<nav class="pager ui-scroll-row" aria-label={m.browse.commonPages} {@attach showCurrent(data.page)}>
+<!-- The pager stands above and below the list; two navigation landmarks with
+     one name cannot be told apart in a screen reader's list of them. -->
+{#snippet pager(label: string)}
+	<nav class="pager ui-scroll-row" aria-label={label} {@attach showCurrent(data.page)}>
 		{#each { length: data.pages }, i}
 			<a class="ui-chip" href={commonPath(i + 1)} aria-current={i + 1 === data.page ? 'page' : undefined}>
 				{range(i + 1)}
@@ -38,7 +40,7 @@
 	description={m.meta.commonWords}
 >
 	<p class="lead">{m.browse.commonLead} <a href="/review">{m.review.practiseCommon}</a>.</p>
-	{@render pager()}
+	{@render pager(m.browse.commonPages)}
 
 	<ol class="words" start={data.first}>
 		{#each data.words as entry, i (entry.word)}
@@ -53,7 +55,7 @@
 		{/each}
 	</ol>
 
-	{@render pager()}
+	{@render pager(m.browse.commonPagesEnd)}
 	<p class="muted">{m.browse.commonSource} <a href="/sources">{m.footer.sources}</a>.</p>
 </ListPage>
 

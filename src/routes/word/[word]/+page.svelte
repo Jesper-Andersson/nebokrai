@@ -289,7 +289,7 @@
 				</div>
 
 				{#if hasSide(entry)}
-					<aside class="side">
+					<div class="side">
 						{#if tables.length || other.length}
 							<section>
 								<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
@@ -331,7 +331,7 @@
 								<p>{entry.etymology}</p>
 							</details>
 						{/if}
-					</aside>
+					</div>
 				{/if}
 			</div>
 

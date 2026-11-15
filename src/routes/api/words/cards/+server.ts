@@ -15,8 +15,11 @@ export const POST: RequestHandler = async ({ request }) => {
 	const asked = (body as { words?: unknown } | null)?.words;
 	if (!Array.isArray(asked) || asked.length > SUMMARY_MAX) return fail(400, 'invalid_words');
 	const words = asked.filter((w): w is string => typeof w === 'string' && w.length <= MAX_WORD_LENGTH);
+	// The review page asks for what typing a word needs; the exports do not
+	const recall = (body as { recall?: unknown }).recall === true;
 	// Only the dictionary: nothing from VESUM may leave in an export, its
-	// licence does not allow mixing it with Wiktionary's data.
+	// licence does not allow mixing it with Wiktionary's data. The forms the
+	// review page marks typing against are the dictionary's too.
 	const { db } = await getDatabases();
-	return Response.json({ words: await wordCards(db, words) });
+	return Response.json({ words: await wordCards(db, words, { recall }) });
 };

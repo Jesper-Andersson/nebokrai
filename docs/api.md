@@ -564,6 +564,30 @@ entry's first Tatoeba sentence, or `null`; credit it with a link to
 `https://tatoeba.org/sentences/show/<tatoeba_id>`. Nothing in the answer comes
 from VESUM.
 
+With `"recall": true` in the body, as the review page sends it, each card also
+has a `recall` field: what typing the word needs (`src/lib/review/recall.ts`).
+
+```json
+"recall": {
+  "forms": ["вода", "води", "вод", "воді", "водам", "воду", "водою", "водами", "водах", "водо"],
+  "gap": {
+    "start": 27, "length": 4, "plain": "води", "also": [],
+    "readings": [
+      { "form": "во́ди", "tags": [["nominative", "plural"], ["accusative", "plural"]] },
+      { "form": "води́", "tags": [["genitive", "singular"]] }
+    ]
+  }
+}
+```
+
+`forms` is every spelling of the word, the dictionary form first, as `plain()`
+writes them (no stress, lower case). `gap` is where `example.uk` has the word,
+in UTF-16 code units, or `null` if the card has no sentence or the sentence has
+the word in no form the dictionary lists. `plain` is the word as the sentence
+has it, `also` its other spellings of the same form (брату beside братові), and
+`readings` what that spelling can be, grouped by stress; a vocative reading is
+left out where there is another. The exports never ask for it.
+
 ### Flashcard review
 
 The review page (`/review`) schedules flashcards in the browser with FSRS-6

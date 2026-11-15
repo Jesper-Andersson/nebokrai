@@ -3,6 +3,7 @@
      and that page says so: tell it if this one starts loading anything else
      from another site. -->
 <script lang="ts">
+	import DonateMenu from '#lib/DonateMenu.svelte';
 	import GitHubCard from '#lib/GitHubCard.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import TextPage from '#lib/TextPage.svelte';
@@ -19,9 +20,6 @@
 	// A search's address, less the word: what a browser or a reading tool is
 	// given to look words up here (static/opensearch.xml names the same one).
 	const SEARCH = 'https://nebokrai.app/?q=';
-	// Voluntary help with the hosting bill. It must never buy anything on the
-	// site: the VESUM data keeps Nebokrai non-commercial.
-	const KOFI = 'https://ko-fi.com/jesperandersson0';
 	const AGPL = 'https://www.gnu.org/licenses/agpl-3.0.html';
 </script>
 
@@ -128,10 +126,11 @@
 		<h2>Підтримати Nebokrai</h2>
 		<p>
 			Nebokrai повністю безкоштовний, без реклами й відстеження. Якщо він вам корисний, можете
-			допомогти мені покрити витрати на хостинг <a href={KOFI} rel="noopener">на Ko-fi</a>. Внески
-			цілком добровільні й не дають жодних переваг. Усе на сайті лишається безкоштовним для всіх. Якщо
-			хочете натомість допомогти Україні, дивіться: <a href="/support">Підтримати Україну</a>.
+			допомогти мені покрити витрати на хостинг. Внески цілком добровільні й не дають жодних переваг.
+			Усе на сайті лишається безкоштовним для всіх. Якщо хочете натомість допомогти Україні, дивіться:
+			<a href="/support">Підтримати Україну</a>.
 		</p>
+		<p><DonateMenu lang="uk" /></p>
 
 		<h2>Контакти</h2>
 		<p>
@@ -233,11 +232,12 @@
 
 		<h2>Supporting Nebokrai</h2>
 		<p>
-			Nebokrai is completely free and has no ads or tracking. If you find it useful, you can help me cover the hosting costs
-			<a href={KOFI} rel="noopener">on Ko-fi</a>. Donations are entirely voluntary and unlock nothing.
-			Everything on the site stays free for everyone. To give to Ukraine instead, see:
+			Nebokrai is completely free and has no ads or tracking. If you find it useful, you can help me
+			cover the hosting costs. Donations are entirely voluntary and unlock nothing. Everything on the
+			site stays free for everyone. To give to Ukraine instead, see:
 			<a href="/support">Support Ukraine</a>.
 		</p>
+		<p><DonateMenu lang="en" /></p>
 
 		<h2>Contact</h2>
 		<p>

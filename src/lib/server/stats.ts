@@ -8,6 +8,12 @@
 // database cannot tell whether yesterday's visitor came back today: what is
 // left is counts per day, per page and per search.
 //
+// When a visitor is first counted on a day, three things about the visit are
+// added to that day's counts (the `breakdowns` table): the country Cloudflare
+// names for the request, phone or desktop, and the site that sent them (its
+// host name only, never the address of the page). They are counts beside the
+// others, not columns of the visitor: nothing ties a country to a search.
+//
 // The words people search for are kept per day for 90 days, and only when
 // they are short (MAX_QUERY_KEPT): a pasted sentence counts as a search but
 // its text is not kept. The /stats page shows only words searched by two or
@@ -84,6 +90,17 @@ export const STATS_SCHEMA = [
 		visitors INTEGER NOT NULL,
 		empty INTEGER NOT NULL,
 		PRIMARY KEY (day, query)
+	) WITHOUT ROWID`,
+	// Counts of a day by something else than page or search word. kind is
+	// 'referrer' (key: a host name or DIRECT), 'country' (key: "UA"), 'device'
+	// (key: 'phone' or 'desktop'), each counted once per visitor, or 'search'
+	// (key: 'guessed', per search).
+	`CREATE TABLE IF NOT EXISTS breakdowns (
+		day TEXT NOT NULL,
+		kind TEXT NOT NULL,
+		key TEXT NOT NULL,
+		count INTEGER NOT NULL,
+		PRIMARY KEY (day, kind, key)
 	) WITHOUT ROWID`
 ];
 
@@ -91,7 +108,10 @@ export const STATS_SCHEMA = [
 export const MAX_QUERY_KEPT = 40;
 /** How long search words and page counts are kept, in days. Day totals are kept for good. */
 export const SEARCH_DAYS = 90;
+/** Page counts, and the breakdowns. */
 export const PAGE_DAYS = 400;
+/** Most keys of one kind in a day's breakdowns; what comes after is counted as OTHER. */
+export const MAX_KEYS_A_DAY = 300;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const KYIV = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv' });
@@ -161,6 +181,49 @@ export interface Visit {
 	userAgent: string;
 	signedIn: boolean;
 	now: number;
+	/** Cloudflare's two-letter code for where the request came from; absent on a developer's machine. */
+	country?: string;
+}
+
+/** A visit that no other site sent: a typed address, a bookmark, or a browser that does not say. */
+export const DIRECT = '(direct)';
+
+/**
+ * The key a referring site is counted under, from the host name the page
+ * sent with the first page of a visit (+layout.svelte): `www.reddit.com` is
+ * `reddit.com`, nothing or the site itself (`own`) is DIRECT. null when
+ * nothing was sent, which is every page after the first, or when it is not a
+ * host name: then no referrer is counted.
+ */
+export function countedReferrer(host: unknown, own: string): string | null {
+	if (typeof host !== 'string') return null;
+	if (host === '') return DIRECT;
+	// Lower case as URL.hostname gives it, with a dot: not `localhost`, not a whole address
+	if (host.length > 100 || !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(host)) return null;
+	const bare = (name: string) => name.replace(/^www\./, '');
+	return bare(host) === bare(own) ? DIRECT : bare(host);
+}
+
+/** Phone or desktop, by the user agent. A tablet counts as a desktop: an iPad says it is a Mac. */
+export function deviceOf(userAgent: string): 'phone' | 'desktop' {
+	return /Mobi|iPhone|iPod|Opera Mini/.test(userAgent) ? 'phone' : 'desktop';
+}
+
+/**
+ * Add one to a day's count of `key`. A key that is new when the day already
+ * has MAX_KEYS_A_DAY of its kind is counted as OTHER, so made-up referrers
+ * cannot fill the table.
+ */
+function countKey(day: string, kind: string, key: string): Statement {
+	return [
+		`INSERT INTO breakdowns (day, kind, key, count)
+		 SELECT ?, ?, CASE
+			WHEN EXISTS (SELECT 1 FROM breakdowns WHERE day = ? AND kind = ? AND key = ?)
+				OR (SELECT count(*) FROM breakdowns WHERE day = ? AND kind = ?) < ?
+			THEN ? ELSE ? END, 1 WHERE true
+		 ON CONFLICT (day, kind, key) DO UPDATE SET count = count + 1`,
+		[day, kind, day, kind, key, day, kind, MAX_KEYS_A_DAY, key, OTHER]
+	];
 }
 
 const hex = (bytes: ArrayBuffer | Uint8Array) =>
@@ -179,17 +242,23 @@ async function clearOld(db: StatsDb, now: number): Promise<void> {
 	await db.run('DELETE FROM salts WHERE day < ?', [today]);
 	await db.run('DELETE FROM searches WHERE day < ?', [statsDay(now - SEARCH_DAYS * DAY_MS)]);
 	await db.run('DELETE FROM page_views WHERE day < ?', [statsDay(now - PAGE_DAYS * DAY_MS)]);
+	await db.run('DELETE FROM breakdowns WHERE day < ?', [statsDay(now - PAGE_DAYS * DAY_MS)]);
 }
 
 /**
  * Count the visitor for today, once. Returns their hash, and the statements
  * that add them to the day's totals, for the caller to send with its own.
+ * A visitor new today also adds their device, their country when Cloudflare
+ * gave one, and `referrer` when this is the first page of a visit: once per
+ * visitor per day, so a reload or a second tab is not a second arrival.
  *
  * Three trips to the database for a count: the day's salt, the visitor, and
  * the totals. Old rows are cleared by whichever request makes the day's
  * salt, so once a day and not once per Worker started.
  */
-async function countVisitor(db: StatsDb, day: string, visit: Visit): Promise<{ hash: string; totals: Statement[] }> {
+async function countVisitor(
+	db: StatsDb, day: string, visit: Visit, referrer?: string | null
+): Promise<{ hash: string; totals: Statement[] }> {
 	let [row] = await db.all<{ salt: string }>('SELECT salt FROM salts WHERE day = ?', [day]);
 	if (!row) {
 		const salt = hex(crypto.getRandomValues(new Uint8Array(32)));
@@ -213,6 +282,12 @@ async function countVisitor(db: StatsDb, day: string, visit: Visit): Promise<{ h
 			'UPDATE daily SET visitors = visitors + 1, signed_in_visitors = signed_in_visitors + ? WHERE day = ?',
 			[signedIn, day]
 		]);
+		totals.push(countKey(day, 'device', deviceOf(visit.userAgent)));
+		// Two capital letters; XX is Cloudflare's "unknown" and T1 its code for Tor
+		if (visit.country && /^[A-Z]{2}$/.test(visit.country) && visit.country !== 'XX') {
+			totals.push(countKey(day, 'country', visit.country));
+		}
+		if (referrer) totals.push(countKey(day, 'referrer', referrer));
 	} else if (signedIn) {
 		// Read signed out earlier today, signed in now: one visitor, now a signed-in
 		// one. The total first, while the visitor's row still says signed out.
@@ -228,10 +303,13 @@ async function countVisitor(db: StatsDb, day: string, visit: Visit): Promise<{ h
 	return { hash, totals };
 }
 
-/** Count one page view. */
-export async function recordView(db: StatsDb, path: string, visit: Visit): Promise<void> {
+/**
+ * Count one page view. `referrer` is what countedReferrer() made of the
+ * first page's referring site; leave it out for any later page.
+ */
+export async function recordView(db: StatsDb, path: string, visit: Visit, referrer?: string | null): Promise<void> {
 	const day = statsDay(visit.now);
-	const { totals } = await countVisitor(db, day, visit);
+	const { totals } = await countVisitor(db, day, visit, referrer);
 	await runTogether(db, [
 		...totals,
 		['UPDATE daily SET views = views + 1 WHERE day = ?', [day]],
@@ -243,17 +321,26 @@ export async function recordView(db: StatsDb, path: string, visit: Visit): Promi
 	]);
 }
 
-/** Count one search, and what it found. */
-export async function recordSearch(db: StatsDb, query: string, results: number, visit: Visit): Promise<void> {
+/**
+ * Count one search, and what it found. A search with no results but with
+ * `suggested` guesses ("did you mean") did not find nothing: the visitor was
+ * shown a word, most often the one they meant. It is counted as 'guessed'
+ * and stays out of the searches that found nothing.
+ */
+export async function recordSearch(
+	db: StatsDb, query: string, results: number, visit: Visit, suggested = 0
+): Promise<void> {
 	const text = countedQuery(query);
 	if (!text) return;
 	const day = statsDay(visit.now);
 	const { hash, totals } = await countVisitor(db, day, visit);
-	const empty = results > 0 ? 0 : 1;
+	const guessed = results <= 0 && suggested > 0;
+	const empty = results > 0 || guessed ? 0 : 1;
 	const writes: Statement[] = [
 		...totals,
 		['UPDATE daily SET searches = searches + 1, empty_searches = empty_searches + ? WHERE day = ?', [empty, day]]
 	];
+	if (guessed) writes.push(countKey(day, 'search', 'guessed'));
 	if (text.length <= MAX_QUERY_KEPT) {
 		writes.push(
 			['INSERT OR IGNORE INTO search_visitors (day, query, hash) VALUES (?, ?, ?)', [day, text, hash]],
@@ -312,7 +399,12 @@ export interface StatsReport {
 	pages: Ranked[];
 	searches: Ranked[];
 	missing: Ranked[];
+	/** The top keys of each kind in `breakdowns`, summed over the period. */
+	breakdowns: Record<BreakdownKind, Ranked[]>;
 }
+
+export const BREAKDOWN_KINDS = ['referrer', 'country', 'device', 'search'] as const;
+export type BreakdownKind = (typeof BREAKDOWN_KINDS)[number];
 
 /** The date `n` days after `day` ("2026-11-14"), by the calendar, not by hours. */
 export function addDays(day: string, n: number): string {
@@ -370,6 +462,16 @@ export async function statsReport(db: StatsDb, now: number, days = 30, top = 20)
 		 GROUP BY query ORDER BY count DESC, query LIMIT ?`,
 		[since, top]
 	);
+	// Every key of the period, the largest first; a day holds MAX_KEYS_A_DAY of a kind at most
+	const keys = await db.all<{ kind: string; key: string; count: number }>(
+		`SELECT kind, key, sum(count) AS count FROM breakdowns WHERE day >= ?
+		 GROUP BY kind, key ORDER BY count DESC, key`,
+		[since]
+	);
+	const breakdowns = Object.fromEntries(BREAKDOWN_KINDS.map((kind) => [
+		kind,
+		keys.filter((row) => row.kind === kind).slice(0, top).map(({ key, count }) => ({ key, count }))
+	])) as Record<BreakdownKind, Ranked[]>;
 	const [{ began }] = await db.all<{ began: string | null }>('SELECT min(day) AS began FROM daily');
 	const period = range(since).map((day) => byDay.get(day) ?? zero(day));
 	const counted = began ? period.filter((d) => d.day >= began) : [];
@@ -381,6 +483,7 @@ export async function statsReport(db: StatsDb, now: number, days = 30, top = 20)
 		sections,
 		pages,
 		searches,
-		missing
+		missing,
+		breakdowns
 	};
 }

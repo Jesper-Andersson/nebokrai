@@ -97,7 +97,7 @@ test('deleting an account removes everything', async () => {
 	await markExported(db, other, { книга: T0 });
 	for (const who of [user, other]) {
 		await saveReviewCards(db, who, [answer(newCard('книга', T0), GOOD, T0)], T0);
-		await saveReviewSettings(db, who, { new_per_day: 5, decks: ['saved'], goal_days: 0, plan: '', updated_at: T0 });
+		await saveReviewSettings(db, who, { new_per_day: 5, decks: ['saved'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 		await putList(db, who, 'list-read', 'Читання');
 		await addToLists(db, who, [['list-read', 'книга']]);
 	}
@@ -177,10 +177,10 @@ test('review settings: the later change is kept', async () => {
 	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
 	assert.equal(await getReviewSettings(db, user), null);
 	const later = {
-		new_per_day: 20, decks: ['saved', 'common-500'], goal_days: 4, plan: 'Після ранкової кави', updated_at: T0 + 1000
+		new_per_day: 20, decks: ['saved', 'common-500'], paused: ['common-1000'], goal_days: 4, plan: 'Після ранкової кави', updated_at: T0 + 1000
 	};
 	await saveReviewSettings(db, user, later);
-	await saveReviewSettings(db, user, { new_per_day: 5, decks: ['saved'], goal_days: 0, plan: '', updated_at: T0 });
+	await saveReviewSettings(db, user, { new_per_day: 5, decks: ['saved'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 	assert.deepEqual(await getReviewSettings(db, user), later);
 });
 
@@ -191,7 +191,7 @@ test('review settings kept before goals existed load with no goal', async () => 
 	await db.run('INSERT INTO review_settings (user_id, settings, updated_at) VALUES (?, ?, ?)',
 		[user, JSON.stringify({ new_per_day: 10, decks: ['saved'], updated_at: T0 }), T0]);
 	assert.deepEqual(await getReviewSettings(db, user),
-		{ new_per_day: 10, decks: ['saved'], goal_days: 0, plan: '', updated_at: T0 });
+		{ new_per_day: 10, decks: ['saved'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 });
 
 test('a list sent by a browser is read defensively', () => {

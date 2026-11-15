@@ -1,7 +1,8 @@
 <!-- The words on /learn: how many are known out of every deck's words, and
      a chip for each deck, saying what is due in it today. A chip opens the
      flashcards on that deck alone (/review?deck=, ?list=); a dashed chip is
-     a deck not switched on, and "Manage decks" leads to the switches. -->
+     a deck no new words come from, whose started words still come back
+     unless it is paused, and "Manage decks" leads to the choice. -->
 <script lang="ts">
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
@@ -28,15 +29,19 @@
 		[SAVED_DECK, ...saved.lists.map((list) => listDeck(list.id)), ...COMMON_DECKS.map((deck) => deck.id as string)]
 			.map((id) => {
 				const listId = listOfDeck(id);
-				// With every saved word switched on, each list is on too
-				const on = review.settings.decks.includes(id) || (allSaved && listId !== null);
+				// A list waits with the saved words when they are paused
+				const paused = review.settings.paused.includes(listId ? SAVED_DECK : id);
+				// With every saved word ticked, each list is ticked too
+				const on = !paused && (review.settings.decks.includes(id) || (allSaved && listId !== null));
 				const today = plan(review.cards, wordsOf(id), review.settings.new_per_day, now);
 				return {
 					id,
 					name: listId ? (saved.lists.find((list) => list.id === listId)?.name ?? id) : m.review.deck[id],
 					href: listId ? `/review?list=${listId}` : `/review?deck=${id}`,
 					on,
-					due: on ? today.learning.length + today.due.length : 0
+					paused,
+					// Ticked or not, its started words come back unless it is paused
+					due: paused ? 0 : today.learning.length + today.due.length
 				};
 			})
 	);
@@ -90,12 +95,13 @@
 						class:off={!deck.on}
 						class:none={deck.on && !deck.due}
 						href={deck.href}
-						title={deck.on ? (deck.due ? m.learn.due(deck.due) : undefined) : m.learn.off}
+						title={deck.paused ? m.review.paused
+							: [deck.due ? m.learn.due(deck.due) : '', deck.on ? '' : m.learn.off].filter(Boolean).join(' · ') || undefined}
 					>
 						{deck.name}
 						{#if ready && deck.due}<em aria-hidden="true">{deck.due}</em>{/if}
-						{#if !deck.on}<span class="ui-sr-only">({m.learn.off})</span>
-						{:else if ready && deck.due}<span class="ui-sr-only">({m.learn.due(deck.due)})</span>{/if}
+						{#if ready && deck.due}<span class="ui-sr-only">({m.learn.due(deck.due)})</span>{/if}
+						{#if !deck.on}<span class="ui-sr-only">({deck.paused ? m.review.paused : m.learn.off})</span>{/if}
 					</a>
 				</li>
 			{/each}

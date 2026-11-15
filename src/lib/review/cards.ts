@@ -83,21 +83,26 @@ export interface Plan {
 }
 
 /**
- * Today's reviews. `words` are the words of the decks switched on, in the
- * order new ones should be met. A card whose word is in none of them is left
- * alone: its schedule is kept for when the word is saved again.
+ * Today's reviews. `words` are the words whose cards are reviewed: every deck
+ * not paused (reviewWords in decks.ts). `newFrom` are the words new cards
+ * come from, in the order they should be met: the decks ticked. Without it,
+ * as for one deck practised alone, both come from `words`. A card whose word
+ * is in no deck is left alone: its schedule is kept for when the word is
+ * saved again.
  */
-export function plan(cards: ReadonlyMap<string, ReviewCard>, words: string[], newPerDay: number, now: number): Plan {
+export function plan(
+	cards: ReadonlyMap<string, ReviewCard>, words: string[], newPerDay: number, now: number, newFrom: string[] = words
+): Plan {
 	const today = dayNumber(now);
 	const learning: ReviewCard[] = [];
 	const due: ReviewCard[] = [];
-	const unseen: string[] = [];
 	for (const word of new Set(words)) {
 		const card = cards.get(word);
-		if (!card) unseen.push(word);
-		else if (card.state !== REVIEW) learning.push(card);
+		if (!card) continue;
+		if (card.state !== REVIEW) learning.push(card);
 		else if (dayNumber(card.due) <= today) due.push(card);
 	}
+	const unseen = [...new Set(newFrom)].filter((word) => !cards.has(word));
 	let metToday = 0;
 	// A grammar point of /practice met today is kept among the cards too, and takes no new word's place.
 	for (const card of cards.values()) if (dayNumber(card.added_at) === today && !isPointKey(card.word)) metToday += 1;

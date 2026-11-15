@@ -7,20 +7,24 @@
      left for "Again" and to the right for "Good", and the next one comes up.
      A finger can send it there by swiping; the keys are Anki's. Under the
      decks, a calendar of the reviews done each day, with the streak.
-     A list of saved words (saved.ts) can be a deck of its own; and
-     /review?list=<id>, where the Saved page's Practise button leads from a
-     list, practises that list alone for the visit without changing the decks.
+     A tick on a deck says where new words come from; every word started
+     comes back for review whichever decks are ticked, unless its deck is
+     paused (decks.ts). One list of saved words (saved.ts) can be chosen in
+     place of all of them; and /review?list=<id>, where the Saved page's
+     Practise button leads from a list, practises that list alone for the
+     visit without changing the decks.
      A word that has held for a week is answered by typing instead (RecallCard.svelte):
      its meaning is shown, the Ukrainian word typed, then its form in the
      card's sentence; the answer it suggests comes first. The visitor can
      switch typing off under the decks. -->
 <script lang="ts">
-	import { RadioGroup, Switch } from 'bits-ui';
+	import { DropdownMenu, RadioGroup, Switch } from 'bits-ui';
 	import { onMount, untrack } from 'svelte';
 	import { page } from '$app/state';
 	import Grammar from '#lib/Grammar.svelte';
 	import Headword from '#lib/Headword.svelte';
 	import Icon from '#lib/Icon.svelte';
+	import { COMMON_PER_PAGE, COMMON_WORDS, commonPath } from '#lib/browse.ts';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import RecallCard from '#lib/RecallCard.svelte';
 	import ReviewHeatmap from '#lib/ReviewHeatmap.svelte';
@@ -31,8 +35,8 @@
 	import { nextUp, plan, span } from '#lib/review/cards.ts';
 	import { keyOfDay, type DayCounts } from '#lib/review/days.ts';
 	import {
-		COMMON_DECKS, MAX_GOAL_DAYS, MAX_PLAN_LENGTH, NEW_PER_DAY, SAVED_DECK, cleanPlan, listDeck, listOfDeck,
-		reviewEstimate, wordsOfDeck
+		COMMON_DECKS, DECK_IDS, MAX_GOAL_DAYS, MAX_PLAN_LENGTH, NEW_PER_DAY, SAVED_DECK, cleanPlan, listDeck, listOfDeck,
+		newWords, reviewEstimate, reviewWords, wordsOfDeck
 	} from '#lib/review/decks.ts';
 	import {
 		AGAIN, GOOD, REVIEW, answer, dayNumber, newCard, preview, type Grade, type ReviewCard
@@ -118,14 +122,24 @@
 	const wordsOf = (deck: string): string[] => wordsOfDeck(deck, savedWords, saved.lists, review.common);
 
 	// Saved words first, newest first: they are the ones the visitor asked for.
-	// Every deck there is to switch on: the saved words, each list of them, the common words.
+	// Every choice of deck there is: the saved words, each list of them, the common words.
 	let decks = $derived([
 		SAVED_DECK, ...saved.lists.map((list) => listDeck(list.id)), ...COMMON_DECKS.map((deck) => deck.id as string)
 	]);
 	const deckName = (deck: string) =>
 		saved.lists.find((list) => list.id === listOfDeck(deck))?.name ?? m.review.deck[deck] ?? deck;
-	let allSaved = $derived(review.settings.decks.includes(SAVED_DECK));
-	const isOn = (deck: string) => review.settings.decks.includes(deck) || (allSaved && listOfDeck(deck) !== null);
+	/** The saved words new ones come from: "saved" for all, a list's deck for that list, null when not ticked. */
+	let savedScope = $derived(
+		review.settings.decks.find((deck) => deck === SAVED_DECK || (listOfDeck(deck) !== null && decks.includes(deck)))
+			?? null);
+	const isTicked = (deck: string) => (deck === SAVED_DECK ? savedScope !== null : review.settings.decks.includes(deck));
+	const isPaused = (deck: string) => review.settings.paused.includes(deck);
+	/** Where a deck's words can be read: the Saved page, or the page of /common-words it starts on. */
+	function wordsHref(deck: string): string | null {
+		if (deck === SAVED_DECK) return '/saved';
+		const common = COMMON_DECKS.find((d) => d.id === deck);
+		return common && common.to <= COMMON_WORDS ? commonPath(Math.floor((common.from - 1) / COMMON_PER_PAGE) + 1) : null;
+	}
 
 	// The one deck this visit is for, if it is one there is: /review?list=<id>
 	// for one of the visitor's lists, /review?deck=<id> for any deck (the chips
@@ -137,9 +151,15 @@
 		return deck && decks.includes(deck) ? deck : null;
 	});
 
+	// Reviews from every deck not paused, new words from the decks ticked;
+	// one deck practised alone gives both.
 	let words = $derived(
-		(only ? wordsOf(only) : review.settings.decks.flatMap(wordsOf)).filter((word) => !gone.has(word)));
-	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now));
+		(only ? wordsOf(only) : reviewWords(review.settings, savedWords, saved.lists, review.common))
+			.filter((word) => !gone.has(word)));
+	let newFrom = $derived(
+		(only ? wordsOf(only) : newWords(review.settings, savedWords, saved.lists, review.common))
+			.filter((word) => !gone.has(word)));
+	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now, newFrom));
 	let estimate = $derived(reviewEstimate(review.settings.new_per_day));
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
@@ -421,10 +441,25 @@
 		} else give(action === 'again' ? AGAIN : GOOD);
 	}
 
-	function toggleDeck(deck: string, on: boolean) {
-		const chosen = on ? [...review.settings.decks, deck] : review.settings.decks.filter((id) => id !== deck);
+	/** Tick or untick a deck. Saved words ticked again are all of them, whatever list was chosen before. */
+	function tick(deck: string, on: boolean) {
+		const rest = review.settings.decks.filter((id) => id !== deck && (deck !== SAVED_DECK || listOfDeck(id) === null));
+		const chosen = on ? [...rest, deck] : rest;
 		// In the order shown; this also lets go of lists that have been deleted.
 		review.change({ decks: decks.filter((id) => chosen.includes(id)) });
+		now = Date.now();
+	}
+
+	/** New words from all the saved words ("saved"), or from one list of them. */
+	function chooseSaved(scope: string) {
+		const rest = review.settings.decks.filter((id) => id !== SAVED_DECK && listOfDeck(id) === null);
+		review.change({ decks: decks.filter((id) => id === scope || rest.includes(id)) });
+		now = Date.now();
+	}
+
+	function pause(deck: string, on: boolean) {
+		const chosen = on ? [...review.settings.paused, deck] : review.settings.paused.filter((id) => id !== deck);
+		review.change({ paused: DECK_IDS.filter((id) => chosen.includes(id)) });
 		now = Date.now();
 	}
 
@@ -455,7 +490,7 @@
 	{#if !started}
 		<p class="lead">{m.review.lead}</p>
 
-		{#if ready && !words.length}
+		{#if ready && !newFrom.length && !words.some((word) => review.cards.has(word))}
 			<!-- No deck has a word in it: three noughts over a Start that cannot be
 			     pressed say nothing, so the way to begin is said in their place.
 			     The decks to switch on are the next thing down the page. -->
@@ -490,32 +525,91 @@
 
 		<!-- /review#decks is where /learn's "Manage decks" leads -->
 		<section class="ui-card options" id="decks">
-			<h2 class="ui-label">{m.review.decks}</h2>
-			<ul>
-				{#each decks as deck (deck)}
+			<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
+			<p class="muted hint">{m.review.newFromNote}</p>
+			<ul class="decks" aria-labelledby="new-from">
+				{#each DECK_IDS as deck (deck)}
 					{@const all = wordsOf(deck)}
-					{@const list = listOfDeck(deck) !== null}
-					<li class:list>
-						<span class="name" id="deck-{deck}">{deckName(deck)}</span>
-						<span class="muted">
-							{#if list || deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
-								{m.review.progress(all.filter((word) => review.cards.has(word)).length, all.length)}
+					{@const begun = all.filter((word) => review.cards.has(word)).length}
+					{@const paused = isPaused(deck)}
+					{@const href = wordsHref(deck)}
+					<li>
+						<!-- A paused deck gives no new words; its tick is kept for when it is resumed -->
+						<input
+							type="checkbox"
+							id="deck-{deck}"
+							checked={isTicked(deck) && !paused}
+							disabled={paused}
+							onchange={(event) => tick(deck, event.currentTarget.checked)}
+						/>
+						<div class="about">
+							<span class="title">
+								<label for="deck-{deck}" class:paused>{deckName(deck)}</label>
+								{#if paused}<span class="ui-badge">{m.review.paused}</span>{/if}
+							</span>
+							<span class="muted">
+								{#if deck === SAVED_DECK ? saved.ready : review.common.has(deck)}
+									{m.review.progress(begun, all.length)}
+								{/if}
+								{#if paused}
+									· <button type="button" class="resume" onclick={() => pause(deck, false)}>
+										{m.review.resumeShort}
+									</button>
+								{/if}
+							</span>
+							<!-- Which saved words: all, or one list. Only worth asking when there are lists. -->
+							{#if deck === SAVED_DECK && savedScope && !paused && saved.lists.length}
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger class="ui-btn scope">
+										{savedScope === SAVED_DECK ? m.review.savedScope.all : m.review.savedScope.list(deckName(savedScope))}
+										<Icon name="chevron-down" size={14} />
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Portal>
+										<DropdownMenu.Content class="ui-popover ui-menu" align="start" sideOffset={6} collisionPadding={8}>
+											<DropdownMenu.RadioGroup value={savedScope} onValueChange={chooseSaved}>
+												<DropdownMenu.GroupHeading class="ui-menu-heading">
+													{m.review.savedScope.heading}
+												</DropdownMenu.GroupHeading>
+												<DropdownMenu.RadioItem class="ui-menu-item" value={SAVED_DECK}>
+													{m.review.savedScope.all}
+													<span class="ui-menu-count">{savedWords.length}</span>
+												</DropdownMenu.RadioItem>
+												{#each saved.lists as list (list.id)}
+													<DropdownMenu.RadioItem class="ui-menu-item" value={listDeck(list.id)}>
+														{m.review.savedScope.list(list.name)}
+														<span class="ui-menu-count">{list.words.length}</span>
+													</DropdownMenu.RadioItem>
+												{/each}
+											</DropdownMenu.RadioGroup>
+										</DropdownMenu.Content>
+									</DropdownMenu.Portal>
+								</DropdownMenu.Root>
 							{/if}
-							{#if list && allSaved}· {m.review.inSaved}{/if}
-						</span>
-						<!-- With every saved word in, a list is in too, and cannot be taken out alone -->
-						<Switch.Root
-							class="ui-switch"
-							aria-labelledby="deck-{deck}"
-							checked={isOn(deck)}
-							disabled={list && allSaved}
-							onCheckedChange={(on) => toggleDeck(deck, on)}
-						>
-							<Switch.Thumb class="ui-switch-thumb" />
-						</Switch.Root>
+						</div>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger class="ui-icon-btn more" aria-label={m.review.deckMenu(deckName(deck))}>
+								<Icon name="more" size={18} />
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Portal>
+								<DropdownMenu.Content class="ui-popover ui-menu deck-menu" align="end" sideOffset={4} collisionPadding={8}>
+									<DropdownMenu.Item class="ui-menu-item" onSelect={() => pause(deck, !paused)}>
+										{paused ? m.review.resume : m.review.pause}
+										{#if !paused}<span class="ui-menu-note">{m.review.pauseNote(begun)}</span>{/if}
+									</DropdownMenu.Item>
+									{#if href}
+										<DropdownMenu.Item class="ui-menu-item">
+											{#snippet child({ props })}
+												<a {...props} {href}>{m.review.showWords}</a>
+											{/snippet}
+										</DropdownMenu.Item>
+									{/if}
+								</DropdownMenu.Content>
+							</DropdownMenu.Portal>
+						</DropdownMenu.Root>
 					</li>
 				{/each}
 			</ul>
+			<p class="muted hint">{m.review.newFromOrder}</p>
 			<!-- Not built yet: shown so that the way it will go is visible -->
 			<button type="button" class="ui-btn ui-btn-planned planned" disabled>
 				{m.review.planned.deck} <span>{m.review.planned.note}</span>
@@ -821,25 +915,104 @@
 		list-style: none;
 	}
 
-	.options li {
+	/* A deck: its tick, what it is, and a menu for the rarer things */
+	.decks li {
 		display: grid;
-		grid-template-columns: 1fr auto;
-		align-items: center;
+		grid-template-columns: auto 1fr auto;
+		align-items: start;
 		column-gap: 0.75rem;
 	}
 
-	.options li .muted {
-		grid-row: 2;
+	/* A tick, not a switch: it chooses where new words come from, and
+	   turns nothing off (the reviews go on) */
+	.decks input {
+		display: grid;
+		place-content: center;
+		width: 1.3rem;
+		height: 1.3rem;
+		margin: 0.1rem 0 0;
+		border: 1.5px solid var(--border-field);
+		border-radius: var(--radius-sm);
+		background: var(--surface);
+		cursor: pointer;
+		appearance: none;
 	}
 
-	/* A list is part of the saved words: set in under them */
-	.options li.list {
-		padding-left: 1rem;
+	.decks input:checked {
+		border-color: var(--accent);
+		background: var(--accent);
 	}
 
-	.options li :global(.ui-switch) {
-		grid-row: 1 / span 2;
-		grid-column: 2;
+	.decks input:checked::after {
+		content: '';
+		width: 0.8rem;
+		height: 0.8rem;
+		background: var(--accent-ink);
+		mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+			center / contain no-repeat;
+	}
+
+	.decks input:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	.decks input:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+
+	.about {
+		display: grid;
+		justify-items: start;
+		gap: 0.1rem;
+	}
+
+	.title {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.title label {
+		cursor: pointer;
+	}
+
+	.title label.paused {
+		color: var(--muted);
+	}
+
+	.resume {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--accent);
+		font: inherit;
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+		cursor: pointer;
+	}
+
+	.about :global(.scope) {
+		margin-top: 0.4rem;
+		font-size: var(--text-sm);
+	}
+
+	/* Level with the deck's name, not with the line under it */
+	.decks :global(.more) {
+		margin-top: -0.45rem;
+		color: var(--muted);
+	}
+
+	/* The menu sits at the end of <body>: a long note must wrap, not stretch it */
+	:global(.deck-menu) {
+		max-width: min(18rem, calc(100vw - 2rem));
+	}
+
+	:global(.deck-menu a) {
+		color: inherit;
+		text-decoration: none;
 	}
 
 	.planned {

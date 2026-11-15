@@ -29,7 +29,7 @@
 	import VocabularyCard from '#lib/learn/VocabularyCard.svelte';
 	import { POINTS, cardKey, isPointKey } from '#lib/practice/points.ts';
 	import { plan } from '#lib/review/cards.ts';
-	import { COMMON_DECKS, wordsOfDeck } from '#lib/review/decks.ts';
+	import { COMMON_DECKS, newWords, reviewWords } from '#lib/review/decks.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -60,10 +60,10 @@
 	// --- Flashcards: the words ---
 
 	let savedWords = $derived(saved.items.map((item) => item.word));
-	/** The words of the decks switched on: the ones /review shows, and the header counts. */
-	let deckWords = $derived(
-		review.settings.decks.flatMap((deck) => wordsOfDeck(deck, savedWords, saved.lists, review.common)));
-	let cardsToday = $derived(plan(review.cards, deckWords, review.settings.new_per_day, now));
+	/** As /review counts them, and the header: reviews from every deck not paused, new words from the ones ticked. */
+	let cardsToday = $derived(plan(
+		review.cards, reviewWords(review.settings, savedWords, saved.lists, review.common), review.settings.new_per_day, now,
+		newWords(review.settings, savedWords, saved.lists, review.common)));
 	let cardsDue = $derived(cardsToday.learning.length + cardsToday.due.length);
 	let wordsBegun = $derived([...review.cards.keys()].some((key) => !isPointKey(key)));
 
@@ -101,10 +101,12 @@
 	 */
 	function firstWords() {
 		const on = review.settings.decks;
-		if (on.includes(FIRST_DECK)) return;
+		const paused = review.settings.paused;
+		if (on.includes(FIRST_DECK) && !paused.includes(FIRST_DECK)) return;
 		const common = COMMON_DECKS.map((deck) => deck.id as string);
 		review.change({
-			decks: [...on.filter((id) => !common.includes(id)), ...common.filter((id) => id === FIRST_DECK || on.includes(id))]
+			decks: [...on.filter((id) => !common.includes(id)), ...common.filter((id) => id === FIRST_DECK || on.includes(id))],
+			paused: paused.filter((id) => id !== FIRST_DECK)
 		});
 	}
 

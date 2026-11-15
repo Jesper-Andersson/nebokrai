@@ -28,6 +28,9 @@
 		// A table of four cells: the grammar words set out (/grammar)
 		table: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M12 3v18"/>',
 		check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+		'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+		// Three dots in a row: more that can be done with a thing (a deck on /review)
+		more: '<circle cx="5" cy="12" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="19" cy="12" r="1.1"/>',
 		download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
 		// An arrow leaving a tray: pass this on
 		share: '<path d="M12 15V3M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',

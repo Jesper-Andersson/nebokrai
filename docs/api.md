@@ -687,8 +687,11 @@ Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794
   is the `now` of an earlier answer; `0` asks for all of them. Without
   `since` the list is empty: a browser with more than 500 cards to send
   leaves it out of every request but the last.
-- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "goal_days": 4, "plan": "After my
-  morning coffee", "updated_at": 1794400000000 }`: how many new words a day, which decks are switched on,
+- `settings` is `{ "new_per_day": 10, "decks": ["saved", "common-500"], "paused": ["common-1000"],
+  "goal_days": 4, "plan": "After my morning coffee", "updated_at": 1794400000000 }`: how many new words a
+  day, which decks new words come from (every word started is reviewed whichever decks these are), which
+  decks are paused (`saved` or a deck of common words: their words are neither reviewed nor new until
+  resumed, unless also in a deck not paused; settings without `paused` have none),
   on how many days a week the visitor means to practise (1 to 7; `0` is no goal), and their if-then plan
   in their own words (one line, at most 80 characters; `""` is none). Settings without `goal_days` or
   `plan`, or with a malformed one, are read as having no goal or no plan. A deck is

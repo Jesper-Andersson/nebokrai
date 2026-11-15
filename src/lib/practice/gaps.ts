@@ -9,7 +9,7 @@ import { plain } from '../search/normalize.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
-import { WHERE, WHERE_MARK, isWherePoint } from './where.ts';
+import { WHERE, WHERE_MARK, isWherePoint, partnerOf } from './where.ts';
 
 /** The most sentences one request may ask for: two rounds. */
 export const MAX_GAPS = 20;
@@ -69,6 +69,19 @@ function shuffled<T>(items: readonly T[], random: Random): T[] {
 		[out[i], out[j]] = [out[j], out[i]];
 	}
 	return out;
+}
+
+/**
+ * The noun in the case of the other question, with stress: вершині beside
+ * вершину. The first spelling the dictionary gives, where it has two (столі,
+ * столу); none where it has no such form.
+ */
+function partnerForm(forms: FormRow[], point: string, number: 'singular' | 'plural'): string | undefined {
+	const wanted = CASE_OF[point.slice(point.lastIndexOf('-') + 1)];
+	return forms.find((form) => {
+		const tags: string[] = JSON.parse(form.tags);
+		return tags.includes(wanted) && tags.includes(number);
+	})?.form;
 }
 
 /** A sentence picked for a where item: its point and its Tatoeba id (where.ts). */
@@ -190,7 +203,11 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 		}
 		if ('where' in draw) {
 			const row = foundWhere.get(`${draw.where} ${draw.id}`);
-			if (row) gaps.push({ ...gapOf(row, forms.get(row.entry_id) ?? [], random), kind: 'where' });
+			if (row) {
+				const own = forms.get(row.entry_id) ?? [];
+				const partner = partnerForm(own, partnerOf(row.point), row.number);
+				gaps.push({ ...gapOf(row, own, random), kind: 'where', ...(partner ? { partner } : {}) });
+			}
 			continue;
 		}
 		for (const noun of nouns.filter((entry) => entry.word === draw.noun.word)) {

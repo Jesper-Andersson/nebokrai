@@ -930,6 +930,15 @@ const en = {
 		allRight: 'Nothing missed.',
 		again: 'Another round',
 		back: 'Back to the rules',
+		/** A sentence asked as де? or куди? (PracticeMeaning.svelte): the case of one noun says which. */
+		where: {
+			ask: 'Where, or where to?',
+			/** Under each answer: what де? and куди? ask. */
+			gloss: { where: 'where', whereTo: 'where to' },
+			/** The verdict names the right answer. */
+			told: { where: 'Where', whereTo: 'Where to' },
+			keys: 'Keys 1 and 2 choose an answer; Enter goes on.'
+		},
 		/** A rule's card (RuleCard.svelte): it opens over the first sentence of a rule never met, and behind "?" after. */
 		rule: {
 			/** Above the rule, the first time it is met. */
@@ -1950,6 +1959,12 @@ const uk: Messages = {
 		allRight: 'Жодної помилки.',
 		again: 'Ще раунд',
 		back: 'Назад до правил',
+		where: {
+			ask: 'Де чи куди?',
+			gloss: { where: 'місце', whereTo: 'напрямок' },
+			told: { where: 'Де', whereTo: 'Куди' },
+			keys: 'Клавіші 1 і 2 обирають відповідь; Enter веде далі.'
+		},
 		rule: {
 			new: 'Нове правило',
 			open: 'Правило',

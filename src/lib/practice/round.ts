@@ -56,6 +56,8 @@ export interface Gap {
 	 * (where.ts).
 	 */
 	kind?: 'where';
+	/** For a where item: the noun in the case of the other question, with stress (вершині beside вершину). */
+	partner?: string;
 }
 
 /**

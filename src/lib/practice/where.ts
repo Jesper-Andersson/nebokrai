@@ -199,5 +199,14 @@ export const isWherePoint = (point: string): boolean => point in WHERE;
 /** The question a point's where items answer: the accusative goes somewhere, the rest is somewhere. */
 export const whereAnswer = (point: string): WhereAnswer => (point.endsWith('-acc') ? 'whereTo' : 'where');
 
+const PARTNER: Readonly<Record<string, string>> = {
+	'u-loc': 'u-acc', 'u-acc': 'u-loc',
+	'na-loc': 'na-acc', 'na-acc': 'na-loc',
+	'pid-ins': 'pid-acc', 'pid-acc': 'pid-ins'
+};
+
+/** The point that answers the other question with the same preposition: на вершину (куди?) and на вершині (де?). */
+export const partnerOf = (point: string): string => PARTNER[point];
+
 /** How a point is named in a request when its sentence is to be asked as де? or куди?: `u-acc:where`. */
 export const WHERE_MARK = ':where';

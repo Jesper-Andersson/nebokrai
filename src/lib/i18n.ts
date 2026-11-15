@@ -552,13 +552,21 @@ const en = {
 			open: 'How the flashcards work',
 			close: 'Close',
 			title: 'How the flashcards work',
-			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it.',
+			intro: 'Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have reviewed before comes the other way round: you type it.',
 			sections: [
 				{
 					heading: 'Again and Good',
 					body: [
 						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
 						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
+					]
+				},
+				{
+					heading: 'Typing the answer',
+					body: [
+						'Once a word is past its first two showings, its card shows the meaning instead, and you type the Ukrainian word. Recalling a word yourself fixes it better than recognising it.',
+						'Then the card shows a sentence with the word left out, and you type the form the sentence needs: склянку води, not склянку вода. Latin letters work too: vody.',
+						'The answer your typing suggests is the one in blue: Good if you knew the word, even with another ending, and Again if you did not. You can still pick the other. Typing can be switched off under the decks.'
 					]
 				},
 				{
@@ -667,6 +675,24 @@ const en = {
 		undo: 'Undo',
 		undone: 'Answer taken back',
 		openWord: 'Open in the dictionary',
+		/** Typing the answer to a word reviewed before (RecallCard.svelte). */
+		recall: {
+			heading: 'Answers',
+			setting: 'Type the words you have reviewed before',
+			settingNote: 'The meaning is shown, and you type the Ukrainian word, then its form in a sentence.',
+			inUkrainian: 'In Ukrainian:',
+			typeWord: 'Type the word',
+			typeForm: 'The word as the sentence needs it',
+			latin: 'Latin letters work too.',
+			close: 'Close: check the spelling and try again.',
+			formAsk: 'Now the form this sentence needs.',
+			/** The form's name, as the grammar tags give it: "genitive singular". */
+			formIs: (name: string) => `Right word, another form: the sentence needs the ${name}.`,
+			formLook: 'Right word, another form. The words around the gap decide which.',
+			youTyped: 'You typed',
+			dontKnow: 'I don’t know',
+			check: 'Check'
+		},
 		left: (n: number) => `${n} left`,
 		end: 'Stop',
 		loading: 'Loading the cards…',
@@ -1505,13 +1531,21 @@ const uk: Messages = {
 			open: 'Як працюють картки',
 			close: 'Закрити',
 			title: 'Як працюють картки',
-			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його.',
+			intro: 'На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже повторювали, приходить навпаки: ви його друкуєте.',
 			sections: [
 				{
 					heading: '«Ще раз» і «Добре»',
 					body: [
 						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
 						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
+					]
+				},
+				{
+					heading: 'Друкування відповіді',
+					body: [
+						'Коли слово вже показалося перші два рази, його картка показує значення, а ви друкуєте українське слово. Самому згадати слово корисніше, ніж його впізнати.',
+						'Потім картка показує речення з пропуском, і ви друкуєте форму, якої потребує речення: склянку води, а не склянку вода. Можна й латиницею: vody.',
+						'Відповідь, яку підказує надруковане, виділено синім: «Добре», якщо ви знали слово, хай і з іншим закінченням, і «Ще раз», якщо не знали. Можна вибрати й іншу. Друкування можна вимкнути під колодами.'
 					]
 				},
 				{
@@ -1616,6 +1650,22 @@ const uk: Messages = {
 		undo: 'Скасувати',
 		undone: 'Відповідь скасовано',
 		openWord: 'Відкрити у словнику',
+		recall: {
+			heading: 'Відповіді',
+			setting: 'Друкувати слова, які ви вже повторювали',
+			settingNote: 'Показується значення, а ви друкуєте українське слово, потім його форму в реченні.',
+			inUkrainian: 'Українською:',
+			typeWord: 'Надрукуйте слово',
+			typeForm: 'Слово в тій формі, якої потребує речення',
+			latin: 'Можна й латиницею.',
+			close: 'Майже: перевірте написання і спробуйте ще раз.',
+			formAsk: 'Тепер форма, якої потребує це речення.',
+			formIs: (name) => `Слово правильне, форма інша. Речення потребує форми: ${name}.`,
+			formLook: 'Слово правильне, форма інша. Яка саме, підкажуть слова довкола пропуску.',
+			youTyped: 'Ви надрукували',
+			dontKnow: 'Не знаю',
+			check: 'Перевірити'
+		},
 		left: (n) => `залишилося ${n}`,
 		end: 'Зупинити',
 		loading: 'Завантаження карток…',

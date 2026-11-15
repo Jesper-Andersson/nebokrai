@@ -5,6 +5,7 @@ import type { Db } from './db.ts';
 import type { HeadForm } from './search.ts';
 import { looseLatin, plain } from './normalize.ts';
 import { wordSlug } from './slug.ts';
+import { recallOf, type FormRow, type Recall } from '../review/recall.ts';
 
 export interface Sense {
 	n: number;
@@ -164,31 +165,50 @@ export interface WordCard extends WordSummary {
 	audio_url: string | null;
 	/** The first Tatoeba sentence that uses the word, if there is one. */
 	example: { uk: string; en: string; tatoeba_id: number } | null;
+	/** Asked for by the review page alone: what typing the word needs (review/recall.ts). */
+	recall?: Recall;
 }
 
 /**
  * A card for each of `words`, chosen and ordered as `wordSummaries` does: the
  * two share `bestEntries`, so a list and its export never show different
- * entries for one spelling.
+ * entries for one spelling. With `recall`, each card also carries its forms
+ * and where its sentence has the word, for typing it on /review; the exports
+ * do without, as they would only carry them.
  */
-export async function wordCards(db: Db, words: string[]): Promise<WordCard[]> {
+export async function wordCards(db: Db, words: string[], options: { recall?: boolean } = {}): Promise<WordCard[]> {
 	const best = await bestEntries(db, words);
+	const ids = JSON.stringify([...best.values()].map((e) => e.id));
 	const examples = new Map<number, NonNullable<WordCard['example']>>();
+	const forms = new Map<number, FormRow[]>();
 	if (best.size) {
 		const rows = await db.all<{ entry_id: number; uk: string; en: string; tatoeba_id: number }>(
 			`SELECT entry_id, uk, en, tatoeba_id FROM examples WHERE id IN (
 			   SELECT MIN(id) FROM examples WHERE entry_id IN (SELECT value FROM json_each(?)) GROUP BY entry_id)`,
-			[JSON.stringify([...best.values()].map((e) => e.id))]);
+			[ids]);
 		for (const { entry_id, ...example } of rows) examples.set(entry_id, example);
+	}
+	if (best.size && options.recall) {
+		const rows = await db.all<{ entry_id: number; form: string; plain: string; tags: string }>(
+			'SELECT entry_id, form, plain, tags FROM forms WHERE entry_id IN (SELECT value FROM json_each(?)) ORDER BY id',
+			[ids]);
+		for (const { entry_id, tags, ...row } of rows) {
+			const list = forms.get(entry_id) ?? [];
+			list.push({ ...row, tags: JSON.parse(tags) });
+			forms.set(entry_id, list);
+		}
 	}
 	return words.flatMap((w) => {
 		const found = best.get(w);
 		if (!found) return [];
-		return [{
+		const example = examples.get(found.id) ?? null;
+		const card: WordCard = {
 			word: found.word, headword: found.headword, glosses: found.glosses,
 			pos: found.pos, tags: JSON.parse(found.tags), ipa: found.ipa, audio_url: found.audio_url,
-			example: examples.get(found.id) ?? null
-		}];
+			example
+		};
+		if (options.recall) card.recall = recallOf(found.word, found.headword, example?.uk ?? null, forms.get(found.id) ?? []);
+		return [card];
 	});
 }
 

@@ -130,15 +130,28 @@ jobs:
 
       # The home page and a word page must answer once the new version is out.
       # If not, `npx wrangler rollback` puts the previous version back.
+      #
+      # Cloudflare's bot protection challenges requests from GitHub's runners
+      # (403 with "cf-mitigated: challenge", seen 2026-11-15): such an answer
+      # comes from Cloudflare, not from the site, so it says nothing either
+      # way. The check then warns that it could not look, instead of failing.
       - name: Live site answers
         if: steps.newest.outputs.go
         run: |
           for path in / /word/voda; do
             for try in 1 2 3 4 5 6; do
-              code=$(curl -s -o /dev/null -w '%{http_code}' "https://nebokrai.app$path")
+              code=$(curl -s -o /dev/null -D "$RUNNER_TEMP/headers" -w '%{http_code}' "https://nebokrai.app$path")
               [ "$code" = 200 ] && break
+              if grep -qi '^cf-mitigated: *challenge' "$RUNNER_TEMP/headers"; then
+                echo "::warning::Cloudflare challenged the runner on $path, so the live site could not be checked from here"
+                exit 0
+              fi
               sleep 10
             done
             echo "$path: $code"
-            [ "$code" = 200 ] || exit 1
+            if [ "$code" != 200 ]; then
+              # Who answered, for finding out why: the site or Cloudflare
+              grep -iE '^(server|cf-[a-z-]+):' "$RUNNER_TEMP/headers" || true
+              exit 1
+            fi
           done

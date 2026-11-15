@@ -10,7 +10,7 @@
      A list of saved words (saved.ts) can be a deck of its own; and
      /review?list=<id>, where the Saved page's Practise button leads from a
      list, practises that list alone for the visit without changing the decks.
-     A word reviewed before is answered by typing instead (RecallCard.svelte):
+     A word that has held for a week is answered by typing instead (RecallCard.svelte):
      its meaning is shown, the Ukrainian word typed, then its form in the
      card's sentence; the answer it suggests comes first. The visitor can
      switch typing off under the decks. -->
@@ -39,7 +39,7 @@
 	import {
 		DEFAULT_KEYS, actionFor, bindable, isDefault, keyLabel, parseBindings, rebind, type Action
 	} from '#lib/review/keys.ts';
-	import { suggested, type Recalled } from '#lib/review/recall.ts';
+	import { suggested, typable, type Recalled } from '#lib/review/recall.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { SUMMARY_MAX } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
@@ -78,9 +78,9 @@
 	let shown = $state(0);
 	const LEAVE_MS = 260;
 
-	// Typing the answer: on for a word reviewed before (its card graduated, as
-	// Anki says), where the card has what typing needs. Whether it is on at all
-	// is kept in this browser only, like the keys.
+	// Typing the answer: on for a word that has held for a week (typable,
+	// review/recall.ts), where the card has what typing needs. Whether it is
+	// on at all is kept in this browser only, like the keys.
 	const TYPING_KEY = 'review-typing';
 	let typingOn = $state(true);
 	/** How the typed card went, once it has; the step it is on meanwhile. */
@@ -147,7 +147,9 @@
 	let glosses = $derived([...new Set(info?.glosses)]);
 	let ahead = $derived(current ? preview(current, now) : null);
 	let canUndo = $derived(last !== null && review.canUndo(last.word));
-	let typing = $derived(typingOn && current?.state === REVIEW && !!info?.recall);
+	let typing = $derived(typingOn && typable(current) && !!info?.recall);
+	/** The words loaded for today, to offer beside a word that is to be picked out from four. */
+	let others = $derived([...content.values()]);
 	/** The answer offered first: what the typing suggests, or Good as ever. */
 	let suggestion = $derived(typing && recalled ? suggested(recalled) : 'good');
 
@@ -566,6 +568,7 @@
 							{info}
 							recall={info.recall}
 							{glosses}
+							{others}
 							bind:step={recallStep}
 							ondone={(how) => {
 								recalled = how;

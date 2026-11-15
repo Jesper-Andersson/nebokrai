@@ -6,7 +6,10 @@
 import { existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { around, asksForm, checkTyped, recallOf, suggested, type FormRow } from '../src/lib/review/recall.ts';
+import { AGAIN, GOOD, REVIEW, answer, newCard } from '../src/lib/review/fsrs.ts';
+import {
+	TYPE_AFTER_DAYS, around, asksForm, checkTyped, choicesFor, firstLetter, recallOf, suggested, typable, type FormRow
+} from '../src/lib/review/recall.ts';
 import { plain } from '../src/lib/search/normalize.ts';
 import { wordCards } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
@@ -78,11 +81,67 @@ test('a sentence with the dictionary form asks nothing more, and no sentence giv
 	assert.deepEqual(adverb.gap?.readings, [{ form: 'тут', tags: [] }]);
 });
 
-test('a word known suggests Good, whatever its ending; one not known suggests Again', () => {
-	assert.equal(suggested({ word: true, form: 'missed' }), 'good');
-	assert.equal(suggested({ word: true, form: null }), 'good');
-	assert.equal(suggested({ word: false, form: null }), 'again');
+test('a word recalled suggests Good, whatever its ending; one only picked out or not known suggests Again', () => {
+	assert.equal(suggested({ word: 'right', form: 'missed' }), 'good');
+	assert.equal(suggested({ word: 'hinted', form: null }), 'good');
+	assert.equal(suggested({ word: 'chosen', form: 'right' }), 'again');
+	assert.equal(suggested({ word: 'missed', form: null }), 'again');
 });
+
+test('a word is typed only once it has held for a week; new, learning and lapsed words are turned over', () => {
+	const now = Date.UTC(2026, 10, 1, 9);
+	let card = newCard('вода', now);
+	assert.equal(typable(card), false);
+	card = answer(card, GOOD, now);
+	card = answer(card, GOOD, card.due);
+	// Graduated after two showings, but held for two days only: recognised first
+	assert.equal(card.state, REVIEW);
+	assert.equal(typable(card), false);
+	card = answer(card, GOOD, card.due);
+	assert.ok(card.stability >= TYPE_AFTER_DAYS);
+	assert.equal(typable(card), true);
+	// Forgotten: turned over again until it holds
+	card = answer(card, AGAIN, card.due);
+	assert.equal(typable(card), false);
+	card = answer(card, GOOD, card.due);
+	assert.equal(typable(card), false);
+	assert.equal(typable(undefined), false);
+});
+
+test('the first hint is the first letter and a line for each letter after it', () => {
+	assert.equal(firstLetter('вода'), 'в _ _ _');
+	assert.equal(firstLetter('Вода́'), 'в _ _ _');
+	assert.equal(firstLetter("м'ясо"), "м ' _ _ _");
+	assert.equal(firstLetter('будь ласка'), 'б _ _ _   _ _ _ _ _');
+});
+
+test('the second hint offers the word among three others, of its part of speech where there are enough', () => {
+	const card = (word: string, pos: string) => ({ word, headword: word, pos });
+	const target = card('вода', 'noun');
+	const pool = [target, card('книга', 'noun'), card('брат', 'noun'), card('стіл', 'noun'), card('читати', 'verb'), card('вода', 'noun')];
+	for (let seed = 1; seed < 20; seed++) {
+		const random = seeded(seed);
+		const choices = choicesFor(target, pool, random);
+		assert.ok(choices);
+		assert.equal(choices.length, 4);
+		assert.equal(choices.filter((c) => c.word === 'вода').length, 1);
+		assert.ok(!choices.some((c) => c.word === 'читати'), 'three nouns are there to offer');
+	}
+	// Too few others: no choice of four
+	assert.equal(choicesFor(target, [card('книга', 'noun'), card('брат', 'noun')], seeded(1)), null);
+	// Not enough of the same part of speech: the rest fill in
+	const mixed = choicesFor(target, [card('книга', 'noun'), card('читати', 'verb'), card('добре', 'adv')], seeded(1));
+	assert.equal(mixed?.length, 4);
+});
+
+/** The same numbers every run. */
+function seeded(seed = 1) {
+	let x = seed;
+	return () => {
+		x = (x * 1103515245 + 12345) % 2147483648;
+		return x / 2147483648;
+	};
+}
 
 const skip = existsSync('nebokrai.db') ? false : 'nebokrai.db is missing';
 

@@ -6,11 +6,14 @@
        ✓ вода́   Please give me a glass of water.
        Дайте, будь ласка, склянку [    ].
      A word typed in another form (воду) still counts as the word; a Latin
-     answer near it gets one more try. In the sentence, the right word with
-     another ending gets one more try too, with a hint. Then the whole answer
-     shows, and the page offers Again and Good with the one this suggests
-     (recall.ts) first. Knowing the word is what the card is about; its ending
-     is practised along the way and does not cost the card.
+     answer near it gets one more try. Stuck, the learner can ask for its
+     first letter (в _ _ _), then for the word among four to pick from; a word
+     typed after the letter still counts as recalled, one picked out does not.
+     In the sentence, the right word with another ending gets one more try
+     too, with a hint. Then the whole answer shows, and the page offers Again
+     and Good with the one this suggests (recall.ts) first. Knowing the word is
+     what the card is about; its ending is practised along the way and does
+     not cost the card.
      The buttons under the card are the page's: they submit this card's form
      (id "recall-answer"), and the one marked data-give-up gives the step up. -->
 <script lang="ts">
@@ -19,7 +22,10 @@
 	import Icon from '#lib/Icon.svelte';
 	import Stressed from '#lib/Stressed.svelte';
 	import { messagesFor, tagLabel } from '#lib/i18n.ts';
-	import { around, asksForm, checkTyped, type Recall, type Recalled } from '#lib/review/recall.ts';
+	import {
+		around, asksForm, checkTyped, choicesFor, firstLetter, type Choice, type Recall, type Recalled
+	} from '#lib/review/recall.ts';
+	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import type { WordCard } from '#lib/search/word.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -28,6 +34,7 @@
 		info,
 		recall,
 		glosses,
+		others,
 		step = $bindable(),
 		ondone,
 		onplay
@@ -36,6 +43,8 @@
 		recall: Recall;
 		/** The card's meanings, each once. */
 		glosses: string[];
+		/** The other words being reviewed, to offer beside this one when it is to be picked out. */
+		others: readonly WordCard[];
 		/** Which step is asked, for the page's buttons; 'done' once answered. */
 		step: 'word' | 'form' | 'done';
 		ondone: (recalled: Recalled) => void;
@@ -54,15 +63,49 @@
 	/** What was typed and not taken, shown struck through with the answer. */
 	let missedWord = $state('');
 	let missedForm = $state('');
-	let knewWord = $state(false);
+	let word = $state<Recalled['word']>('missed');
 	let form = $state<Recalled['form']>(null);
+	let knewWord = $derived(word !== 'missed');
+
+	/** Hints asked for: none, the first letter, the word among four. */
+	let hint = $state<0 | 1 | 2>(0);
+	/** Drawn when asked for, once, so they do not move while being read. */
+	let choices = $state.raw<Choice[] | null>(null);
+	let canChoose = $derived(new Set(others.map((card) => plain(card.word)).filter((w) => w !== plain(info.word))).size >= 3);
+	let field: HTMLInputElement | undefined = $state();
 
 	// Focus must not scroll: on a phone the page would jump to the field
 	const focus = (node: HTMLElement) => node.focus({ preventScroll: true });
 
 	function finish() {
 		step = 'done';
-		ondone({ word: knewWord, form });
+		ondone({ word, form });
+	}
+
+	function showLetter() {
+		hint = 1;
+		field?.focus({ preventScroll: true });
+	}
+
+	function showChoices() {
+		choices = choicesFor(info, others, Math.random);
+		if (choices) hint = 2;
+	}
+
+	/** Picked from four: right, and the sentence still asks for its form; wrong, and the card is answered. */
+	function choose(choice: Choice) {
+		if (step !== 'word') return;
+		if (choice.word === info.word) {
+			word = 'chosen';
+			typed = '';
+			nudged = false;
+			if (gap && asksForm(info.word, gap)) step = 'form';
+			else finish();
+			return;
+		}
+		missedWord = choice.headword;
+		word = 'missed';
+		finish();
 	}
 
 	function submit(event: SubmitEvent) {
@@ -78,7 +121,7 @@
 				return;
 			}
 			if (found === 'right' || found === 'form') {
-				knewWord = true;
+				word = hint ? 'hinted' : 'right';
 				typed = '';
 				nudged = false;
 				// The sentence asks for something only where its form is not the word itself
@@ -115,7 +158,7 @@
 	const named = (tags: string[]) => tags.map((tag) => tagLabel(m, settings.lang, tag)).join(' ');
 
 	/** The hint for a second try at the form: the form's name where the spelling is one. */
-	let hint = $derived.by(() => {
+	let formHint = $derived.by(() => {
 		if (!gap) return '';
 		const all = gap.readings.flatMap((reading) => reading.tags).filter((tags) => tags.length);
 		return all.length === 1 ? m.review.recall.formIs(named(all[0])) : m.review.recall.formLook;
@@ -129,9 +172,12 @@
 	{#if step === 'word'}
 		<div class="ask">
 			<p class="label">{m.review.recall.inUkrainian}</p>
-			<p class="meaning" lang="en">{glosses.join('; ')}</p>
+			<!-- The first meaning large, any others under it, so three do not fill the card -->
+			<p class="meaning" lang="en">{glosses[0]}</p>
+			{#if glosses.length > 1}<p class="also" lang="en">{glosses.slice(1).join('; ')}</p>{/if}
 			<p class="grammar"><Grammar pos={info.pos} tags={info.tags} inline /></p>
 			<input
+				bind:this={field}
 				bind:value={typed}
 				class="ui-field word-field"
 				type="text"
@@ -145,11 +191,36 @@
 				maxlength="60"
 				{@attach focus}
 			/>
-			<p class="note" role="status">{nudged ? m.review.recall.close : m.review.recall.latin}</p>
+			<!-- в _ _ _, until the four come: beside them it would give the word away -->
+			{#if hint === 1}
+				<p class="letters" lang="uk" aria-label={m.review.recall.startsWith(firstLetter(info.word).charAt(0))}>
+					{firstLetter(info.word)}
+				</p>
+			{/if}
+			{#if hint === 2 && choices}
+				<div class="choices" role="group" aria-label={m.review.recall.pick}>
+					{#each choices as choice (choice.word)}
+						<button type="button" class="ui-btn option" lang="uk" onclick={() => choose(choice)}>
+							<span><Stressed text={choice.headword} /></span>
+						</button>
+					{/each}
+				</div>
+			{/if}
+			<p class="note" role="status">
+				{nudged ? m.review.recall.close : m.review.recall.latin}
+				{#if hint === 0}
+					<button type="button" class="link" onclick={showLetter}>{m.review.recall.firstLetter}</button>
+				{:else if hint === 1 && canChoose}
+					<button type="button" class="link" onclick={showChoices}>{m.review.recall.chooseFour}</button>
+				{/if}
+			</p>
 		</div>
 	{:else}
 		<p class="word">
-			<span class="mark" data-knew={knewWord}><Icon name={knewWord ? 'check' : 'x'} size={20} /></span>
+			<!-- Recalled: a tick; picked out from four: nothing; not known: a cross -->
+			{#if word !== 'chosen'}
+				<span class="mark" data-knew={knewWord}><Icon name={knewWord ? 'check' : 'x'} size={20} /></span>
+			{/if}
 			<Headword text={info.headword} size="md" />
 			{#if step === 'done' && info.audio_url}
 				{@const url = info.audio_url}
@@ -195,7 +266,7 @@
 			{/if}
 
 			{#if step === 'form'}
-				<p class="note" role="status">{nudged ? hint : m.review.recall.formAsk}</p>
+				<p class="note" role="status">{nudged ? formHint : m.review.recall.formAsk}</p>
 			{:else if gap && asksForm(info.word, gap)}
 				{#if missedForm}<p class="given">{m.review.recall.youTyped} <s lang="uk">{missedForm}</s></p>{/if}
 				<!-- води́ genitive singular · во́ди nominative plural, accusative plural -->
@@ -276,6 +347,47 @@
 		font-family: var(--font-text);
 		font-size: var(--text-lg);
 		font-weight: 400;
+	}
+
+	.also {
+		color: var(--ink-2);
+		text-wrap: balance;
+	}
+
+	/* The text letters, not the headwords': in those б looks like a 6 */
+	.letters {
+		font-family: var(--font-text);
+		font-size: var(--text-xl);
+		font-weight: 600;
+		white-space: pre;
+	}
+
+	.choices {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem;
+		width: min(100%, 22rem);
+	}
+
+	.option {
+		justify-content: center;
+		font-family: var(--font-headword);
+		font-size: var(--text-lg);
+	}
+
+	/* A hint is asked for in passing, as /practice asks for the case */
+	.link {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--accent);
+		font: inherit;
+		font-size: var(--text-sm);
+		cursor: pointer;
+	}
+
+	.link:hover {
+		text-decoration: underline;
 	}
 
 	.word {

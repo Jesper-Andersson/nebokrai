@@ -26,7 +26,7 @@
 	article {
 		box-sizing: border-box;
 		/* Leaves a 1rem gutter on each side of a narrow window */
-		width: min(var(--page), 100% - 2rem);
+		width: min(var(--frame-width), 100% - 2rem);
 		margin: 1.5rem auto 2rem;
 		padding: 1.5rem 1.75rem 1.75rem;
 		line-height: 1.6;

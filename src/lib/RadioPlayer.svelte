@@ -392,17 +392,17 @@
 		visibility: hidden;
 	}
 
-	/* A window with room beside the page's column (50rem, and 14rem to spare
-	   each side from 78rem up): the button stands there, level with the
-	   middle of the page, where it is on hand and over nothing. In the bottom
-	   corner it sat on the footer's line and a long way from everything. */
-	@media (min-width: 78rem) {
+	/* A window with room beside the page (72rem, and 5rem to spare each side
+	   from 82rem up): the button stands there, level with the middle of the
+	   page, where it is on hand and over nothing. In the bottom corner it sat
+	   on the footer's line and a long way from everything. */
+	@media (min-width: 82rem) {
 		.radio {
 			position: fixed;
 			top: 45%;
 			right: auto;
 			bottom: auto;
-			left: calc(50% + var(--page) / 2 + 3rem);
+			left: calc(50% + var(--frame-width) / 2 + 0.75rem);
 		}
 	}
 

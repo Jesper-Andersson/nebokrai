@@ -313,7 +313,7 @@
 	   As wide as the results under it (.results), so the two share their edges. */
 	.searchbox {
 		box-sizing: border-box;
-		max-width: var(--page);
+		max-width: var(--search);
 		margin: 0 auto;
 		overflow: hidden;
 		border: 1px solid var(--border-strong);
@@ -370,6 +370,7 @@
 
 	.results {
 		display: grid;
+		max-width: var(--search);
 		gap: 0.3rem;
 		margin-block: 0.5rem 0;
 		list-style: none;

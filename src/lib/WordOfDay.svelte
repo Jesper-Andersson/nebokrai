@@ -55,6 +55,8 @@
 	/* Close under the search box, which is 1rem above (the hero's margin, in
 	   the search page) */
 	section {
+		/* As wide as the search box above it */
+		max-width: var(--search);
 		margin-top: 0.5rem;
 	}
 

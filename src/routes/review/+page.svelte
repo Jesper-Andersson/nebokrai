@@ -967,7 +967,7 @@
 	/* After the rules above, which these override */
 	@media (min-width: 60rem) {
 		.page.wide {
-			max-width: var(--page-wide);
+			max-width: var(--frame-width);
 		}
 
 		.setup {

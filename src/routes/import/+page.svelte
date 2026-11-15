@@ -674,7 +674,7 @@
 	.import.wide {
 		grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
 		align-items: start;
-		max-width: var(--page-wide);
+		max-width: var(--frame-width);
 	}
 
 	.import.wide > header {

@@ -33,7 +33,7 @@
 	}
 
 	article.wide {
-		width: min(var(--page), 100% - 2rem);
+		width: min(var(--frame-width), 100% - 2rem);
 	}
 
 	h1 {

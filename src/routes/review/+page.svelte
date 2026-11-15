@@ -650,7 +650,7 @@
 					<!-- No deck has a word in it: three noughts over a Start that cannot be
 					     pressed say nothing, so the way to begin is said in their place.
 					     The decks to tick are the next thing down the page. -->
-					<section class="ui-card today begin">
+					<section class="ui-card today begin" class:alone={!only}>
 						<Icon name="cards" size={28} />
 						<p>{m.review.noWords}</p>
 						{#if only}
@@ -1112,6 +1112,17 @@
 		color: var(--muted);
 	}
 
+	/* On a phone it stood between the title and the decks it points to, and
+	   the first deck was 400px down a 360×800 screen; without it the deck is
+	   226px down, and "New words from" over the ticks says what to do. It
+	   stays when one list is being looked at, as it then holds the way back
+	   to all the decks. */
+	@media (max-width: 600px) {
+		.begin.alone {
+			display: none;
+		}
+	}
+
 	.begin p:not(.muted) {
 		max-width: 26rem;
 		color: var(--ink-2);
@@ -1165,6 +1176,16 @@
 		background: var(--surface);
 		cursor: pointer;
 		appearance: none;
+	}
+
+	/* Under a finger: 24px, the least a target may be without leaning on the
+	   room around it */
+	@media (pointer: coarse) {
+		.decks input {
+			width: 1.5rem;
+			height: 1.5rem;
+			margin-top: 0;
+		}
 	}
 
 	.decks input:checked {

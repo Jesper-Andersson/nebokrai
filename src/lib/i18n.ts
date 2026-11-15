@@ -933,12 +933,12 @@ const en = {
 		/** A group's heading */
 		kinds: {
 			course: 'Courses', podcast: 'Podcasts', reading: 'Reading', dictionary: 'Dictionaries',
-			tool: 'Tools', tutor: 'Tutors', community: 'Community', book: 'Books'
+			tool: 'Tools', tutor: 'Tutors', community: 'Community'
 		} as Record<Kind, string>,
 		/** On a resource's own line */
 		kind: {
 			course: 'Course', podcast: 'Podcast or video', reading: 'Reading and listening',
-			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', community: 'Community', book: 'Book'
+			dictionary: 'Dictionary or reference', tool: 'Tool', tutor: 'Tutors', community: 'Community'
 		} as Record<Kind, string>,
 		cost: { free: 'Free', freemium: 'Free + paid', paid: 'Paid' } as Record<Cost, string>,
 		/** The price pill: green 'Free', gold 'Paid', or both halves for free + paid */
@@ -1855,11 +1855,11 @@ const uk: Messages = {
 		orders: { easiest: 'Спершу легші', hardest: 'Спершу складніші' },
 		kinds: {
 			course: 'Курси', podcast: 'Подкасти', reading: 'Читання', dictionary: 'Словники',
-			tool: 'Інструменти', tutor: 'Репетитори', community: 'Спільноти', book: 'Книжки'
+			tool: 'Інструменти', tutor: 'Репетитори', community: 'Спільноти'
 		},
 		kind: {
 			course: 'Курс', podcast: 'Подкаст або відео', reading: 'Читання й слухання',
-			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', community: 'Спільнота', book: 'Книжка'
+			dictionary: 'Словник або довідник', tool: 'Інструмент', tutor: 'Репетитори', community: 'Спільнота'
 		},
 		cost: { free: 'Безкоштовно', freemium: 'Безкоштовно + платне', paid: 'Платно' },
 		pill: { free: 'Безкоштовно', paid: 'Платно', plusPaid: '+ платне' },

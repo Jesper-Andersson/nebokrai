@@ -354,11 +354,6 @@
 		margin: 0;
 	}
 
-	/* Two columns need more than the width of one column of text */
-	.ui-page.wide {
-		--page: var(--page-wide);
-	}
-
 	.back {
 		margin: 0.5rem 0;
 	}

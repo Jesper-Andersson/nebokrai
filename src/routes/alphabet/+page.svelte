@@ -379,7 +379,7 @@
 	/* The letters need the room of a dictionary page: eight to a row beside their group's name */
 	.page.wide {
 		gap: 0.75rem;
-		max-width: var(--page);
+		max-width: var(--frame-width);
 	}
 
 	/* What is switched on and what starts a round are in the flag's yellow,

@@ -270,7 +270,7 @@
 
 <style>
 	.page {
-		max-width: var(--page-wide);
+		max-width: var(--frame-width);
 		padding-block: var(--gap-block) var(--gap-section);
 	}
 

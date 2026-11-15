@@ -127,7 +127,8 @@
 		height: 0.4rem;
 		overflow: hidden;
 		border-radius: var(--radius-pill);
-		background: var(--surface-2);
+		/* The ink, faint: shows on a plain page and over a photo, in every theme */
+		background: color-mix(in srgb, var(--ink) 12%, transparent);
 	}
 
 	.rail i {

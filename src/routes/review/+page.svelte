@@ -711,7 +711,8 @@
 				<!-- Settings changed once in a while. On a phone they fold away under
 				     a line that says what they are set to; on a wide screen they show. -->
 				<section class="ui-card options habit" class:open={habitOpen}>
-					<h2 class="ui-label heading">{m.review.habit.heading}</h2>
+					<!-- Said, not shown: a second label over "Weekly goal" only repeated it -->
+					<h2 class="ui-sr-only">{m.review.habit.heading}</h2>
 					<button
 						type="button"
 						class="fold"
@@ -1163,7 +1164,8 @@
 		height: 0.4rem;
 		overflow: hidden;
 		border-radius: var(--radius-pill);
-		background: var(--surface-2);
+		/* The ink, faint: shows on a plain page and over a photo, in every theme */
+		background: color-mix(in srgb, var(--ink) 12%, transparent);
 	}
 
 	.amount {
@@ -1220,8 +1222,7 @@
 	}
 
 	/* Goal, plan and typing: folded on a phone under a line that says how they
-	   are set; open, with a heading of their own, on a wide screen */
-	.habit .heading,
+	   are set; open on a wide screen, where "Weekly goal" heads the card */
 	.habit .body {
 		display: none;
 	}
@@ -1268,10 +1269,6 @@
 	}
 
 	@media (min-width: 60rem) {
-		.habit .heading {
-			display: flex;
-		}
-
 		.habit .body {
 			display: grid;
 		}

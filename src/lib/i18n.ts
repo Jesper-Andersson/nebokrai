@@ -241,6 +241,8 @@ const en = {
 		sources: 'Sources',
 		/** The page's whole name, for a link inside a sentence (/common-words) */
 		sourcesPage: 'Sources and licences',
+		/** The browser extension's page; shown once a store has it (extension.ts) */
+		extension: 'Extension',
 		privacy: 'Privacy',
 		words: 'All words',
 		updates: 'Updates',
@@ -408,7 +410,11 @@ const en = {
 			also: 'Also',
 			missing: 'This word is not in the dictionary yet.',
 			search: 'Search for it',
-			loading: 'Looking it up…'
+			loading: 'Looking it up…',
+			/** The card's last line, offering the browser extension: "Want this card on any page? Get the extension" */
+			hint: 'Want this card on any page?',
+			getExtension: 'Get the extension',
+			hideHint: 'Hide this'
 		},
 		/** Above the entries of за́мок and замо́к */
 		sameSpelling: 'Same spelling, different stress: the meaning changes with it.',
@@ -1153,7 +1159,8 @@ const en = {
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
-		privacy: 'Privacy', stats: 'Usage', import: 'Import words', updates: 'Updates'
+		privacy: 'Privacy', stats: 'Usage', import: 'Import words', updates: 'Updates',
+		extension: 'Nebokrai in your browser'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1165,6 +1172,7 @@ const en = {
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
 		learn: 'Start learning Ukrainian: the alphabet with a drill on its 33 letters, the 1,000 most common words, the grammar words explained, and grammar practice.',
+		extension: 'A free browser extension for Chrome, Firefox and Edge: double-click a Ukrainian word on any page to see its meaning, stress and form, and save it to your lists.',
 		privacy: 'What Nebokrai keeps and what it does not: no ads and no tracking, cookies only for signing in and settings, and what an account or a report stores.',
 		stats: 'Visits, searches and accounts on Nebokrai, counted without cookies. For the site’s owner only.',
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
@@ -1486,6 +1494,7 @@ const uk: Messages = {
 		about: 'Про проєкт',
 		sources: 'Джерела',
 		sourcesPage: 'Джерела й ліцензії',
+		extension: 'Розширення',
 		privacy: 'Приватність',
 		words: 'Усі слова',
 		updates: 'Оновлення',
@@ -1624,7 +1633,10 @@ const uk: Messages = {
 			also: 'Також',
 			missing: 'Цього слова в словнику ще немає.',
 			search: 'Пошукати його',
-			loading: 'Шукаю…'
+			loading: 'Шукаю…',
+			hint: 'Хочете таку картку на будь-якій сторінці?',
+			getExtension: 'Встановити розширення',
+			hideHint: 'Приховати'
 		},
 		sameSpelling: 'Однакове написання, різний наголос: від нього залежить значення.',
 		forms: 'Форми',
@@ -2317,13 +2329,15 @@ const uk: Messages = {
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
-		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів', updates: 'Оновлення'
+		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів', updates: 'Оновлення',
+		extension: 'Nebokrai у вашому браузері'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
 		learn: 'Почніть вивчати українську: абетка з вправами на всі 33 літери, 1000 найуживаніших слів, граматичні терміни з поясненнями та вправи з граматики.',
+		extension: 'Безплатне розширення для Chrome, Firefox та Edge: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму та зберегти до своїх списків.',
 		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й відстеження, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
 		stats: 'Відвідування, пошуки й облікові записи Nebokrai, пораховані без файлів cookie. Лише для власника сайту.',
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',

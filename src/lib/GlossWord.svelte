@@ -6,6 +6,7 @@
        скля́нку: accusative singular
        glass (drinking vessel)
        Open word →                    [save]
+       Want this card on any page? Get the extension   [x]
 
      Built as Term.svelte is: a Bits UI Popover, which a phone opens with a
      press, not a tooltip, which needs a pointer. The card is drawn at the end
@@ -14,12 +15,14 @@
      either side, so that ласка after будь reads as будь ла́ска, "please". -->
 <script lang="ts">
 	import { Popover } from 'bits-ui';
+	import { dropHint, wantsHint } from '#lib/extension.ts';
 	import type { Gloss, GlossAnswer } from '#lib/gloss.ts';
 	import { messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { useQuickSearch } from '#lib/quick-search.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import Icon from './Icon.svelte';
 	import SaveButton from './SaveButton.svelte';
 	import Stressed from './Stressed.svelte';
 
@@ -50,6 +53,10 @@
 	let open = $state(false);
 	let answer = $state.raw<GlossAnswer | null>(null);
 	let failed = $state(false);
+	// The card's last line offers the browser extension, which shows this card
+	// on any page: to a visitor on a computer who has neither got it nor put
+	// the line away (extension.ts). Asked each time the card opens.
+	let hint = $state(false);
 
 	let main = $derived(answer && (answer.phrase ?? answer.readings[0] ?? null));
 	let others = $derived(answer ? (answer.phrase ? answer.readings : answer.readings.slice(1)) : []);
@@ -69,12 +76,18 @@
 
 	function onOpenChange(now: boolean) {
 		if (now && !answer && !failed) void ask();
+		if (now) hint = wantsHint();
 	}
 
 	function grammar(gloss: Gloss): string {
 		const name = posLabel(m, gloss.pos).toLocaleLowerCase(settings.lang);
 		const tags = gloss.tags.filter((t) => SHOWN_TAGS.has(t)).map((t) => tagLabel(m, settings.lang, t));
 		return [name, ...tags].join(' · ');
+	}
+
+	function putHintAway() {
+		dropHint();
+		hint = false;
 	}
 
 	function search() {
@@ -118,6 +131,14 @@
 						<a href={wordPath(main.word)}>{m.word.gloss.open} →</a>
 						<SaveButton word={main.word} headword={main.headword} size={18} />
 					</div>
+				{/if}
+				{#if hint}
+					<p class="ui-gloss-hint">
+						<span>{m.word.gloss.hint} <a href="/extension" onclick={dropHint}>{m.word.gloss.getExtension}</a></span>
+						<button type="button" aria-label={m.word.gloss.hideHint} title={m.word.gloss.hideHint} onclick={putHintAway}
+							><Icon name="x" size={14} /></button
+						>
+					</p>
 				{/if}
 			{:else if answer || failed}
 				<p>{m.word.gloss.missing}</p>

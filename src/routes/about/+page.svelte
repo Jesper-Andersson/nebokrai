@@ -3,6 +3,7 @@
      and that page says so: tell it if this one starts loading anything else
      from another site. -->
 <script lang="ts">
+	import { EXTENSION_LIVE } from '#lib/extension.ts';
 	import DonateMenu from '#lib/DonateMenu.svelte';
 	import GitHubCard from '#lib/GitHubCard.svelte';
 	import Headword from '#lib/Headword.svelte';
@@ -92,6 +93,13 @@
 				<a href="/saved">Збережені слова</a> або надіслати просто в Anki, якщо він відкритий і має
 				додаток AnkiConnect.
 			</li>
+			{#if EXTENSION_LIVE}
+				<li>
+					<b>Браузер.</b> <a href="/extension">Розширення Nebokrai</a> показує картку слова на будь-якій
+					сторінці: двічі клацніть українське слово або наведіть на нього вказівник, тримаючи Ctrl. Для
+					Chrome, Firefox та Edge.
+				</li>
+			{/if}
 			<li>
 				<b>Телефон.</b> Nebokrai можна встановити як застосунок: у меню браузера виберіть «Додати на
 				головний екран». Словнику й далі потрібне з’єднання з інтернетом.
@@ -201,6 +209,12 @@
 				<a href="/saved">Saved words</a> page, or send them straight into Anki when it is open and
 				has the AnkiConnect add-on.
 			</li>
+			{#if EXTENSION_LIVE}
+				<li>
+					<b>Your browser.</b> The <a href="/extension">Nebokrai extension</a> shows a word’s card on any
+					page: double-click a Ukrainian word, or hold Ctrl and point at it. For Chrome, Firefox and Edge.
+				</li>
+			{/if}
 			<li>
 				<b>Your phone.</b> Nebokrai can be installed as an app: choose Add to Home Screen in your
 				browser’s menu. The dictionary still needs a connection.

@@ -4,7 +4,7 @@
 // is drawn, and nothing leaves the page, until then; a Latin word, a number
 // or a text field does nothing at all.
 import { mount, unmount } from 'svelte';
-import type { GlossReply, GlossRequest, SavedReply, SavedRequest } from '../../lib/api.ts';
+import { SITE, type GlossReply, type GlossRequest, type SavedReply, type SavedRequest } from '../../lib/api.ts';
 import { DEFAULTS, watchSettings, type Settings } from '../../lib/settings.ts';
 import { wordAt } from '../../lib/word-at.ts';
 import { plain } from '../../../src/lib/search/normalize.ts';
@@ -42,6 +42,10 @@ export default defineContentScript({
 	cssInjectionMode: 'ui',
 
 	main(ctx) {
+		// On the site itself: say the extension is here, so the site does not
+		// offer it to someone who has it (INSTALLED_ATTRIBUTE in src/lib/extension.ts)
+		if (location.origin === SITE) document.documentElement.setAttribute('data-nebokrai-extension', '');
+
 		let settings: Settings = DEFAULTS;
 		watchSettings((now) => {
 			settings = now;

@@ -58,7 +58,7 @@ it. [nebokrai.app/privacy](https://nebokrai.app/privacy) says the same for reade
 
 Each store step is the owner's to take. Before the first submission:
 
-- [x] Run the Firefox build in Firefox 140 or later: done in Firefox 160 on 2026-11-15 (double-click, hover, saving).
+- [x] Run the Firefox build in Firefox 140 or later: done in Firefox 160 on 2026-11-15 (double-click, hover, saving, options).
 - [x] Run the Chrome build in Chrome itself: done in Chrome 157 on 2026-11-15 (double-click, hover, saving, themes, sizes).
 - [x] Screenshots at 1280 by 800 are in `store/screenshots/`: the card, a saved word, sepia, dark, the options page.
 - [ ] Chrome Web Store: developer account with 2-step verification, non-trader declaration; on the privacy tab
@@ -67,6 +67,8 @@ Each store step is the owner's to take. Before the first submission:
 - [ ] Firefox Add-ons: upload `.output/*-firefox.zip` and the repository source; decide whether Firefox for
       Android is wanted (it needs `gecko_android` in `wxt.config.ts` and a test there).
 - [ ] Edge Add-ons: the Chrome package as it is.
+- [ ] Once a store has it: put the address of its listing in src/lib/extension.ts. That switches on the /extension
+      page, its links on About and in the footer, and the hint in the card on the site.
 
 The extension is free and carries no advertising, as the site is: VESUM's licence asks for that
 ([`docs/sources-and-licences.md`](../docs/sources-and-licences.md)).

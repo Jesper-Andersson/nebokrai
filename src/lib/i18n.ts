@@ -43,6 +43,8 @@ function sameNote(prefix: string, endings: string[], note: string): Record<strin
 const en = {
 	nav: {
 		label: 'Main',
+		/** Over the list of a text page's sections, beside it on a wide screen */
+		onThisPage: 'On this page',
 		dictionary: 'Dictionary',
 		learn: 'Learn',
 		resources: 'Resources',
@@ -373,6 +375,10 @@ const en = {
 		tryLabel: 'Try',
 		wordOfDay: 'Word of the day',
 		placeholder: 'Search a word…',
+		/** Under the word of the day, for a returning visitor (PickUp.svelte) */
+		pickUp: 'Pick up where you left off',
+		savedCount: (n: number) => (n === 1 ? '1 word' : `${n.toLocaleString('en-GB')} words`),
+		savedGo: 'Open',
 		clear: 'Clear search',
 		failed: 'Search isn’t working right now. Try again in a moment.',
 		didYouMean: 'Did you mean:',
@@ -1335,6 +1341,7 @@ export type Messages = typeof en;
 const uk: Messages = {
 	nav: {
 		label: 'Головне меню',
+		onThisPage: 'На цій сторінці',
 		dictionary: 'Словник',
 		learn: 'Навчання',
 		resources: 'Ресурси',
@@ -1629,6 +1636,9 @@ const uk: Messages = {
 		tryLabel: 'Спробуйте',
 		wordOfDay: 'Слово дня',
 		placeholder: 'Шукати слово…',
+		pickUp: 'Продовжити з того, на чому зупинилися',
+		savedCount: (n) => counted(n, 'слово', 'слова', 'слів'),
+		savedGo: 'Відкрити',
 		clear: 'Очистити пошук',
 		failed: 'Пошук зараз не працює. Спробуйте ще раз за хвилину.',
 		didYouMean: 'Можливо, ви мали на увазі:',

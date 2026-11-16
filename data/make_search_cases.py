@@ -19,6 +19,8 @@ QUERIES = [
     "kalyna", "kalina", "khata", "xata", "pryvit", "Kyiv", "shchastia", "dobryi", "čytáty",
     # English meanings
     "good", "dog", "to go", "mother", "to read", "the horizon", "viburnum", "guelder rose", "in", "water",
+    # a capitalised meaning is still an exact match: English -> англійський
+    "English",
     # search-as-you-type prefixes
     "кал", "неб", "чит", "kal", "neb", "pry",
     # only VESUM knows these

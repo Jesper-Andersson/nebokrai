@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-english-capital-meanings',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Searching “English” finds англійський first', uk: 'Пошук «English» спершу знаходить англійський' },
+		body: {
+			en: 'Words whose meaning starts with a capital letter, such as англійський for English or понеділок for Monday, now come first when you search for that meaning.',
+			uk: 'Слова, значення яких пишеться з великої літери, як-от англійський (English) чи понеділок (Monday), тепер ідуть першими, коли шукаєте це значення.'
+		}
+	},
+	{
 		id: '2026-11-16-quick-search-ukrainian-layout',
 		date: '2026-11-16',
 		kind: 'changed',

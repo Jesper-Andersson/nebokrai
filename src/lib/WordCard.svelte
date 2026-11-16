@@ -54,7 +54,8 @@
 	// only VESUM knew that: it tells the word, not which of its forms.
 	let matched = $derived('matched_forms' in entry && entry.matched_forms ? groupMatched(entry.matched_forms) : null);
 
-	// The reflexive verb that was searched for, when this is the verb it is made from.
+	// The word that was searched for, when it led here without being one of
+	// this word's forms: a reflexive verb, or a word on this word's head line.
 	let through = $derived('through' in entry ? entry.through : undefined);
 
 	function speak() {
@@ -112,7 +113,7 @@
 	{/if}
 
 	{#if matched}
-		<p class="found">
+		<p class="found" class:wrap={!matched.groups.length && through}>
 			{#if matched.groups.length}
 				{m.card.formFound}
 				{#each matched.groups as group, i (group.form)}
@@ -121,10 +122,15 @@
 				{/each}
 				{#if matched.more}<span class="form">{m.card.moreForms(matched.more)}</span>{/if}
 			{:else if through}
-				<span class="form"><b lang="uk">{through.word}</b> {m.card.reflexive}</span>
+				<span class="form"><b lang="uk"><Stressed text={through.word} /></b> {m.card.through[through.kind]}</span>
 			{:else}
 				{m.card.someForm}
 			{/if}
+		</p>
+	{:else if through}
+		<!-- Found by a word this word's head line names: історично, its adverb -->
+		<p class="found wrap">
+			<span class="form"><b lang="uk"><Stressed text={through.word} /></b> {m.card.through[through.kind]}</span>
 		</p>
 	{/if}
 </article>
@@ -306,6 +312,12 @@
 			border-top: 0;
 			text-overflow: ellipsis;
 			white-space: nowrap;
+		}
+
+		/* A sentence saying how the word was reached (походити — подано як
+		   доконаний вид…) means nothing cut short, so it may wrap */
+		.found.wrap {
+			white-space: normal;
 		}
 	}
 </style>

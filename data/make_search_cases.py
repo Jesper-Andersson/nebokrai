@@ -28,6 +28,9 @@ QUERIES = [
     "осташка", "фрідріха", "максимовичу", "сокирко",
     # a reflexive verb with no entry leads to the verb it is made from; вчитися has its own entry
     "утворюватися", "міститься", "вчитися",
+    # words on another entry's head line: another spelling, an adverb, a relational adjective and one of
+    # its forms (through VESUM), an aspect partner, a superlative, and one listed by two entries
+    "уперше", "історично", "мінеральний", "мінеральних", "походити", "найширший", "дармо",
     # abbreviations, Nebokrai's own (ін., км) and Wiktionary's (ст.), with and without the full stop
     "ін.", "ін", "км", "ст", "англ",
     # "form of" pages kept as words: a diminutive and a participle (only VESUM knew these two before),

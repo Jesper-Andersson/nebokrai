@@ -114,7 +114,7 @@
 					</p>
 				{/if}
 				{#if main.through}
-					<p><span lang="uk">{main.through.word}</span> {m.card.reflexive}</p>
+					<p><span lang="uk"><Stressed text={main.through.word} /></span> {m.card.through[main.through.kind]}</p>
 				{/if}
 				{#if main.meaning}
 					<p class="ui-gloss-meaning">{main.meaning}</p>

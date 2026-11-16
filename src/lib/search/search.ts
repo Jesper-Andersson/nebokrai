@@ -4,6 +4,7 @@
 // How a query is matched, best first:
 //   1. exact dictionary word                      калина -> калина
 //   2. an inflected form                          книги  -> книга
+//      a word on another entry's head line        історично -> історичний
 //   3. Latin letters, spelled the standard way    kalyna -> калина
 //   4. English meaning that is exactly the query  good   -> добрий
 //   5. an inflected form in Latin letters         knyhy  -> книга
@@ -11,16 +12,17 @@
 //   7. English meaning that mentions the query    good   -> добро ("good deed")
 //   8. prefix of a word, for search-as-you-type
 // Within each step, more common words come first. A result found through a
-// form (steps 2 and 5) says which form in `matched_forms`.
+// form (steps 2 and 5) says which form in `matched_forms`; one found through
+// a head-line word says how in `through`.
 
 import type { Db } from './db.ts';
 import { isCyrillic, looseLatin, nationalTranslit, plain } from './normalize.ts';
 
 export type MatchKind =
-	| 'word' | 'form' | 'latin' | 'english' | 'latin_form' | 'latin_loose' | 'english_mention' | 'prefix';
+	| 'word' | 'form' | 'head' | 'latin' | 'english' | 'latin_form' | 'latin_loose' | 'english_mention' | 'prefix';
 
 const RANK: Record<MatchKind, number> = {
-	word: 0, form: 1, latin: 2, english: 3, latin_form: 4, latin_loose: 5, english_mention: 6, prefix: 7
+	word: 0, form: 1, head: 2, latin: 3, english: 4, latin_form: 5, latin_loose: 6, english_mention: 7, prefix: 8
 };
 const KIND = Object.keys(RANK) as MatchKind[];
 
@@ -30,16 +32,36 @@ export type VesumKind = 'given-name' | 'patronymic' | 'surname' | 'abbreviation'
 const KINDS: VesumKind[] = ['given-name', 'patronymic', 'surname', 'abbreviation'];
 const REFLEXIVE = ['ся', 'сь'];
 
+/**
+ * What a head-line word is to the entry that lists it, from Wiktionary's tags,
+ * the first that applies. A word tagged with none of these (a genitive the
+ * table lacks) is simply one of its forms.
+ */
+export const HEAD_KINDS = [
+	'alternative', 'adverb', 'adjective', 'abstract-noun', 'perfective', 'imperfective',
+	'feminine', 'diminutive', 'augmentative', 'comparative', 'superlative'
+] as const;
+export type HeadKind = (typeof HEAD_KINDS)[number] | 'form';
+
 /** The word that led to an entry without being one of its forms. */
 export interface Through {
-	/** утворюватися, for the entry утворювати */
+	/** утворюватися, for the entry утворювати; істори́чно, for істори́чний */
 	word: string;
-	kind: 'reflexive';
+	kind: 'reflexive' | HeadKind;
 }
 
 export interface HeadForm {
 	form: string;
 	tags: string[];
+}
+
+/** `through` for an entry found by a head-line word: the word as the head line writes it and what it is. */
+function headThrough(headForms: HeadForm[], key: string): Through | undefined {
+	for (const f of headForms) {
+		if (plain(f.form) !== key) continue;
+		return { word: f.form, kind: HEAD_KINDS.find((k) => f.tags.includes(k)) ?? 'form' };
+	}
+	return undefined;
 }
 
 export interface SearchResult {
@@ -70,7 +92,9 @@ export interface SearchResult {
 	/**
 	 * Set when the query is a reflexive verb with no entry and this is the verb
 	 * it is made from: утворюватися leads to утворювати. `match` is `form` and
-	 * `matched_forms` is empty.
+	 * `matched_forms` is empty. Also set when the query is a word this entry
+	 * lists on its head line (`match` is `head`), or one of that word's forms
+	 * found through VESUM (`match` is `form`): історично is the adverb of істори́чний.
 	 */
 	through?: Through;
 }
@@ -121,7 +145,8 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	};
 
 	const stubs: SearchResult[] = []; // words only VESUM knows
-	const through = new Map<number, Through>(); // entry id -> the word that led to it
+	// entry id -> the word that led to it; kind 'head' until the entry's head line says what it is
+	const through = new Map<number, { word: string; kind: Through['kind'] | 'head' }>();
 
 	const cyrillic = isCyrillic(q);
 	// The query as it is looked up, which also tells which form of a word it is.
@@ -130,6 +155,12 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	if (cyrillic) {
 		add(await db.all<KeyRow>(
 			"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", [key]));
+		if (hits.size === 0) {
+			// A head-line word has a key only where no entry or form has the
+			// spelling, so this finds nothing the line above could.
+			add(await db.all<KeyRow>(
+				"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='head'", [key]));
+		}
 		if (hits.size === 0 && options.vesum) {
 			const lemmas = await options.vesum.all<{ lemma: string; pos: string }>(
 				'SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos', [key]);
@@ -138,6 +169,16 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 					"SELECT entry_id, 'form' AS kind FROM search_keys WHERE key=? AND kind='word'", [lemma]);
 				if (found.length) {
 					add(found);
+					continue;
+				}
+				// мінеральних is a form of мінеральний, which мінера́л lists on its head line
+				const listed = await db.all<KeyRow>(
+					"SELECT entry_id, 'form' AS kind FROM search_keys WHERE key=? AND kind='head'", [lemma]);
+				if (listed.length) {
+					add(listed);
+					for (const row of listed) {
+						if (!through.has(row.entry_id)) through.set(row.entry_id, { word: lemma, kind: 'head' });
+					}
 					continue;
 				}
 				// утворюватися has no entry, утворювати has: the reflexive verb
@@ -229,7 +270,10 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			glosses, freq_rank: e.freq_rank, match: KIND[rank]
 		};
 		const led = through.get(e.id);
-		if (led && rank === RANK.form) result.through = led;
+		if (led && rank === RANK.form) {
+			result.through = led.kind === 'head' ? headThrough(result.head_forms, led.word) : { word: led.word, kind: led.kind };
+		}
+		if (rank === RANK.head) result.through = headThrough(result.head_forms, key);
 		return { rank, tie: e.freq_rank ?? UNRANKED, result };
 	});
 	ranked.sort((a, b) =>
@@ -243,8 +287,8 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		for (const { result } of viaForm) result.matched_forms = matched.get(result.id!) ?? [];
 	}
 
-	const exact = ranked.filter((r) => r.rank <= RANK.form).map((r) => r.result);
-	const rest = ranked.filter((r) => r.rank > RANK.form).map((r) => r.result);
+	const exact = ranked.filter((r) => r.rank <= RANK.head).map((r) => r.result);
+	const rest = ranked.filter((r) => r.rank > RANK.head).map((r) => r.result);
 	return [...exact, ...stubs, ...rest].slice(0, limit);
 }
 

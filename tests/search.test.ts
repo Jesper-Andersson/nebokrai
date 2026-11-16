@@ -74,6 +74,22 @@ test('search matches the Python reference', { skip }, async () => {
 	}
 });
 
+test('words named on another entry\'s head line', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const vesum = openLocal('vesum.db');
+	// Another spelling, and an adverb: found without VESUM, and saying how
+	const [first] = await search(db, 'уперше');
+	assert.deepEqual([first.word, first.match, first.through], ['вперше', 'head', { word: 'упе́рше', kind: 'alternative' }]);
+	const [adverb] = await search(db, 'історично');
+	assert.deepEqual([adverb.word, adverb.through?.kind], ['історичний', 'adverb']);
+	// A form of a head-line word, through VESUM: мінеральних is мінеральний, listed by мінера́л
+	const [mineral] = await search(db, 'мінеральних', { vesum });
+	assert.deepEqual([mineral.word, mineral.match, mineral.through], ['мінерал', 'form', { word: 'мінера́льний', kind: 'adjective' }]);
+	// A head-line word is a sure match: no guesses
+	const answer = await lookup(db, 'уперше');
+	assert.deepEqual(answer.suggestions, []);
+});
+
 test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	const db = openLocal('nebokrai.db');
 	const vesum = openLocal('vesum.db');
@@ -84,7 +100,7 @@ test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	const [patronymic] = await search(db, 'максимовичу', { vesum });
 	assert.equal(patronymic.kind, 'patronymic');
 	// A plain word that only VESUM knows has no kind
-	const [verb] = await search(db, 'походити', { vesum });
+	const [verb] = await search(db, 'посідати', { vesum });
 	assert.equal(verb.vesum_only, true);
 	assert.equal('kind' in verb, false);
 

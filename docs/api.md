@@ -67,7 +67,7 @@ Response `200`:
 | `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
 | `vesum_only` | Present and `true` only on VESUM-only results. |
 | `kind` | On a VESUM-only result, what the word is, when VESUM says: `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
-| `through` | Present when the query is a reflexive verb with no entry and the result is the verb it is made from, see "Reflexive verbs". |
+| `through` | Present when the query led to this entry without being one of its forms: a reflexive verb with no entry (see "Reflexive verbs"), or a word the entry names on its head line (see "Words on a head line"). |
 
 Results arrive already sorted; show them in the order given.
 
@@ -77,6 +77,7 @@ Results arrive already sorted; show them in the order given.
 |---|---|---|
 | `word` | `калина` → калина | The query is the dictionary word. |
 | `form` | `книги` → книга | The query is an inflected form. `matched_forms` says which. |
+| `head` | `історично` → історичний | The query has no entry, but this entry names it on its head line. `through` says how. |
 | `latin` | `kalyna` → калина | Latin letters in the official romanisation. |
 | `english` | `good` → добрий | One of the meanings is exactly the query. |
 | `latin_form` | `knyhy` → книга | An inflected form in Latin letters. |
@@ -163,6 +164,35 @@ those of the verb without `-ся`, which the reflexive verb often does not share
 (`вчити` "to teach", `вчитися` "to study"), so the page says how the result was
 reached and promises nothing more. A reflexive verb with an entry of its own
 (`вчитися`) is found as itself, with no `through`.
+
+### Words on a head line
+
+An entry's head line names other words: істори́чний lists its adverb
+істори́чно, впе́рше another spelling упе́рше, ходи́ти its perfective
+походи́ти. About 9,600 of these have no entry and no table row of their own.
+A query that is one of them, and is neither a dictionary word nor an inflected
+form, finds the entry that names it, with `match: "head"`:
+
+```json
+{
+  "word": "історичний",
+  "match": "head",
+  "through": { "word": "істори́чно", "kind": "adverb" }
+}
+```
+
+`through.word` is the word as the head line writes it, with its stress.
+`through.kind` is what it is to the entry: `alternative` (another spelling),
+`adverb`, `adjective`, `abstract-noun`, `perfective`, `imperfective`,
+`feminine`, `diminutive`, `augmentative`, `comparative`, `superlative`, or
+`form` for anything else. The meanings are the entry's, not the word's, so the
+page says how it was reached ("is listed as its adverb"). A word can be more
+than the head line says: походити is also "to come from", a verb of its own.
+
+An inflected form of such a word (`мінеральних`) is found through VESUM, as in
+"VESUM-only results": the result is the entry that names its dictionary word
+(мінера́л, for мінера́льний), with `match: "form"`, an empty `matched_forms` and
+the same `through`. A spelling two entries name gives both.
 
 ### Suggestions ("did you mean")
 
@@ -382,9 +412,9 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
 | `kind` | As in `/api/search`: what a VESUM-only word is, when VESUM says. |
-| `through` | As in `/api/search`: the reflexive verb in the sentence, when the reading is the verb it is made from. |
+| `through` | As in `/api/search`: the word in the sentence, when the reading is the verb a reflexive verb is made from, or the entry whose head line names the word. |
 
-Only entries that are the word or one of its forms are given: a word that
+Only entries that are the word, one of its forms or a word on their head line are given: a word that
 starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor
 is a letter, a symbol or a part of a word (`у` is the preposition, not the
 letter У).
@@ -478,7 +508,8 @@ The answers carry dictionary data, and each source keeps its own licence
 |---|---|
 | Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0; entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
-| Results with `vesum_only: true`, their `kind`, and `through` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| Results with `vesum_only: true`, their `kind`, and `through` on a result with `match: "form"` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
 
 A result with `match: "form"` and an empty `matched_forms` was found with

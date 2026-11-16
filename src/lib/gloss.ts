@@ -36,7 +36,10 @@ export interface Gloss {
 	vesum_only?: true;
 	/** What a VESUM-only word is, when VESUM says: a surname, an abbreviation. */
 	kind?: VesumKind;
-	/** The reflexive verb in the sentence, when the card is for the verb it is made from. */
+	/**
+	 * The word in the sentence, when the card is for another word: the verb a
+	 * reflexive verb is made from, or the entry whose head line names it.
+	 */
 	through?: Through;
 }
 
@@ -51,9 +54,11 @@ export interface GlossAnswer {
 // not the letter У, and -ка is not a suffix in "склянка".
 const NOT_A_WORD = new Set(['character', 'symbol', 'punct', 'suffix', 'prefix', 'interfix', 'combining_form']);
 
-// A word or one of its forms, never a word that only starts with it (ласкаво
-// for ласка) or mentions it in a meaning.
-const exact = (r: SearchResult) => (r.match === 'word' || r.match === 'form') && !NOT_A_WORD.has(r.pos);
+// A word or one of its forms, or a word its head line names (історично for
+// істори́чний), never a word that only starts with it (ласкаво for ласка) or
+// mentions it in a meaning.
+const exact = (r: SearchResult) =>
+	(r.match === 'word' || r.match === 'form' || r.match === 'head') && !NOT_A_WORD.has(r.pos);
 
 // Wiktionary keeps some inflected forms as entries of their own, whose only
 // meaning names the form: вихідних is "genitive/locative plural of вихідни́й".

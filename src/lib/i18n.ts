@@ -388,6 +388,15 @@ const en = {
 		details: 'Details',
 		genitive: 'gen.',
 		noEntry: 'A Ukrainian word with no dictionary entry yet.',
+		// What a word without an entry is, where VESUM says so
+		kind: {
+			'given-name': 'A given name with no dictionary entry yet.',
+			patronymic: 'A patronymic with no dictionary entry yet.',
+			surname: 'A surname with no dictionary entry yet.',
+			abbreviation: 'An abbreviation with no dictionary entry yet.'
+		},
+		// After the reflexive verb that was searched for: "утворюватися is its reflexive (-ся) form."
+		reflexive: 'is its reflexive (-ся) form.',
 		/** Before the form of the word that the search found: руки́ genitive singular */
 		formFound: 'Form found:',
 		moreForms: (n: number) => `+${n} more`,
@@ -1616,6 +1625,13 @@ const uk: Messages = {
 		details: 'Докладніше',
 		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.',
+		kind: {
+			'given-name': 'Ім’я, якого ще немає в словнику.',
+			patronymic: 'По батькові, якого ще немає в словнику.',
+			surname: 'Прізвище, якого ще немає в словнику.',
+			abbreviation: 'Скорочення, якого ще немає в словнику.'
+		},
+		reflexive: '— зворотна форма (-ся) цього дієслова.',
 		formFound: 'Знайдена форма:',
 		moreForms: (n: number) => `ще ${n}`,
 		moreMeanings: (n: number) => `ще ${n}`,

@@ -54,6 +54,9 @@
 	// only VESUM knew that: it tells the word, not which of its forms.
 	let matched = $derived('matched_forms' in entry && entry.matched_forms ? groupMatched(entry.matched_forms) : null);
 
+	// The reflexive verb that was searched for, when this is the verb it is made from.
+	let through = $derived('through' in entry ? entry.through : undefined);
+
 	function speak() {
 		const utterance = new SpeechSynthesisUtterance(entry.word);
 		utterance.lang = 'uk-UA';
@@ -82,7 +85,7 @@
 
 	<div class="glosses">
 		{#if vesumOnly}
-			<i>{m.card.noEntry}</i>
+			<i>{'kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry}</i>
 		{:else}
 			<!-- The numerals are drawn, not text: copied, the meanings read one
 			     to a line -->
@@ -117,6 +120,8 @@
 					<span class="form"><b lang="uk"><Stressed text={group.form} /></b> {group.labels.join('; ')}</span>
 				{/each}
 				{#if matched.more}<span class="form">{m.card.moreForms(matched.more)}</span>{/if}
+			{:else if through}
+				<span class="form"><b lang="uk">{through.word}</b> {m.card.reflexive}</span>
 			{:else}
 				{m.card.someForm}
 			{/if}

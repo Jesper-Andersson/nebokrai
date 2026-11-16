@@ -66,6 +66,8 @@ Response `200`:
 | `match` | Why this result matched, see the next table. |
 | `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
 | `vesum_only` | Present and `true` only on VESUM-only results. |
+| `kind` | On a VESUM-only result, what the word is, when VESUM says: `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
+| `through` | Present when the query is a reflexive verb with no entry and the result is the verb it is made from, see "Reflexive verbs". |
 
 Results arrive already sorted; show them in the order given.
 
@@ -115,20 +117,52 @@ entry for that word, the result looks like this:
 ```json
 {
   "id": null,
-  "word": "соловейко",
-  "headword": "соловейко",
+  "word": "осташко",
+  "headword": "осташко",
   "pos": "noun",
   "tags": [],
   "head_forms": [],
   "glosses": [],
   "freq_rank": null,
   "match": "form",
-  "vesum_only": true
+  "vesum_only": true,
+  "kind": "surname"
 }
 ```
 
 There is no stress mark, no meaning and no Details page for it. The page can
 say that the word exists and that it has no entry yet.
+
+`kind` is there for the 30,000 or so words VESUM marks as a given name, a
+patronymic, a surname or an abbreviation, so that the page can say "a surname
+with no dictionary entry yet". The word is in lower case, as VESUM's are here.
+Where a word is more than one of these, the likeliest is given, in the order
+above: Максимович is a patronymic before it is a surname. A plain word
+(`книжечка`) has no `kind`, and neither has any word when `vesum.db` was built
+before kinds were stored.
+
+### Reflexive verbs
+
+Wiktionary has `утворювати` and not `утворюватися`. When VESUM says the query
+is a form of a reflexive verb (one ending in `-ся` or `-сь`) that has no entry,
+and the verb without that ending has one, that entry is the result:
+
+```json
+{
+  "id": 16002,
+  "word": "утворювати",
+  "match": "form",
+  "matched_forms": [],
+  "through": { "word": "утворюватися", "kind": "reflexive" }
+}
+```
+
+(the other fields are left out here). `through.word` is the reflexive verb in
+its dictionary form, whichever of its forms was searched for. The meanings are
+those of the verb without `-ся`, which the reflexive verb often does not share
+(`вчити` "to teach", `вчитися` "to study"), so the page says how the result was
+reached and promises nothing more. A reflexive verb with an entry of its own
+(`вчитися`) is found as itself, with no `through`.
 
 ### Suggestions ("did you mean")
 
@@ -346,6 +380,8 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `meaning` | The first meaning, or `null` for a word only VESUM knows. |
 | `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
+| `kind` | As in `/api/search`: what a VESUM-only word is, when VESUM says. |
+| `through` | As in `/api/search`: the reflexive verb in the sentence, when the reading is the verb it is made from. |
 
 Only entries that are the word or one of its forms are given: a word that
 starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor
@@ -441,11 +477,11 @@ The answers carry dictionary data, and each source keeps its own licence
 |---|---|
 | Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
-| Results with `vesum_only: true` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| Results with `vesum_only: true`, their `kind`, and `through` | VESUM, CC BY-NC-SA 4.0: no commercial use |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
 
 A result with `match: "form"` and an empty `matched_forms` was found with
-VESUM's help, but everything in it is the Wiktionary entry.
+VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
 
 ## Errors
 

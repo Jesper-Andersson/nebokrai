@@ -236,14 +236,25 @@ python3 data/export_wordlist.py nebokrai.db static/words.json
 
     pip install pymorphy3 pymorphy3-dicts-uk
     python3 data/import_vesum.py vesum.db                           # about 80 seconds, 211 MB
-    python3 data/search.py nebokrai.db --vesum vesum.db соловейком
+    python3 data/search.py nebokrai.db --vesum vesum.db книжечку
 
 VESUM lists 393,095 Ukrainian words with 3.7 million forms, but no meanings.
 Search uses it only as a fallback: when a Cyrillic query matches nothing in
 Wiktionary, VESUM tells us which dictionary word the form belongs to. If
 Wiktionary has that word, its entry is shown (`нездійсненними` finds
 `нездійсненний`). If not, search returns a bare result marked `vesum_only`
-(`соловейком` finds `соловейко`, with no definition).
+(`книжечку` finds `книжечка`, with no definition).
+
+Two things soften that bare result:
+
+- `vesum_kinds` holds what VESUM says a word is: given name (5,095 words),
+  patronymic (1,026), surname (22,632) or abbreviation (1,988). A bare result
+  for such a word carries it as `kind`, and the page says "a surname with no
+  dictionary entry yet" (`осташка` finds `осташко`).
+- A reflexive verb with no entry leads to the verb it is made from, when that
+  one has an entry: `утворюються` finds `утворювати`, marked as reached
+  `through` `утворюватися`. This happens while searching; no reflexive verb is
+  written into `nebokrai.db`, which would be copying from VESUM.
 
 **VESUM must stay in its own file.** Its licence is CC BY-NC-SA 4.0
 (non-commercial), Wiktionary's is CC BY-SA 4.0, and the two cannot be merged
@@ -319,8 +330,8 @@ module are generated and committed: change the script, not them.
 
 - 1,030 nouns, verbs and adjectives have no inflection table.
 - 17,622 entries have audio.
-- Words missing from Wiktionary (for example `соловейко`) are found through
-  VESUM but have no definition.
+- Words missing from Wiktionary (for example `книжечка`, `походити`) are found
+  through VESUM but have no definition.
 
 ## Licence
 

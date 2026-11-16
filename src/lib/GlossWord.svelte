@@ -113,10 +113,13 @@
 							>: {group.labels.join('; ')}{/each}
 					</p>
 				{/if}
+				{#if main.through}
+					<p><span lang="uk">{main.through.word}</span> {m.card.reflexive}</p>
+				{/if}
 				{#if main.meaning}
 					<p class="ui-gloss-meaning">{main.meaning}</p>
 				{:else}
-					<p class="ui-gloss-muted">{m.card.noEntry}</p>
+					<p class="ui-gloss-muted">{main.kind ? m.card.kind[main.kind] : m.card.noEntry}</p>
 				{/if}
 				{#if others.length}
 					<p class="ui-gloss-also">

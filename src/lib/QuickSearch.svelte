@@ -91,7 +91,7 @@
 	<Command.Item class="ui-quick-item" value={key(entry)} disabled={noPage} onSelect={() => go(entry)}>
 		<Headword text={entry.headword} size="sm" />
 		<Grammar pos={entry.pos} inline />
-		<span class="ui-quick-gloss">{noPage ? m.card.noEntry : entry.glosses.slice(0, 2).join('; ')}</span>
+		<span class="ui-quick-gloss">{noPage ? ('kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry) : entry.glosses.slice(0, 2).join('; ')}</span>
 	</Command.Item>
 {/snippet}
 

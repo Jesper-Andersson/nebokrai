@@ -9,6 +9,7 @@ import { test } from 'node:test';
 import {
 	deletes, editsApart, fromRussianLetters, fromWrongLayout, looseLatin, nationalTranslit, plain, soundKey
 } from '../src/lib/search/normalize.ts';
+import { search } from '../src/lib/search/search.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
 import { wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
@@ -64,7 +65,55 @@ test('search matches the Python reference', { skip }, async () => {
 			.filter((r) => r.matched_forms?.length)
 			.map((r) => [r.id, r.matched_forms!.map((f) => [f.form, f.tags])]);
 		assert.deepEqual(forms, c.forms ?? [], `matched forms for ${label}`);
+		// What a VESUM-only word is (a surname), and the reflexive verb that led to an entry
+		const notes = [
+			...got.results.filter((r) => r.kind).map((r) => [r.word, r.kind]),
+			...got.results.filter((r) => r.through).map((r) => [r.word, r.through!.word])
+		];
+		assert.deepEqual(notes, c.notes ?? [], `kinds and reflexives for ${label}`);
 	}
+});
+
+test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const vesum = openLocal('vesum.db');
+	// No entry, but VESUM says what it is
+	const [surname] = await search(db, 'осташка', { vesum });
+	assert.deepEqual([surname.word, surname.vesum_only, surname.kind], ['осташко', true, 'surname']);
+	// Іванович-like words are a surname too; the patronymic is the likelier
+	const [patronymic] = await search(db, 'максимовичу', { vesum });
+	assert.equal(patronymic.kind, 'patronymic');
+	// A plain word that only VESUM knows has no kind
+	const [verb] = await search(db, 'походити', { vesum });
+	assert.equal(verb.vesum_only, true);
+	assert.equal('kind' in verb, false);
+
+	// утворюватися has no entry: the verb it is made from answers, and says how it was reached
+	const [form] = await search(db, 'утворюються', { vesum });
+	assert.equal(form.word, 'утворювати');
+	assert.equal(form.match, 'form');
+	assert.deepEqual(form.matched_forms, []);
+	assert.deepEqual(form.through, { word: 'утворюватися', kind: 'reflexive' });
+	// A reflexive verb with an entry of its own is that entry, reached through nothing
+	const [learn] = await search(db, 'вчитися', { vesum });
+	assert.equal(learn.word, 'вчитися');
+	assert.equal('through' in learn, false);
+
+	// A vesum.db built before kinds were stored: the word is found, with no kind
+	const old = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('vesum_kinds')
+				? Promise.reject(new Error('D1_ERROR: no such table: vesum_kinds: SQLITE_ERROR'))
+				: vesum.all<T>(sql, params)
+	};
+	const [plainStub] = await search(db, 'осташка', { vesum: old });
+	assert.deepEqual([plainStub.word, plainStub.vesum_only, 'kind' in plainStub], ['осташко', true, false]);
+	// Any other failure is not swallowed
+	const broken = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('vesum_kinds') ? Promise.reject(new Error('database is locked')) : vesum.all<T>(sql, params)
+	};
+	await assert.rejects(search(db, 'осташка', { vesum: broken }), /locked/);
 });
 
 test('word details', { skip }, async () => {

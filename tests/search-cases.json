@@ -6034,6 +6034,195 @@
   "suggest": []
  },
  {
+  "query": "осташка",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "осташка",
+  "vesum": true,
+  "expect": [
+   [
+    null,
+    "осташко",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "осташко",
+    "surname"
+   ]
+  ]
+ },
+ {
+  "query": "фрідріха",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "фрідріха",
+  "vesum": true,
+  "expect": [
+   [
+    null,
+    "фрідріх",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "фрідріх",
+    "given-name"
+   ]
+  ]
+ },
+ {
+  "query": "максимовичу",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "максимовичу",
+  "vesum": true,
+  "expect": [
+   [
+    null,
+    "максимович",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "максимович",
+    "patronymic"
+   ]
+  ]
+ },
+ {
+  "query": "сокирко",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "сокирко",
+  "vesum": true,
+  "expect": [
+   [
+    null,
+    "сокирка",
+    "noun",
+    "form"
+   ],
+   [
+    null,
+    "сокирко",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "сокирко",
+    "surname"
+   ]
+  ]
+ },
+ {
+  "query": "утворюватися",
+  "vesum": false,
+  "expect": [],
+  "suggest": []
+ },
+ {
+  "query": "утворюватися",
+  "vesum": true,
+  "expect": [
+   [
+    16002,
+    "утворювати",
+    "verb",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "утворювати",
+    "утворюватися"
+   ]
+  ]
+ },
+ {
+  "query": "міститься",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    26098,
+    "месниця",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "міститься",
+  "vesum": true,
+  "expect": [
+   [
+    11290,
+    "містити",
+    "verb",
+    "form"
+   ]
+  ],
+  "suggest": [],
+  "notes": [
+   [
+    "містити",
+    "міститися"
+   ]
+  ]
+ },
+ {
+  "query": "вчитися",
+  "vesum": false,
+  "expect": [
+   [
+    20086,
+    "вчитися",
+    "verb",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "вчитися",
+  "vesum": true,
+  "expect": [
+   [
+    20086,
+    "вчитися",
+    "verb",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
   "query": "соловейком",
   "vesum": false,
   "expect": [

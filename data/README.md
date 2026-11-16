@@ -120,8 +120,17 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (10,365 entries), preferring sentences
+Up to three Tatoeba sentences per entry (10,863 entries), preferring sentences
 of about five words. `tatoeba_id` links back to the sentence for attribution.
+
+`tatoeba-corrections.tsv` corrects sentences that read badly, as a teacher
+pointed out: Він пише на правильній англійській becomes Він пише правильною
+англійською. Each line is a Tatoeba id, the corrected Ukrainian (or `-` to leave
+the sentence out), a new English translation or nothing, and who suggested it.
+The corrections apply to `examples` and `cloze` alike at every build, and a
+corrected sentence has `adapted = 1`, so its credit says "adapted" as CC BY
+2.0 FR asks. `add_examples.py` and `add_cloze.py` apply them to a built
+database without new entry ids.
 
 Many spellings belong to more than one entry: `осі` is a form of `вісь`
 ("axis") and of `оса` ("wasp"), `мати` is the noun "mother" and the verb "to

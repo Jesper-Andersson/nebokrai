@@ -44,7 +44,7 @@
 				<Translation text={entry.example.en} />
 				<!-- Tatoeba's licence asks for the sentence's source to be named -->
 				<a class="credit" href="https://tatoeba.org/sentences/show/{entry.example.tatoeba_id}">
-					Tatoeba #{entry.example.tatoeba_id}
+					Tatoeba #{entry.example.tatoeba_id}{#if entry.example.adapted}, {m.word.adapted}{/if}
 				</a>
 			</p>
 		</div>

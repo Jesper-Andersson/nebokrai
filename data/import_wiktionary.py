@@ -82,7 +82,8 @@ CREATE TABLE examples (
     entry_id    INTEGER NOT NULL REFERENCES entries(id),
     uk          TEXT NOT NULL,
     en          TEXT NOT NULL,
-    tatoeba_id  INTEGER NOT NULL      -- https://tatoeba.org/sentences/show/<id>, for attribution
+    tatoeba_id  INTEGER NOT NULL,     -- https://tatoeba.org/sentences/show/<id>, for attribution
+    adapted     INTEGER NOT NULL DEFAULT 0  -- 1 when data/tatoeba-corrections.tsv changed the sentence
 );
 CREATE TABLE search_keys (
     key       TEXT NOT NULL,
@@ -105,7 +106,8 @@ CREATE TABLE cloze (
     length      INTEGER NOT NULL,
     form        TEXT NOT NULL,      -- the noun as it stands there, with stress: цу́кру
     number      TEXT NOT NULL,      -- singular | plural
-    tatoeba_id  INTEGER NOT NULL    -- https://tatoeba.org/sentences/show/<id>, for attribution
+    tatoeba_id  INTEGER NOT NULL,   -- https://tatoeba.org/sentences/show/<id>, for attribution
+    adapted     INTEGER NOT NULL DEFAULT 0  -- 1 when data/tatoeba-corrections.tsv changed the sentence
 );
 CREATE UNIQUE INDEX cloze_point ON cloze(point, n);
 """
@@ -674,13 +676,13 @@ def add_tatoeba(db, index, pairs, per_entry=3):
     only to the entries `sentence_readings` finds it to be about."""
     readings = sentence_readings(db, index)
     candidates = collections.defaultdict(list)
-    for sid, text, english in short_first(pairs):
+    for sid, text, english, adapted in short_first(pairs):
         found = {e for m in TOKEN.finditer(text)
                  for e in readings(m.group(), english, starts_sentence(text, m.start()))}
         for eid in found:
             if len(candidates[eid]) < per_entry:
-                candidates[eid].append((eid, text, english, sid))
-    db.executemany("INSERT INTO examples(entry_id, uk, en, tatoeba_id) VALUES (?,?,?,?)",
+                candidates[eid].append((eid, text, english, sid, adapted))
+    db.executemany("INSERT INTO examples(entry_id, uk, en, tatoeba_id, adapted) VALUES (?,?,?,?,?)",
                    [row for rows_ in candidates.values() for row in rows_])
     return dict(tatoeba_pairs=len(pairs),
                 entries_with_tatoeba=len(candidates),
@@ -737,8 +739,33 @@ CASES = {"nominative", "genitive", "dative", "accusative", "instrumental", "loca
 CLOZE_MIN = 20
 
 
-def tatoeba_pairs(folder):
-    """Tatoeba's Ukrainian sentences that have an English translation: id -> (Ukrainian, English)."""
+CORRECTIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tatoeba-corrections.tsv")
+
+
+def tatoeba_corrections(path=CORRECTIONS):
+    """The hand-written corrections: id -> (Ukrainian or None to leave it out, English or None to keep it).
+
+    A teacher's fix goes here rather than into the database, which every
+    build makes again: Він пише на правильній англійській becomes Він пише
+    правильною англійською.
+    """
+    corrections = {}
+    with open(path, encoding="utf-8") as f:
+        for n, line in enumerate(f, 1):
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            cols = line.split("\t")
+            if len(cols) != 4 or not cols[0].isdigit() or not cols[1]:
+                raise ValueError(f"{path}:{n}: want id, uk (or -), en (or empty) and source, tab-separated")
+            sid, uk, en, _source = cols
+            corrections[int(sid)] = (None if uk == "-" else uk, en or None)
+    return corrections
+
+
+def tatoeba_pairs(folder, corrections=None):
+    """Tatoeba's Ukrainian sentences that have an English translation, with the
+    corrections applied: id -> (Ukrainian, English, adapted)."""
     def rows(name):
         with bz2.open(os.path.join(folder, name), "rt", encoding="utf-8") as f:
             for line in f:
@@ -751,16 +778,28 @@ def tatoeba_pairs(folder):
     wanted = set(link.values())
     en = {int(r[0]): r[2] for r in rows("eng_sentences.tsv.bz2")
           if len(r) == 3 and int(r[0]) in wanted}
-    return {sid: (text, en[link[sid]]) for sid, text in uk.items() if link.get(sid) in en}
+    pairs = {sid: (text, en[link[sid]], False) for sid, text in uk.items() if link.get(sid) in en}
+    if corrections is None:
+        corrections = tatoeba_corrections()
+    for sid, (new_uk, new_en) in corrections.items():
+        if sid not in pairs:
+            continue  # gone from Tatoeba, or never had an English translation
+        if new_uk is None:
+            del pairs[sid]
+        else:
+            text, english, _ = pairs[sid]
+            pairs[sid] = (new_uk, new_en or english, new_uk != text or bool(new_en and new_en != english))
+    return pairs
 
 
 def short_first(pairs):
-    """Sentences of 3 to 12 words, those of about five first, as add_tatoeba takes them: (id, Ukrainian, English)."""
-    length = {sid: len(TOKEN.findall(text)) for sid, (text, _) in pairs.items()}
+    """Sentences of 3 to 12 words, those of about five first, as add_tatoeba takes them:
+    (id, Ukrainian, English, adapted)."""
+    length = {sid: len(TOKEN.findall(text)) for sid, (text, _, _) in pairs.items()}
     for sid in sorted(pairs, key=lambda i: (abs(length[i] - 5), i)):
-        text, english = pairs[sid]
+        text, english, adapted = pairs[sid]
         if english and 3 <= length[sid] <= 12:
-            yield sid, text, english
+            yield sid, text, english, adapted
 
 
 def add_cloze(db, index, pairs, per_noun=5):
@@ -795,7 +834,7 @@ def add_cloze(db, index, pairs, per_noun=5):
 
     kept = collections.defaultdict(list)       # point -> rows
     per = collections.Counter()                # (point, entry) -> sentences kept
-    for sid, text, english in short_first(pairs):
+    for sid, text, english, adapted in short_first(pairs):
         if any(ord(ch) > 0xFFFF for ch in text):
             continue  # `start` must mean the same to Python and to JavaScript
         found = list(TOKEN.finditer(text))
@@ -823,12 +862,12 @@ def add_cloze(db, index, pairs, per_noun=5):
             if per[point, eid] >= per_noun:
                 continue
             per[point, eid] += 1
-            kept[point].append((eid, text, english, word.start(), len(word.group()), form, number, sid))
+            kept[point].append((eid, text, english, word.start(), len(word.group()), form, number, sid, adapted))
 
     points = {point: len(rows) for point, rows in sorted(kept.items()) if len(rows) >= CLOZE_MIN}
     db.executemany(
-        "INSERT INTO cloze(point, n, entry_id, uk, en, start, length, form, number, tatoeba_id)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?)",
+        "INSERT INTO cloze(point, n, entry_id, uk, en, start, length, form, number, tatoeba_id, adapted)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
         [(point, n, *row) for point in points for n, row in enumerate(kept[point])])
     return dict(cloze_sentences=sum(points.values()), cloze_points=points,
                 cloze_points_too_small=sorted(set(kept) - set(points)))

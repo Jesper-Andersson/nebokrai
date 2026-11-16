@@ -4,7 +4,7 @@
 import type { Db } from './search/db.ts';
 import { plain } from './search/normalize.ts';
 import type { HeadForm } from './search/search.ts';
-import { wordDetails, type Sense } from './search/word.ts';
+import { wordDetails, type Sense, type TatoebaSentence } from './search/word.ts';
 import { tokens } from './sentence.ts';
 
 /** What the home page shows of the entry: enough for a card, not the form tables. */
@@ -19,7 +19,7 @@ export interface WordOfDay {
 	freq_rank: number | null;
 	/** The first meanings, at most three. */
 	senses: Pick<Sense, 'gloss' | 'tags'>[];
-	example: { uk: string; en: string; tatoeba_id: number };
+	example: TatoebaSentence;
 	/**
 	 * The words of the example that are forms of the day's word, as `plain()`
 	 * writes them: they stand out and open no card, which would give away the

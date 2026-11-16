@@ -1,0 +1,14 @@
+# Corrections to Tatoeba sentences, applied whenever the examples and the cloze
+# sentences are built (import_wiktionary.py, add_examples.py, add_cloze.py).
+#
+# One line per sentence, four columns separated by tabs:
+#   id       the Tatoeba id of the Ukrainian sentence
+#   uk       the sentence as it should read, or - to leave the sentence out
+#   en       a new English translation, or empty to keep Tatoeba's
+#   source   who pointed it out, and when
+#
+# A corrected sentence keeps its id, so the site still links to the original,
+# and is credited as "adapted": CC BY 2.0 FR asks that changes be indicated.
+# Lines starting with # are comments.
+512282	Він пише правильною англійською.		Anna Ohoiko (Ukrainian Lessons), 2026-11-16
+467965	Вони співали один за одним.		Anna Ohoiko (Ukrainian Lessons), 2026-11-16

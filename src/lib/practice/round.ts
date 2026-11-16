@@ -50,6 +50,8 @@ export interface Gap {
 	/** Every form of the noun, as `plain()` writes them. */
 	forms: string[];
 	tatoeba_id: number;
+	/** The sentence was corrected here (data/tatoeba-corrections.tsv); its credit says so. */
+	adapted?: boolean;
 	/**
 	 * How the sentence is asked: with no kind, a noun to fill in; `where`, the
 	 * sentence whole and the question де? or куди?, which the point answers

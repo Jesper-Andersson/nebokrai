@@ -280,7 +280,7 @@ Response `200`:
         { "form": "небокра́ю", "tags": ["genitive", "singular"] }
       ],
       "examples": [
-        { "uk": "…", "en": "…", "tatoeba_id": 0 }
+        { "uk": "…", "en": "…", "tatoeba_id": 0, "adapted": false }
       ],
       "relations": [
         { "kind": "synonym", "sense_n": 1, "word": "горизо́нт", "tags": [], "has_entry": true },
@@ -309,7 +309,7 @@ common first.
 | `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … Such a meaning also carries `form-of` or `alt-of`. |
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
 | `forms` | One item per cell of the declension or conjugation table. Empty when the word does not inflect or has no table. |
-| `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. |
+| `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. `adapted` is `true` when Nebokrai corrected the sentence (`data/tatoeba-corrections.tsv`); say so beside the credit. |
 | `head_forms[].has_entry` | `true` when the form is spelled like another dictionary word. Here only, not in search results. See "Words that lead to other words". |
 | `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 35% of entries. |
 
@@ -762,7 +762,7 @@ Response `200`:
       "tags": ["feminine", "inanimate"],
       "ipa": "[kɐˈɫɪnɐ]",
       "audio_url": "https://upload.wikimedia.org/wikipedia/commons/…/Uk-калина.ogg",
-      "example": { "uk": "…", "en": "…", "tatoeba_id": 123456 }
+      "example": { "uk": "…", "en": "…", "tatoeba_id": 123456, "adapted": false }
     }
   ]
 }
@@ -773,8 +773,8 @@ The same words, in the same order and chosen by the same rules as
 (`null` if it has none). `audio_url` is a recording on Wikimedia Commons, or
 `null`; the review page plays it and no export uses it. `example` is the
 entry's first Tatoeba sentence, or `null`; credit it with a link to
-`https://tatoeba.org/sentences/show/<tatoeba_id>`. Nothing in the answer comes
-from VESUM.
+`https://tatoeba.org/sentences/show/<tatoeba_id>`, and say "adapted" beside it
+when `adapted` is `true`. Nothing in the answer comes from VESUM.
 
 With `"recall": true` in the body, as the review page sends it, each card also
 has a `recall` field: what typing the word needs (`src/lib/review/recall.ts`).
@@ -914,7 +914,8 @@ Response `200`:
       "word": "допомога", "headword": "допомо́га",
       "choices": ["допомо́зі", "допомо́гу", "допомо́ги", "допомо́га"],
       "forms": ["допомога", "допомоги", "допомог", "допомозі", "допомогам", "допомогу", "допомогою", "допомогами", "допомогах", "допомого"],
-      "tatoeba_id": 5866649
+      "tatoeba_id": 5866649,
+      "adapted": false
     }
   ]
 }
@@ -935,6 +936,9 @@ Response `200`:
 - `forms` is every spelling of the noun, without stress and in lower case: a
   typed answer found there and not right is the right word in the wrong form.
 - `number` is `singular` or `plural`.
+- `adapted` is `true` when Nebokrai corrected the Tatoeba sentence
+  (`data/tatoeba-corrections.tsv`); the credit then says "adapted". A sentence
+  made here (`tatoeba_id` `0`) leaves it out.
 
 A number's sentence has the same shape, with these differences:
 

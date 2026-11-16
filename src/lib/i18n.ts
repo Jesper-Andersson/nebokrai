@@ -441,6 +441,8 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
+		/** After "Tatoeba #512282" when Nebokrai corrected the sentence (data/tatoeba-corrections.tsv) */
+		adapted: 'adapted',
 		/** The card over a word of an example sentence (GlossWord.svelte) */
 		gloss: {
 			open: 'Open word',
@@ -1656,6 +1658,7 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
+		adapted: 'змінено',
 		gloss: {
 			open: 'Відкрити слово',
 			also: 'Також',

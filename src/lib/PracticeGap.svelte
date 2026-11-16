@@ -436,7 +436,7 @@
 	<!-- The sentence's licence asks for its author's credit: the link leads to it -->
 	<!-- A number's sentence is made here, not taken from Tatoeba: there is no one to credit -->
 	{#if gap.tatoeba_id}
-		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}{#if gap.adapted}, {m.word.adapted}{/if}</a>
 	{/if}
 </p>
 

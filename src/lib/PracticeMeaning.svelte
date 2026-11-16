@@ -264,7 +264,7 @@
 	<span class="keys" class:spent={result}>{m.practice.where.keys}</span>
 	<!-- A who sentence is made here, not taken from Tatoeba: there is no one to credit -->
 	{#if gap.tatoeba_id}
-		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}</a>
+		<a class="credit" href="https://tatoeba.org/sentences/show/{gap.tatoeba_id}">Tatoeba #{gap.tatoeba_id}{#if gap.adapted}, {m.word.adapted}{/if}</a>
 	{/if}
 </p>
 

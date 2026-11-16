@@ -2,39 +2,50 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="color-scheme" content="light dark" />
-		<meta name="manifest.open_in_tab" content="false" />
+		<meta name="manifest.open_in_tab" content="true" />
 		<title>Nebokrai</title>
 		<style>
+			/* The site's colours (src/app.css there), light and its warm dark, by the device's setting */
+			:root {
+				--bg: #f7f6f2;
+				--surface: #ffffff;
+				--surface-2: #f0eee7;
+				--raised: #ffffff;
+				--border: #e3e0d6;
+				--border-strong: #cdc9bc;
+				--ink: #16181d;
+				--ink-2: #3c4049;
+				--muted: #646a76;
+				--accent: #1f5fbf;
+				--accent-ink: #ffffff;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #131211;
+					--surface: #1b1a18;
+					--surface-2: #252320;
+					--raised: #35332e;
+					--border: #302e2a;
+					--border-strong: #48453f;
+					--ink: #f0ede7;
+					--ink-2: #d4d0c8;
+					--muted: #a39f96;
+					--accent: #8db4f0;
+					--accent-ink: #131211;
+				}
+			}
 			body {
 				margin: 0;
-				padding: 16px;
-				font: 14px/1.45 system-ui, sans-serif;
-			}
-			label {
-				display: block;
-				margin-bottom: 14px;
-			}
-			select {
-				margin-left: 8px;
-				font: inherit;
-			}
-			p {
-				max-width: 34em;
-				margin: 18px 0 0;
-			}
-			input {
-				margin: 0 8px 0 0;
+				background: var(--bg);
+				color: var(--ink);
+				font: 15px/1.5 system-ui, sans-serif;
 			}
 		</style>
 	</head>
 	<body>
-		<label><span data-text="hoverKey"></span><select id="hoverKey"></select></label>
-		<label><input type="checkbox" id="doubleClick" /><span data-text="doubleClick"></span></label>
-		<label><span data-text="theme"></span><select id="theme"></select></label>
-		<label><span data-text="font"></span><select id="font"></select></label>
-		<label><span data-text="size"></span><select id="size"></select></label>
-		<p><span data-text="sent"></span> <a id="privacy" target="_blank" rel="noopener"></a></p>
+		<div id="app"></div>
 		<script type="module" src="./main.ts"></script>
 	</body>
 </html>

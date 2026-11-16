@@ -22,6 +22,10 @@
 	import { messagesFor } from '../../lib/messages.ts';
 	import { card, look } from './state.svelte.ts';
 
+	// `inline`: drawn where it stands in a page, not over a word of one. The
+	// settings page shows the card that way, wearing what the reader picks.
+	let { inline = false }: { inline?: boolean } = $props();
+
 	const language = browser.i18n.getUILanguage();
 	const m = messagesFor(language);
 
@@ -126,13 +130,14 @@
 {#if card.open}
 	<div
 		class="card"
+		class:inline
 		data-theme={look.theme}
 		data-font={look.font}
 		data-size={look.size}
-		role="dialog"
+		role={inline ? 'group' : 'dialog'}
 		aria-label="Nebokrai"
-		style:left="{x}px"
-		style:top="{y}px"
+		style:left={inline ? undefined : `${x}px`}
+		style:top={inline ? undefined : `${y}px`}
 		bind:offsetWidth={width}
 		bind:offsetHeight={height}
 	>
@@ -365,6 +370,11 @@
 
 	.card[data-size='larger'] {
 		--k: 1.3;
+	}
+
+	.card.inline {
+		position: static;
+		max-width: 100%;
 	}
 
 	.card[data-font='sans'] {

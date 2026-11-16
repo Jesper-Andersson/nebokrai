@@ -127,10 +127,12 @@ of about five words. `tatoeba_id` links back to the sentence for attribution.
 pointed out: Він пише на правильній англійській becomes Він пише правильною
 англійською. Each line is a Tatoeba id, the corrected Ukrainian (or `-` to leave
 the sentence out), a new English translation or nothing, and who suggested it.
-The corrections apply to `examples` and `cloze` alike at every build, and a
-corrected sentence has `adapted = 1`, so its credit says "adapted" as CC BY
-2.0 FR asks. `add_examples.py` and `add_cloze.py` apply them to a built
-database without new entry ids.
+The corrections apply to `examples` and `cloze` alike at every build, and win
+over the ratings and the checked fixes below. A corrected sentence has
+`adapted = 1`, so its credit says "edited" as CC BY 2.0 FR asks, and
+`original` keeps Tatoeba's Ukrainian when the correction changed it, which the
+word page shows behind the mark. `add_examples.py` and `add_cloze.py` apply
+them to a built database without new entry ids.
 
 Many spellings belong to more than one entry: `осі` is a form of `вісь`
 ("axis") and of `оса` ("wasp"), `мати` is the noun "mother" and the verb "to
@@ -160,6 +162,61 @@ id:
     python3 data/add_examples.py nebokrai.db data/raw --show оса вісь мати
 
 It makes the table again and prints the sentences of the words named.
+
+### Rated sentences
+
+Tatoeba's quality varies: some sentences are translated from English word by
+word, a few use Russian forms (`на протязі`, `прийняв участь`), and a quarter of
+the short ones are about Tom or Mary. `data/sentence-ratings.tsv` rates each
+sentence for naturalness (1 to 5), everyday use and flags such as `calque` or
+`mistranslation`; `docs/sentence-rating.md` has the scale. The file holds
+Tatoeba ids and a hash of each text, never the text, so it survives a rebuild
+and a rating lapses when Tatoeba edits its sentence.
+
+The build reads it when it is there (`load_ratings`): examples are taken most
+natural first, then the commonest, then by length; a rated sentence below 3, or
+flagged offensive, mistranslated, a Russianism, a proverb or rejected by a native reviewer,
+is never shown; at most one of an entry's examples is about a stock character;
+and `cloze` keeps only rated sentences of 4 or more. Sentences not rated yet
+count as 3, so a build without the file gives the same examples as before,
+apart from the stock-character rule.
+
+`data/rate_sentences.py` makes the file. `check` runs the free checks
+(`data/russianisms.tsv`, letters Ukrainian does not use, unknown words) and
+spends nothing; `rate` sends 50 sentences at a time through the Claude Code
+CLI (`claude -p`), so a Claude subscription does the rating with no API key, and
+saves after each request so a run stopped by a usage limit resumes; `submit` and
+`collect` do the same through the Message Batches API instead and need
+`pip install anthropic` and an API key; `gold-sample` and `gold` compare the
+judge with a native speaker. Every run also writes `rating-review.tsv` beside
+the downloads, lowest scores first with the judge's rephrasing, for reading.
+
+    python3 data/rate_sentences.py check data/raw --db nebokrai.db
+    python3 data/rate_sentences.py rate data/raw --db nebokrai.db --model claude-opus-5-5 --pilot 500
+    python3 data/rate_sentences.py rate data/raw --db nebokrai.db --model claude-opus-5-5 --all
+
+The pilot (November 2026, Claude Opus 5.5): 500 sentences in 78 seconds,
+three requests at a time; 356 rated 5, 100 rated 4, 31 rated 3, 4 rated 2 and
+9 rated 1. The 1s were typos (`зажди`, `Можня`, `ім'єю`), the 2s Russianisms
+(`поступити до університету`, `у якості`). 139 were about a stock character.
+
+The sentences the site showed were then rated with Claude Haiku 5.5 through a
+prompt tuned against those Opus ratings (`rate --shown`), and replaced in rounds:
+rebuild the examples with the ratings, rate the new picks, repeat. Six rounds
+took hidden examples from 2,473 to none.
+
+### Corrected sentences
+
+Where a word's only sentences were hidden, its sentences may come back
+corrected. `data/sentence-fixes.tsv` holds each correction with the Tatoeba id
+and the hash of Tatoeba's text, so a fix lapses when Tatoeba edits the
+sentence; each was checked by Claude Opus 5.5 (natural, same meaning as the
+English, still holds the word). `short_first` offers a fixed sentence only
+after every sentence that needs none, so a fix fills a gap and never displaces
+a real one; `examples.original` then keeps Tatoeba's text, and the word page
+marks the sentence "edited" and shows the original. Grammar practice never uses
+a fixed sentence. November 2026: 621 fixes; 123 more proposed fixes turned out
+to be Tatoeba's text unchanged and went back as ordinary rated sentences.
 
 ## Sentences with a gap (`cloze`)
 

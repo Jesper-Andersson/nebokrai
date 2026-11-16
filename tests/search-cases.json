@@ -7040,13 +7040,7 @@
     "form"
    ]
   ],
-  "suggest": [],
-  "notes": [
-   [
-    "осташко",
-    "surname"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "фрідріха",
@@ -7065,13 +7059,7 @@
     "form"
    ]
   ],
-  "suggest": [],
-  "notes": [
-   [
-    "фрідріх",
-    "given-name"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "максимовичу",
@@ -7090,13 +7078,7 @@
     "form"
    ]
   ],
-  "suggest": [],
-  "notes": [
-   [
-    "максимович",
-    "patronymic"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "сокирко",
@@ -7121,13 +7103,7 @@
     "form"
    ]
   ],
-  "suggest": [],
-  "notes": [
-   [
-    "сокирко",
-    "surname"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "утворюватися",

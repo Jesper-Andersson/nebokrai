@@ -18,7 +18,7 @@ import json
 import sqlite3
 import sys
 
-from import_wiktionary import CLOZE_SCHEMA, add_cloze, form_index, tatoeba_pairs
+from import_wiktionary import CLOZE_SCHEMA, add_cloze, form_index, tatoeba_pairs, load_ratings
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     db = sqlite3.connect(args.database)
     db.executescript("DROP TABLE IF EXISTS cloze;" + CLOZE_SCHEMA)
-    stats = add_cloze(db, form_index(db), tatoeba_pairs(args.tatoeba))
+    stats = add_cloze(db, form_index(db), tatoeba_pairs(args.tatoeba), ratings=load_ratings())
     db.execute("INSERT OR REPLACE INTO meta VALUES ('cloze_points', ?)", (json.dumps(stats["cloze_points"]),))
     db.commit()
 

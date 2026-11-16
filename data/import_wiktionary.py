@@ -26,6 +26,7 @@ Only the Python standard library is used.
 """
 import bz2
 import collections
+import hashlib
 import json
 import os
 import re
@@ -83,7 +84,8 @@ CREATE TABLE examples (
     uk          TEXT NOT NULL,
     en          TEXT NOT NULL,
     tatoeba_id  INTEGER NOT NULL,     -- https://tatoeba.org/sentences/show/<id>, for attribution
-    adapted     INTEGER NOT NULL DEFAULT 0  -- 1 when data/tatoeba-corrections.tsv changed the sentence
+    adapted     INTEGER NOT NULL DEFAULT 0, -- 1 when a correction changed the sentence or its English
+    original    TEXT                  -- Tatoeba's Ukrainian when a correction changed it, else NULL
 );
 CREATE TABLE search_keys (
     key       TEXT NOT NULL,
@@ -674,22 +676,30 @@ def sentence_readings(db, index):
     return readings
 
 
-def add_tatoeba(db, index, pairs, per_entry=3):
+def add_tatoeba(db, index, pairs, per_entry=3, ratings=None, fixes=None):
     """Attach up to `per_entry` short translated sentences to each entry, each
-    only to the entries `sentence_readings` finds it to be about."""
+    only to the entries `sentence_readings` finds it to be about, the most
+    natural first (see short_first). At most one of an entry's sentences is
+    about Tom, Mary or another of Tatoeba's stock characters. A corrected
+    sentence keeps Tatoeba's text in `original`, so the page can mark it."""
     readings = sentence_readings(db, index)
     candidates = collections.defaultdict(list)
-    for sid, text, english, adapted in short_first(pairs):
+    named = collections.Counter()  # entry id -> sentences about a stock character
+    for sid, text, english, rating, adapted, original in short_first(pairs, ratings, fixes):
         found = {e for m in TOKEN.finditer(text)
                  for e in readings(m.group(), english, starts_sentence(text, m.start()))}
+        names = bool(STOCK_NAMES.search(text)) or bool(rating and "names" in rating[2])
         for eid in found:
-            if len(candidates[eid]) < per_entry:
-                candidates[eid].append((eid, text, english, sid, adapted))
-    db.executemany("INSERT INTO examples(entry_id, uk, en, tatoeba_id, adapted) VALUES (?,?,?,?,?)",
+            if len(candidates[eid]) < per_entry and not (names and named[eid]):
+                candidates[eid].append((eid, text, english, sid, int(adapted), original))
+                named[eid] += names
+    ensure_examples_original(db)
+    db.executemany("INSERT INTO examples(entry_id, uk, en, tatoeba_id, adapted, original) VALUES (?,?,?,?,?,?)",
                    [row for rows_ in candidates.values() for row in rows_])
     return dict(tatoeba_pairs=len(pairs),
                 entries_with_tatoeba=len(candidates),
-                tatoeba_examples=sum(len(v) for v in candidates.values()))
+                tatoeba_examples=sum(len(v) for v in candidates.values()),
+                corrected_examples=sum(1 for v in candidates.values() for row in v if row[4]))
 
 
 # --- Sentences with a gap, for grammar practice -----------------------------
@@ -768,7 +778,8 @@ def tatoeba_corrections(path=CORRECTIONS):
 
 def tatoeba_pairs(folder, corrections=None):
     """Tatoeba's Ukrainian sentences that have an English translation, with the
-    corrections applied: id -> (Ukrainian, English, adapted)."""
+    corrections applied: id -> (Ukrainian, English, adapted, original), where
+    `original` is Tatoeba's Ukrainian when the correction changed it, else None."""
     def rows(name):
         with bz2.open(os.path.join(folder, name), "rt", encoding="utf-8") as f:
             for line in f:
@@ -781,7 +792,7 @@ def tatoeba_pairs(folder, corrections=None):
     wanted = set(link.values())
     en = {int(r[0]): r[2] for r in rows("eng_sentences.tsv.bz2")
           if len(r) == 3 and int(r[0]) in wanted}
-    pairs = {sid: (text, en[link[sid]], False) for sid, text in uk.items() if link.get(sid) in en}
+    pairs = {sid: (text, en[link[sid]], False, None) for sid, text in uk.items() if link.get(sid) in en}
     if corrections is None:
         corrections = tatoeba_corrections()
     for sid, (new_uk, new_en) in corrections.items():
@@ -790,22 +801,139 @@ def tatoeba_pairs(folder, corrections=None):
         if new_uk is None:
             del pairs[sid]
         else:
-            text, english, _ = pairs[sid]
-            pairs[sid] = (new_uk, new_en or english, new_uk != text or bool(new_en and new_en != english))
+            text, english, _, _ = pairs[sid]
+            pairs[sid] = (new_uk, new_en or english, new_uk != text or bool(new_en and new_en != english),
+                          text if new_uk != text else None)
     return pairs
 
 
-def short_first(pairs):
-    """Sentences of 3 to 12 words, those of about five first, as add_tatoeba takes them:
-    (id, Ukrainian, English, adapted)."""
-    length = {sid: len(TOKEN.findall(text)) for sid, (text, _, _) in pairs.items()}
-    for sid in sorted(pairs, key=lambda i: (abs(length[i] - 5), i)):
-        text, english, adapted = pairs[sid]
-        if english and 3 <= length[sid] <= 12:
-            yield sid, text, english, adapted
+# --- Sentence ratings (docs/sentence-rating.md) ------------------------------
+# data/sentence-ratings.tsv says how natural each Tatoeba sentence sounds, 1 to
+# 5, as rated by data/rate_sentences.py. It holds ids and a hash of the text,
+# never the text, and survives a rebuild of the database.
+
+RATINGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentence-ratings.tsv")
+RATING_COLUMNS = ("tatoeba_id", "hash", "natural", "use", "flags", "owner_level", "translated",
+                  "reviews", "model", "rubric")
+UNRATED = 3            # what a sentence with no rating counts as, so a build before rating still works
+USE_ORDER = {"common": 0, "neutral": 1, "rare": 2}
+# Flags that hide a sentence whatever its score. A Russianism (на протязі, слідкувати) is hidden even when the
+# rest of the sentence is fine: a learner copies the whole sentence. rejected: a native speaker reviewed it -1.
+NEVER_SHOWN = {"offensive", "mistranslation", "proverb", "russianism", "rejected"}
+# Tatoeba's stock characters: a quarter of the short sentences are about Tom or Mary.
+STOCK_NAMES = re.compile(r"(?<![\w'’ʼ])(?:Том(?:а|у|ом|ові|е)?|Мері|Джон\w*|Аліс\w*)(?![\w'’ʼ])")
 
 
-def add_cloze(db, index, pairs, per_noun=5):
+def text_hash(text):
+    """Short hash of a sentence, so that a rating is dropped when Tatoeba edits the sentence."""
+    return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
+
+
+def load_ratings(path=RATINGS):
+    """tatoeba id -> row of data/sentence-ratings.tsv as a dict; empty when there is no file."""
+    if not path or not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8", newline="") as f:
+        lines = f.read().splitlines()
+    if not lines:
+        return {}
+    head = lines[0].split("\t")
+    rows = {}
+    for line in lines[1:]:
+        row = dict(zip(head, line.split("\t")))
+        rows[int(row["tatoeba_id"])] = row
+    return rows
+
+
+def rating_of(ratings, sid, text):
+    """(natural, use, flags) of a sentence, or None when it has no rating for this exact text."""
+    row = ratings.get(sid)
+    if not row or row.get("hash") != text_hash(text) or not row.get("natural"):
+        return None
+    flags = frozenset(f for f in row.get("flags", "").split(",") if f)
+    return int(row["natural"]), row.get("use") or "neutral", flags
+
+
+# data/sentence-fixes.tsv: our corrections of hidden sentences, each checked by a second model
+# (docs/sentence-rating.md, section 7). Keyed by Tatoeba id and the hash of Tatoeba's text, so a
+# fix lapses when Tatoeba edits the sentence. A fix is our edit of a CC BY sentence: the site marks it.
+FIXES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentence-fixes.tsv")
+
+
+def load_fixes(path=FIXES):
+    """tatoeba id -> (hash of Tatoeba's text, corrected text, naturalness of the correction)."""
+    if not path or not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8", newline="") as f:
+        rows = f.read().splitlines()[1:]
+    out = {}
+    for line in rows:
+        sid, digest, fixed, natural = line.split("\t")[:4]
+        out[int(sid)] = (digest, fixed, int(natural))
+    return out
+
+
+def short_first(pairs, ratings=None, fixes=None):
+    """Sentences of 3 to 12 words that may be shown, the most natural first, then the
+    commonest, then those of about five words, as add_tatoeba takes them:
+    (id, Ukrainian, English, rating, adapted, original). `rating` is None for a
+    sentence not rated yet; `original` is Tatoeba's Ukrainian where a correction
+    changed it, else None.
+
+    A hand-written correction (data/tatoeba-corrections.tsv) is already applied in
+    `pairs` and wins over everything here. A rated sentence below 3, or flagged
+    offensive, mistranslated, a Russianism or a proverb (whose English is an
+    equivalent, not a translation of its words), is left out. Such a sentence with
+    a checked fix (data/sentence-fixes.tsv) comes back corrected, after every
+    sentence that needs none, so a fix only fills a gap and never displaces a
+    real sentence."""
+    ratings, fixes = ratings or {}, fixes or {}
+    candidates = []  # (tier, rating, sid, text, english, adapted, original): tier 1 is a gap-filling fix
+    for sid, (text, english, adapted, original) in pairs.items():
+        rating = rating_of(ratings, sid, text)
+        if rating and (rating[0] < UNRATED or rating[2] & NEVER_SHOWN):
+            fix = fixes.get(sid)
+            if fix and not adapted and fix[0] == text_hash(text):
+                candidates.append((1, (fix[2], rating[1], frozenset()), sid, fix[1], english, True, text))
+            continue
+        candidates.append((0, rating, sid, text, english, adapted, original))
+
+    def order(c):
+        tier, rating, sid, text = c[:4]
+        natural, use, _ = rating or (UNRATED, "neutral", ())
+        return tier, -natural, USE_ORDER.get(use, 1), abs(len(TOKEN.findall(text)) - 5), sid
+
+    for tier, rating, sid, text, english, adapted, original in sorted(candidates, key=order):
+        if english and 3 <= len(TOKEN.findall(text)) <= 12:
+            yield sid, text, english, rating, adapted, original
+
+
+def ensure_examples_original(db):
+    """Give an older database's `examples` the `original` column (added November 2026)."""
+    if "original" not in {r[1] for r in db.execute("PRAGMA table_info(examples)")}:
+        db.execute("ALTER TABLE examples ADD COLUMN original TEXT")
+
+
+# The де/куди sentences of grammar practice were read and picked by hand
+# (src/lib/practice/where.ts, by Tatoeba id). A person's choice outranks the
+# automated rating and the per-noun limit, so add_cloze always keeps them.
+WHERE_TS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "lib", "practice", "where.ts")
+
+
+def hand_picked_cloze(path=WHERE_TS):
+    """The Tatoeba ids listed in where.ts's WHERE table; empty when the file is not there."""
+    if not os.path.exists(path):
+        return set()
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    start = text.find("export const WHERE")
+    if start < 0:
+        return set()
+    block = text[start:text.find("\n};", start)]
+    return {int(n) for n in re.findall(r"^\s*(\d+),", block, re.M)}
+
+
+def add_cloze(db, index, pairs, per_noun=5, ratings=None):
     """Fill `cloze`: sentences where a preposition is followed by a noun in a case only it explains.
 
     A sentence is kept only when nothing about the gap is in doubt:
@@ -835,9 +963,13 @@ def add_cloze(db, index, pairs, per_noun=5):
             if number:
                 spellings.setdefault(key, []).append((case, number, form))
 
+    picked = hand_picked_cloze()
     kept = collections.defaultdict(list)       # point -> rows
     per = collections.Counter()                # (point, entry) -> sentences kept
-    for sid, text, english, adapted in short_first(pairs):
+    # No `fixes` here: practice keeps to Tatoeba's sentences and the hand-written corrections
+    for sid, text, english, rating, adapted, original in short_first(pairs, ratings):
+        if rating and rating[0] < 4 and sid not in picked:
+            continue  # practice wants sentences worth copying; unrated ones pass until rated
         if any(ord(ch) > 0xFFFF for ch in text):
             continue  # `start` must mean the same to Python and to JavaScript
         found = list(TOKEN.finditer(text))
@@ -862,7 +994,7 @@ def add_cloze(db, index, pairs, per_noun=5):
                 continue
             case, number, form = here[0]
             point = f"{name}-{CASE_SHORT[case]}"
-            if per[point, eid] >= per_noun:
+            if per[point, eid] >= per_noun and sid not in picked:
                 continue
             per[point, eid] += 1
             kept[point].append((eid, text, english, word.start(), len(word.group()), form, number, sid, adapted))
@@ -1036,8 +1168,10 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
             stats.update(add_frequency(db, index, freq, reference))
         if tatoeba:
             pairs = tatoeba_pairs(tatoeba)
-            stats.update(add_tatoeba(db, index, pairs))
-            stats.update(add_cloze(db, index, pairs))
+            ratings = load_ratings()
+            stats["rated_sentences"] = len(ratings)
+            stats.update(add_tatoeba(db, index, pairs, ratings=ratings, fixes=load_fixes()))
+            stats.update(add_cloze(db, index, pairs, ratings=ratings))
     db.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT)")
     db.executemany("INSERT INTO meta VALUES (?,?)", [
         ("source", "English Wiktionary via kaikki.org (wiktextract)"),

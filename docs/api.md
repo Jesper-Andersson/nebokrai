@@ -284,7 +284,7 @@ Response `200`:
         { "form": "небокра́ю", "tags": ["genitive", "singular"] }
       ],
       "examples": [
-        { "uk": "…", "en": "…", "tatoeba_id": 0, "adapted": false }
+        { "uk": "…", "en": "…", "tatoeba_id": 0, "adapted": false, "original": null }
       ],
       "relations": [
         { "kind": "synonym", "sense_n": 1, "word": "горизо́нт", "tags": [], "has_entry": true },
@@ -313,7 +313,8 @@ common first.
 | `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … Such a meaning also carries `form-of` or `alt-of`. |
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
 | `forms` | One item per cell of the declension or conjugation table. Empty when the word does not inflect or has no table. |
-| `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. `adapted` is `true` when Nebokrai corrected the sentence (`data/tatoeba-corrections.tsv`); say so beside the credit. |
+| `examples` Chosen by a rating of how natural each sentence sounds. | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. `adapted` is `true` when Nebokrai corrected the sentence (`data/tatoeba-corrections.tsv`); say so beside the credit. |
+| `examples[].original` | `null` for a sentence as Tatoeba has it. Where a correction changed the Ukrainian (a hand-written one, or a checked one that fills a gap no other sentence could), `original` is Tatoeba's text (`…в нашомі місті…` for `…в нашому місті…`). Mark such a sentence as edited when you show it. |
 | `head_forms[].has_entry` | `true` when the form is spelled like another dictionary word. Here only, not in search results. See "Words that lead to other words". |
 | `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 35% of entries. |
 

@@ -36,6 +36,14 @@ of noise; the copies are available under the same licence.
 available under the
 [Creative Commons Attribution 2.0 France licence](https://creativecommons.org/licenses/by/2.0/fr/).
 Each sentence links to its Tatoeba page, which names its author.
+Which sentences are shown is decided partly by an automated rating of how
+natural each one sounds. Some sentences are shown corrected: those a teacher
+pointed out (`data/tatoeba-corrections.tsv`), and, where a word's only
+sentences had mistakes, checked corrections that fill the gap
+(`data/sentence-fixes.tsv`, each checked by a second model). CC BY allows
+adaptations: each one is marked "edited", still links to Tatoeba, and shows
+Tatoeba's original text. The API returns `examples[].adapted` and
+`examples[].original`.
 
 **Word frequency** is calculated from
 [FrequencyWords](https://github.com/hermitdave/FrequencyWords) by Hermit Dave

@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-natural-example-sentences',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Example sentences that sound natural', uk: 'Приклади речень, що звучать природно' },
+		body: {
+			en: 'Sentences with mistakes or Russianisms gave way to better ones; a few are shown corrected and marked "edited", with the original a press away.',
+			uk: 'Речення з помилками чи русизмами замінено кращими; кілька показано виправленими, з позначкою «виправлено» й оригіналом під нею.'
+		}
+	},
+	{
 		id: '2026-11-16-english-capital-meanings',
 		date: '2026-11-16',
 		kind: 'changed',

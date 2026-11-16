@@ -22,6 +22,7 @@
 	import Term from '#lib/Term.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import Translation from '#lib/Translation.svelte';
+	import EditedNote from '#lib/EditedNote.svelte';
 	import { commonsPage } from '#lib/commons.ts';
 	import { formTables } from '#lib/forms.ts';
 	import {
@@ -278,9 +279,12 @@
 									<li>
 										<Sentence text={ex.uk} {own} />
 										<Translation text={ex.en} />
-										<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
-											Tatoeba #{ex.tatoeba_id}{#if ex.adapted}, {m.word.adapted}{/if}
-										</a>
+										<span class="credit-line">
+											<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
+												Tatoeba #{ex.tatoeba_id}{#if ex.adapted && !ex.original}, {m.word.adapted}{/if}
+											</a>
+											{#if ex.original}<EditedNote original={ex.original} fixed={ex.uk} />{/if}
+										</span>
 									</li>
 								{/each}
 							</ul>
@@ -684,6 +688,14 @@
 	section a.credit {
 		color: var(--muted);
 		font-size: var(--text-xs);
+	}
+
+	/* The credit, and the "edited" badge after it when Nebokrai corrected the sentence */
+	.credit-line {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	.other {

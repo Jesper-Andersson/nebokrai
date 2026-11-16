@@ -6,7 +6,7 @@
      known (openLesson in lessons.ts); a click opens another. "Practise this"
      and each rule's "Practise" start a round on /practice (?lesson=, ?rule=). -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
@@ -36,13 +36,42 @@
 
 	let chosen = $state<string | null>(null);
 	let open = $derived(openLesson(lessons, chosen));
-	onMount(() => {
+	// On a phone the lessons are a row that scrolls sideways: a lesson opened
+	// on an earlier visit may be off its right end, so the row is brought to
+	// it once. Only the row moves, never the page.
+	let row = $state<HTMLUListElement>();
+	onMount(async () => {
 		chosen = readOpenLesson();
+		await tick();
+		const item = row?.querySelector<HTMLElement>('.lesson.open')?.parentElement;
+		if (item) centre(item, 'auto');
+		measure();
 	});
 
-	function choose(id: string) {
+	// Which way the row can still go: an arrow stands at each such end. A
+	// swipe alone was not to be guessed at, and a mouse in a narrow window
+	// could not do it at all (user, 2026-11-16). Where the lessons are a
+	// list, at full width, nothing overflows and there are no arrows.
+	let canBack = $state(false);
+	let canMore = $state(false);
+	function measure() {
+		if (!row) return;
+		canBack = row.scrollLeft > 4;
+		canMore = row.scrollLeft + row.clientWidth < row.scrollWidth - 4;
+	}
+	const nudge = (way: 1 | -1) => row?.scrollBy({ left: way * row.clientWidth * 0.8, behavior: 'smooth' });
+
+	function choose(id: string, button: HTMLElement) {
 		chosen = id;
 		rememberOpenLesson(id);
+		if (button.parentElement) centre(button.parentElement, 'smooth');
+	}
+
+	// A lesson pressed comes to the middle of the row, which brings the next
+	// one into reach: pressing lesson after lesson walks to the end of the
+	// row with no swipe (user, 2026-11-16).
+	function centre(item: HTMLElement, behavior: ScrollBehavior) {
+		row?.scrollTo({ left: item.offsetLeft - (row.clientWidth - item.offsetWidth) / 2, behavior });
 	}
 
 	const takes = (point: Point) =>
@@ -50,13 +79,16 @@
 		+ (point.number ? ` ${m.practice.ofNumber[point.number]}` : '');
 </script>
 
+<svelte:window onresize={measure} />
+
 <section class="part" aria-labelledby="learn-grammar">
 	<h2 id="learn-grammar">{m.learn.grammar}</h2>
 	{#if open}
 		<div class="ui-card card">
 			<div class="lessons">
 				<h3 class="group" id="learn-cases">{m.learn.cases}</h3>
-				<ul aria-labelledby="learn-cases">
+				<div class="row" class:more={canMore}>
+				<ul aria-labelledby="learn-cases" bind:this={row} onscroll={measure}>
 					{#each lessons as lesson (lesson.id)}
 						<li>
 							<button
@@ -64,7 +96,7 @@
 								class="lesson"
 								class:open={lesson.id === open.id}
 								aria-pressed={lesson.id === open.id}
-								onclick={() => choose(lesson.id)}
+								onclick={(event) => choose(lesson.id, event.currentTarget)}
 							>
 								<span class="n">{lesson.n}</span>
 								<b>{m.learn.short[lesson.id]}</b>
@@ -77,6 +109,18 @@
 						</li>
 					{/each}
 				</ul>
+				{#if canBack || canMore}
+					<!-- Beside the heading, clear of the lessons themselves -->
+					<span class="nudges">
+						<button type="button" class="ui-icon-btn" disabled={!canBack} aria-label={m.learn.lessonsBack} title={m.learn.lessonsBack} onclick={() => nudge(-1)}>
+							<Icon name="arrow-left" size={18} />
+						</button>
+						<button type="button" class="ui-icon-btn" disabled={!canMore} aria-label={m.learn.lessonsMore} title={m.learn.lessonsMore} onclick={() => nudge(1)}>
+							<Icon name="arrow-right" size={18} />
+						</button>
+					</span>
+				{/if}
+				</div>
 			</div>
 
 			<div class="body">
@@ -99,7 +143,10 @@
 								<th>{m.learn.column.means}</th>
 								<th>{m.learn.column.example}</th>
 								<th>{m.learn.column.state}</th>
-								<th><span class="ui-sr-only">{m.learn.practise}</span></th>
+								<!-- Named for a screen reader by a label, not by hidden words: those
+							     are set out of the flow and stood a pixel past the table's
+							     right edge, which gave the table a scroll bar it had no use for -->
+							<th aria-label={m.learn.practise}></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -109,7 +156,16 @@
 									<td>{takes(point)}</td>
 									<td>{m.practice.meaning[point.id]}</td>
 									<td class="example" lang="uk">{point.example}</td>
-									<td><span class="state" data-state={state}><i></i>{m.learn.state[state]}</span></td>
+									<td>
+										<!-- Not begun: the empty box alone says so, and the words
+										     are left to a screen reader and the pointer. Written
+										     out five times down a lesson (until 2026-11-16) they
+										     pushed the Practise links off a phone's screen. -->
+										<span class="state" data-state={state} title={state === 'new' ? m.learn.state[state] : undefined}>
+											<i></i>
+											{#if state === 'new'}<span class="ui-sr-only">{m.learn.state[state]}</span>{:else}{m.learn.state[state]}{/if}
+										</span>
+									</td>
 									<td>
 										<a class="practise" href="/practice?rule={point.id}">
 											{m.learn.practise} <Icon name="arrow-right" size={16} />
@@ -375,6 +431,79 @@
 		.lessons {
 			border-right: 0;
 			border-bottom: 1px solid var(--border);
+		}
+
+		/* The eight lessons in a row that scrolls sideways, so that the open
+		   one is right under them: listed one under another (until
+		   2026-11-16) they pushed it two screens down. The row fades at its
+		   right end, where more of it waits. */
+		ul {
+			/* Positioned, so that the row also clips what is set out of the flow
+			   in a lesson scrolled off its end (the words for a screen reader):
+			   otherwise those widen the whole page */
+			position: relative;
+			display: flex;
+			gap: 0.25rem;
+			overflow-x: auto;
+			scroll-snap-type: x proximity;
+			scrollbar-width: none;
+		}
+
+		/* More to the right: the row fades out at that end */
+		.more ul {
+			mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
+		}
+
+		/* The two arrows stand at the right of the heading's line */
+		.lessons {
+			position: relative;
+		}
+
+		.nudges {
+			position: absolute;
+			top: 0.3rem;
+			right: 0.5rem;
+			display: flex;
+			gap: 0.25rem;
+		}
+
+		/* The heading's line is as tall as the arrows beside it */
+		.group {
+			display: flex;
+			align-items: center;
+			min-height: 2.1rem;
+		}
+
+		.nudges button {
+			width: 2rem;
+			height: 2rem;
+			border: 1px solid var(--border-strong);
+		}
+
+		.nudges button:disabled {
+			border-color: var(--border);
+			color: var(--muted);
+			opacity: 0.5;
+			cursor: default;
+		}
+
+		li {
+			flex: none;
+			width: 9.5rem;
+			/* The middle, where a lesson pressed is brought to */
+			scroll-snap-align: center;
+		}
+
+		.lesson {
+			height: 100%;
+			align-content: start;
+		}
+
+		/* The prepositions on one line, cut off at its end */
+		.lesson small {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 
 		.body {

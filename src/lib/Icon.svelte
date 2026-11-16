@@ -3,6 +3,11 @@
 <script lang="ts" module>
 	const PATHS = {
 		search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>',
+		// A cog: the settings of one thing on the page (the weekly goal), where
+		// the sliders are the site's own. The one icon here not drawn for the
+		// site: "settings" from Lucide (https://lucide.dev), ISC License,
+		// Copyright (c) 2026 Lucide Icons and Contributors.
+		cog: '<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/>',
 		// Sliders, for the settings
 		settings:
 			'<path d="M4 6h8M16 6h4M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>',

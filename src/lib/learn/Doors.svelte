@@ -131,10 +131,29 @@
 		}
 	}
 
+	/* A phone: the two doors stay side by side, half the width each, and each
+	   stacks what it says over its button. One under the other (until
+	   2026-11-16) they took the top third of the screen. */
 	@media (max-width: 640px) {
 		.doors {
+			gap: 0.6rem;
+		}
+
+		.door {
 			grid-template-columns: minmax(0, 1fr);
-			gap: 0.75rem;
+			grid-template-areas: 'kind' 'big' 'go';
+			align-content: start;
+			gap: 0.2rem;
+			padding: 0.55rem 0.65rem 0.65rem;
+		}
+
+		strong {
+			font-size: 1.05rem;
+		}
+
+		.go {
+			justify-self: start;
+			margin-top: 0.3rem;
 		}
 	}
 </style>

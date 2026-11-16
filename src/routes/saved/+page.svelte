@@ -81,6 +81,34 @@
 		return saved.items.filter((item) => inList.has(item.word));
 	});
 
+	// The rows are put on the page a few at a time. Each has a tooltip and a
+	// list picker of its own, and 1,500 of them built in one go froze the tab
+	// for two seconds. The first batch fills a screen and more; the next comes
+	// only when the visitor scrolls near the end of the rows, since many never
+	// read that far. Only the rows wait: the counts, the ticks and the export
+	// work on `shown`. A change of list starts again from the first batch.
+	const ROW_BATCH = 50;
+	let rowCount = $derived.by(() => {
+		void filter;
+		return ROW_BATCH;
+	});
+	let rows = $derived(shown.length > rowCount ? shown.slice(0, rowCount) : shown);
+
+	// On a mark after the last row: add a batch when it comes within a screen
+	// or so of view. The mark is made anew for each batch (the {#key} below),
+	// so one that is still in view afterwards, on a tall screen or after a
+	// jump to the end, asks again.
+	function moreRows(node: HTMLElement) {
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((entry) => entry.isIntersecting)) rowCount += ROW_BATCH;
+			},
+			{ rootMargin: '800px' }
+		);
+		observer.observe(node);
+		return { destroy: () => observer.disconnect() };
+	}
+
 	// Which words an export takes: all of them, the ticked ones, or the ones
 	// this browser has not exported before (saved.svelte.ts remembers those).
 	type Scope = 'all' | 'selected' | 'fresh';
@@ -357,7 +385,7 @@
 				{#if selected.length}<ListPicker variant="button" words={selected.map((item) => item.word)} />{/if}
 			</div>
 			<ul class="ui-card list">
-				{#each shown as item (item.word)}
+				{#each rows as item (item.word)}
 					{@const summary = summaries.get(item.word)}
 					{@const exportedAt = saved.exportedAt(item.word)}
 					<li>
@@ -388,6 +416,9 @@
 					</li>
 				{/each}
 			</ul>
+			{#if rows.length < shown.length}
+				{#key rowCount}<div class="more-rows" use:moreRows></div>{/key}
+			{/if}
 		{/if}
 
 		<div class="actions">
@@ -493,6 +524,15 @@
 <style>
 	.page {
 		padding-top: 1.75rem;
+	}
+
+	/* While rows are still to come, the browser must not hold the page still
+	   around what is under them. After a change of list from far down, the
+	   screen shows the footer; kept in place as each batch pushed it down, it
+	   took the screen along, the mark stayed in view and every row was built
+	   after all. Rows are only ever added below, so nothing above jumps. */
+	:global(html:has(.more-rows)) {
+		overflow-anchor: none;
 	}
 
 	header {

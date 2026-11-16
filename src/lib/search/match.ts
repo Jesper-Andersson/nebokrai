@@ -2,11 +2,13 @@
 // A list says вода́, Київ or зламатися as its author wrote them; a saved word
 // and a flashcard are keyed by an entry's `word` exactly. This finds that
 // spelling: by the word itself first, then as an inflected form of one
-// (автобусом → автобус), and failing both, offers a few guesses.
+// (автобусом → автобус), then both again with у and в (і and й) swapped at
+// the start (вміти → уміти), and failing all of those, offers a few guesses.
 // It only reads search_keys and entries; the search itself is untouched.
 import type { Db } from './db.ts';
 import { plain } from './normalize.ts';
 import { suggest } from './suggest.ts';
+import { initialVariant } from './variants.ts';
 
 export interface WordMatch {
 	/** The entry's `word`, or null if none is this word or a form of it. */
@@ -24,7 +26,8 @@ export const SUGGEST_MAX = 20;
 export async function matchWords(
 	db: Db, written: string[], options: { suggest?: boolean } = {}
 ): Promise<Record<string, WordMatch>> {
-	const keys = [...new Set(written.map(plain))];
+	// Each word's other spelling (уміти for вміти) is asked for too, used only when the word itself is not found
+	const keys = [...new Set(written.flatMap((w) => [plain(w), initialVariant(w) ?? []].flat()))];
 	const rows = keys.length
 		? await db.all<{ key: string; kind: string; word: string }>(
 			`SELECT k.key, k.kind, e.word FROM search_keys k JOIN entries e ON e.id = k.entry_id
@@ -37,7 +40,8 @@ export async function matchWords(
 
 	const matches: Record<string, WordMatch> = {};
 	for (const w of new Set(written)) {
-		const found = byKey.get(plain(w)) ?? [];
+		const variant = initialVariant(w);
+		const found = byKey.get(plain(w)) ?? (variant ? byKey.get(variant) : undefined) ?? [];
 		// The spelling as written wins where letter case tells two words apart
 		const asWritten = w.normalize('NFC').replaceAll('́', '');
 		const exact = found.find((r) => r.kind === 'word' && r.word === asWritten);

@@ -52,10 +52,16 @@ export function today(now = Date.now()): number {
 const NOT_FOR_THE_FRONT_PAGE = ['vulgar', 'offensive', 'derogatory', 'slang']
 	.map((tag) => `tags LIKE '%"${tag}"%'`).join(' OR ');
 
+// A word whose main meaning is marked like this is not one to learn today:
+// шпита́ль is "(archaic) hospital", and the word a learner needs is лікарня.
+// Only the first meaning counts, so a current word with one old sense stays in.
+const NOT_IN_USE_NOW = ['archaic', 'obsolete', 'dated', 'rare', 'dialectal']
+	.map((tag) => `tags LIKE '%"${tag}"%'`).join(' OR ');
+
 /**
  * The entry for `day`: the first noun, verb, adjective or adverb at or after
- * the day's rank that has a Tatoeba sentence to show. About 4,800 entries
- * qualify. Null only if the database has none.
+ * the day's rank that has a Tatoeba sentence to show, is fit for the front
+ * page and is in use now. About 4,400 entries qualify. Null only if the database has none.
  */
 export async function wordOfDay(db: Db, day: number): Promise<WordOfDay | null> {
 	const [found] = await db.all<{ id: number; word: string }>(
@@ -63,6 +69,7 @@ export async function wordOfDay(db: Db, day: number): Promise<WordOfDay | null> 
 		 WHERE freq_rank >= ? AND pos IN ('noun', 'verb', 'adj', 'adv')
 		   AND EXISTS (SELECT 1 FROM examples WHERE entry_id = entries.id)
 		   AND NOT EXISTS (SELECT 1 FROM senses WHERE entry_id = entries.id AND (${NOT_FOR_THE_FRONT_PAGE}))
+		   AND NOT EXISTS (SELECT 1 FROM senses WHERE entry_id = entries.id AND n = 1 AND (${NOT_IN_USE_NOW}))
 		 ORDER BY freq_rank LIMIT 1`, [rankForDay(day)]);
 	if (!found) return null;
 	// A spelling can have several entries (стан has six); the day's is the ranked one.

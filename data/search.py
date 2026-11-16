@@ -185,10 +185,11 @@ def search(db, query, limit=20, vesum=None):
         glosses = [g for (g,) in db.execute("SELECT gloss FROM senses WHERE entry_id=? ORDER BY n", (eid,))]
         # Within one kind of match, common words come first. For English queries,
         # a word whose meaning *is* the query ("mother") beats one that merely
-        # mentions it ("mother-in-law").
+        # mentions it ("mother-in-law"). Case is ignored: "English" is the
+        # meaning of англійський, and the query arrives lowercased.
         common = freq_rank if freq_rank is not None else 10**9
         if rank == RANK["english"]:
-            exact = any(q.lower() in [p.strip() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]
+            exact = any(q.lower() in [p.strip().lower() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]
                         for g in glosses)
             if not exact:
                 rank = RANK["english_mention"]

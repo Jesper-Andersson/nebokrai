@@ -256,9 +256,10 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		const glosses = glossesOf.get(e.id) ?? [];
 		if (rank === RANK.english) {
 			// A word whose meaning *is* the query ("mother") beats one that merely
-			// mentions it ("mother-in-law").
+			// mentions it ("mother-in-law"). Case is ignored: "English" is the
+			// meaning of англійський, and the query arrives lowercased.
 			const exact = glosses.some((g) =>
-				g.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => part.trim() === lower));
+				g.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => part.trim().toLowerCase() === lower));
 			if (!exact) rank = RANK.english_mention;
 		} else if (rank === RANK.latin && nationalTranslit(e.word) !== lower) {
 			// "good" loosely matches год ("hod"), but the user most likely means English.

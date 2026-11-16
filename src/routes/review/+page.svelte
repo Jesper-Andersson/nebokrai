@@ -526,7 +526,7 @@
 
 <PageMeta title="{m.pageTitle.review} · Nebokrai" description={m.meta.review} />
 
-<div class="ui-page page" class:wide={!started}>
+<div class="ui-page page" class:wide={!started} class:round={started && !!current}>
 	<header>
 		<h1 class="ui-title">{m.pageTitle.review}</h1>
 		<ReviewHelp />
@@ -914,7 +914,6 @@
 					onreset={() => setKeys(DEFAULT_KEYS)}
 				/>
 			</div>
-			{#if !typing || flipped}<span class="muted touch">{m.review.swipe}</span>{/if}
 		</div>
 	{:else if current}
 		<section class="ui-card end" role="status">
@@ -1639,19 +1638,50 @@
 		min-height: 2.5rem;
 	}
 
-	.touch {
-		display: none;
-	}
-
-	/* No keyboard to speak of on a phone: the hint is about fingers there */
+	/* No keyboard to speak of on a phone: the keys and their row go, and the
+	   help behind the question mark says how to tap and swipe */
 	@media (hover: none) {
-		.keys,
+		.page > .under,
 		.answers kbd {
 			display: none;
 		}
+	}
 
-		.touch {
-			display: inline;
+	/* A round on a phone is to fit the screen without scrolling. The site's
+	   footer would add a third of a screen under it, and the title pushes Undo
+	   and Stop to a second line: the title is still said, and the site's
+	   header still shows where this is. */
+	@media (max-width: 600px) {
+		:global(body:has(.page.round) footer) {
+			display: none;
+		}
+
+		/* With no footer to keep clear of, the room under the page is only scroll */
+		:global(main:has(.page.round)) {
+			padding-bottom: 1rem;
+		}
+
+		.round .ui-title {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
+
+		/* A little closer, so the Ukrainian (залишилося 12, Скасувати, Зупинити)
+		   stays on one line at 390px; narrower, it wraps and the round still fits */
+		.round header {
+			column-gap: 0.35rem;
+		}
+
+		.round .session {
+			gap: 0.35rem;
+		}
+
+		.round {
+			padding-top: 1rem;
 		}
 	}
 </style>

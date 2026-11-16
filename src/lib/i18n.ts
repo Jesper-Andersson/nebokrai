@@ -43,6 +43,8 @@ function sameNote(prefix: string, endings: string[], note: string): Record<strin
 const en = {
 	nav: {
 		label: 'Main',
+		/** Over the list of a text page's sections, beside it on a wide screen */
+		onThisPage: 'On this page',
 		dictionary: 'Dictionary',
 		learn: 'Learn',
 		resources: 'Resources',
@@ -1322,6 +1324,7 @@ export type Messages = typeof en;
 const uk: Messages = {
 	nav: {
 		label: 'Головне меню',
+		onThisPage: 'На цій сторінці',
 		dictionary: 'Словник',
 		learn: 'Навчання',
 		resources: 'Ресурси',

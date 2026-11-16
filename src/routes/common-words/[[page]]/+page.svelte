@@ -117,6 +117,20 @@
 		line-clamp: 2;
 	}
 
+	/* A wide screen reads the hundred in two columns, 1 to 50 and 51 to 100:
+	   one list across 72rem left most of each line empty, and was 5.3 screens
+	   long at 1440×900 where two columns are 3.2 */
+	@media (min-width: 75rem) {
+		.words {
+			columns: 2;
+			column-gap: 3rem;
+		}
+
+		.words li {
+			break-inside: avoid;
+		}
+	}
+
 	/* On a phone the meaning goes under the word */
 	@media (max-width: 600px) {
 		.words li {

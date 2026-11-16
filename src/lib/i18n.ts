@@ -89,6 +89,12 @@ const en = {
 		working: 'Exporting…',
 		anki: 'Anki (text file)',
 		csv: 'CSV (spreadsheet)',
+		readlang: 'Readlang (CSV)',
+		readlangFile: 'One more step, in Readlang',
+		readlangHint:
+			'On Readlang’s “Import Words From CSV” page, upload the downloaded file. Each line has the word, its meanings and, where the example sentence has the word in exactly this form, the sentence.',
+		readlangMore: (count: number, total: number) =>
+			`Readlang takes ${count} words per file, so this one has the first ${count} of ${total}. For the next ones, export again and choose “Not exported yet”.`,
 		json: 'JSON',
 		failed: 'The export didn’t work. Please try again.',
 		ankiHint:
@@ -1357,6 +1363,12 @@ const uk: Messages = {
 		working: 'Експортуємо…',
 		anki: 'Anki (текстовий файл)',
 		csv: 'CSV (таблиця)',
+		readlang: 'Readlang (CSV)',
+		readlangFile: 'Ще один крок, у Readlang',
+		readlangHint:
+			'У Readlang на сторінці «Import Words From CSV» завантажте отриманий файл. У кожному рядку слово, його значення і, якщо в прикладі слово стоїть саме в цій формі, речення.',
+		readlangMore: (count, total) =>
+			`Readlang бере до ${count} слів з одного файлу, тому в цьому перші ${count} із ${total}. Щоб отримати наступні, експортуйте ще раз і виберіть «Ще не експортовані».`,
 		json: 'JSON',
 		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
 		ankiHint:

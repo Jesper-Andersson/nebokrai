@@ -32,7 +32,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `relations` | other word an entry names: synonym, antonym, derived or related | 85,351 |
 | `examples` | Tatoeba sentence with English translation | 25,594 |
 | `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,988 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,588,252 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,597,901 |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
 same forms are already in X's own table.
@@ -214,6 +214,17 @@ record its answers again and run the TypeScript tests against them:
 cd data && python3 make_search_cases.py ../nebokrai.db ../vesum.db > ../tests/search-cases.json
 cd .. && npm install && npm test
 ```
+
+## Words on a head line
+
+An entry's head line names other words (`head_forms`): істори́чний its adverb
+істори́чно, впе́рше another spelling упе́рше. Where such a word has no entry
+and no table row of its own, `add_head_keys()` gives it a `head` key pointing
+at the entry that names it: 9,649 rows. They are added after every entry is
+in, so a word with an entry further down the file is found as itself. Search
+looks them up only when the query is neither a word nor a form, and says how
+the entry was reached (`through` in `docs/api.md`). They take no part in
+frequency counting or example sentences, which go by words and forms only.
 
 ## Lenient search ("did you mean")
 

@@ -87,7 +87,7 @@ CREATE TABLE examples (
 CREATE TABLE search_keys (
     key       TEXT NOT NULL,
     entry_id  INTEGER NOT NULL REFERENCES entries(id),
-    kind      TEXT NOT NULL         -- word | form | latin | latin_form | english | sound | sound_form | typo
+    kind      TEXT NOT NULL         -- word | form | head | latin | latin_form | english | sound | sound_form | typo
 );
 """
 
@@ -366,6 +366,26 @@ def link_kept_pages(db, kept):
         back.append((targets[0], None, "related", headword, source, "[]"))
     db.executemany("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,?,?,?,?,?)", back)
     return len(back)
+
+
+def add_head_keys(db):
+    """Make the words on a head line findable: істори́чний names істори́чно as
+    its adverb, впе́рше names упе́рше as another spelling, but neither has an
+    entry or a table row of its own, so a search for them found nothing.
+
+    Each such spelling becomes a 'head' key pointing at the entry that names
+    it. Only spellings no entry and no inflected form already has: those are
+    found as themselves. Run after every entry is in, so a word that has an
+    entry further down the file is not keyed twice."""
+    known = {k for (k,) in db.execute("SELECT key FROM search_keys WHERE kind IN ('word','form')")}
+    rows = set()
+    for eid, head_forms in db.execute("SELECT id, head_forms FROM entries"):
+        for f in json.loads(head_forms):
+            p = plain(f["form"])
+            if TOKEN.fullmatch(p) and p not in known:
+                rows.add((p, eid))
+    db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,'head')", sorted(rows))
+    return len(rows)
 
 
 SKIP_FORM_TAGS = {"table-tags", "inflection-template", "class", "romanization",
@@ -965,6 +985,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
         stats["senses"] += stats["abbreviations_added"]
         kept_links += links
     stats["kept_linked_back"] = link_kept_pages(db, kept_links)
+    stats["head_keys"] = add_head_keys(db)
     stats.update(finish_relations(db))
     if freq or tatoeba:
         index = form_index(db)

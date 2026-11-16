@@ -10,6 +10,7 @@ Usage:
 How a query is matched, best first:
     1. exact dictionary word          калина  -> калина
     2. an inflected form              книги   -> книга
+       a word on another entry's head line      історично -> історичний
     3. Latin letters, spelled the standard way      kalyna -> калина
     4. English meaning that is exactly the query    good   -> добрий
     5. an inflected form in Latin letters           knyhy  -> книга
@@ -22,6 +23,11 @@ Within each step, more common words come first.
 A result found through an inflected form (steps 2 and 5) says which form in
 `matched_forms`: "книги" is the genitive singular кни́ги and the nominative
 plural кни́ги of книга.
+
+A word with no entry of its own that another entry names on its head line is
+found as that entry, and `through` says how: історично is the adverb that
+істори́чний lists, упе́рше another spelling of впе́рше. Only when the query is
+neither a dictionary word nor an inflected form.
 
 VESUM fallback: if vesum.db is given (--vesum) and a Cyrillic query matches
 nothing in steps 1 and 2, the form is looked up in VESUM to find its dictionary
@@ -38,9 +44,25 @@ import sys
 from import_wiktionary import (KEYBOARD, TYPO_MIN, deletes, edits_apart, from_russian_letters,
                                loose_latin, national_translit, plain, sound_key)
 
-RANK = {"word": 0, "form": 1, "latin": 2, "english": 3, "latin_form": 4, "latin_loose": 5,
-        "english_mention": 6, "prefix": 7}
+RANK = {"word": 0, "form": 1, "head": 2, "latin": 3, "english": 4, "latin_form": 5, "latin_loose": 6,
+        "english_mention": 7, "prefix": 8}
 KIND = {v: k for k, v in RANK.items()}
+
+# What a head-line word is to the entry that lists it, from Wiktionary's tags,
+# the first that applies. A word tagged with none of these (a genitive the
+# table lacks) is simply one of its forms.
+HEAD_KINDS = ["alternative", "adverb", "adjective", "abstract-noun", "perfective", "imperfective",
+              "feminine", "diminutive", "augmentative", "comparative", "superlative"]
+
+
+def head_through(head_forms, key):
+    """`through` for an entry found by a head-line word: the word as the head
+    line writes it (with stress) and what it is to the entry."""
+    for f in head_forms:
+        if plain(f["form"]) == key:
+            kind = next((k for k in HEAD_KINDS if k in f["tags"]), "form")
+            return dict(word=f["form"], kind=kind)
+    return None
 
 
 def matched_forms(db, eid, key, cyrillic):
@@ -99,6 +121,10 @@ def search(db, query, limit=20, vesum=None):
     if cyrillic:
         key = plain(q)
         add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
+        if not hits:
+            # A head-line word has a key only where no entry or form has the
+            # spelling, so this finds nothing the line above could.
+            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='head'", (key,)))
         if not hits and vesum is not None:
             for lemma, pos in vesum.execute(
                     "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos", (key,)):
@@ -106,6 +132,14 @@ def search(db, query, limit=20, vesum=None):
                                    (lemma,)).fetchall()
                 if found:
                     add(found)
+                    continue
+                # мінеральних is a form of мінеральний, which мінера́л lists on its head line
+                found = db.execute("SELECT entry_id, 'form' FROM search_keys WHERE key=? AND kind='head'",
+                                   (lemma,)).fetchall()
+                if found:
+                    add(found)
+                    for eid, _ in found:
+                        through.setdefault(eid, dict(word=lemma, kind="head"))
                     continue
                 # утворюватися has no entry, утворювати has: the reflexive verb
                 # leads to the verb it is made from, and the result says so.
@@ -169,10 +203,14 @@ def search(db, query, limit=20, vesum=None):
             result["matched_forms"] = matched_forms(db, eid, key, cyrillic)
         if eid in through and rank == RANK["form"]:
             result["through"] = through[eid]
+            if through[eid]["kind"] == "head":
+                result["through"] = head_through(result["head_forms"], through[eid]["word"])
+        if rank == RANK["head"]:
+            result["through"] = head_through(result["head_forms"], key)
         results.append((rank, tie, result))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"], r[2]["id"]))
-    exact = [r[2] for r in results if r[0] <= RANK["form"]]
-    rest = [r[2] for r in results if r[0] > RANK["form"]]
+    exact = [r[2] for r in results if r[0] <= RANK["head"]]
+    rest = [r[2] for r in results if r[0] > RANK["head"]]
     return (exact + stubs + rest)[:limit]
 
 
@@ -253,7 +291,7 @@ def lookup(db, query, limit=20, vesum=None, suggestions=5):
     result is a sure match."""
     results = search(db, query, limit=limit, vesum=vesum)
     kinds = {r["match"] for r in results}
-    if kinds & {"word", "form", "latin", "english", "latin_form", "latin_loose"}:
+    if kinds & {"word", "form", "head", "latin", "english", "latin_form", "latin_loose"}:
         guesses = []  # a sure match: no second-guessing
     else:
         # Nothing, or only loose matches ("kiev" is mentioned in a few meanings
@@ -293,7 +331,9 @@ if __name__ == "__main__":
         for f in r.get("matched_forms", []):
             print(f"    = {f['form']}  ({' '.join(f['tags'])})")
         if r.get("through"):
-            print(f"    = {r['through']['word']}  (its {r['through']['kind']} form)")
+            kind = r["through"]["kind"]
+            what = "another spelling" if kind == "alternative" else f"its {kind}"
+            print(f"    = {r['through']['word']}  ({what})")
         for g in r["glosses"][:3]:
             print(f"    - {g}")
         for uk, en in db.execute("SELECT uk, en FROM examples WHERE entry_id=? LIMIT 1", (r["id"],)):

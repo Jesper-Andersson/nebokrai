@@ -43,6 +43,37 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-pick-up',
+		date: '2026-11-16',
+		kind: 'new',
+		title: { en: 'Pick up where you left off', uk: 'Продовжуйте з того місця, де зупинилися' },
+		body: {
+			en: 'Under the word of the day, the search page now leads back to your flashcards, grammar and saved words once you have begun them.',
+			uk: 'Під словом дня сторінка пошуку тепер веде назад до ваших карток, граматики й збережених слів, щойно ви їх почали.'
+		}
+	},
+	{
+		id: '2026-11-16-head-line-words',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Find words listed under another word', uk: 'Знаходьте слова, подані в статті іншого слова' },
+		body: {
+			en: 'Searching історично or уперше now shows the word whose entry lists it, and says how the two are related.',
+			uk: 'Пошук слів історично чи уперше тепер показує слово, у статті якого їх подано, і пояснює, як вони пов’язані.'
+		}
+	},
+	{
+		id: '2026-11-16-wide-screens',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Read more comfortably on a wide screen', uk: 'Зручніше читати на широкому екрані' },
+		body: {
+			en: 'Common words stand in two columns, longer pages list their sections at the side, and Grammar keeps its groups beside the rules.',
+			uk: 'Уживані слова стоять у двох колонках, довші сторінки показують свої розділи збоку, а Граматика тримає групи поруч із правилами.'
+		},
+		href: '/grammar'
+	},
+	{
 		id: '2026-11-15-updates-page',
 		date: '2026-11-15',
 		kind: 'new',

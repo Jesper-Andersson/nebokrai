@@ -401,8 +401,25 @@ const en = {
 			surname: 'A surname with no dictionary entry yet.',
 			abbreviation: 'An abbreviation with no dictionary entry yet.'
 		},
-		// After the reflexive verb that was searched for: "утворюватися is its reflexive (-ся) form."
-		reflexive: 'is its reflexive (-ся) form.',
+		// After the word that was searched for, when it led to another word:
+		// "утворюватися is its reflexive (-ся) form.", "істори́чно is listed as its adverb."
+		// "Listed as": Wiktionary names the word this way, and a word can be more
+		// (походити, "to come from", is also a verb of its own).
+		through: {
+			reflexive: 'is its reflexive (-ся) form.',
+			alternative: 'is another spelling of this word.',
+			adverb: 'is listed as its adverb.',
+			adjective: 'is listed as its adjective.',
+			'abstract-noun': 'is listed as its abstract noun.',
+			perfective: 'is listed as its perfective.',
+			imperfective: 'is listed as its imperfective.',
+			feminine: 'is listed as its female form.',
+			diminutive: 'is listed as its diminutive.',
+			augmentative: 'is listed as its augmentative.',
+			comparative: 'is listed as its comparative.',
+			superlative: 'is listed as its superlative.',
+			form: 'is listed as one of its forms.'
+		},
 		/** Before the form of the word that the search found: руки́ genitive singular */
 		formFound: 'Form found:',
 		moreForms: (n: number) => `+${n} more`,
@@ -1643,7 +1660,21 @@ const uk: Messages = {
 			surname: 'Прізвище, якого ще немає в словнику.',
 			abbreviation: 'Скорочення, якого ще немає в словнику.'
 		},
-		reflexive: '— зворотна форма (-ся) цього дієслова.',
+		through: {
+			reflexive: '— зворотна форма (-ся) цього дієслова.',
+			alternative: '— інше написання цього слова.',
+			adverb: '— подано як прислівник від цього слова.',
+			adjective: '— подано як прикметник від цього слова.',
+			'abstract-noun': '— подано як абстрактний іменник від цього слова.',
+			perfective: '— подано як доконаний вид цього дієслова.',
+			imperfective: '— подано як недоконаний вид цього дієслова.',
+			feminine: '— подано як жіночий відповідник цього слова.',
+			diminutive: '— подано як зменшувальна форма цього слова.',
+			augmentative: '— подано як збільшувальна форма цього слова.',
+			comparative: '— подано як вищий ступінь порівняння цього слова.',
+			superlative: '— подано як найвищий ступінь порівняння цього слова.',
+			form: '— подано як одна з форм цього слова.'
+		},
 		formFound: 'Знайдена форма:',
 		moreForms: (n: number) => `ще ${n}`,
 		moreMeanings: (n: number) => `ще ${n}`,

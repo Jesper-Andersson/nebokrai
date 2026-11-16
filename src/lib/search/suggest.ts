@@ -127,7 +127,7 @@ export interface LookupResult {
 	suggestions: Suggestion[];
 }
 
-const SURE = new Set(['word', 'form', 'latin', 'english', 'latin_form', 'latin_loose']);
+const SURE = new Set(['word', 'form', 'head', 'latin', 'english', 'latin_form', 'latin_loose']);
 
 /** What the search endpoint returns: results, plus guesses when no result is a sure match. */
 export async function lookup(

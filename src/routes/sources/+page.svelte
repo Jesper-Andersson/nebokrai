@@ -89,6 +89,14 @@
 		it is. None of the licences above covers them.
 	</p>
 
+	<h2>The fundraiser banner</h2>
+	<p>
+		The picture in the banner under the header is the campaign image of
+		<a href="https://auroraaid.eu/volt4victory/">Volt 4 Victory</a>, a fundraiser by Aurora
+		Frontline Aid. It belongs to them, is served from here and is shown only to say whose
+		campaign it is. None of the licences above covers it.
+	</p>
+
 	<h2>Icons of learning resources</h2>
 	<p>
 		The small icons on the <a href="/resources">Resources</a> page belong to the sites they stand

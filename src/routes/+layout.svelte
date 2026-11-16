@@ -5,6 +5,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount, type Component } from 'svelte';
+	import Appeal from '#lib/Appeal.svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	import { Tooltip } from 'bits-ui';
@@ -117,6 +118,10 @@
 		     the header (WCAG 2.4.1). Hidden until it has focus. -->
 		<a class="skip" href="#main">{m.nav.skip}</a>
 		<Header />
+
+		<!-- One fundraiser at a time, until it ends or the visitor closes it
+		     (src/lib/appeal.ts). It sits above <main>, so the skip link passes it. -->
+		<Appeal />
 
 		<main id="main" tabindex="-1">
 			{@render children()}

@@ -52,6 +52,8 @@ export interface WordEntry {
 	audio_url: string | null;
 	etymology: string | null;
 	freq_rank: number | null;
+	/** Where the entry is from: Wiktionary, or written for Nebokrai (the abbreviations км, англ.). */
+	source: EntrySource;
 	senses: Sense[];
 	/** The declension or conjugation table, one row per cell. Empty if there is none. */
 	forms: { form: string; tags: string[] }[];
@@ -88,11 +90,34 @@ async function knownWords(db: Db, spellings: string[]): Promise<Set<string>> {
 	return new Set(rows.map((r) => r.key));
 }
 
+export type EntrySource = 'wiktionary' | 'nebokrai';
+
+/**
+ * Runs `query(column)` with the entries' `source` column, and again with a
+ * constant in its place when the database was built before entries recorded
+ * their source: every entry was Wiktionary's then.
+ */
+async function withSource<T>(query: (column: string) => Promise<T>): Promise<T> {
+	try {
+		return await query('source');
+	} catch (err) {
+		if (!/no such column/i.test(String(err))) throw err;
+		return query("'wiktionary' AS source");
+	}
+}
+
+/** Where one entry is from; 'wiktionary' when there is no such entry. */
+export async function entrySource(db: Db, id: number): Promise<EntrySource> {
+	const rows = await withSource((column) =>
+		db.all<{ source: EntrySource }>(`SELECT ${column} FROM entries WHERE id = ?`, [id]));
+	return rows[0]?.source ?? 'wiktionary';
+}
+
 export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
-	const rows = await db.all<Record<string, any>>(
-		`SELECT id, word, headword, pos, tags, head_forms, roman, ipa, audio_url, etymology, freq_rank
+	const rows = await withSource((column) => db.all<Record<string, any>>(
+		`SELECT id, word, headword, pos, tags, head_forms, roman, ipa, audio_url, etymology, freq_rank, ${column}
 		 FROM entries WHERE id IN (SELECT entry_id FROM search_keys WHERE key = ? AND kind = 'word')
-		 ORDER BY freq_rank IS NULL, freq_rank, id`, [plain(word)]);
+		 ORDER BY freq_rank IS NULL, freq_rank, id`, [plain(word)]));
 	const loaded = [];
 	for (const r of rows) {
 		const [senses, forms, examples, relations] = await Promise.all([
@@ -120,6 +145,7 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 		}),
 		roman: r.roman, ipa: r.ipa, audio_url: r.audio_url, etymology: r.etymology,
 		freq_rank: r.freq_rank,
+		source: r.source,
 		senses: senses.map((s) => ({
 			n: s.n, gloss: s.gloss, tags: JSON.parse(s.tags), examples: JSON.parse(s.examples)
 		})),

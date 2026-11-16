@@ -337,7 +337,11 @@
 
 			<footer>
 				<span>
-					{m.word.from} <a href={wiktionary(entry.word)}>{m.word.wiktionary}</a>
+					{#if entry.source === 'nebokrai'}
+						{m.word.from} <a href="/sources">{m.word.ownEntry}</a>
+					{:else}
+						{m.word.from} <a href={wiktionary(entry.word)}>{m.word.wiktionary}</a>
+					{/if}
 					(<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>)
 					{#if entry.audio_url}
 						· <a href={commonsPage(entry.audio_url)}>{m.word.recording}</a>

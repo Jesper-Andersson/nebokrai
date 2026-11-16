@@ -23,7 +23,7 @@ export interface ExportFile {
 
 const SITE = 'https://nebokrai.app';
 const LICENCE =
-	'Dictionary data from Wiktionary, CC BY-SA 4.0. Example sentences from Tatoeba, CC BY 2.0 FR. See https://nebokrai.app/sources';
+	'Dictionary data from Wiktionary, with abbreviations added by Nebokrai, CC BY-SA 4.0. Example sentences from Tatoeba, CC BY 2.0 FR. See https://nebokrai.app/sources';
 
 const wordUrl = (word: string) => SITE + wordPath(word);
 const tatoebaUrl = (id: number) => `https://tatoeba.org/sentences/show/${id}`;

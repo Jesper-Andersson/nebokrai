@@ -48,7 +48,8 @@ CREATE TABLE entries (
     audio_url   TEXT,
     etymology   TEXT,
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
-    freq_rank   INTEGER                   -- 1 = most common word; NULL = not seen in the corpus
+    freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
+    source      TEXT NOT NULL DEFAULT 'wiktionary'  -- or 'nebokrai': written for this dictionary (abbreviations.tsv)
 );
 CREATE TABLE senses (
     id        INTEGER PRIMARY KEY,
@@ -287,6 +288,60 @@ def form_of_kind(gloss):
     """What a kept page says it is: 'comparative degree', 'verbal noun'."""
     found = re.match(r"(.+?) of\b", gloss.lower())
     return found.group(1) if found else "other"
+
+
+def word_keys(word, roman=None):
+    """The search keys of a dictionary word, apart from its forms and meanings."""
+    keys = {(plain(word), "word")}
+    # An abbreviation is typed with and without its full stop: ст for ст.
+    if word.endswith(".") and plain(word).rstrip(". "):
+        keys.add((plain(word).rstrip(". "), "word"))
+    keys.add((loose_latin(national_translit(word)), "latin"))
+    if roman:
+        keys.add((loose_latin(roman), "latin"))
+    # Looser keys for "did you mean": sounds-alike, and one typo away.
+    for k, kind in list(keys):
+        if kind == "latin" and k:
+            sk = sound_key(k)
+            keys.add((sk, "sound"))
+            if len(sk) >= TYPO_MIN:
+                keys.update((d, "typo") for d in deletes(sk))
+    return keys
+
+
+def add_abbreviations(db, path):
+    """Entries for the abbreviations in abbreviations.tsv, which Wiktionary has
+    no page for: км, англ., ЗМІ. They are shaped like the kept "form of" pages,
+    "abbreviation of кіломе́тр (“kilometre”)" with the full word as a related
+    word, and marked as Nebokrai's own. A spelling that already has an entry is
+    left alone. Returns the (entry id, full word) pairs for `link_kept_pages`.
+    """
+    links, added = [], 0
+    with open(path, encoding="utf-8") as rows:
+        for line in rows:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            word, pos, kind, full, english = (cell.strip() for cell in line.split("\t"))
+            if db.execute("SELECT 1 FROM search_keys WHERE key=? AND kind='word'", (plain(word),)).fetchone():
+                continue
+            eid = db.execute(
+                "INSERT INTO entries(word, headword, pos, tags, head_forms, source) VALUES (?,?,?,'[]','[]','nebokrai')",
+                (word, word, pos)).lastrowid
+            # The full word takes its stress from the dictionary, where it is there.
+            found = db.execute("SELECT headword FROM entries WHERE word=?", (full,)).fetchall()
+            shown = found[0][0] if len(found) == 1 else full
+            db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,1,?,?,'[]')",
+                       (eid, f"{kind} of {shown} (“{english}”)", json.dumps([kind, "alt-of"])))
+            db.execute("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,1,'related',?,?,'[]')",
+                       (eid, shown, plain(full)))
+            keys = word_keys(word)
+            keys.update((w, "english") for w in re.findall(r"[a-z]+(?:[-'][a-z]+)*", english.lower()) if len(w) > 1)
+            db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
+                           [(k, eid, kind_) for k, kind_ in keys if k])
+            links.append((eid, plain(full)))
+            added += 1
+    return links, added
 
 
 def link_kept_pages(db, kept):
@@ -757,7 +812,7 @@ def add_cloze(db, index, pairs, per_noun=5):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
@@ -820,17 +875,7 @@ def build(src, dst, freq=None, tatoeba=None):
         stats["entries"] += 1
         stats["with_audio"] += bool(audio)
 
-        keys = {(plain(word), "word")}
-        keys.add((loose_latin(national_translit(word)), "latin"))
-        if roman:
-            keys.add((loose_latin(roman), "latin"))
-        # Looser keys for "did you mean": sounds-alike, and one typo away.
-        for k, kind in list(keys):
-            if kind == "latin" and k:
-                sk = sound_key(k)
-                keys.add((sk, "sound"))
-                if len(sk) >= TYPO_MIN:
-                    keys.update((d, "typo") for d in deletes(sk))
+        keys = word_keys(word, roman)
 
         n = 0
         had_example = False
@@ -912,6 +957,11 @@ def build(src, dst, freq=None, tatoeba=None):
 
     db.executescript(INDEXES)
     stats["kept_kinds"] = dict(kept_kinds.most_common())
+    if abbreviations:
+        links, stats["abbreviations_added"] = add_abbreviations(db, abbreviations)
+        stats["entries"] += stats["abbreviations_added"]
+        stats["senses"] += stats["abbreviations_added"]
+        kept_links += links
     stats["kept_linked_back"] = link_kept_pages(db, kept_links)
     stats.update(finish_relations(db))
     if freq or tatoeba:
@@ -946,6 +996,7 @@ if __name__ == "__main__":
     ap.add_argument("database")
     ap.add_argument("--freq")
     ap.add_argument("--tatoeba")
+    ap.add_argument("--abbreviations", help="data/abbreviations.tsv: Nebokrai's own entries for abbreviations")
     args = ap.parse_args()
-    for k, v in build(args.source, args.database, args.freq, args.tatoeba).items():
+    for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations).items():
         print(f"{k:>16}: {v}")

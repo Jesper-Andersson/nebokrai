@@ -270,6 +270,7 @@ common first.
 
 | Field | Meaning |
 |---|---|
+| `source` | `wiktionary`, or `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`). Credit and link accordingly: such an entry has no Wiktionary page. |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
 | `ipa` | Pronunciation. `null` for about 2% of entries. |
 | `audio_url` | An mp3 on Wikimedia Commons. `null` for 45% of entries. |
@@ -475,7 +476,7 @@ The answers carry dictionary data, and each source keeps its own licence
 
 | What | Licence |
 |---|---|
-| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 |
+| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0; entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
 | Results with `vesum_only: true`, their `kind`, and `through` | VESUM, CC BY-NC-SA 4.0: no commercial use |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
@@ -514,7 +515,7 @@ dashboard to switch at once.
 ## Suggestions while typing (no request)
 
 The dropdown under the search box does not call the server. The page
-downloads `static/words.json` once (31,149 headwords, most common first,
+downloads `static/words.json` once (31,204 headwords, most common first,
 about 175 KB compressed) and matches locally:
 
 ```ts

@@ -464,6 +464,8 @@ const en = {
 		etymology: 'Etymology',
 		from: 'From',
 		wiktionary: 'Wiktionary',
+		// An entry written for this dictionary, not taken from Wiktionary: the abbreviations км, англ.
+		ownEntry: 'Nebokrai',
 		recording: 'Recording on Wikimedia Commons',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
@@ -1684,6 +1686,7 @@ const uk: Messages = {
 		etymology: 'Етимологія',
 		from: 'Джерело:',
 		wiktionary: 'Вікісловник',
+		ownEntry: 'Небокрай',
 		recording: 'Запис на Вікісховищі',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',

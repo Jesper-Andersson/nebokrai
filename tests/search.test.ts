@@ -205,6 +205,32 @@ test('"form of" pages kept as words', { skip }, async () => {
 	assert.deepEqual(await wordDetails(db, 'будь-ласка'), []);
 });
 
+test('entries written for Nebokrai', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// км has no Wiktionary page: the entry is Nebokrai's, shaped like a kept "form of" page
+	const [km] = await wordDetails(db, 'км');
+	assert.equal(km.source, 'nebokrai');
+	assert.equal(km.senses[0].gloss, 'abbreviation of кіломе́тр (“kilometre”)');
+	assert.deepEqual(km.relations, [{ kind: 'related', sense_n: 1, word: 'кіломе́тр', tags: [], has_entry: true }]);
+	// An abbreviation written with a full stop is found without it too
+	const [other] = await wordDetails(db, 'ін');
+	assert.deepEqual([other.word, other.source], ['ін.', 'nebokrai']);
+	// Everything else is Wiktionary's, an abbreviation it has a page for included
+	assert.ok((await wordDetails(db, 'калина')).every((e) => e.source === 'wiktionary'));
+	assert.ok((await wordDetails(db, 'ст.')).every((e) => e.source === 'wiktionary'));
+
+	// A database built before entries recorded their source: all of it was Wiktionary's
+	const old = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes(', source') && !sql.includes("'wiktionary' AS source")
+				? Promise.reject(new Error('D1_ERROR: no such column: source: SQLITE_ERROR'))
+				: db.all<T>(sql, params)
+	};
+	const [oldKm] = await wordDetails(old, 'км');
+	assert.equal(oldKm.source, 'wiktionary');
+	assert.ok(oldKm.senses.length > 0);
+});
+
 test('a database built before related words were stored', { skip }, async () => {
 	const db = openLocal('nebokrai.db');
 	const old = {

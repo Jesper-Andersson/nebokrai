@@ -525,7 +525,25 @@ VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
 | `404` | `/api/word/…` for a word with no entry. |
 | `404` | `/api/radio/now/…` for a station that is not in the list. |
 | `400` | `/api/practice` with no `points`, or more than 20. Body: `{ "error": "bad_points", "max": 20 }`. |
+| `429` | `/api/search`, `/api/word/…` or `/api/gloss` asked too often. Body: `{ "error": "too_many" }`; see below. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
+
+### Too many requests
+
+The dictionary endpoints, the word pages (`/word/…`) and a search from the
+address (`/?q=…`) share one limit per client, counted per minute in each
+Cloudflare data centre (`src/lib/server/crawler.ts`). Over it, the answer is
+`429` with `Retry-After: 60`: `{ "error": "too_many" }` from `/api/…`, one line
+of plain text from a page.
+
+| Client | Counted by | Limit |
+|---|---|---|
+| A program that names itself in `User-Agent` (`AhrefsBot`, `curl`, `python-requests`) | that name, from every address | 30 a minute |
+| Anyone else | address (an IPv6 address by its /64) | 120 a minute |
+| Googlebot from Google's network, bingbot from Microsoft's | not counted | none |
+
+A cached answer counts too: the limit is checked before the cache is.
+The search page and the details page never come near it.
 
 ## Caching
 

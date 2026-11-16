@@ -1,7 +1,6 @@
 // What this site uses from Cloudflare's runtime module. The bindings are the
-// five D1 databases and the mail sender in wrangler.jsonc. Each is described
-// by the few methods
-// the code calls (see the files named below), not by Cloudflare's full types,
+// five D1 databases, the mail sender and the two rate limits in
+// wrangler.jsonc. Each is described by the few methods the code calls (see the files named below), not by Cloudflare's full types,
 // so the type check needs no generated file.
 //
 // During `npm run dev` the SvelteKit adapter stands in for this module with
@@ -24,7 +23,16 @@ declare module 'cloudflare:workers' {
 		STATS?: import('#lib/server/user-db.ts').D1Users;
 		/** Sends the email that announces a new report (see src/lib/server/reports.ts) */
 		MAIL?: import('#lib/server/reports.ts').Mailer;
+		/** Requests per minute from a bot that names itself (see src/lib/server/crawler.ts) */
+		CRAWLER_LIMIT?: RateLimit;
+		/** Requests per minute from one address (see src/lib/server/crawler.ts) */
+		VISITOR_LIMIT?: RateLimit;
 	};
+
+	/** A Rate Limiting binding: `success` is false once `key` is over the limit. */
+	interface RateLimit {
+		limit(options: { key: string }): Promise<{ success: boolean }>;
+	}
 
 	/** Keep the Worker running until `promise` settles, after the answer has been sent. */
 	export function waitUntil(promise: Promise<unknown>): void;

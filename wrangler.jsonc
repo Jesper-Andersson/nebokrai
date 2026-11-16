@@ -67,6 +67,25 @@
 		}
 	],
 
+	// The crawler limit (src/lib/server/crawler.ts, used in hooks.server.ts):
+	// requests to the pages and endpoints that read the dictionary, per minute
+	// and per Cloudflare location. A bot that names itself in its user agent
+	// is counted by that name; everyone else by address, with room for a
+	// school or an office behind one. The namespace ids are numbers chosen
+	// here, unique on the account; no command creates them.
+	"ratelimits": [
+		{
+			"name": "CRAWLER_LIMIT",
+			"namespace_id": "1101",
+			"simple": { "limit": 30, "period": 60 }
+		},
+		{
+			"name": "VISITOR_LIMIT",
+			"namespace_id": "1102",
+			"simple": { "limit": 120, "period": 60 }
+		}
+	],
+
 	// Keep request logs and errors, to read in the dashboard or with `wrangler tail`
 	"observability": { "enabled": true }
 }

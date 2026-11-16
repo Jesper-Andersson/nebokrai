@@ -105,6 +105,10 @@ with its stream, or what its own player lists. The moving bars that show a stati
 Sam Herbert ([SVG Loaders](https://github.com/SamHerbert/SVG-Loaders), MIT
 licence).
 
+The cog that opens the weekly goal's settings is the "settings" icon from
+[Lucide](https://lucide.dev/) (ISC licence). The site's other line icons were
+drawn for it.
+
 ### Using our data
 
 The dictionary data shown on this site, apart from VESUM, is available under
@@ -146,6 +150,7 @@ for everyone.
 | Fund logos on the Support Ukraine page | None: each is its organisation's trademark | Use one only beside that fund's own link, unaltered; take it down if the fund asks | Support page ("About this list"); Sources page. Files: `static/funds/*.png`, each the icon the fund's site gives browsers |
 | Radio streams (the player in the corner) | None: each stream and its programmes are the station's | Play the stream from the station's own server, unaltered, under the station's name with a link to its site; no copy, no recording, no advertising of ours around it; take a station out if it asks | Sources page; the link in the player. List: `src/lib/radio.ts` |
 | The radio's moving bars (the heights and timings of "audio" in SVG Loaders, Sam Herbert, 2014, rewritten as CSS keyframes) | MIT | Keep the copyright line and the licence's name with the copy | The comment over the bars in `src/lib/RadioPlayer.svelte`; Sources page |
+| The cog icon ("settings" from Lucide, Lucide Icons and Contributors, 2026) | ISC | Keep the copyright line and the licence's name with the copy | The comment over `cog` in `src/lib/Icon.svelte`; Sources page |
 
 How the licences fit together:
 

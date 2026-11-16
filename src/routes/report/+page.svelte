@@ -9,6 +9,7 @@
 	import Turnstile from '#lib/Turnstile.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { REPORT_KINDS, type ReportKind } from '#lib/report.ts';
+	import { wordPath } from '#lib/search/slug.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import type { PageProps } from './$types';
 
@@ -119,7 +120,17 @@
 				<pre>{JSON.stringify(payload, null, 2)}</pre>
 			</details>
 
-			<button type="button" class="ui-btn" onclick={reset}>{m.report.another}</button>
+			<!-- The way back to what the report was about, so the page is not an end -->
+			<p class="onward">
+				{#if data.entry}
+					<a class="ui-btn ui-btn-primary" href={wordPath(data.entry.word)}>{m.report.toWord}</a>
+				{:else if data.query}
+					<a class="ui-btn ui-btn-primary" href="/?q={encodeURIComponent(data.query)}">{m.word.back}</a>
+				{:else}
+					<a class="ui-btn ui-btn-primary" href="/">{m.nav.dictionary}</a>
+				{/if}
+				<button type="button" class="ui-btn" onclick={reset}>{m.report.another}</button>
+			</p>
 		</section>
 	{:else}
 		<p class="muted">{m.report.intro}</p>
@@ -281,6 +292,13 @@
 
 	.thanks h2 {
 		margin-top: 0.5rem;
+	}
+
+	.onward {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0.5rem 0 0;
 	}
 
 	.upstream {

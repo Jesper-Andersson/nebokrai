@@ -126,6 +126,13 @@
 		<a href="https://github.com/SamHerbert/SVG-Loaders/blob/master/LICENSE.md">MIT licence</a>).
 	</p>
 
+	<p>
+		The cog that opens the weekly goal’s settings is the “settings” icon from
+		<a href="https://lucide.dev/">Lucide</a>
+		(<a href="https://github.com/lucide-icons/lucide/blob/main/LICENSE">ISC licence</a>). The site’s other
+		line icons were drawn for it.
+	</p>
+
 	<h2>Using our data</h2>
 	<p>
 		The dictionary data shown on this site, apart from VESUM, is available under

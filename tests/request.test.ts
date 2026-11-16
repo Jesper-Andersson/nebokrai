@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { stripControls } from '../src/lib/report.ts';
-import { rateKey, readJson } from '../src/lib/server/request.ts';
+import { isLocalPath, rateKey, readJson, returnPath } from '../src/lib/server/request.ts';
 import { SESSION_TOKEN, createSession, findOrCreateUser } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -78,4 +78,19 @@ test('a new session token has the shape the hook lets through', async () => {
 	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
 	for (let i = 0; i < 20; i++) assert.match((await createSession(db, user)).token, SESSION_TOKEN);
 	assert.doesNotMatch('not-a-token', SESSION_TOKEN);
+});
+
+test('sign-in returns only to a page of this site', () => {
+	const site = 'https://nebokrai.app';
+	assert.equal(returnPath(`${site}/word/voda`, site), '/word/voda');
+	assert.equal(returnPath(`${site}/?q=%D0%B2%D0%BE%D0%B4%D0%B0`, site), '/?q=%D0%B2%D0%BE%D0%B4%D0%B0');
+	assert.equal(returnPath('https://example.com/word/voda', site), null);
+	assert.equal(returnPath(`${site}//example.com`, site), null);
+	assert.equal(returnPath(`${site}/login/github`, site), null);
+	assert.equal(returnPath(`${site}/api/account`, site), null);
+	assert.equal(returnPath(null, site), null);
+	assert.equal(returnPath('not an address', site), null);
+	assert.ok(isLocalPath('/saved'));
+	for (const path of ['//example.com', '/\\example.com', 'https://example.com', 'saved', ''])
+		assert.ok(!isLocalPath(path), path);
 });

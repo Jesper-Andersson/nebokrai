@@ -29,7 +29,7 @@
 	<h2 id="learn-reference">{m.learn.reference}</h2>
 	<ul class="tiles">
 		<li>
-			<a class="ui-card tile" href="/alphabet">
+			<a class="ui-card tile" data-kind="alphabet" href="/alphabet">
 				<span class="mark letters" lang="uk" aria-hidden="true">АБВ</span>
 				<span class="text">
 					<b>{m.learn.tile.alphabet}</b>
@@ -39,7 +39,7 @@
 			</a>
 		</li>
 		<li>
-			<a class="ui-card tile" href="/common-words">
+			<a class="ui-card tile" data-kind="cards" href="/common-words">
 				<span class="mark"><Icon name="message" size={22} /></span>
 				<span class="text">
 					<b>{m.learn.tile.common}</b>
@@ -49,7 +49,7 @@
 			</a>
 		</li>
 		<li>
-			<a class="ui-card tile" href="/grammar">
+			<a class="ui-card tile" data-kind="grammar" href="/grammar">
 				<span class="mark"><Icon name="table" size={22} /></span>
 				<span class="text">
 					<b>{m.learn.tile.grammar}</b>
@@ -98,7 +98,26 @@
 		text-decoration: none;
 	}
 
-	/* The mark in a soft square of the accent */
+	/* Each tile in the colour of its kind, the same three as the newcomer's
+	   steps on /learn (routes/learn/+page.svelte): the letters a quiet ink
+	   grey, the words the accent, the grammar its green. Until 2026-11-16
+	   all three marks were in the accent. */
+	[data-kind='alphabet'] {
+		--kind: var(--ink-2);
+		--kind-soft: color-mix(in srgb, var(--ink-2) 12%, var(--surface));
+	}
+
+	[data-kind='cards'] {
+		--kind: var(--accent);
+		--kind-soft: var(--accent-soft);
+	}
+
+	[data-kind='grammar'] {
+		--kind: var(--pill-1-line);
+		--kind-soft: color-mix(in srgb, var(--pill-1-line) 14%, var(--surface));
+	}
+
+	/* The mark in a soft square of its kind's colour */
 	.mark {
 		display: grid;
 		flex: none;
@@ -106,8 +125,8 @@
 		width: 2.5rem;
 		height: 2.5rem;
 		border-radius: var(--radius-md);
-		background: var(--accent-soft);
-		color: var(--accent);
+		background: var(--kind-soft);
+		color: var(--kind);
 	}
 
 	.letters {

@@ -308,6 +308,8 @@ const en = {
 		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
 		/** Starts a round of the open lesson; and, on a row, of that rule alone. */
 		practiseThis: 'Practise this',
+		lessonsBack: 'Earlier lessons',
+		lessonsMore: 'More lessons',
 		practise: 'Practise',
 		/** The columns of the open lesson's table. */
 		column: { after: 'After', takes: 'The noun takes', means: 'Means', example: 'Example', state: 'State' },
@@ -353,6 +355,8 @@ const en = {
 		commonTitle: 'The 1,000 most common Ukrainian words',
 		commonLead: 'The words you\'ll meet most often, with the most common listed first.',
 		commonSource: 'Counted from film and television subtitles, so everyday speech weighs more than books.',
+		commonMore: 'Looking for a rarer word?',
+		commonAll: 'Browse all words by letter',
 		commonPages: 'Parts of the list',
 		commonPagesEnd: 'Parts of the list, at the end',
 		wordsTitle: 'All words',
@@ -540,6 +544,7 @@ const en = {
 		/** The guide's list of its sections, and the way back to it from each */
 		sections: 'Sections',
 		toSections: 'All sections',
+		practise: 'Practise in real sentences',
 		count: (n: number) => `${n} ${n === 1 ? 'word' : 'words'}`,
 		terms: {
 			noun: { name: 'Noun', text: 'A word for a thing, a person, a place or an idea. A Ukrainian noun has a gender, and its ending changes with its role in the sentence.' },
@@ -660,7 +665,8 @@ const en = {
 				n >= goal ? `This week: ${n === 1 ? '1 day' : `${n} days`}, goal of ${goal} met` : `This week: ${n} of ${goal} days`,
 			practised: 'Days practised',
 			thisMonth: 'practised this month',
-			set: 'Set a weekly goal'
+			set: 'Set a weekly goal',
+			settings: 'Goal settings'
 		},
 		practise: 'Practise these words',
 		practiseCommon: 'Practise these words with flashcards',
@@ -826,6 +832,8 @@ const en = {
 	/** The alphabet trainer (/alphabet). The letters themselves are in alphabet/letters.ts. */
 	alphabet: {
 		lead: 'Learn to read Ukrainian Cyrillic. Choose the groups to practise.',
+		onward: 'Know the letters?',
+		onwardGo: 'Go on to the most common words',
 		chosen: (n: number) => (n === 1 ? '1 letter chosen' : `${n} letters chosen`),
 		known: (n: number, total: number) => `${n} of ${total} known`,
 		start: 'Start',
@@ -1284,7 +1292,8 @@ const en = {
 		onWiktionary: (word: string) => `“${word}” on Wiktionary`,
 		addToWiktionary: (word: string) => `Add “${word}” to Wiktionary`,
 		preview: 'What was sent',
-		another: 'Report something else'
+		another: 'Report something else',
+		toWord: 'Back to the word'
 	}
 };
 
@@ -1529,6 +1538,8 @@ const uk: Messages = {
 		// "з" takes the genitive: з 1 правила, з 3 правил
 		rulesKnown: (n, total) => `засвоєно ${n} з ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'правила' : 'правил'}`,
 		practiseThis: 'Тренувати це',
+		lessonsBack: 'Попередні уроки',
+		lessonsMore: 'Наступні уроки',
 		practise: 'Тренувати',
 		column: { after: 'Після', takes: 'Відмінок', means: 'Значення', example: 'Приклад', state: 'Стан' },
 		state: { new: 'Не розпочато', weak: 'Потребує практики', learning: 'Вивчається', known: 'Засвоєно' },
@@ -1567,6 +1578,8 @@ const uk: Messages = {
 		commonTitle: '1000 найуживаніших українських слів',
 		commonLead: 'Слова, які трапляються найчастіше: спершу найуживаніші.',
 		commonSource: 'Підраховано за субтитрами до фільмів і серіалів, тому розмовна мова важить більше за книжну.',
+		commonMore: 'Шукаєте рідше слово?',
+		commonAll: 'Перегляньте всі слова за літерами',
 		commonPages: 'Частини списку',
 		commonPagesEnd: 'Частини списку, унизу',
 		wordsTitle: 'Усі слова',
@@ -1731,6 +1744,7 @@ const uk: Messages = {
 		caseTable: { name: 'Відмінок', question: 'Питання', example: 'Приклад' },
 		sections: 'Розділи',
 		toSections: 'Усі розділи',
+		practise: 'Вправляти на справжніх реченнях',
 		count: (n: number) => counted(n, 'термін', 'терміни', 'термінів'),
 		terms: {
 			noun: { name: 'Іменник', text: 'Слово, що називає предмет, людину, місце чи поняття. Має рід і змінює закінчення залежно від ролі в реченні.' },
@@ -1860,7 +1874,8 @@ const uk: Messages = {
 					: `Цього тижня: ${n} з ${counted(goal, 'дня', 'днів', 'днів')}`,
 			practised: 'Дні занять',
 			thisMonth: 'із заняттями цього місяця',
-			set: 'Поставити мету на тиждень'
+			set: 'Поставити мету на тиждень',
+			settings: 'Налаштування мети'
 		},
 		practise: 'Тренувати ці слова',
 		practiseCommon: 'Тренувати ці слова на картках',
@@ -2009,6 +2024,8 @@ const uk: Messages = {
 	},
 	alphabet: {
 		lead: 'Навчіться читати українську кирилицю. Оберіть групи для вправ.',
+		onward: 'Уже знаєте літери?',
+		onwardGo: 'Перейдіть до найуживаніших слів',
 		chosen: (n) => `Обрано ${counted(n, 'літеру', 'літери', 'літер')}`,
 		known: (n, total) => `Вивчено ${n} з ${total}`,
 		start: 'Почати',
@@ -2422,7 +2439,8 @@ const uk: Messages = {
 		onWiktionary: (word: string) => `«${word}» у Вікісловнику`,
 		addToWiktionary: (word: string) => `Додати «${word}» до Вікісловника`,
 		preview: 'Що надіслано',
-		another: 'Повідомити про інше'
+		another: 'Повідомити про інше',
+		toWord: 'Назад до слова'
 	}
 };
 

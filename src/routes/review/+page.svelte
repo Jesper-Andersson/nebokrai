@@ -342,6 +342,9 @@
 	// short of that it springs back. Up and down still scroll the page.
 	/** How far the card has been dragged sideways, in pixels. */
 	let drag = $state(0);
+	/** When a tap last turned the card (an event's timeStamp), and how long its clicks are kept from the answer. */
+	let turnedAt = -Infinity;
+	const TURN_GUARD_MS = 400;
 
 	function swipe(node: HTMLElement) {
 		let pointer = -1;
@@ -373,7 +376,10 @@
 			pointer = -1;
 			if (!moved) {
 				// A card to type is turned by its answer, not by a tap
-				if (!flipped && !typing && Math.abs(event.clientX - startX) < 12 && Math.abs(event.clientY - startY) < 12) flipped = true;
+				if (!flipped && !typing && Math.abs(event.clientX - startX) < 12 && Math.abs(event.clientY - startY) < 12) {
+					flipped = true;
+					turnedAt = event.timeStamp;
+				}
 				return;
 			}
 			const far = Math.abs(drag) > Math.min(110, node.offsetWidth / 4);
@@ -385,11 +391,22 @@
 			pointer = -1;
 			drag = 0;
 		};
+		// The tap that turns the card ends in a click, and by then the answer is
+		// under the finger: the click would open its link or a word of the
+		// example. It belongs to the turn, as does a second tap already on its
+		// way, so neither reaches the answer.
+		const click = (event: MouseEvent) => {
+			if (event.timeStamp - turnedAt > TURN_GUARD_MS) return;
+			event.preventDefault();
+			event.stopPropagation();
+		};
+		node.addEventListener('click', click, true);
 		node.addEventListener('pointerdown', down);
 		node.addEventListener('pointermove', move);
 		node.addEventListener('pointerup', up);
 		node.addEventListener('pointercancel', cancel);
 		return () => {
+			node.removeEventListener('click', click, true);
 			node.removeEventListener('pointerdown', down);
 			node.removeEventListener('pointermove', move);
 			node.removeEventListener('pointerup', up);

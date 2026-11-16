@@ -74,6 +74,17 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-16-flashcards-phone',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Review flashcards on a phone without scrolling', uk: 'Повторюйте картки на телефоні без прокручування' },
+		body: {
+			en: 'A card and its answers now fit one phone screen, a tap that turns a card no longer opens the link under it, and the help behind the question mark is much shorter.',
+			uk: 'Картка й відповіді тепер уміщаються на одному екрані телефона, дотик, що перевертає картку, більше не відкриває посилання під нею, а довідка за знаком питання стала значно коротшою.'
+		},
+		href: '/review'
+	},
+	{
 		id: '2026-11-16-pick-up',
 		date: '2026-11-16',
 		kind: 'new',

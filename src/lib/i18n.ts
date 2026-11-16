@@ -634,60 +634,13 @@ const en = {
 			open: 'How the flashcards work',
 			close: 'Close',
 			title: 'How the flashcards work',
-			intro: 'Flashcards from your saved words and from the commonest words; each comes back shortly before you would forget it. Each card shows a Ukrainian word. Try to recall what it means, then show the answer and say whether you knew it. A word you have known for a while comes the other way round: you type it.',
+			intro: 'Each card shows a Ukrainian word. Recall its meaning, show the answer, then say whether you knew it.',
 			sections: [
-				{
-					heading: 'Again and Good',
-					body: [
-						'Good if you remembered the meaning, even slowly. Again if you did not, or got it wrong.',
-						'Good puts the card off for longer each time. Again brings it back in ten minutes and makes the gaps after it shorter.'
-					]
-				},
-				{
-					heading: 'Typing the answer',
-					body: [
-						'A new word is shown to you first, Ukrainian side up. Once you have recognised it after a gap of a few days and it is expected to hold for a week, its card shows the meaning instead, and you type the Ukrainian word. Recalling a word yourself fixes it better than recognising it, but only once you know it well enough to manage. A word you forget goes back to the Ukrainian side until it holds again.',
-						'Stuck, you can show the first letter, then choose the word from four. Typed after the first letter, it still counts as known; chosen from four, it comes back soon.',
-						'Then the card shows a sentence with the word left out, and you type the form the sentence needs: склянку води, not склянку вода. Latin letters work too: vody.',
-						'The answer your typing suggests is the one in blue: Good if you recalled the word, even with another ending, and Again if you did not. You can still pick the other. Typing can be switched off under the decks.'
-					]
-				},
-				{
-					heading: 'When a card comes back',
-					body: [
-						'The site uses FSRS (Free Spaced Repetition Scheduler), the same method Anki offers. For each word it keeps two numbers: how long you are likely to remember it, and how hard it is for you. Each answer updates both.',
-						'A card is shown again on the day your chance of remembering it is expected to fall to 90%. A word you know well can wait weeks or months; a hard one comes back sooner.',
-						'A new word is first seen twice within minutes, after one and then ten minutes, before its gaps are counted in days.'
-					]
-				},
-				{
-					heading: 'A day of review',
-					body: [
-						'A day starts at four in the morning, so a review just after midnight counts towards the evening before.',
-						'New words a day limits only words you have not seen yet. Every card that is due is shown, however many there are.'
-					]
-				},
-				{
-					heading: 'Decks',
-					body: [
-						'A tick on a deck says where new words come from. Every word you have started keeps coming back for review, ticked or not; to stop a deck’s reviews for a while, pause it from its menu. Saved words takes every word you saved, or only one of your lists. The common-word decks hold the most frequent Ukrainian words, in order of frequency. With more than one ticked, new words come from the top one first.'
-					]
-				},
-				{
-					heading: 'Your weekly goal',
-					body: [
-						'Choose on how many days a week you mean to practise, and when, in your own words: “When I have my morning coffee”. A plan that names the moment makes it likelier you keep to it.',
-						'The ring on Learn fills for each day this week, Monday to Sunday, with at least one review, and closes once the goal is met. Days beyond the goal count too. A missed day takes nothing away: the week only counts what you did.',
-						'More new cards a day means more reviews later: each new card a day brings about nine reviews a day after three months.'
-					]
-				},
-				{
-					heading: 'Where your reviews are kept',
-					body: [
-						'In this browser. Signed in, they are also kept in your account and are the same on every device.',
-						'The schedule uses the standard FSRS settings, not ones fitted to your own answers.'
-					]
-				}
+				{ heading: 'Again and Good', body: ['Good if you remembered, even slowly. Again if you did not: the card comes back in ten minutes. On a phone, tap the card for the answer, then swipe it left for Again or right for Good.'] },
+				{ heading: 'When a card comes back', body: ['Shortly before you would forget it: after days at first, then weeks and months. A hard word comes back sooner.'] },
+				{ heading: 'Typing the answer', body: ['A word you know well is asked the other way round: you see the meaning and type the word, in Ukrainian or Latin letters. You can switch this off under the decks.'] },
+				{ heading: 'Decks', body: ['A tick on a deck says where new words come from. Words you have started keep coming back, ticked or not; pause a deck from its menu to stop them.'] },
+				{ heading: 'Where your reviews are kept', body: ['In this browser, and in your account when you are signed in.'] }
 			],
 			more: 'How FSRS works in detail:',
 			moreLink: 'the algorithm, by the Open Spaced Repetition project'
@@ -817,7 +770,6 @@ const en = {
 			reset: 'Back to the usual keys',
 			change: (action: string, key: string) => `${action}: ${key}. Change the key`
 		},
-		swipe: 'Tap the card for the answer, then swipe it left for Again or right for Good.',
 		heatmap: {
 			thisMonth: 'This month',
 			bestMonth: 'Best month',
@@ -1891,60 +1843,13 @@ const uk: Messages = {
 			open: 'Як працюють картки',
 			close: 'Закрити',
 			title: 'Як працюють картки',
-			intro: 'Картки зі збережених і найуживаніших слів; кожна повертається незадовго до того, як ви забули б слово. На кожній картці українське слово. Спробуйте згадати, що воно означає, потім покажіть відповідь і скажіть, чи знали ви його. Слово, яке ви вже знаєте якийсь час, приходить навпаки: ви його друкуєте.',
+			intro: 'На кожній картці українське слово. Згадайте його значення, покажіть відповідь і скажіть, чи знали ви його.',
 			sections: [
-				{
-					heading: '«Ще раз» і «Добре»',
-					body: [
-						'«Добре», якщо ви згадали значення, хай і не одразу. «Ще раз», якщо не згадали або помилилися.',
-						'«Добре» щоразу відкладає картку на довше. «Ще раз» повертає її за десять хвилин, а наступні проміжки стають коротшими.'
-					]
-				},
-				{
-					heading: 'Друкування відповіді',
-					body: [
-						'Нове слово спершу показується українським боком догори. Коли ви впізнали його після перерви в кілька днів і воно має триматися тиждень, картка показує значення, а ви друкуєте українське слово. Самому згадати слово корисніше, ніж його впізнати, але лише тоді, коли ви знаєте його досить, щоб упоратися. Забуте слово повертається українським боком, доки знову не закріпиться.',
-						'Якщо не виходить, можна показати першу літеру, а потім вибрати слово з чотирьох. Надруковане після першої літери слово все одно вважається знаним; вибране з чотирьох повернеться незабаром.',
-						'Потім картка показує речення з пропуском, і ви друкуєте форму, якої потребує речення: склянку води, а не склянку вода. Можна й латиницею: vody.',
-						'Відповідь, яку підказує надруковане, виділено синім: «Добре», якщо ви згадали слово, хай і з іншим закінченням, і «Ще раз», якщо не згадали. Можна вибрати й іншу. Друкування можна вимкнути під колодами.'
-					]
-				},
-				{
-					heading: 'Коли картка повертається',
-					body: [
-						'Сайт використовує FSRS (Free Spaced Repetition Scheduler), той самий метод, що пропонує Anki. Для кожного слова він зберігає два числа: як довго ви, найімовірніше, його пам’ятатимете і наскільки воно для вас складне. Кожна відповідь змінює обидва.',
-						'Картка з’являється знову того дня, коли ймовірність, що ви її згадаєте, має знизитися до 90%. Добре відоме слово може чекати тижні чи місяці, складне повертається раніше.',
-						'Нове слово спершу показується двічі за кілька хвилин, через одну, а потім через десять хвилин, і лише після того проміжки рахуються днями.'
-					]
-				},
-				{
-					heading: 'День повторень',
-					body: [
-						'День починається о четвертій ранку, тож повторення одразу після півночі зараховується до попереднього вечора.',
-						'«Нових слів на день» обмежує лише слова, яких ви ще не бачили. Усі картки, яким настав час, показуються, скільки б їх не було.'
-					]
-				},
-				{
-					heading: 'Колоди',
-					body: [
-						'Позначка біля колоди каже, звідки беруться нові слова. Кожне розпочате слово й далі повертається на повторення, позначено колоду чи ні; щоб на якийсь час зупинити повторення колоди, призупиніть її в її меню. «Збережені слова» охоплюють усі збережені слова або лише один ваш список. Колоди найуживаніших слів містять найчастотніші українські слова за порядком частоти. Якщо позначено кілька колод, нові слова беруться спершу з верхньої.'
-					]
-				},
-				{
-					heading: 'Ваша мета на тиждень',
-					body: [
-						'Виберіть, скільки днів на тиждень ви хочете займатися і коли, своїми словами: «Коли п’ю ранкову каву». План, що називає мить, допомагає його дотримати.',
-						'Кільце на сторінці «Навчання» заповнюється за кожен день цього тижня, з понеділка до неділі, коли ви повторили хоча б одну картку, і замикається, щойно мету досягнуто. Дні понад мету теж зараховано. Пропущений день нічого не забирає: тиждень лічить лише те, що ви зробили.',
-						'Більше нових карток на день — більше повторень згодом: кожна нова картка на день дає приблизно дев’ять повторень на день через три місяці.'
-					]
-				},
-				{
-					heading: 'Де зберігаються ваші повторення',
-					body: [
-						'У цьому браузері. Якщо ви ввійшли, вони зберігаються й у вашому обліковому записі та однакові на всіх пристроях.',
-						'Розклад використовує стандартні налаштування FSRS, а не підібрані під ваші власні відповіді.'
-					]
-				}
+				{ heading: '«Ще раз» і «Добре»', body: ['«Добре», якщо ви згадали, хай і не одразу. «Ще раз», якщо не згадали: картка повернеться за десять хвилин. На телефоні торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).'] },
+				{ heading: 'Коли картка повертається', body: ['Незадовго до того, як ви забули б слово: спершу через дні, далі через тижні й місяці. Складне слово повертається раніше.'] },
+				{ heading: 'Друкування відповіді', body: ['Добре знане слово питається навпаки: ви бачите значення і друкуєте слово, кирилицею або латиницею. Це можна вимкнути під колодами.'] },
+				{ heading: 'Колоди', body: ['Позначка біля колоди каже, звідки беруться нові слова. Розпочаті слова повертаються й далі, позначено колоду чи ні; щоб їх зупинити, призупиніть колоду в її меню.'] },
+				{ heading: 'Де зберігаються ваші повторення', body: ['У цьому браузері, а якщо ви ввійшли, то й у вашому обліковому записі.'] }
 			],
 			more: 'Докладніше про FSRS:',
 			moreLink: 'алгоритм від проєкту Open Spaced Repetition (англійською)'
@@ -2060,7 +1965,6 @@ const uk: Messages = {
 			reset: 'Повернути звичні клавіші',
 			change: (action, key) => `${action}: ${key}. Змінити клавішу`
 		},
-		swipe: 'Торкніться картки, щоб побачити відповідь, потім змахніть її ліворуч («Ще раз») або праворуч («Добре»).',
 		heatmap: {
 			thisMonth: 'Цього місяця',
 			bestMonth: 'Найкращий місяць',

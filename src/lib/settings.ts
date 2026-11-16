@@ -41,12 +41,19 @@ export interface Settings {
 	 * the first paint.
 	 */
 	seen: string;
+	/**
+	 * Not a choice either: the id of the appeal (src/lib/appeal.ts) whose banner
+	 * this browser closed, or ''. A cookie, so a closed banner is left out of
+	 * the page the server sends instead of flashing and then going.
+	 */
+	closed: string;
 }
 
 export function readSettings(cookie: (name: string) => string | undefined): Settings {
 	const theme = cookie('theme');
 	const background = cookie('bg');
 	const seen = cookie('seen') ?? '';
+	const closed = cookie('closed') ?? '';
 	return {
 		lang: cookie('lang') === 'uk' ? 'uk' : 'en',
 		theme: theme === 'light' || theme === 'sepia' || theme === 'dark' ? theme : 'system',
@@ -58,7 +65,8 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 		ipa: cookie('ipa') === 'on' ? 'on' : 'off',
 		blur: cookie('blur') === 'off' ? 'off' : 'on',
 		// Anything that is not shaped like an id counts as a first visit
-		seen: /^\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(seen) ? seen : ''
+		seen: /^\d{4}-\d{2}-\d{2}-[a-z0-9-]+$/.test(seen) ? seen : '',
+		closed: /^[a-z0-9-]+$/.test(closed) ? closed : ''
 	};
 }
 
@@ -66,6 +74,9 @@ export function readSettings(cookie: (name: string) => string | undefined): Sett
 const SWITCH_DEFAULTS = { radio: 'off', roman: 'on', ipa: 'off', blur: 'on' } as const;
 
 const YEAR = 60 * 60 * 24 * 365;
+// A closed appeal comes back after a month: long enough not to nag, short
+// enough that a reader who closed it on the first day sees it once more.
+const MONTH = 60 * 60 * 24 * 30;
 
 /** Browser only: remember a setting and apply it to the page at once. */
 export function applySetting<K extends keyof Settings>(name: K, value: Settings[K]): void {
@@ -105,6 +116,8 @@ export function applySetting<K extends keyof Settings>(name: K, value: Settings[
 		else document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
 	} else if (name === 'seen') {
 		document.cookie = `seen=${value}; path=/; max-age=${YEAR}; samesite=lax`;
+	} else if (name === 'closed') {
+		document.cookie = `closed=${value}; path=/; max-age=${MONTH}; samesite=lax`;
 	} else {
 		document.cookie = `kbd=${value}; path=/; max-age=${YEAR}; samesite=lax`;
 	}

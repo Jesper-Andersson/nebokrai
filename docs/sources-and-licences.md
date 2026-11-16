@@ -74,6 +74,13 @@ The logos on the Support Ukraine page belong to the organisations they stand
 for. Each was taken from that organisation's own site and is shown only to say
 whose link it is. None of the licences above covers them.
 
+### The fundraiser banner
+
+The picture in the banner under the header is the campaign image of
+[Volt 4 Victory](https://auroraaid.eu/volt4victory/), a fundraiser by Aurora
+Frontline Aid. It belongs to them, is served from here and is shown only to say
+whose campaign it is. None of the licences above covers it.
+
 ### Icons of learning resources
 
 The small icons on the [Resources page](https://nebokrai.app/resources) belong

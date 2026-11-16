@@ -53,6 +53,16 @@ const en = {
 	},
 	/** The header's link to /support, and that page's title. */
 	support: { label: 'Support Ukraine', hint: 'Where to donate: United24 and other funds, by what they do' },
+	/** The banner under the header asking for one fundraiser (Appeal.svelte, src/lib/appeal.ts). */
+	appeal: {
+		label: 'Fundraiser',
+		/** The banner's picture, which carries the campaign's name */
+		picture: 'Volt 4 Victory: powering Ukraine’s defenders',
+		text: 'Aurora Frontline Aid, a Swedish foundation, is raising €250,000 for up to 300 power stations for Ukrainian units on the Kharkiv and Donetsk fronts. They run Starlink, radios and medical fridges.',
+		donate: 'Donate on auroraaid.eu',
+		with: 'With Denys Davydov and Brandon Mitchell',
+		close: 'Close for a month'
+	},
 	/** The search that opens from the header, or with Ctrl+K. */
 	quick: {
 		open: 'Search',
@@ -1317,6 +1327,14 @@ const uk: Messages = {
 		skip: 'Перейти до вмісту'
 	},
 	support: { label: 'Підтримати Україну', hint: 'Куди задонатити: United24 та інші фонди, за тим, що вони роблять' },
+	appeal: {
+		label: 'Збір коштів',
+		picture: 'Volt 4 Victory: живлення для захисників України',
+		text: 'Шведський фонд Aurora Frontline Aid збирає 250 000 € на до 300 зарядних станцій для українських підрозділів на Харківському й Донецькому напрямках. Вони живлять Starlink, радіостанції й медичні холодильники.',
+		donate: 'Допомогти на auroraaid.eu',
+		with: 'Разом із Денисом Давидовим і Брендоном Мітчеллом',
+		close: 'Закрити на місяць'
+	},
 	quick: {
 		open: 'Пошук',
 		title: 'Швидкий пошук',

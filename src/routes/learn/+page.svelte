@@ -16,6 +16,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
+	import LoginButton from '#lib/LoginButton.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { Alphabet } from '#lib/alphabet.svelte.ts';
 	import { stateOf as letterState } from '#lib/alphabet/drill.ts';
@@ -115,6 +116,22 @@
 
 <PageMeta title="{m.pageTitle.learn} · Nebokrai" description={m.meta.learn} />
 
+<!-- Where the reviews are kept, and the Log in button that keeps them in an
+     account (user, 2026-11-16). Where accounts are not set up there is no
+     button, and the note does not ask the visitor to log in. -->
+{#snippet keptHere()}
+	{#if !saved.signedIn}
+		<div class="kept">
+			{#if data.providers?.length}
+				<p>{m.account.keptReviews}</p>
+				<LoginButton />
+			{:else}
+				<p>{m.review.kept}</p>
+			{/if}
+		</div>
+	{/if}
+{/snippet}
+
 <div class="ui-page page" class:waiting={!ready} class:newcomer={!started}>
 	<!-- No heading on show: the lit tab says where this is, and the doors are
 	     the page's first line. Kept for those who move about by headings. -->
@@ -122,6 +139,7 @@
 
 	{#if !started}
 		<div class="main">
+			{@render keptHere()}
 			<!-- A newcomer: three steps in the order to take them. The step to
 			     take now is the one with the filled button. -->
 			<section class="ui-card first" aria-labelledby="learn-first">
@@ -192,16 +210,16 @@
 				</ol>
 			</section>
 			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} {ready} />
-			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}
 		</div>
 	{:else}
 		<aside class="rail">
 			<!-- Each in a place of its own, so that a phone can set the goal
 			     right under the doors and leave the activity at the foot -->
+			<!-- Where all this is kept, for someone who has no account to keep it
+			     in: first in the rail, and first on a phone (user, 2026-11-16) -->
+			{@render keptHere()}
 			<div class="goal-slot"><GoalCard {now} {ready} /></div>
 			<div class="activity-slot"><ActivityCard {now} {ready} /></div>
-			<!-- Where all this is kept, for someone who has no account to keep it in -->
-			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}
 		</aside>
 
 		<div class="main">
@@ -258,9 +276,25 @@
 		}
 	}
 
+	/* The note with a small Log in button beside it, on one line where there
+	   is room (user, 2026-11-16); in the narrow rail the button wraps under */
 	.kept {
-		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem 0.9rem;
 		padding-inline: 0.25rem;
+	}
+
+	/* As small as the newcomer's step buttons on a phone */
+	.kept :global(.ui-btn) {
+		padding-block: 0.3rem;
+		font-size: var(--text-sm);
+	}
+
+	.kept p {
+		flex: 1 1 14rem;
+		margin: 0;
 		color: var(--on-page);
 		font-size: var(--text-sm);
 		line-height: 1.45;
@@ -444,7 +478,8 @@
 
 		/* The rail's two cards part company: the week against the goal comes
 		   right after the doors, as on /review it follows Today, and the
-		   activity stays at the foot with the note on where it all is kept.
+		   activity stays at the foot. The note on where it all is kept, with
+		   Log in, goes first (2026-11-16).
 		   Until 2026-11-16 the whole rail was last, four cards down. The two
 		   boxes dissolve, so that their cards are ordered as one column. */
 		.rail,
@@ -464,8 +499,9 @@
 			order: 1;
 		}
 
+		/* The note and Log in come first, above the doors */
 		.kept {
-			order: 2;
+			order: -3;
 		}
 
 		/* The three steps on one screen of a phone, under the header */

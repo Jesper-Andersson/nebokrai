@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-one-log-in-button',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Log in from the top of the settings', uk: 'Вхід угорі налаштувань' },
+		body: {
+			en: 'One Log in button offers Google or GitHub, at the top of the settings menu, on the Saved page and on Learn.',
+			uk: 'Одна кнопка «Увійти» пропонує Google або GitHub: угорі меню налаштувань, на сторінці «Збережене» і в «Навчанні».'
+		}
+	},
+	{
 		id: '2026-11-16-section-names',
 		date: '2026-11-16',
 		kind: 'changed',

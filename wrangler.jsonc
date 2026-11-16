@@ -32,8 +32,8 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "nebokrai-dict-20261116d",
-			"database_id": "3aa619f5-8a77-4356-b96b-25cf519fefae"
+			"database_name": "nebokrai-dict-20261117",
+			"database_id": "150adf87-dbfd-41a1-a682-2f3fd80bec54"
 		},
 		{
 			"binding": "VESUM",

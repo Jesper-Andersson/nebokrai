@@ -891,6 +891,8 @@ def short_first(pairs, ratings=None, fixes=None):
     candidates = []  # (tier, rating, sid, text, english, adapted, original): tier 1 is a gap-filling fix
     for sid, (text, english, adapted, original) in pairs.items():
         rating = rating_of(ratings, sid, text)
+        if adapted and rating is None:
+            rating = (5, "neutral", frozenset())  # a teacher read and corrected it: the best evidence there is
         if rating and (rating[0] < UNRATED or rating[2] & NEVER_SHOWN):
             fix = fixes.get(sid)
             if fix and not adapted and fix[0] == text_hash(text):

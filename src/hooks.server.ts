@@ -8,7 +8,13 @@
 // Also the site's guard: it refuses writes that come from another site, and
 // puts the security headers on every answer. The Content-Security-Policy
 // itself is in vite.config.ts.
+//
+// And it slows crawlers: a client that asks the pages and endpoints that read
+// the dictionary too often gets 429 (src/lib/server/crawler.ts).
+import { env } from 'cloudflare:workers';
+import { dev } from '$app/env';
 import type { Handle } from '@sveltejs/kit/hooks';
+import { isCounted, limitKey, tooMany } from '#lib/server/crawler.ts';
 import { clearSessionCookie, setSessionCookie } from '#lib/server/oauth.ts';
 import { getUserDb } from '#lib/server/user-db.ts';
 import { SESSION_COOKIE, SESSION_TOKEN, validateSession } from '#lib/server/users.ts';
@@ -64,7 +70,34 @@ export const handle: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
+/**
+ * True when this request is over its client's limit. Not in dev (no
+ * bindings), not for SvelteKit's own requests (/?q= fetches /api/search
+ * itself, and that is one search), and never when the limiter fails: a
+ * limit that breaks must not take the dictionary down with it.
+ */
+async function overLimit(event: Parameters<Handle>[0]['event']): Promise<boolean> {
+	if (dev || event.isSubRequest || !isCounted(event.url)) return false;
+	const cf = (event.request as Request & { cf?: { asn?: number } }).cf;
+	const who = limitKey({
+		address: event.getClientAddress(),
+		userAgent: event.request.headers.get('user-agent'),
+		asn: cf?.asn
+	});
+	if (!who) return false;
+	const limiter = who.kind === 'bot' ? env.CRAWLER_LIMIT : env.VISITOR_LIMIT;
+	if (!limiter) return false;
+	try {
+		return !(await limiter.limit({ key: who.key })).success;
+	} catch (err) {
+		console.error('Rate limit failed:', err);
+		return false;
+	}
+}
+
 const answer: Handle = async ({ event, resolve }) => {
+	if (await overLimit(event)) return tooMany(event.url.pathname);
+
 	// A browser says where a write comes from. SvelteKit checks this for form
 	// posts only; the JSON endpoints (/api/report, /api/saved/…) need it too,
 	// or another site could write with a visitor's session. Requests with no

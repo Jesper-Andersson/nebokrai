@@ -4,21 +4,30 @@
        скля́нка  noun · feminine
        скля́нку: accusative singular
        glass (drinking vessel)
-       Open word →                  [save]
+       Open word →
        Data: Wiktionary, VESUM
+
+     with how common the word is after its grammar, and the bookmark that
+     saves it in the top right corner.
 
      It lives in a shadow root, so the page's styles do not reach it and its
      own do not leak out. Sizes are in px (times the Size setting), not rem: a rem here would be the
      page's, and pages set that to anything. -->
 <script lang="ts">
 	import type { Gloss } from '../../../src/lib/gloss.ts';
+	import { commonality, type Commonality } from '../../../src/lib/labels.ts';
 	import { plain } from '../../../src/lib/search/normalize.ts';
 	import { wordPath } from '../../../src/lib/search/slug.ts';
 	import { SITE, type SaveReply, type SaveRequest } from '../../lib/api.ts';
 	import { messagesFor } from '../../lib/messages.ts';
 	import { card, look } from './state.svelte.ts';
 
-	const m = messagesFor(browser.i18n.getUILanguage());
+	const language = browser.i18n.getUILanguage();
+	const m = messagesFor(language);
+
+	// The frequency meter's bars: each 3 wide and 3 taller than the one before, on a 16 x 14 grid
+	const LIT: Record<Commonality, number> = { 'very-common': 4, common: 3, uncommon: 2, rare: 1 };
+	const BARS = [0, 1, 2, 3].map((i) => ({ x: i * 4.33, height: 5 + i * 3 }));
 
 	const GAP = 6;
 	const EDGE = 8;
@@ -29,6 +38,12 @@
 
 	let main = $derived(card.answer && (card.answer.phrase ?? card.answer.readings[0] ?? null));
 	let others = $derived(card.answer ? (card.answer.phrase ? card.answer.readings : card.answer.readings.slice(1)) : []);
+
+	// How common the word is. An answer the browser kept from before the site
+	// sent `freq_rank` has none, and a word with no entry has no rank to show.
+	let tier = $derived(main && !main.vesum_only && main.freq_rank !== undefined ? commonality(main.freq_rank) : null);
+	let rank = $derived(main?.freq_rank?.toLocaleString(language.toLowerCase().startsWith('uk') ? 'uk' : 'en'));
+	let frequency = $derived(tier ? `${m.tiers[tier]}. ${rank ? m.rankTitle(rank) : m.unranked}` : '');
 
 	// Under the word; over it when there is no room below and there is above
 	let x = $derived(Math.max(EDGE, Math.min(card.left, viewport.width - width - EDGE)));
@@ -122,9 +137,36 @@
 		bind:offsetHeight={height}
 	>
 		{#if main}
+			{#if account?.signedIn}
+				<button
+					type="button"
+					class="bookmark"
+					aria-pressed={account.saved}
+					aria-label={account.saved ? m.unsave : m.save}
+					title={account.saved ? m.unsave : m.save}
+					disabled={busy}
+					onclick={() => press()}
+				>
+					<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+						><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg
+					>
+				</button>
+			{/if}
 			<p class="head">
 				<b lang="uk">{@render stressed(main.headword)}</b>
 				<span class="muted">{grammar(main)}</span>
+				{#if tier}
+					<!-- How common the word is, drawn as on the site (FrequencyMeter.svelte
+					     there): its rank, and four bars, one more lit for each step up -->
+					<span class="freq {tier}" role="img" aria-label={frequency} title={frequency}>
+						{#if rank}<span>#{rank}</span>{/if}
+						<svg viewBox="0 0 16 14" aria-hidden="true">
+							{#each BARS as bar, i (i)}
+								<rect class:lit={i < LIT[tier]} x={bar.x} y={14 - bar.height} width="3" height={bar.height} rx="1" />
+							{/each}
+						</svg>
+					</span>
+				{/if}
 			</p>
 			{#if main.meaning}
 				<p class="meaning">{main.meaning}</p>
@@ -176,21 +218,7 @@
 					<span></span>
 				{/if}
 				<span class="right">
-					{#if account?.signedIn}
-						<button
-							type="button"
-							class="bookmark"
-							aria-pressed={account.saved}
-							aria-label={account.saved ? m.unsave : m.save}
-							title={account.saved ? m.unsave : m.save}
-							disabled={busy}
-							onclick={() => press()}
-						>
-							<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
-								><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg
-							>
-						</button>
-					{:else if account}
+					{#if account && !account.signedIn}
 						<a class="quiet" href="{SITE}/saved" target="_blank" rel="noopener">{m.signIn}</a>
 					{/if}
 				</span>
@@ -235,6 +263,10 @@
 		--muted: #646a76;
 		--accent: #1f5fbf;
 		--stress: #cf3d2e;
+		--pill-1: #2e8540;
+		--pill-2: #2f6fb5;
+		--pill-3: #c08a1e;
+		--pill-4: #8a8f99;
 		--shadow-pop: 0 2px 6px rgb(22 24 29 / 0.08), 0 16px 48px rgb(22 24 29 / 0.18);
 
 		position: fixed;
@@ -267,6 +299,10 @@
 		--muted: #a39f96;
 		--accent: #8db4f0;
 		--stress: #e8645a;
+		--pill-1: #4fae67;
+		--pill-2: #5b95d9;
+		--pill-3: #c9962e;
+		--pill-4: #88847c;
 		--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 	}
 
@@ -281,6 +317,10 @@
 			--muted: #a39f96;
 			--accent: #8db4f0;
 			--stress: #e8645a;
+			--pill-1: #4fae67;
+			--pill-2: #5b95d9;
+			--pill-3: #c9962e;
+			--pill-4: #88847c;
 			--shadow-pop: 0 2px 6px rgb(0 0 0 / 0.4), 0 16px 48px rgb(0 0 0 / 0.55);
 		}
 	}
@@ -295,6 +335,10 @@
 		--muted: #655740;
 		--accent: #2b4a7a;
 		--stress: #a8321f;
+		--pill-1: #2c7338;
+		--pill-2: #2f629c;
+		--pill-3: #9c6a0e;
+		--pill-4: #857b66;
 		--shadow-pop: 0 2px 6px rgb(59 47 32 / 0.12), 0 16px 48px rgb(59 47 32 / 0.22);
 	}
 
@@ -345,6 +389,51 @@
 	.head b {
 		font-size: calc(19px * var(--k));
 		font-weight: 800;
+	}
+
+	/* Room for the bookmark, which stands in the card's top right corner */
+	.card:has(> .bookmark) .head {
+		padding-right: calc(26px * var(--k));
+	}
+
+	.freq {
+		display: inline-flex;
+		align-items: center;
+		gap: calc(6px * var(--k));
+		color: var(--muted);
+		font-size: calc(12px * var(--k));
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.freq svg {
+		flex: none;
+		width: calc(16px * var(--k));
+		height: calc(14px * var(--k));
+	}
+
+	.freq rect {
+		fill: var(--border-strong);
+	}
+
+	.freq rect.lit {
+		fill: var(--tier);
+	}
+
+	.freq.very-common {
+		--tier: var(--pill-1);
+	}
+
+	.freq.common {
+		--tier: var(--pill-2);
+	}
+
+	.freq.uncommon {
+		--tier: var(--pill-3);
+	}
+
+	.freq.rare {
+		--tier: var(--pill-4);
 	}
 
 	.stress {
@@ -405,6 +494,9 @@
 	}
 
 	.bookmark {
+		position: absolute;
+		top: calc(11px * var(--k));
+		right: calc(10px * var(--k));
 		display: grid;
 		padding: calc(2px * var(--k));
 		border: 0;

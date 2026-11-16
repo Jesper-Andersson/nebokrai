@@ -31,6 +31,8 @@ export interface Gloss {
 	forms: MatchedForm[];
 	/** The first meaning; null when only VESUM knows the word. */
 	meaning: string | null;
+	/** Its place among the most frequent words (вода is 286); null for a word too rare to be ranked. */
+	freq_rank: number | null;
 	vesum_only?: true;
 }
 
@@ -65,7 +67,8 @@ function toGloss(r: SearchResult): Gloss {
 		pos: r.pos,
 		tags: r.tags,
 		forms: r.match === 'form' && r.matched_forms ? groupMatched(r.matched_forms).groups : [],
-		meaning: r.glosses[0] ?? null
+		meaning: r.glosses[0] ?? null,
+		freq_rank: r.freq_rank
 	};
 	if (r.vesum_only) gloss.vesum_only = true;
 	return gloss;

@@ -36,6 +36,10 @@ test('glosses for words in a sentence', { skip }, async () => {
 	// One spelling, two words; a word only starting with it is left out
 	const water = await glossFor(db, vesum, 'води');
 	assert.deepEqual(water.readings.map((r) => r.word), ['вода', 'водити']);
+	// Each says how common it is; a phrase too rare to be ranked says null
+	assert.ok(water.readings.every((r) => typeof r.freq_rank === 'number' && r.freq_rank > 0));
+	assert.ok(water.readings[0].freq_rank! < water.readings[1].freq_rank!);
+	assert.equal(please.phrase?.freq_rank, null);
 
 	// у in a sentence is the preposition, never the letter
 	const at = await glossFor(db, vesum, 'У', undefined, 'склянці');

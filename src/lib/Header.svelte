@@ -295,8 +295,8 @@
 	}
 
 	/* The pages are tabs standing on the ribbon, like the thumb index cut into
-	   the edge of a printed dictionary, and lettered like the names of an
-	   entry's parts (ui-label). */
+	   the edge of a printed dictionary, in the text face, bold and written
+	   as a sentence is. */
 	nav a {
 		position: relative;
 		display: flex;
@@ -308,10 +308,8 @@
 		border-bottom: 0;
 		border-radius: var(--radius-md) var(--radius-md) 0 0;
 		color: var(--muted);
-		font-size: var(--text-xs);
+		font-size: var(--text-sm);
 		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 		white-space: nowrap;
 	}
 

@@ -492,12 +492,10 @@
 
 	/* A choice's name: as .ui-label is set, without its rule running to the edge */
 	.name {
-		color: var(--muted);
-		font-family: var(--font-text);
-		font-size: var(--text-xs);
+		color: var(--ink-2);
+		font-family: var(--font-heading);
+		font-size: var(--text-md);
 		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 	}
 
 	/* The sound's switch on the left; what is chosen and Start on the right */

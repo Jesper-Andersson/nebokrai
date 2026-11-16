@@ -329,7 +329,7 @@
 		vertical-align: top;
 	}
 
-	/* The first column starts at the entry's left edge, under MEANINGS and FORMS */
+	/* The first column starts at the entry's left edge, under Meanings and Forms */
 	tr > :first-child {
 		padding-left: 0;
 	}

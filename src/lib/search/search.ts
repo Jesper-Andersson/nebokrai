@@ -24,6 +24,19 @@ const RANK: Record<MatchKind, number> = {
 };
 const KIND = Object.keys(RANK) as MatchKind[];
 
+/** What VESUM says a word with no entry is. */
+export type VesumKind = 'given-name' | 'patronymic' | 'surname' | 'abbreviation';
+// The likeliest first: Іванович is a patronymic far more often than the surname it also is.
+const KINDS: VesumKind[] = ['given-name', 'patronymic', 'surname', 'abbreviation'];
+const REFLEXIVE = ['ся', 'сь'];
+
+/** The word that led to an entry without being one of its forms. */
+export interface Through {
+	/** утворюватися, for the entry утворювати */
+	word: string;
+	kind: 'reflexive';
+}
+
 export interface HeadForm {
 	form: string;
 	tags: string[];
@@ -52,6 +65,14 @@ export interface SearchResult {
 	matched_forms?: HeadForm[];
 	/** True when there is no dictionary entry, only a known spelling. */
 	vesum_only?: true;
+	/** On a VESUM-only result, what the word is, when VESUM says: a surname, an abbreviation. */
+	kind?: VesumKind;
+	/**
+	 * Set when the query is a reflexive verb with no entry and this is the verb
+	 * it is made from: утворюватися leads to утворювати. `match` is `form` and
+	 * `matched_forms` is empty.
+	 */
+	through?: Through;
 }
 
 export interface SearchOptions {
@@ -67,6 +88,22 @@ type EntryRow = {
 };
 
 const UNRANKED = 1e9;
+
+/**
+ * 'surname' for шевченко, or undefined. A vesum.db built before kinds were
+ * stored has no such table, and then no word has a kind.
+ */
+async function vesumKind(vesum: Db, lemma: string): Promise<VesumKind | undefined> {
+	let rows: { kind: string }[];
+	try {
+		rows = await vesum.all<{ kind: string }>('SELECT kind FROM vesum_kinds WHERE lemma=?', [lemma]);
+	} catch (err) {
+		if (/no such table/i.test(String(err))) return undefined;
+		throw err;
+	}
+	const found = new Set(rows.map((row) => row.kind));
+	return KINDS.find((kind) => found.has(kind));
+}
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
 export async function search(db: Db, query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
@@ -84,6 +121,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	};
 
 	const stubs: SearchResult[] = []; // words only VESUM knows
+	const through = new Map<number, Through>(); // entry id -> the word that led to it
 
 	const cyrillic = isCyrillic(q);
 	// The query as it is looked up, which also tells which form of a word it is.
@@ -98,11 +136,31 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			for (const { lemma, pos } of lemmas) {
 				const found = await db.all<KeyRow>(
 					"SELECT entry_id, 'form' AS kind FROM search_keys WHERE key=? AND kind='word'", [lemma]);
-				if (found.length) add(found);
-				else stubs.push({
+				if (found.length) {
+					add(found);
+					continue;
+				}
+				// утворюватися has no entry, утворювати has: the reflexive verb
+				// leads to the verb it is made from, and the result says so.
+				if (pos === 'verb' && REFLEXIVE.some((end) => lemma.endsWith(end))) {
+					const base = await db.all<KeyRow>(
+						"SELECT k.entry_id, 'form' AS kind FROM search_keys k JOIN entries e ON e.id = k.entry_id" +
+						" WHERE k.key=? AND k.kind='word' AND e.pos='verb'", [lemma.slice(0, -2)]);
+					if (base.length) {
+						add(base);
+						for (const row of base) {
+							if (!through.has(row.entry_id)) through.set(row.entry_id, { word: lemma, kind: 'reflexive' });
+						}
+						continue;
+					}
+				}
+				const stub: SearchResult = {
 					id: null, word: lemma, headword: lemma, pos, tags: [], head_forms: [],
 					glosses: [], freq_rank: null, match: 'form', vesum_only: true
-				});
+				};
+				const kind = await vesumKind(options.vesum, lemma);
+				if (kind) stub.kind = kind;
+				stubs.push(stub);
 			}
 		}
 		if (hits.size < limit) {
@@ -170,6 +228,8 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			tags: JSON.parse(e.tags), head_forms: JSON.parse(e.head_forms),
 			glosses, freq_rank: e.freq_rank, match: KIND[rank]
 		};
+		const led = through.get(e.id);
+		if (led && rank === RANK.form) result.through = led;
 		return { rank, tie: e.freq_rank ?? UNRANKED, result };
 	});
 	ranked.sort((a, b) =>

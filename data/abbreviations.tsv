@@ -1,0 +1,62 @@
+# Abbreviations that Wiktionary has no page for, written for Nebokrai (CC BY-SA 4.0).
+# They are the commonest ones met in Ukrainian Wikipedia and news text that the dictionary lacked.
+# import_wiktionary.py --abbreviations reads this file; a row whose spelling already has an entry is skipped.
+# Columns, tab-separated: spelling, part of speech, kind (abbreviation or initialism), what it stands for, English.
+ін.	adj	abbreviation	інший	other, others
+км	noun	abbreviation	кілометр	kilometre
+кг	noun	abbreviation	кілограм	kilogram
+см	noun	abbreviation	сантиметр	centimetre
+мм	noun	abbreviation	міліметр	millimetre
+дм	noun	abbreviation	дециметр	decimetre
+мкм	noun	abbreviation	мікрометр	micrometre
+нм	noun	abbreviation	нанометр	nanometre
+мг	noun	abbreviation	міліграм	milligram
+мл	noun	abbreviation	мілілітр	millilitre
+хв	noun	abbreviation	хвилина	minute
+шт.	noun	abbreviation	штука	piece, item
+кв.	adj	abbreviation	квадратний	square
+Гц	noun	abbreviation	герц	hertz
+кГц	noun	abbreviation	кілогерц	kilohertz
+МГц	noun	abbreviation	мегагерц	megahertz
+Вт	noun	abbreviation	ват	watt
+кВт	noun	abbreviation	кіловат	kilowatt
+Дж	noun	abbreviation	джоуль	joule
+кДж	noun	abbreviation	кілоджоуль	kilojoule
+МПа	noun	abbreviation	мегапаскаль	megapascal
+ГПа	noun	abbreviation	гігапаскаль	gigapascal
+рр.	noun	abbreviation	роки	years
+н. е.	phrase	abbreviation	нашої ери	of the Common Era, CE
+до н. е.	phrase	abbreviation	до нашої ери	before the Common Era, BCE
+т. зв.	phrase	abbreviation	так званий	so-called
+і т. д.	phrase	abbreviation	і так далі	and so on, etc.
+і т. п.	phrase	abbreviation	і тому подібне	and the like
+бл.	prep	abbreviation	близько	about, approximately
+нар.	verb	abbreviation	народився	born
+пом.	verb	abbreviation	помер	died
+ред.	noun	abbreviation	редактор	editor
+англ.	adj	abbreviation	англійський	English
+лат.	adj	abbreviation	латинський	Latin
+грец.	adj	abbreviation	грецький	Greek
+фр.	adj	abbreviation	французький	French
+нім.	adj	abbreviation	німецький	German
+італ.	adj	abbreviation	італійський	Italian
+ісп.	adj	abbreviation	іспанський	Spanish
+рос.	adj	abbreviation	російський	Russian
+пол.	adj	abbreviation	польський	Polish
+чес.	adj	abbreviation	чеський	Czech
+лит.	adj	abbreviation	литовський	Lithuanian
+праслов.	adj	abbreviation	праслов'янський	Proto-Slavic
+діал.	adj	abbreviation	діалектний	dialectal
+розм.	adj	abbreviation	розмовний	colloquial
+ЗМІ	noun	initialism	засоби масової інформації	mass media
+ВВП	noun	initialism	валовий внутрішній продукт	gross domestic product, GDP
+ККД	noun	initialism	коефіцієнт корисної дії	efficiency
+ЦНС	noun	initialism	центральна нервова система	central nervous system
+ДВЗ	noun	initialism	двигун внутрішнього згоряння	internal combustion engine
+ПВХ	noun	initialism	полівінілхлорид	polyvinyl chloride, PVC
+ВМС	noun	initialism	військово-морські сили	navy, naval forces
+МВФ	name	initialism	Міжнародний валютний фонд	International Monetary Fund, IMF
+ЦРУ	name	initialism	Центральне розвідувальне управління	Central Intelligence Agency, CIA
+ДСНС	name	initialism	Державна служба з надзвичайних ситуацій	State Emergency Service of Ukraine
+НАБУ	name	initialism	Національне антикорупційне бюро України	National Anti-Corruption Bureau of Ukraine
+УРСР	name	initialism	Українська Радянська Соціалістична Республіка	Ukrainian Soviet Socialist Republic

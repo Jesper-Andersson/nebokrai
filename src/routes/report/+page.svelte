@@ -103,7 +103,7 @@
 			<h2>{m.report.thanks}</h2>
 			<p>{m.report.thanksBody}</p>
 
-			{#if data.entry || (kind === 'missing' && data.query)}
+			{#if (data.entry && !data.ownEntry) || (kind === 'missing' && data.query)}
 				<p>{m.report.fixUpstream}</p>
 				<ul class="upstream">
 					{#if data.entry}

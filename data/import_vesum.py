@@ -31,6 +31,10 @@ POS = {"NOUN": "noun", "VERB": "verb", "INFN": "verb", "GRND": "verb", "ADJF": "
        "NUMR": "num", "NPRO": "pron", "PREP": "prep", "CONJ": "conj", "PRCL": "particle",
        "INTJ": "intj", "PRED": "adv"}
 
+# What a word is, where VESUM says so. Search uses it to say "a surname" about
+# a word that has no dictionary entry, which is most names: Шевченка, Олено.
+KINDS = {"Name": "given-name", "Surn": "surname", "Patr": "patronymic", "Abbr": "abbreviation"}
+
 
 def build(dst):
     morph = pymorphy3.MorphAnalyzer(lang="uk")
@@ -44,17 +48,27 @@ def build(dst):
             pos    TEXT NOT NULL,   -- noun, verb, adj, ...
             PRIMARY KEY (form, lemma, pos)
         ) WITHOUT ROWID;
+        DROP TABLE IF EXISTS vesum_kinds;
+        CREATE TABLE vesum_kinds (
+            lemma  TEXT NOT NULL,   -- dictionary word, as in vesum_forms: шевченко
+            kind   TEXT NOT NULL,   -- given-name | surname | patronymic | abbreviation
+            PRIMARY KEY (lemma, kind)
+        ) WITHOUT ROWID;
         CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
     """)
-    batch, parses = set(), 0
+    batch, kinds, parses = set(), set(), 0
     for p in morph.iter_known_word_parses():
         parses += 1
         pos = POS.get(str(p.tag.POS), "other")
         batch.add((plain(p.word), plain(p.normal_form), pos))
+        for grammeme, kind in KINDS.items():
+            if grammeme in p.tag:
+                kinds.add((plain(p.normal_form), kind))
         if len(batch) >= 500_000:
             db.executemany("INSERT OR IGNORE INTO vesum_forms VALUES (?,?,?)", batch)
             batch.clear()
     db.executemany("INSERT OR IGNORE INTO vesum_forms VALUES (?,?,?)", batch)
+    db.executemany("INSERT OR IGNORE INTO vesum_kinds VALUES (?,?)", kinds)
     rows = db.execute("SELECT count(*) FROM vesum_forms").fetchone()[0]
     lemmas = db.execute("SELECT count(DISTINCT lemma) FROM vesum_forms").fetchone()[0]
     db.executemany("INSERT INTO meta VALUES (?,?)", [
@@ -64,7 +78,7 @@ def build(dst):
     db.commit()
     db.execute("VACUUM")
     db.close()
-    return dict(parses=parses, rows=rows, lemmas=lemmas)
+    return dict(parses=parses, rows=rows, lemmas=lemmas, kinds=len(kinds))
 
 
 if __name__ == "__main__":

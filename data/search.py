@@ -63,6 +63,24 @@ def matched_forms(db, eid, key, cyrillic):
     return found
 
 
+# What VESUM says a word is, the likeliest first: Іванович is a patronymic far
+# more often than the surname it also is.
+KINDS = ["given-name", "patronymic", "surname", "abbreviation"]
+REFLEXIVE = ("ся", "сь")
+
+
+def vesum_kind(vesum, lemma):
+    """'surname' for шевченко, or None. A vesum.db built before kinds were
+    stored has no such table, and then no word has a kind."""
+    try:
+        found = {kind for (kind,) in vesum.execute("SELECT kind FROM vesum_kinds WHERE lemma=?", (lemma,))}
+    except sqlite3.OperationalError as err:
+        if "no such table" not in str(err):
+            raise
+        return None
+    return next((kind for kind in KINDS if kind in found), None)
+
+
 def search(db, query, limit=20, vesum=None):
     q = query.strip()
     if not q:
@@ -77,6 +95,7 @@ def search(db, query, limit=20, vesum=None):
                 hits[eid] = r
 
     stubs = []  # words only VESUM knows
+    through = {}  # entry id -> the word that led to it, which is not one of its forms
     if cyrillic:
         key = plain(q)
         add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
@@ -87,10 +106,25 @@ def search(db, query, limit=20, vesum=None):
                                    (lemma,)).fetchall()
                 if found:
                     add(found)
-                else:
-                    stubs.append(dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[],
-                                      head_forms=[], glosses=[], freq_rank=None, match="form",
-                                      vesum_only=True))
+                    continue
+                # утворюватися has no entry, утворювати has: the reflexive verb
+                # leads to the verb it is made from, and the result says so.
+                if pos == "verb" and lemma.endswith(REFLEXIVE):
+                    found = db.execute(
+                        "SELECT k.entry_id, 'form' FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+                        " WHERE k.key=? AND k.kind='word' AND e.pos='verb'", (lemma[:-2],)).fetchall()
+                    if found:
+                        add(found)
+                        for eid, _ in found:
+                            through.setdefault(eid, dict(word=lemma, kind="reflexive"))
+                        continue
+                stub = dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[],
+                            head_forms=[], glosses=[], freq_rank=None, match="form",
+                            vesum_only=True)
+                kind = vesum_kind(vesum, lemma)
+                if kind:
+                    stub["kind"] = kind
+                stubs.append(stub)
         if len(hits) < limit:
             add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
                            (key, key + "￿", limit * 3)), RANK["prefix"])
@@ -133,6 +167,8 @@ def search(db, query, limit=20, vesum=None):
                       glosses=glosses, freq_rank=freq_rank, match=KIND[rank])
         if rank in (RANK["form"], RANK["latin_form"]):
             result["matched_forms"] = matched_forms(db, eid, key, cyrillic)
+        if eid in through and rank == RANK["form"]:
+            result["through"] = through[eid]
         results.append((rank, tie, result))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"], r[2]["id"]))
     exact = [r[2] for r in results if r[0] <= RANK["form"]]
@@ -248,13 +284,16 @@ if __name__ == "__main__":
         print(f"did you mean {r['headword']}?  [{r['pos']}; {r['match']}]  {'; '.join(r['glosses'][:2])[:60]}")
     for r in answer["results"]:
         if r.get("vesum_only"):
-            print(f"{r['headword']}  [{r['pos']}]  known to VESUM only, no definition yet")
+            what = f"a {r['kind'].replace('-', ' ')}" if r.get("kind") else "known to VESUM only"
+            print(f"{r['headword']}  [{r['pos']}]  {what}, no definition yet")
             continue
         extra = ", ".join(f"{'/'.join(f['tags'])} {f['form']}" for f in r["head_forms"][:2])
         rank = f"#{r['freq_rank']}" if r["freq_rank"] else "unranked"
         print(f"{r['headword']}  [{r['pos']}; {' '.join(r['tags'])}]  {rank}  {extra}")
         for f in r.get("matched_forms", []):
             print(f"    = {f['form']}  ({' '.join(f['tags'])})")
+        if r.get("through"):
+            print(f"    = {r['through']['word']}  (its {r['through']['kind']} form)")
         for g in r["glosses"][:3]:
             print(f"    - {g}")
         for uk, en in db.execute("SELECT uk, en FROM examples WHERE entry_id=? LIMIT 1", (r["id"],)):

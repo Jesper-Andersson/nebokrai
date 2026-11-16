@@ -12,7 +12,7 @@ extract published by kaikki.org.
     curl -O https://downloads.tatoeba.org/exports/per_language/ukr/ukr-eng_links.tsv.bz2
     curl -O https://downloads.tatoeba.org/exports/per_language/eng/eng_sentences.tsv.bz2
     cd ../..
-    python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw
+    python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw --abbreviations data/abbreviations.tsv
     python3 data/search.py nebokrai.db good
 
 The build takes about 30 seconds. Only Python 3 is needed, no packages.
@@ -26,16 +26,46 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 30,982 |
-| `senses` | English meaning of an entry | 47,567 |
-| `forms` | inflected form (declension / conjugation cell) | 529,270 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 79,365 |
-| `examples` | Tatoeba sentence with English translation | 24,559 |
-| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,845 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
+| `entries` | dictionary word + part of speech | 33,592 |
+| `senses` | English meaning of an entry | 50,214 |
+| `forms` | inflected form (declension / conjugation cell) | 573,324 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 85,351 |
+| `examples` | Tatoeba sentence with English translation | 25,594 |
+| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,988 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,588,252 |
 
-Pages that only say "genitive singular of X" are skipped (29,315), because the
+Pages that only say "genitive singular of X" are skipped (26,760), because the
 same forms are already in X's own table.
+
+A "form of" page that is a word in its own right is kept (2,555): `більший`
+("comparative degree of великий"), `найкращий`, `утворення` ("verbal noun of
+утворити"), `окрім` ("alternative form of крім"), `авторка`, `створений`, `ст.`.
+Such a page has an inflection table of its own, so its cases are found too
+(`більшого`), or it names no cell of another word's table. `is_word_like` in
+`import_wiktionary.py` decides; misspellings, affixes and verb spellings without a
+table stay skipped. For a kept page:
+
+- the gloss is Wiktionary's, without the romanisation: "comparative degree of
+  вели́кий: bigger, larger, greater";
+- the label part of the gloss is not searchable in English (`comparative` does not
+  list every comparative); a meaning after a colon or in quotation marks is;
+- the word it points at is a `related` row on it, and it is one on that word
+  when the spelling has exactly one entry (`великий` names `більший`);
+- a participle, which Wiktionary files as a verb, gets `adj`, since it declines
+  as one and the table shown is chosen by part of speech;
+- it owns a spelling only where no ordinary entry does, so frequency counts,
+  example sentences and practice sentences of existing entries are unchanged
+  (`створений` stays a form of `створити`; `створена` belongs to the page).
+`meta.stats` has the numbers as `kept_form_of` and `kept_kinds`.
+
+`data/abbreviations.tsv` holds abbreviations that Wiktionary has no page for
+(`км`, `англ.`, `ЗМІ`, 58 rows), written for Nebokrai. `--abbreviations` turns
+each into an entry shaped like a kept page ("abbreviation of кіломе́тр
+(“kilometre”)", the full word as a related word) with `entries.source` set to
+`nebokrai`; every other entry has `wiktionary`. A row whose spelling already has
+an entry is skipped (55 were added in November 2026). To add one, add a row and
+rebuild. An abbreviation written with a full stop is found without it too:
+`ст` finds `ст.`.
 
 ## Related words
 
@@ -142,8 +172,8 @@ A sentence is kept only when nothing about the gap is in doubt:
   the name, which has no entry, not the noun `том`).
 
 At most five sentences are kept for one noun at one point, and a point with
-fewer than 20 sentences is dropped. November 2026: 7,845 sentences at 24
-points, from 26 (`серед` + genitive) to 1,124 (`у`/`в` + locative); five points fell short
+fewer than 20 sentences is dropped. November 2026: 7,988 sentences at 24
+points, from 26 (`серед` + genitive) to 1,148 (`у`/`в` + locative); five points fell short
 (`крім`, `крізь`, `навколо`, `при`, `замість`). `meta.cloze_points` holds the
 count for each point, so the site can draw a sentence by its number (`n`)
 without counting.
@@ -215,14 +245,25 @@ python3 data/export_wordlist.py nebokrai.db static/words.json
 
     pip install pymorphy3 pymorphy3-dicts-uk
     python3 data/import_vesum.py vesum.db                           # about 80 seconds, 211 MB
-    python3 data/search.py nebokrai.db --vesum vesum.db соловейком
+    python3 data/search.py nebokrai.db --vesum vesum.db книжечку
 
 VESUM lists 393,095 Ukrainian words with 3.7 million forms, but no meanings.
 Search uses it only as a fallback: when a Cyrillic query matches nothing in
 Wiktionary, VESUM tells us which dictionary word the form belongs to. If
 Wiktionary has that word, its entry is shown (`нездійсненними` finds
 `нездійсненний`). If not, search returns a bare result marked `vesum_only`
-(`соловейком` finds `соловейко`, with no definition).
+(`книжечку` finds `книжечка`, with no definition).
+
+Two things soften that bare result:
+
+- `vesum_kinds` holds what VESUM says a word is: given name (5,095 words),
+  patronymic (1,026), surname (22,632) or abbreviation (1,988). A bare result
+  for such a word carries it as `kind`, and the page says "a surname with no
+  dictionary entry yet" (`осташка` finds `осташко`).
+- A reflexive verb with no entry leads to the verb it is made from, when that
+  one has an entry: `утворюються` finds `утворювати`, marked as reached
+  `through` `утворюватися`. This happens while searching; no reflexive verb is
+  written into `nebokrai.db`, which would be copying from VESUM.
 
 **VESUM must stay in its own file.** Its licence is CC BY-NC-SA 4.0
 (non-commercial), Wiktionary's is CC BY-SA 4.0, and the two cannot be merged
@@ -294,12 +335,49 @@ It needs ffmpeg and no database, and stops if a file has another author or
 licence, since the page credits them all in one line. The mp3 files and the
 module are generated and committed: change the script, not them.
 
+## Finding missing words
+
+Two scripts say which words ordinary Ukrainian text uses that the dictionary
+has no entry for. The first fetches text, the second counts:
+
+    python3 data/fetch_text.py wiki-titles text/wiki "Хліб" "Міст" "Податок"
+    python3 data/fetch_text.py rss text/news https://www.pravda.com.ua/rss/view_news/ --limit 30
+    python3 data/missing_words.py nebokrai.db text out
+
+`fetch_text.py` saves one `.txt` per article, in one folder per source, from
+Ukrainian Wikipedia (by title, search or category), an RSS feed or plain web
+pages. It waits between requests and backs off when a site answers 429.
+
+`missing_words.py` needs `pymorphy3`, like `import_vesum.py`. It looks every
+word up as a headword or a listed form, gives the rest their dictionary form
+through VESUM, and sorts them: ordinary words by kind (noun, reflexive verb,
+verbal noun, participle), given names, surnames, abbreviations, proper nouns
+VESUM does not tag, Russian, and spellings nobody recognises. It writes:
+
+| File | What it is |
+|---|---|
+| `remaining-words.tsv` | every unknown word: category, counts, the spellings met, an example |
+| `backlog.tsv` | ordinary words met in three or more texts, the most widespread first: what to define next |
+| `stoplist.tsv` | spellings not worth reporting again: names seen once, Russian, fragments |
+
+Pass an earlier run's list back with `--stoplist` and a new pile of text
+reports only what is new. `--labels` takes a file that says what the untagged
+proper nouns are (place, person, organisation); the script's help has the format.
+
+In November 2026, 616 articles (1.05 million running words) left 124,537
+unknown: about two thirds ordinary words, a sixth names, the rest
+abbreviations, compounds and noise. The backlog had 4,358 words.
+
+**The output is derived from VESUM** (CC BY-NC-SA 4.0) and from other people's
+articles. It is a working list: never commit it, never load it into
+`nebokrai.db`. The script refuses an output folder that git tracks.
+
 ## Known gaps
 
 - 1,030 nouns, verbs and adjectives have no inflection table.
 - 17,622 entries have audio.
-- Words missing from Wiktionary (for example `соловейко`) are found through
-  VESUM but have no definition.
+- Words missing from Wiktionary (for example `книжечка`, `походити`) are found
+  through VESUM but have no definition.
 
 ## Licence
 

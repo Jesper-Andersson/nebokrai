@@ -48,7 +48,10 @@ CREATE TABLE entries (
     audio_url   TEXT,
     etymology   TEXT,
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
-    freq_rank   INTEGER                   -- 1 = most common word; NULL = not seen in the corpus
+    freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
+    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv). No DEFAULT:
+    -- export_sql.py cannot carry a quoted value in a CREATE statement to D1.
+    source      TEXT NOT NULL
 );
 CREATE TABLE senses (
     id        INTEGER PRIMARY KEY,
@@ -238,6 +241,133 @@ def is_form_of(entry):
     return bool(senses) and all("form_of" in s or "alt_of" in s for s in senses)
 
 
+# Tags that say a "form of" page names one cell of another word's table:
+# "genitive singular of калина". Gender is not among them: авторка is the
+# female equivalent of автор and a word of its own.
+INFLECTION_TAGS = {"nominative", "genitive", "dative", "accusative", "instrumental", "locative", "vocative",
+                   "singular", "plural", "first-person", "second-person", "third-person",
+                   "present", "past", "future", "imperative", "infinitive", "participle", "adverbial",
+                   "short-form"}  # not "impersonal": немає is impersonal and no cell of a table
+
+
+def is_word_like(entry):
+    """True for a "form of" page that is a word in its own right and is kept:
+    більший (comparative degree of великий), утворення (verbal noun of
+    утворити), окрім (alternative form of крім), авторка, створений.
+
+    Such a page either has an inflection table of its own, so its cases can be
+    found (більшого), or names no cell of anybody's table. A verb without a
+    table is a stray spelling (ходить for ходити), and affixes are not
+    vocabulary; both stay skipped.
+    """
+    if entry.get("pos") in NOT_VOCABULARY:
+        return False
+    # A misspelling as an entry would be offered as a correction: "did you
+    # mean будь-ласка?" for будьласка, when будь ласка is what is meant.
+    if any({"misspelling", "misconstruction"} & set(s.get("tags") or []) for s in entry.get("senses") or []):
+        return False
+    if any(f.get("source") in ("declension", "conjugation") for f in entry.get("forms") or []):
+        return True
+    if entry.get("pos") == "verb" and any("form_of" in s for s in entry.get("senses") or []):
+        return False  # немає, an alternative form of нема, is no such stray and is kept
+    return not any(INFLECTION_TAGS & set(s.get("tags") or []) for s in entry.get("senses") or [])
+
+
+# "comparative degree of вели́кий (velýkyj)": the romanisation after the word
+# the page points at says nothing a reader of Cyrillic needs.
+# Where a meaning follows it, "напри́клад (naprýklad, “for example”)", the
+# meaning stays: "напри́клад (“for example”)". A gender or aspect mark may
+# stand between the two: "постели́ти pf (postelýty)".
+GLOSS_ROMAN = re.compile(r"(?<=[Ѐ-ӿ́])((?: (?:m|f|n|pl|pf|impf))?) "
+                         r"\([A-Za-zÀ-ſʹʺ' -]+(\)|, )")
+
+
+def without_roman(gloss):
+    return GLOSS_ROMAN.sub(lambda m: m.group(1) + ("" if m.group(2) == ")" else " ("), gloss)
+
+
+def form_of_kind(gloss):
+    """What a kept page says it is: 'comparative degree', 'verbal noun'."""
+    found = re.match(r"(.+?) of\b", gloss.lower())
+    return found.group(1) if found else "other"
+
+
+def word_keys(word, roman=None):
+    """The search keys of a dictionary word, apart from its forms and meanings."""
+    keys = {(plain(word), "word")}
+    # An abbreviation is typed with and without its full stop: ст for ст.
+    if word.endswith(".") and plain(word).rstrip(". "):
+        keys.add((plain(word).rstrip(". "), "word"))
+    keys.add((loose_latin(national_translit(word)), "latin"))
+    if roman:
+        keys.add((loose_latin(roman), "latin"))
+    # Looser keys for "did you mean": sounds-alike, and one typo away.
+    for k, kind in list(keys):
+        if kind == "latin" and k:
+            sk = sound_key(k)
+            keys.add((sk, "sound"))
+            if len(sk) >= TYPO_MIN:
+                keys.update((d, "typo") for d in deletes(sk))
+    return keys
+
+
+def add_abbreviations(db, path):
+    """Entries for the abbreviations in abbreviations.tsv, which Wiktionary has
+    no page for: км, англ., ЗМІ. They are shaped like the kept "form of" pages,
+    "abbreviation of кіломе́тр (“kilometre”)" with the full word as a related
+    word, and marked as Nebokrai's own. A spelling that already has an entry is
+    left alone. Returns the (entry id, full word) pairs for `link_kept_pages`.
+    """
+    links, added = [], 0
+    with open(path, encoding="utf-8") as rows:
+        for line in rows:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            word, pos, kind, full, english = (cell.strip() for cell in line.split("\t"))
+            if db.execute("SELECT 1 FROM search_keys WHERE key=? AND kind='word'", (plain(word),)).fetchone():
+                continue
+            eid = db.execute(
+                "INSERT INTO entries(word, headword, pos, tags, head_forms, source) VALUES (?,?,?,'[]','[]','nebokrai')",
+                (word, word, pos)).lastrowid
+            # The full word takes its stress from the dictionary, where it is there.
+            found = db.execute("SELECT headword FROM entries WHERE word=?", (full,)).fetchall()
+            shown = found[0][0] if len(found) == 1 else full
+            db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,1,?,?,'[]')",
+                       (eid, f"{kind} of {shown} (“{english}”)", json.dumps([kind, "alt-of"])))
+            db.execute("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,1,'related',?,?,'[]')",
+                       (eid, shown, plain(full)))
+            keys = word_keys(word)
+            keys.update((w, "english") for w in re.findall(r"[a-z]+(?:[-'][a-z]+)*", english.lower()) if len(w) > 1)
+            db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
+                           [(k, eid, kind_) for k, kind_ in keys if k])
+            links.append((eid, plain(full)))
+            added += 1
+    return links, added
+
+
+def link_kept_pages(db, kept):
+    """Give the word a kept page points at a link back: великий lists більший
+    among its related words. Only where the spelling has exactly one entry;
+    with two there is no telling which was meant."""
+    entries = collections.defaultdict(list)
+    own = {}
+    for eid, word, headword in db.execute("SELECT id, word, headword FROM entries"):
+        entries[plain(word)].append(eid)
+        own[eid] = (plain(word), headword)
+    have = set(db.execute("SELECT entry_id, plain FROM relations"))
+    back = []
+    for eid, target in kept:
+        source, headword = own[eid]
+        targets = entries.get(target, ())
+        if len(targets) != 1 or targets[0] == eid or (targets[0], source) in have:
+            continue
+        have.add((targets[0], source))
+        back.append((targets[0], None, "related", headword, source, "[]"))
+    db.executemany("INSERT INTO relations(entry_id, sense_n, kind, word, plain, tags) VALUES (?,?,?,?,?,?)", back)
+    return len(back)
+
+
 SKIP_FORM_TAGS = {"table-tags", "inflection-template", "class", "romanization",
                   # Rows wiktextract could not parse: table notes such as
                   # "Future conjugation of бути + infinitive", not real forms.
@@ -334,13 +464,28 @@ def finish_relations(db):
 
 
 def form_index(db):
-    """Map every known spelling (dictionary word or inflected form) to its entries."""
+    """Map every known spelling (dictionary word or inflected form) to its entries.
+
+    A kept "form of" page owns a spelling only where no ordinary entry does.
+    створений is such a page and also a form of створити; його is one ("genitive
+    of він") and a form of він; ванна is one (short for ванна кімната) beside
+    the noun ванна. Counts, example sentences and practice sentences for those
+    spellings stay with the entries that had them before such pages were kept,
+    and the pages get what is theirs alone: створена, більший.
+    """
     index = collections.defaultdict(set)
     marks = ",".join("?" * len(NOT_VOCABULARY))
     for key, eid in db.execute(
             "SELECT k.key, k.entry_id FROM search_keys k JOIN entries e ON e.id = k.entry_id"
             f" WHERE k.kind IN ('word','form') AND e.pos NOT IN ({marks})", NOT_VOCABULARY):
         index[key].add(eid)
+    kept = {eid for (eid,) in db.execute(
+        "SELECT e.id FROM entries e WHERE EXISTS (SELECT 1 FROM senses s WHERE s.entry_id = e.id)"
+        " AND NOT EXISTS (SELECT 1 FROM senses s WHERE s.entry_id = e.id"
+        "  AND s.tags NOT LIKE '%\"form-of\"%' AND s.tags NOT LIKE '%\"alt-of\"%')")}
+    for key, owners in index.items():
+        if owners & kept and owners - kept:
+            index[key] = owners - kept
     return index
 
 
@@ -669,7 +814,7 @@ def add_cloze(db, index, pairs, per_noun=5):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
@@ -677,15 +822,21 @@ def build(src, dst, freq=None, tatoeba=None):
                      "DROP TABLE IF EXISTS cloze;"
                      "DROP TABLE IF EXISTS meta; DROP TABLE IF EXISTS entries;")
     db.executescript(SCHEMA + CLOZE_SCHEMA)
-    stats = dict(lines=0, skipped_form_of=0, entries=0, senses=0, forms=0,
+    stats = dict(lines=0, skipped_form_of=0, kept_form_of=0, entries=0, senses=0, forms=0,
                  with_table=0, with_audio=0, with_examples=0)
+    kept_kinds = collections.Counter()
+    kept_links = []  # (entry id, plain spelling of the word its page points at)
 
     for line in open(src, encoding="utf-8"):
         stats["lines"] += 1
         e = json.loads(line)
+        kept = False
         if is_form_of(e):
-            stats["skipped_form_of"] += 1
-            continue
+            if not is_word_like(e):
+                stats["skipped_form_of"] += 1
+                continue
+            kept = True
+            stats["kept_form_of"] += 1
 
         word = e["word"]
         forms = e.get("forms") or []
@@ -704,6 +855,13 @@ def build(src, dst, freq=None, tatoeba=None):
             and not (set(f.get("tags", [])) & SKIP_FORM_TAGS)
         ]
 
+        # Wiktionary files a participle under its verb's part of speech, but it
+        # declines as an adjective (ство́рений, ство́рена, ство́реного), and the
+        # table shown for it is chosen by part of speech.
+        pos = e["pos"]
+        if kept and pos == "verb" and any(f.get("source") == "declension" for f in forms):
+            pos = "adj"
+
         sounds = e.get("sounds") or []
         ipa = next((s["ipa"] for s in sounds if "ipa" in s), None)
         audio = next((s.get("mp3_url") or s.get("ogg_url") for s in sounds
@@ -711,36 +869,41 @@ def build(src, dst, freq=None, tatoeba=None):
 
         cur = db.execute(
             "INSERT INTO entries(word, headword, pos, tags, head_forms, roman, ipa,"
-            " audio_url, etymology) VALUES (?,?,?,?,?,?,?,?,?)",
-            (word, headword, e["pos"], json.dumps(tags, ensure_ascii=False),
+            " audio_url, etymology, source) VALUES (?,?,?,?,?,?,?,?,?,'wiktionary')",
+            (word, headword, pos, json.dumps(tags, ensure_ascii=False),
              json.dumps(head_forms, ensure_ascii=False), roman, ipa, audio,
              e.get("etymology_text")))
         eid = cur.lastrowid
         stats["entries"] += 1
         stats["with_audio"] += bool(audio)
 
-        keys = {(plain(word), "word")}
-        keys.add((loose_latin(national_translit(word)), "latin"))
-        if roman:
-            keys.add((loose_latin(roman), "latin"))
-        # Looser keys for "did you mean": sounds-alike, and one typo away.
-        for k, kind in list(keys):
-            if kind == "latin" and k:
-                sk = sound_key(k)
-                keys.add((sk, "sound"))
-                if len(sk) >= TYPO_MIN:
-                    keys.update((d, "typo") for d in deletes(sk))
+        keys = word_keys(word, roman)
 
         n = 0
         had_example = False
         related = []
         for s in e.get("senses") or []:
-            if "form_of" in s or "alt_of" in s:
+            names_a_word = "form_of" in s or "alt_of" in s
+            if names_a_word and not kept:
                 continue
             gloss = "; ".join(s.get("glosses") or [])
             if not gloss:
                 continue
             n += 1
+            indexed = gloss
+            if names_a_word:
+                gloss = without_roman(gloss)
+                if n == 1:
+                    kept_kinds[form_of_kind(gloss)] += 1
+                # "comparative degree of великий" is a label, not a meaning: the
+                # English query "comparative" should not list every such word.
+                # What follows a colon or stands in quotation marks is a meaning:
+                # "...of нема: there is no", "...of годи́на (“hour”)".
+                indexed = gloss.partition(":")[2] + " " + " ".join(re.findall(r"“([^”]*)”", gloss))
+                # The word the page points at is its closest kin.
+                for row in related_words({"related": (s.get("form_of") or []) + (s.get("alt_of") or [])}, n):
+                    related.append(row)
+                    kept_links.append((eid, row[3]))
             examples = [{"text": x.get("text"), "english": x.get("english") or x.get("translation")}
                         for x in s.get("examples") or [] if x.get("text")]
             had_example |= bool(examples)
@@ -749,7 +912,7 @@ def build(src, dst, freq=None, tatoeba=None):
                         json.dumps(examples, ensure_ascii=False)))
             stats["senses"] += 1
             related += related_words(s, n)
-            for w in set(re.findall(r"[a-z]+(?:[-'][a-z]+)*", gloss.lower())):
+            for w in set(re.findall(r"[a-z]+(?:[-'][a-z]+)*", indexed.lower())):
                 if len(w) > 1:
                     keys.add((w, "english"))
         stats["with_examples"] += had_example
@@ -795,6 +958,13 @@ def build(src, dst, freq=None, tatoeba=None):
                        [(k, eid, kind) for k, kind in keys if k])
 
     db.executescript(INDEXES)
+    stats["kept_kinds"] = dict(kept_kinds.most_common())
+    if abbreviations:
+        links, stats["abbreviations_added"] = add_abbreviations(db, abbreviations)
+        stats["entries"] += stats["abbreviations_added"]
+        stats["senses"] += stats["abbreviations_added"]
+        kept_links += links
+    stats["kept_linked_back"] = link_kept_pages(db, kept_links)
     stats.update(finish_relations(db))
     if freq or tatoeba:
         index = form_index(db)
@@ -828,6 +998,7 @@ if __name__ == "__main__":
     ap.add_argument("database")
     ap.add_argument("--freq")
     ap.add_argument("--tatoeba")
+    ap.add_argument("--abbreviations", help="data/abbreviations.tsv: Nebokrai's own entries for abbreviations")
     args = ap.parse_args()
-    for k, v in build(args.source, args.database, args.freq, args.tatoeba).items():
+    for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations).items():
         print(f"{k:>16}: {v}")

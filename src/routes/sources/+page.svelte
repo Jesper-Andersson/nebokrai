@@ -26,6 +26,9 @@
 			<a href="https://kaikki.org/">kaikki.org</a>. Available under the
 			<a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0</a>
 			licence. The authors of each entry are listed in its Wiktionary page history.
+			About fifty common abbreviations that Wiktionary has no page for (<span lang="uk">км</span>,
+			<span lang="uk">англ.</span>, <span lang="uk">ЗМІ</span>) were written for Nebokrai and are
+			under the same licence; their pages name Nebokrai as the source.
 		</dd>
 
 		<dt>Audio recordings</dt>

@@ -18,7 +18,9 @@ Nebokrai is built from open data made by volunteers. Thank you to all of them.
 [kaikki.org](https://kaikki.org/). The text is available under the
 [Creative Commons Attribution-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-sa/4.0/).
 Each word page links to its Wiktionary entry, where the authors are listed in
-the page history.
+the page history. About fifty common abbreviations that Wiktionary has no page
+for (км, англ., ЗМІ) were written for Nebokrai and are under the same licence;
+their pages name Nebokrai as the source.
 
 **Audio recordings** are hosted by
 [Wikimedia Commons](https://commons.wikimedia.org/). Each recording has its own
@@ -133,6 +135,7 @@ for everyone.
 | Source | Licence | What it asks of us | Where we do it |
 |---|---|---|---|
 | Wiktionary | CC BY-SA 4.0 | Credit, link to the licence, say if changed, share derived data under the same licence | Sources page; a "Wiktionary" link on each word page |
+| Nebokrai's own entries (`data/abbreviations.tsv`, marked `source = 'nebokrai'`) | CC BY-SA 4.0 | Ours to license; kept under Wiktionary's licence so the dictionary stays one dataset | Sources page; "From Nebokrai" on each such word page |
 | Wikimedia Commons audio | per file, mostly CC BY-SA or public domain | Credit the author of each file | Link to the file's Commons page beside the play button |
 | The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence, say what was changed, share the changed files under the same licence | The line under the letters on `/alphabet` (author, licence, "cut down to the letter and cleaned of noise"); each letter's original on Commons beside its play button; Sources page. The files are `static/audio/letters/*.mp3`, made with their list (`src/lib/alphabet/recordings.ts`) by `data/letter_recordings.py`, and are CC BY-SA 4.0 themselves |
 | Tatoeba | CC BY 2.0 FR | Credit the author of each sentence | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored) |

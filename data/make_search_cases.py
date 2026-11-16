@@ -22,7 +22,18 @@ QUERIES = [
     # search-as-you-type prefixes
     "кал", "неб", "чит", "kal", "neb", "pry",
     # only VESUM knows these
-    "соловейком", "книжечку", "нездійсненними",
+    "книжечку", "походити", "дорівнює",
+    # ... and says what they are: a surname, a given name, a patronymic; сокирко is a surname beside the
+    # plain noun сокирка
+    "осташка", "фрідріха", "максимовичу", "сокирко",
+    # a reflexive verb with no entry leads to the verb it is made from; вчитися has its own entry
+    "утворюватися", "міститься", "вчитися",
+    # abbreviations, Nebokrai's own (ін., км) and Wiktionary's (ст.), with and without the full stop
+    "ін.", "ін", "км", "ст", "англ",
+    # "form of" pages kept as words: a diminutive and a participle (only VESUM knew these two before),
+    # a comparative and one of its cases, a superlative, a verbal noun, alternative forms, a female
+    # equivalent, another participle; and the label that must not be searchable
+    "соловейком", "нездійсненними", "більший", "більшого", "найкращий", "утворення", "окрім", "немає", "авторку", "створена", "comparative",
     # guesses: other spellings, sound-alikes, typos, wrong keyboard layout
     "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
     "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",
@@ -52,6 +63,12 @@ if __name__ == "__main__":
                      for r in got["results"] if r.get("matched_forms")]
             if forms:
                 case["forms"] = forms
+            # What a VESUM-only word is, and the reflexive verb that led to an
+            # entry: [word, what], again only where there is something to say.
+            notes = ([[r["word"], r["kind"]] for r in got["results"] if r.get("kind")]
+                     + [[r["word"], r["through"]["word"]] for r in got["results"] if r.get("through")])
+            if notes:
+                case["notes"] = notes
             cases.append(case)
     sys.stdout.reconfigure(encoding="utf-8")  # Windows defaults to cp1252 when redirected
     json.dump(cases, sys.stdout, ensure_ascii=False, indent=1)

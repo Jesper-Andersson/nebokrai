@@ -9,6 +9,7 @@ import { test } from 'node:test';
 import {
 	deletes, editsApart, fromRussianLetters, fromWrongLayout, looseLatin, nationalTranslit, plain, soundKey
 } from '../src/lib/search/normalize.ts';
+import { search } from '../src/lib/search/search.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
 import { wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
@@ -64,7 +65,55 @@ test('search matches the Python reference', { skip }, async () => {
 			.filter((r) => r.matched_forms?.length)
 			.map((r) => [r.id, r.matched_forms!.map((f) => [f.form, f.tags])]);
 		assert.deepEqual(forms, c.forms ?? [], `matched forms for ${label}`);
+		// What a VESUM-only word is (a surname), and the reflexive verb that led to an entry
+		const notes = [
+			...got.results.filter((r) => r.kind).map((r) => [r.word, r.kind]),
+			...got.results.filter((r) => r.through).map((r) => [r.word, r.through!.word])
+		];
+		assert.deepEqual(notes, c.notes ?? [], `kinds and reflexives for ${label}`);
 	}
+});
+
+test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const vesum = openLocal('vesum.db');
+	// No entry, but VESUM says what it is
+	const [surname] = await search(db, 'осташка', { vesum });
+	assert.deepEqual([surname.word, surname.vesum_only, surname.kind], ['осташко', true, 'surname']);
+	// Іванович-like words are a surname too; the patronymic is the likelier
+	const [patronymic] = await search(db, 'максимовичу', { vesum });
+	assert.equal(patronymic.kind, 'patronymic');
+	// A plain word that only VESUM knows has no kind
+	const [verb] = await search(db, 'походити', { vesum });
+	assert.equal(verb.vesum_only, true);
+	assert.equal('kind' in verb, false);
+
+	// утворюватися has no entry: the verb it is made from answers, and says how it was reached
+	const [form] = await search(db, 'утворюються', { vesum });
+	assert.equal(form.word, 'утворювати');
+	assert.equal(form.match, 'form');
+	assert.deepEqual(form.matched_forms, []);
+	assert.deepEqual(form.through, { word: 'утворюватися', kind: 'reflexive' });
+	// A reflexive verb with an entry of its own is that entry, reached through nothing
+	const [learn] = await search(db, 'вчитися', { vesum });
+	assert.equal(learn.word, 'вчитися');
+	assert.equal('through' in learn, false);
+
+	// A vesum.db built before kinds were stored: the word is found, with no kind
+	const old = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('vesum_kinds')
+				? Promise.reject(new Error('D1_ERROR: no such table: vesum_kinds: SQLITE_ERROR'))
+				: vesum.all<T>(sql, params)
+	};
+	const [plainStub] = await search(db, 'осташка', { vesum: old });
+	assert.deepEqual([plainStub.word, plainStub.vesum_only, 'kind' in plainStub], ['осташко', true, false]);
+	// Any other failure is not swallowed
+	const broken = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes('vesum_kinds') ? Promise.reject(new Error('database is locked')) : vesum.all<T>(sql, params)
+	};
+	await assert.rejects(search(db, 'осташка', { vesum: broken }), /locked/);
 });
 
 test('word details', { skip }, async () => {
@@ -126,6 +175,60 @@ test('related words', { skip }, async () => {
 			assert.ok(x.sense_n === null || entry.senses.some((s) => s.n === x.sense_n));
 		}
 	}
+});
+
+test('"form of" pages kept as words', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// більший is a page that only says "comparative degree of великий", and a word all the same:
+	// it has an entry and a table of its own, and each of the two names the other
+	const [bigger] = await wordDetails(db, 'більший');
+	assert.equal(bigger.pos, 'adj');
+	assert.equal(bigger.senses[0].gloss, 'comparative degree of вели́кий: bigger, larger, greater');
+	assert.ok(bigger.forms.some((f) => f.form === 'бі́льшого'));
+	assert.deepEqual(bigger.relations.find((x) => x.word === 'вели́кий'),
+		{ kind: 'related', sense_n: 1, word: 'вели́кий', tags: [], has_entry: true });
+	const [big] = await wordDetails(db, 'великий');
+	assert.deepEqual(big.relations.find((x) => x.word === 'бі́льший'),
+		{ kind: 'related', sense_n: null, word: 'бі́льший', tags: [], has_entry: true });
+
+	// A participle is filed under its verb, and declines as the adjective it is
+	const [created] = await wordDetails(db, 'створений');
+	assert.equal(created.pos, 'adj');
+	assert.ok(created.forms.some((f) => f.form === 'ство́рена'));
+
+	// The romanisation is dropped from the gloss, the meaning beside it is kept
+	const [author] = await wordDetails(db, 'авторка');
+	assert.equal(author.senses[0].gloss, 'female equivalent of а́втор (“author, authoress”)');
+
+	// A cell of another word's table is still no entry (книги, genitive of книга), nor is a misspelling
+	assert.ok((await wordDetails(db, 'книги')).every((e) => e.word !== 'книги'));
+	assert.deepEqual(await wordDetails(db, 'будь-ласка'), []);
+});
+
+test('entries written for Nebokrai', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// км has no Wiktionary page: the entry is Nebokrai's, shaped like a kept "form of" page
+	const [km] = await wordDetails(db, 'км');
+	assert.equal(km.source, 'nebokrai');
+	assert.equal(km.senses[0].gloss, 'abbreviation of кіломе́тр (“kilometre”)');
+	assert.deepEqual(km.relations, [{ kind: 'related', sense_n: 1, word: 'кіломе́тр', tags: [], has_entry: true }]);
+	// An abbreviation written with a full stop is found without it too
+	const [other] = await wordDetails(db, 'ін');
+	assert.deepEqual([other.word, other.source], ['ін.', 'nebokrai']);
+	// Everything else is Wiktionary's, an abbreviation it has a page for included
+	assert.ok((await wordDetails(db, 'калина')).every((e) => e.source === 'wiktionary'));
+	assert.ok((await wordDetails(db, 'ст.')).every((e) => e.source === 'wiktionary'));
+
+	// A database built before entries recorded their source: all of it was Wiktionary's
+	const old = {
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes(', source') && !sql.includes("'wiktionary' AS source")
+				? Promise.reject(new Error('D1_ERROR: no such column: source: SQLITE_ERROR'))
+				: db.all<T>(sql, params)
+	};
+	const [oldKm] = await wordDetails(old, 'км');
+	assert.equal(oldKm.source, 'wiktionary');
+	assert.ok(oldKm.senses.length > 0);
 });
 
 test('a database built before related words were stored', { skip }, async () => {

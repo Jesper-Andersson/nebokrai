@@ -66,6 +66,8 @@ Response `200`:
 | `match` | Why this result matched, see the next table. |
 | `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
 | `vesum_only` | Present and `true` only on VESUM-only results. |
+| `kind` | On a VESUM-only result, what the word is, when VESUM says: `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
+| `through` | Present when the query is a reflexive verb with no entry and the result is the verb it is made from, see "Reflexive verbs". |
 
 Results arrive already sorted; show them in the order given.
 
@@ -115,20 +117,52 @@ entry for that word, the result looks like this:
 ```json
 {
   "id": null,
-  "word": "соловейко",
-  "headword": "соловейко",
+  "word": "осташко",
+  "headword": "осташко",
   "pos": "noun",
   "tags": [],
   "head_forms": [],
   "glosses": [],
   "freq_rank": null,
   "match": "form",
-  "vesum_only": true
+  "vesum_only": true,
+  "kind": "surname"
 }
 ```
 
 There is no stress mark, no meaning and no Details page for it. The page can
 say that the word exists and that it has no entry yet.
+
+`kind` is there for the 30,000 or so words VESUM marks as a given name, a
+patronymic, a surname or an abbreviation, so that the page can say "a surname
+with no dictionary entry yet". The word is in lower case, as VESUM's are here.
+Where a word is more than one of these, the likeliest is given, in the order
+above: Максимович is a patronymic before it is a surname. A plain word
+(`книжечка`) has no `kind`, and neither has any word when `vesum.db` was built
+before kinds were stored.
+
+### Reflexive verbs
+
+Wiktionary has `утворювати` and not `утворюватися`. When VESUM says the query
+is a form of a reflexive verb (one ending in `-ся` or `-сь`) that has no entry,
+and the verb without that ending has one, that entry is the result:
+
+```json
+{
+  "id": 16002,
+  "word": "утворювати",
+  "match": "form",
+  "matched_forms": [],
+  "through": { "word": "утворюватися", "kind": "reflexive" }
+}
+```
+
+(the other fields are left out here). `through.word` is the reflexive verb in
+its dictionary form, whichever of its forms was searched for. The meanings are
+those of the verb without `-ся`, which the reflexive verb often does not share
+(`вчити` "to teach", `вчитися` "to study"), so the page says how the result was
+reached and promises nothing more. A reflexive verb with an entry of its own
+(`вчитися`) is found as itself, with no `through`.
 
 ### Suggestions ("did you mean")
 
@@ -236,16 +270,18 @@ common first.
 
 | Field | Meaning |
 |---|---|
+| `source` | `wiktionary`, or `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`). Credit and link accordingly: such an entry has no Wiktionary page. |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
-| `ipa` | Pronunciation. `null` for about 1.5% of entries. |
-| `audio_url` | An mp3 on Wikimedia Commons. `null` for 43% of entries. |
-| `etymology` | Plain text, sometimes several lines. `null` for 18% of entries. |
-| `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … |
+| `ipa` | Pronunciation. `null` for about 2% of entries. |
+| `audio_url` | An mp3 on Wikimedia Commons. `null` for 45% of entries. |
+| `etymology` | Plain text, sometimes several lines. `null` for 20% of entries. |
+| `senses[].gloss` | The meaning in English. For a word Wiktionary describes through another word, the gloss says so: "comparative degree of вели́кий: bigger, larger, greater", "verbal noun of утвори́ти pf: formation", "female equivalent of а́втор (“author, authoress”)". The word it names is in `relations` as `related`, with `sense_n` set. |
+| `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … Such a meaning also carries `form-of` or `alt-of`. |
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
 | `forms` | One item per cell of the declension or conjugation table. Empty when the word does not inflect or has no table. |
 | `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. |
 | `head_forms[].has_entry` | `true` when the form is spelled like another dictionary word. Here only, not in search results. See "Words that lead to other words". |
-| `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 39% of entries. |
+| `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 35% of entries. |
 
 ### Words that lead to other words
 
@@ -345,6 +381,8 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `meaning` | The first meaning, or `null` for a word only VESUM knows. |
 | `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
+| `kind` | As in `/api/search`: what a VESUM-only word is, when VESUM says. |
+| `through` | As in `/api/search`: the reflexive verb in the sentence, when the reading is the verb it is made from. |
 
 Only entries that are the word or one of its forms are given: a word that
 starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor
@@ -438,13 +476,13 @@ The answers carry dictionary data, and each source keeps its own licence
 
 | What | Licence |
 |---|---|
-| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 |
+| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0; entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
-| Results with `vesum_only: true` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| Results with `vesum_only: true`, their `kind`, and `through` | VESUM, CC BY-NC-SA 4.0: no commercial use |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
 
 A result with `match: "form"` and an empty `matched_forms` was found with
-VESUM's help, but everything in it is the Wiktionary entry.
+VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
 
 ## Errors
 
@@ -477,7 +515,7 @@ dashboard to switch at once.
 ## Suggestions while typing (no request)
 
 The dropdown under the search box does not call the server. The page
-downloads `static/words.json` once (29,020 headwords, most common first,
+downloads `static/words.json` once (31,204 headwords, most common first,
 about 175 KB compressed) and matches locally:
 
 ```ts

@@ -32,13 +32,13 @@
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "nebokrai-dict-20261112",
-			"database_id": "5cbe006f-c4c0-4e8d-bc3f-89249525f8d4"
+			"database_name": "nebokrai-dict-20261116",
+			"database_id": "04aa83dc-cdf8-41e6-aa0e-8688ce1038bb"
 		},
 		{
 			"binding": "VESUM",
-			"database_name": "nebokrai-vesum-20261111",
-			"database_id": "05592f5b-cc92-45a0-b62a-f5d944e09c00"
+			"database_name": "nebokrai-vesum-20261116",
+			"database_id": "5feb6ce0-5348-4df7-aaf9-49031637bd6a"
 		},
 		{
 			"binding": "USERS",

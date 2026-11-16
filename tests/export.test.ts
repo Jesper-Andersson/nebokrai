@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { ankiText, csv, exportFile, json, type ExportCard } from '../src/lib/export.ts';
+import { READLANG_MAX, ankiText, csv, exportFile, json, readlangCsv, type ExportCard } from '../src/lib/export.ts';
 
 const kalyna: ExportCard = {
 	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]', audio_url: null,
@@ -55,6 +55,36 @@ test('CSV', () => {
 		'"Калина цвіте.","The viburnum is in bloom.","https://nebokrai.app/word/kalyna","2026-11-11T12:00:00.000Z"');
 	// Quotes are doubled, markup is left as text, and the line break stays inside its quoted field
 	assert.ok(text.includes('"""Ки́їв""","name","","","a <b>city</b> & ""capital""; tab\there\nand a new line","","",'));
+});
+
+test('Readlang CSV', () => {
+	const card = (word: string, glosses: string[], uk?: string): ExportCard => ({
+		...kalyna, word, headword: word, glosses,
+		example: uk === undefined ? null : { uk, en: '', tatoeba_id: 1, adapted: false, original: null }
+	});
+	const text = readlangCsv([
+		kalyna,
+		awkward,
+		card('книга', ['book'], 'Я купи́в книга, і все.'),
+		card('кіт', ['cat', 'cat', 'tomcat', 'a', 'b'], 'Він прийшов з китом і кітом.'),
+		card('ніщо', [])
+	]);
+	assert.notEqual(text.charCodeAt(0), 0xfeff); // no mark: it would become part of the first word
+	assert.deepEqual(text.split('\n'), [
+		// «Калина цвіте.» has the word with a capital, so it is not offered as a context
+		'калина,"viburnum, guelder rose"',
+		// No stress mark in the word, " / " between meanings, and the tab and line break gone
+		'Київ,"a <b>city</b> & ""capital"" / tab here and a new line"',
+		// The sentence has the word as it is: it goes along, quoted for its comma, without its stress mark
+		'книга,book,"Я купив книга, і все."',
+		// Only whole words count (кітом is another form); a repeated meaning is said once, and three are enough
+		'кіт,cat / tomcat / a',
+		// A word with no meaning is left out: Readlang needs a translation
+		''
+	]);
+
+	const many = Array.from({ length: READLANG_MAX + 5 }, (_, i) => card(`слово${i}`, ['word']));
+	assert.equal(readlangCsv(many).split('\n').length, READLANG_MAX + 1);
 });
 
 test('JSON', () => {

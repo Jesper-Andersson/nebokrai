@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-readlang-export',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Take your saved words to Readlang', uk: 'Збережені слова тепер можна перенести в Readlang' },
+		body: {
+			en: 'Export on the Saved page now offers a Readlang file, with each word’s meanings and an example sentence where it fits, up to 200 words per file.',
+			uk: 'Кнопка «Експортувати» на сторінці збережених тепер дає файл для Readlang зі значеннями слів і прикладом, де він підходить, до 200 слів у файлі.'
+		},
+		href: '/saved'
+	},
+	{
 		id: '2026-11-16-natural-example-sentences',
 		date: '2026-11-16',
 		kind: 'changed',

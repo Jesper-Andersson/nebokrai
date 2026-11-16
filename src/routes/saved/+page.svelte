@@ -20,7 +20,7 @@
 		ANKI_CONNECT_PAGE, AnkiError, DEFAULT_SETTINGS, browserInvoke, readSettings, sendToAnki, type AnkiSettings,
 		type SendResult
 	} from '#lib/anki-connect.ts';
-	import { exportFile, type ExportFormat } from '#lib/export.ts';
+	import { READLANG_MAX, exportFile, type ExportFormat } from '#lib/export.ts';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -66,7 +66,7 @@
 		})();
 	});
 
-	const formats: ExportFormat[] = ['anki', 'csv', 'json'];
+	const formats: ExportFormat[] = ['anki', 'csv', 'readlang', 'json'];
 
 	// The list in view, by its id; null shows every saved word. It is the
 	// page's address (/saved?list=…), so the "Saved to Їжа" message can link
@@ -186,6 +186,8 @@
 	// more step from the visitor, and a send has a result or a reason it failed.
 	type AnkiNote =
 		| { kind: 'file' }
+		// A Readlang file: `count` words of the `total` that were asked for
+		| { kind: 'readlang'; count: number; total: number }
 		| { kind: 'sent'; result: SendResult; deck: string }
 		| { kind: 'error'; error: AnkiError };
 	let ankiNote = $state.raw<AnkiNote | null>(null);
@@ -202,6 +204,11 @@
 	let notice = $derived.by((): Notice | null => {
 		if (!ankiNote) return null;
 		if (ankiNote.kind === 'file') return { tone: 'info', title: m.export.ankiFile, body: m.export.ankiHint };
+		if (ankiNote.kind === 'readlang') {
+			const { count, total } = ankiNote;
+			const more = total > count ? ` ${m.export.readlangMore(count, total)}` : '';
+			return { tone: 'info', title: m.export.readlangFile, body: m.export.readlangHint + more };
+		}
 		if (ankiNote.kind === 'sent') {
 			const { added, updated, unchanged } = ankiNote.result;
 			return { tone: 'ok', title: m.export.ankiSent.title(ankiNote.deck), body: m.export.ankiSent.body(added, updated, unchanged) };
@@ -215,8 +222,8 @@
 
 	// Everything a card holds, for the words in scope. A list that could not
 	// be fetched whole throws: half a deck would look like a finished one.
-	async function cardsInScope() {
-		const items = inScope(scope);
+	async function cardsInScope(limit = Infinity) {
+		const items = inScope(scope).slice(0, limit);
 		const cards = new Map<string, WordCard>();
 		for (let i = 0; i < items.length; i += SUMMARY_MAX) {
 			const res = await fetch('/api/words/cards', {
@@ -236,9 +243,13 @@
 		return rows;
 	}
 
-	function afterExport(words: string[]) {
+	// `partial`: only some of the words in scope went out (Readlang's limit),
+	// so the rest of the ticked ones stay ticked for the next file.
+	function afterExport(words: string[], partial = false) {
 		void saved.markExported(words);
-		if (scope === 'selected') ticked.clear();
+		if (scope !== 'selected') return;
+		if (partial) for (const word of words) ticked.delete(word);
+		else ticked.clear();
 	}
 
 	// Where a send puts the words (the deck, the note type, tags). Kept in this
@@ -289,7 +300,10 @@
 		if (exporting) return;
 		exporting = true;
 		try {
-			const rows = await cardsInScope();
+			// Readlang takes a limited number of words per file: the first ones go
+			// now, and "Not exported yet" gives the next ones.
+			const total = inScope(scope).length;
+			const rows = await cardsInScope(format === 'readlang' ? READLANG_MAX : undefined);
 			const file = exportFile(format, rows, (pos) => posLabel(m, pos), new Date());
 			const url = URL.createObjectURL(new Blob([file.text], { type: file.type }));
 			const link = document.createElement('a');
@@ -298,8 +312,10 @@
 			link.click();
 			// Not at once: the browser may not have started reading the file yet.
 			setTimeout(() => URL.revokeObjectURL(url), 10_000);
-			ankiNote = format === 'anki' ? { kind: 'file' } : null;
-			afterExport(rows.map((row) => row.word));
+			ankiNote = format === 'anki'
+				? { kind: 'file' }
+				: format === 'readlang' ? { kind: 'readlang', count: Math.min(total, READLANG_MAX), total } : null;
+			afterExport(rows.map((row) => row.word), format === 'readlang' && total > READLANG_MAX);
 		} catch {
 			toaster.addToast({ data: { title: m.export.failed } });
 		} finally {

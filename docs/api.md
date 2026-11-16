@@ -767,7 +767,7 @@ Errors: `400 invalid_words` when `words` is not a list of at most 200;
 ### `POST /api/words/cards`
 
 What the Saved page's Export menu puts on a flashcard (`src/lib/export.ts`
-builds the Anki text file, the CSV and the JSON from it in the browser). Like
+builds the Anki text file, the two CSVs and the JSON from it in the browser). Like
 the summary, it changes nothing.
 
 Body: `{ "words": ["калина", "небокрай"] }`, at most 500 words.

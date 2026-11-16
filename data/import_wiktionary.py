@@ -49,7 +49,9 @@ CREATE TABLE entries (
     etymology   TEXT,
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
     freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
-    source      TEXT NOT NULL DEFAULT 'wiktionary'  -- or 'nebokrai': written for this dictionary (abbreviations.tsv)
+    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv). No DEFAULT:
+    -- export_sql.py cannot carry a quoted value in a CREATE statement to D1.
+    source      TEXT NOT NULL
 );
 CREATE TABLE senses (
     id        INTEGER PRIMARY KEY,
@@ -867,7 +869,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
 
         cur = db.execute(
             "INSERT INTO entries(word, headword, pos, tags, head_forms, roman, ipa,"
-            " audio_url, etymology) VALUES (?,?,?,?,?,?,?,?,?)",
+            " audio_url, etymology, source) VALUES (?,?,?,?,?,?,?,?,?,'wiktionary')",
             (word, headword, pos, json.dumps(tags, ensure_ascii=False),
              json.dumps(head_forms, ensure_ascii=False), roman, ipa, audio,
              e.get("etymology_text")))

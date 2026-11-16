@@ -356,7 +356,13 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "old": [
+   [
+    1088,
+    "obsolete"
+   ]
+  ]
  },
  {
   "query": "стан",
@@ -483,7 +489,13 @@
     "prefix"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "old": [
+   [
+    1088,
+    "obsolete"
+   ]
+  ]
  },
  {
   "query": "за",
@@ -2342,12 +2354,6 @@
     "english"
    ],
    [
-    9778,
-    "благий",
-    "adj",
-    "english"
-   ],
-   [
     31864,
     "слушний",
     "adj",
@@ -2423,6 +2429,12 @@
     15562,
     "користуватися",
     "verb",
+    "english_mention"
+   ],
+   [
+    5179,
+    "добридень",
+    "intj",
     "english_mention"
    ]
   ],
@@ -2483,12 +2495,6 @@
     "english"
    ],
    [
-    9778,
-    "благий",
-    "adj",
-    "english"
-   ],
-   [
     31864,
     "слушний",
     "adj",
@@ -2564,6 +2570,12 @@
     15562,
     "користуватися",
     "verb",
+    "english_mention"
+   ],
+   [
+    5179,
+    "добридень",
+    "intj",
     "english_mention"
    ]
   ],
@@ -4686,6 +4698,714 @@
   "suggest": []
  },
  {
+  "query": "swedish",
+  "vesum": false,
+  "expect": [
+   [
+    8613,
+    "шведський",
+    "adj",
+    "english"
+   ],
+   [
+    24814,
+    "Гаммаршельд",
+    "name",
+    "english_mention"
+   ],
+   [
+    29728,
+    "Даріян",
+    "name",
+    "english_mention"
+   ],
+   [
+    22012,
+    "шведомовний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    19137,
+    "свейський",
+    "adj",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
+  "query": "swedish",
+  "vesum": true,
+  "expect": [
+   [
+    8613,
+    "шведський",
+    "adj",
+    "english"
+   ],
+   [
+    24814,
+    "Гаммаршельд",
+    "name",
+    "english_mention"
+   ],
+   [
+    29728,
+    "Даріян",
+    "name",
+    "english_mention"
+   ],
+   [
+    22012,
+    "шведомовний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    19137,
+    "свейський",
+    "adj",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
+  "query": "light",
+  "vesum": false,
+  "expect": [
+   [
+    8495,
+    "світло",
+    "noun",
+    "english"
+   ],
+   [
+    3935,
+    "вогонь",
+    "noun",
+    "english"
+   ],
+   [
+    4789,
+    "легкий",
+    "adj",
+    "english"
+   ],
+   [
+    1874,
+    "світлий",
+    "adj",
+    "english"
+   ],
+   [
+    23140,
+    "світловий",
+    "adj",
+    "english"
+   ],
+   [
+    5333,
+    "ліхтар",
+    "noun",
+    "english"
+   ],
+   [
+    31941,
+    "пишний",
+    "adj",
+    "english"
+   ],
+   [
+    7095,
+    "чуткий",
+    "adj",
+    "english"
+   ],
+   [
+    15552,
+    "підійти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    15551,
+    "підходити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    27346,
+    "вдарити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11445,
+    "виявити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11786,
+    "виявитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3214,
+    "ударити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    4326,
+    "сонячний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    8182,
+    "блакитний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    26984,
+    "накласти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11785,
+    "виявлятися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    8023,
+    "промінь",
+    "noun",
+    "english_mention"
+   ],
+   [
+    21153,
+    "відкритися",
+    "verb",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "light",
+  "vesum": true,
+  "expect": [
+   [
+    8495,
+    "світло",
+    "noun",
+    "english"
+   ],
+   [
+    3935,
+    "вогонь",
+    "noun",
+    "english"
+   ],
+   [
+    4789,
+    "легкий",
+    "adj",
+    "english"
+   ],
+   [
+    1874,
+    "світлий",
+    "adj",
+    "english"
+   ],
+   [
+    23140,
+    "світловий",
+    "adj",
+    "english"
+   ],
+   [
+    5333,
+    "ліхтар",
+    "noun",
+    "english"
+   ],
+   [
+    31941,
+    "пишний",
+    "adj",
+    "english"
+   ],
+   [
+    7095,
+    "чуткий",
+    "adj",
+    "english"
+   ],
+   [
+    15552,
+    "підійти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    15551,
+    "підходити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    27346,
+    "вдарити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11445,
+    "виявити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11786,
+    "виявитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3214,
+    "ударити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    4326,
+    "сонячний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    8182,
+    "блакитний",
+    "adj",
+    "english_mention"
+   ],
+   [
+    26984,
+    "накласти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    11785,
+    "виявлятися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    8023,
+    "промінь",
+    "noun",
+    "english_mention"
+   ],
+   [
+    21153,
+    "відкритися",
+    "verb",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "intelligence",
+  "vesum": false,
+  "expect": [
+   [
+    18086,
+    "розвідка",
+    "noun",
+    "english"
+   ],
+   [
+    9702,
+    "інтелект",
+    "noun",
+    "english"
+   ],
+   [
+    27037,
+    "відомості",
+    "noun",
+    "english"
+   ],
+   [
+    19713,
+    "розвідувальний",
+    "adj",
+    "english"
+   ],
+   [
+    2365,
+    "агент",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6766,
+    "дурень",
+    "noun",
+    "english_mention"
+   ],
+   [
+    33590,
+    "ЦРУ",
+    "name",
+    "english_mention"
+   ],
+   [
+    16366,
+    "геній",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22697,
+    "ідіотизм",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16985,
+    "дурко",
+    "noun",
+    "english_mention"
+   ],
+   [
+    26546,
+    "ШІ",
+    "noun",
+    "english_mention"
+   ],
+   [
+    28817,
+    "ГУР",
+    "name",
+    "english_mention"
+   ],
+   [
+    18192,
+    "СБУ",
+    "name",
+    "english_mention"
+   ],
+   [
+    18193,
+    "Служба безпеки України",
+    "name",
+    "english_mention"
+   ],
+   [
+    1888,
+    "абвер",
+    "name",
+    "english_mention"
+   ],
+   [
+    16352,
+    "чекіст",
+    "noun",
+    "english_mention"
+   ],
+   [
+    9703,
+    "штучний інтелект",
+    "noun",
+    "english_mention"
+   ],
+   [
+    550,
+    "ум",
+    "noun",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    550,
+    "dated"
+   ]
+  ]
+ },
+ {
+  "query": "intelligence",
+  "vesum": true,
+  "expect": [
+   [
+    18086,
+    "розвідка",
+    "noun",
+    "english"
+   ],
+   [
+    9702,
+    "інтелект",
+    "noun",
+    "english"
+   ],
+   [
+    27037,
+    "відомості",
+    "noun",
+    "english"
+   ],
+   [
+    19713,
+    "розвідувальний",
+    "adj",
+    "english"
+   ],
+   [
+    2365,
+    "агент",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6766,
+    "дурень",
+    "noun",
+    "english_mention"
+   ],
+   [
+    33590,
+    "ЦРУ",
+    "name",
+    "english_mention"
+   ],
+   [
+    16366,
+    "геній",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22697,
+    "ідіотизм",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16985,
+    "дурко",
+    "noun",
+    "english_mention"
+   ],
+   [
+    26546,
+    "ШІ",
+    "noun",
+    "english_mention"
+   ],
+   [
+    28817,
+    "ГУР",
+    "name",
+    "english_mention"
+   ],
+   [
+    18192,
+    "СБУ",
+    "name",
+    "english_mention"
+   ],
+   [
+    18193,
+    "Служба безпеки України",
+    "name",
+    "english_mention"
+   ],
+   [
+    1888,
+    "абвер",
+    "name",
+    "english_mention"
+   ],
+   [
+    16352,
+    "чекіст",
+    "noun",
+    "english_mention"
+   ],
+   [
+    9703,
+    "штучний інтелект",
+    "noun",
+    "english_mention"
+   ],
+   [
+    550,
+    "ум",
+    "noun",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    550,
+    "dated"
+   ]
+  ]
+ },
+ {
+  "query": "crusader",
+  "vesum": false,
+  "expect": [
+   [
+    11603,
+    "хрестоносець",
+    "noun",
+    "english"
+   ],
+   [
+    28312,
+    "крижак",
+    "noun",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    28312,
+    "dated"
+   ]
+  ]
+ },
+ {
+  "query": "crusader",
+  "vesum": true,
+  "expect": [
+   [
+    11603,
+    "хрестоносець",
+    "noun",
+    "english"
+   ],
+   [
+    28312,
+    "крижак",
+    "noun",
+    "english"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    28312,
+    "dated"
+   ]
+  ]
+ },
+ {
+  "query": "свейський",
+  "vesum": false,
+  "expect": [
+   [
+    19137,
+    "свейський",
+    "adj",
+    "word"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
+  "query": "свейський",
+  "vesum": true,
+  "expect": [
+   [
+    19137,
+    "свейський",
+    "adj",
+    "word"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
+  "query": "sveiskyi",
+  "vesum": false,
+  "expect": [
+   [
+    19137,
+    "свейський",
+    "adj",
+    "latin"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
+  "query": "sveiskyi",
+  "vesum": true,
+  "expect": [
+   [
+    19137,
+    "свейський",
+    "adj",
+    "latin"
+   ]
+  ],
+  "suggest": [],
+  "old": [
+   [
+    19137,
+    "obsolete"
+   ]
+  ]
+ },
+ {
   "query": "кал",
   "vesum": false,
   "expect": [
@@ -4716,12 +5436,6 @@
    [
     13688,
     "калібр",
-    "noun",
-    "prefix"
-   ],
-   [
-    28656,
-    "каліка",
     "noun",
     "prefix"
    ],
@@ -4807,6 +5521,12 @@
     6094,
     "калоша",
     "noun",
+    "prefix"
+   ],
+   [
+    31276,
+    "каламутний",
+    "adj",
     "prefix"
    ]
   ],
@@ -4847,12 +5567,6 @@
     "prefix"
    ],
    [
-    28656,
-    "каліка",
-    "noun",
-    "prefix"
-   ],
-   [
     28655,
     "каліка",
     "noun",
@@ -4934,6 +5648,12 @@
     6094,
     "калоша",
     "noun",
+    "prefix"
+   ],
+   [
+    31276,
+    "каламутний",
+    "adj",
     "prefix"
    ]
   ],
@@ -5364,12 +6084,6 @@
     "prefix"
    ],
    [
-    28656,
-    "каліка",
-    "noun",
-    "prefix"
-   ],
-   [
     28655,
     "каліка",
     "noun",
@@ -5451,6 +6165,12 @@
     6094,
     "калоша",
     "noun",
+    "prefix"
+   ],
+   [
+    31276,
+    "каламутний",
+    "adj",
     "prefix"
    ]
   ],
@@ -5491,12 +6211,6 @@
     "prefix"
    ],
    [
-    28656,
-    "каліка",
-    "noun",
-    "prefix"
-   ],
-   [
     28655,
     "каліка",
     "noun",
@@ -5579,6 +6293,12 @@
     "калоша",
     "noun",
     "prefix"
+   ],
+   [
+    31276,
+    "каламутний",
+    "adj",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -5854,15 +6574,15 @@
     "latin_form"
    ],
    [
-    6375,
-    "пря",
-    "noun",
-    "latin_form"
-   ],
-   [
     22348,
     "пріти",
     "verb",
+    "latin_form"
+   ],
+   [
+    6375,
+    "пря",
+    "noun",
     "latin_form"
    ],
    [
@@ -5914,12 +6634,6 @@
     "prefix"
    ],
    [
-    20070,
-    "прибути",
-    "verb",
-    "prefix"
-   ],
-   [
     15358,
     "прямувати",
     "verb",
@@ -5960,6 +6674,12 @@
     "причетний",
     "adj",
     "prefix"
+   ],
+   [
+    3284,
+    "прибити",
+    "verb",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -5969,6 +6689,19 @@
     [
      [
       "при",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    22348,
+    [
+     [
+      "прій",
       [
        "imperative",
        "second-person",
@@ -6002,19 +6735,12 @@
       ]
      ]
     ]
-   ],
+   ]
+  ],
+  "old": [
    [
-    22348,
-    [
-     [
-      "прій",
-      [
-       "imperative",
-       "second-person",
-       "singular"
-      ]
-     ]
-    ]
+    6375,
+    "archaic"
    ]
   ]
  },
@@ -6035,15 +6761,15 @@
     "latin_form"
    ],
    [
-    6375,
-    "пря",
-    "noun",
-    "latin_form"
-   ],
-   [
     22348,
     "пріти",
     "verb",
+    "latin_form"
+   ],
+   [
+    6375,
+    "пря",
+    "noun",
     "latin_form"
    ],
    [
@@ -6095,12 +6821,6 @@
     "prefix"
    ],
    [
-    20070,
-    "прибути",
-    "verb",
-    "prefix"
-   ],
-   [
     15358,
     "прямувати",
     "verb",
@@ -6141,6 +6861,12 @@
     "причетний",
     "adj",
     "prefix"
+   ],
+   [
+    3284,
+    "прибити",
+    "verb",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -6150,6 +6876,19 @@
     [
      [
       "при",
+      [
+       "imperative",
+       "second-person",
+       "singular"
+      ]
+     ]
+    ]
+   ],
+   [
+    22348,
+    [
+     [
+      "прій",
       [
        "imperative",
        "second-person",
@@ -6183,19 +6922,12 @@
       ]
      ]
     ]
-   ],
+   ]
+  ],
+  "old": [
    [
-    22348,
-    [
-     [
-      "прій",
-      [
-       "imperative",
-       "second-person",
-       "singular"
-      ]
-     ]
-    ]
+    6375,
+    "archaic"
    ]
   ]
  },
@@ -7160,12 +7892,6 @@
     "prefix"
    ],
    [
-    1088,
-    "стан",
-    "noun",
-    "prefix"
-   ],
-   [
     1090,
     "стан",
     "noun",
@@ -7228,6 +7954,12 @@
    [
     19679,
     "стадія",
+    "noun",
+    "prefix"
+   ],
+   [
+    6203,
+    "стаканчик",
     "noun",
     "prefix"
    ]
@@ -7287,12 +8019,6 @@
     "prefix"
    ],
    [
-    1088,
-    "стан",
-    "noun",
-    "prefix"
-   ],
-   [
     1090,
     "стан",
     "noun",
@@ -7357,6 +8083,12 @@
     "стадія",
     "noun",
     "prefix"
+   ],
+   [
+    6203,
+    "стаканчик",
+    "noun",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -10292,12 +11024,6 @@
     "english_mention"
    ],
    [
-    30376,
-    "байстрюк",
-    "noun",
-    "english_mention"
-   ],
-   [
     32535,
     "одинак",
     "noun",
@@ -10342,6 +11068,12 @@
    [
     7535,
     "-ович",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    29600,
+    "-ово",
     "suffix",
     "english_mention"
    ]
@@ -10478,12 +11210,6 @@
     "english_mention"
    ],
    [
-    30376,
-    "байстрюк",
-    "noun",
-    "english_mention"
-   ],
-   [
     32535,
     "одинак",
     "noun",
@@ -10528,6 +11254,12 @@
    [
     7535,
     "-ович",
+    "suffix",
+    "english_mention"
+   ],
+   [
+    29600,
+    "-ово",
     "suffix",
     "english_mention"
    ]

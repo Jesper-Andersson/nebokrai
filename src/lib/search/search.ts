@@ -11,7 +11,10 @@
 //   6. Latin letters, loosely spelled             kalina -> калина
 //   7. English meaning that mentions the query    good   -> добро ("good deed")
 //   8. prefix of a word, for search-as-you-type
-// Within each step, more common words come first. A result found through a
+// Within each step, more common words come first. An old word (every matched
+// meaning archaic, obsolete or dated) comes after the modern words of its step,
+// and an old exact English meaning after the English mentions; steps 1 to 3
+// are left alone. A result found through a
 // form (steps 2 and 5) says which form in `matched_forms`; one found through
 // a head-line word says how in `through`.
 
@@ -25,6 +28,23 @@ const RANK: Record<MatchKind, number> = {
 	word: 0, form: 1, head: 2, latin: 3, english: 4, latin_form: 5, latin_loose: 6, english_mention: 7, prefix: 8
 };
 const KIND = Object.keys(RANK) as MatchKind[];
+
+// Sense tags that make a meaning old, mildest first. Not "historical":
+// хрестоно́сець (crusader) is the modern word for a thing of the past, and the
+// right answer.
+const OLD = ['dated', 'archaic', 'obsolete'] as const;
+export type OldLabel = (typeof OLD)[number];
+
+/**
+ * How old a word is by the meanings that matched: each meaning's strongest
+ * tag, and of those the mildest, so the label never overstates. Undefined when
+ * a meaning has no such tag. све́йський (archaic, obsolete) is "obsolete".
+ */
+function oldLabel(senses: { tags: string[] }[]): OldLabel | undefined {
+	const strongest = senses.map((s) => Math.max(-1, ...s.tags.map((t) => OLD.indexOf(t as OldLabel))));
+	if (!strongest.length || Math.min(...strongest) < 0) return undefined;
+	return OLD[Math.min(...strongest)];
+}
 
 /** What VESUM says a word with no entry is. */
 export type VesumKind = 'given-name' | 'patronymic' | 'surname' | 'abbreviation';
@@ -79,6 +99,11 @@ export interface SearchResult {
 	freq_rank: number | null;
 	/** Why this entry matched the query. */
 	match: MatchKind;
+	/**
+	 * Set when every meaning that matched is tagged dated, archaic or obsolete:
+	 * the mildest of those meanings' strongest tags. све́йський is "obsolete".
+	 */
+	old?: OldLabel;
 	/**
 	 * The forms of the word that the query spells, when `match` is `form` or
 	 * `latin_form`: книги is кни́ги, genitive singular and nominative plural.
@@ -240,27 +265,33 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	const entries = hits.size === 0 ? [] : await db.all<EntryRow>(
 		`SELECT id, word, headword, pos, tags, head_forms, freq_rank FROM entries
 		 WHERE id IN (SELECT value FROM json_each(?))`, [ids]);
-	const glossRows = hits.size === 0 ? [] : await db.all<{ entry_id: number; gloss: string }>(
-		`SELECT entry_id, gloss FROM senses
+	const senseRows = hits.size === 0 ? [] : await db.all<{ entry_id: number; gloss: string; tags: string }>(
+		`SELECT entry_id, gloss, tags FROM senses
 		 WHERE entry_id IN (SELECT value FROM json_each(?)) ORDER BY entry_id, n`, [ids]);
-	const glossesOf = new Map<number, string[]>();
-	for (const { entry_id, gloss } of glossRows) {
-		const list = glossesOf.get(entry_id);
-		if (list) list.push(gloss);
-		else glossesOf.set(entry_id, [gloss]);
+	const sensesOf = new Map<number, { gloss: string; tags: string[] }[]>();
+	for (const { entry_id, gloss, tags } of senseRows) {
+		const sense = { gloss, tags: JSON.parse(tags) as string[] };
+		const list = sensesOf.get(entry_id);
+		if (list) list.push(sense);
+		else sensesOf.set(entry_id, [sense]);
 	}
 
 	const lower = q.toLowerCase();
 	const ranked = entries.map((e) => {
 		let rank = hits.get(e.id)!;
-		const glosses = glossesOf.get(e.id) ?? [];
+		const senses = sensesOf.get(e.id) ?? [];
+		const glosses = senses.map((s) => s.gloss);
+		let matched = senses;
 		if (rank === RANK.english) {
 			// A word whose meaning *is* the query ("mother") beats one that merely
 			// mentions it ("mother-in-law"). Case is ignored: "English" is the
 			// meaning of англійський, and the query arrives lowercased.
-			const exact = glosses.some((g) =>
-				g.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => part.trim().toLowerCase() === lower));
-			if (!exact) rank = RANK.english_mention;
+			matched = senses.filter((s) =>
+				s.gloss.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => part.trim().toLowerCase() === lower));
+			if (!matched.length) {
+				matched = senses;
+				rank = RANK.english_mention;
+			}
 		} else if (rank === RANK.latin && nationalTranslit(e.word) !== lower) {
 			// "good" loosely matches год ("hod"), but the user most likely means English.
 			rank = RANK.latin_loose;
@@ -275,10 +306,18 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			result.through = led.kind === 'head' ? headThrough(result.head_forms, led.word) : { word: led.word, kind: led.kind };
 		}
 		if (rank === RANK.head) result.through = headThrough(result.head_forms, key);
-		return { rank, tie: e.freq_rank ?? UNRANKED, result };
+		// An old word goes after the modern ones. The commonness count is of
+		// spellings, so an old homograph borrows its rank: світ "light" (archaic)
+		// has the count of світ "world", ум (dated) that of the Russian word.
+		// Steps 1 to 3 keep their place: whoever types свейський means that word.
+		const label = oldLabel(matched);
+		if (label) result.old = label;
+		const old = label !== undefined && rank > RANK.latin;
+		const place = old && rank === RANK.english ? RANK.english_mention : rank;
+		return { rank, place, old: old ? 1 : 0, tie: e.freq_rank ?? UNRANKED, result };
 	});
 	ranked.sort((a, b) =>
-		a.rank - b.rank || a.tie - b.tie ||
+		a.place - b.place || a.old - b.old || a.tie - b.tie ||
 		compareCodePoints(a.result.word, b.result.word) || a.result.id! - b.result.id!);
 
 	// Which form of the word the query is, for results found through a form.

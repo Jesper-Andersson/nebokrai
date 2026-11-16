@@ -21,6 +21,10 @@ QUERIES = [
     "good", "dog", "to go", "mother", "to read", "the horizon", "viburnum", "guelder rose", "in", "water",
     # a capitalised meaning is still an exact match: English -> англійський
     "English",
+    # old words (archaic, obsolete, dated) after modern ones: an obsolete exact meaning after the
+    # mentions (свейський), an archaic homograph (світ "light"), a dated word with a Russian count (ум);
+    # a historical word stays first (хрестоносець), and the old word typed itself is still found
+    "swedish", "light", "intelligence", "crusader", "свейський", "sveiskyi",
     # search-as-you-type prefixes
     "кал", "неб", "чит", "kal", "neb", "pry",
     # only VESUM knows these
@@ -74,6 +78,10 @@ if __name__ == "__main__":
                      + [[r["word"], r["through"]["word"]] for r in got["results"] if r.get("through")])
             if notes:
                 case["notes"] = notes
+            # How old a result is, for the ones with a label: [id, label]
+            old = [[r["id"], r["old"]] for r in got["results"] if r.get("old")]
+            if old:
+                case["old"] = old
             cases.append(case)
     sys.stdout.reconfigure(encoding="utf-8")  # Windows defaults to cp1252 when redirected
     json.dump(cases, sys.stdout, ensure_ascii=False, indent=1)

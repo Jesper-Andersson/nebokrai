@@ -65,6 +65,9 @@ test('search matches the Python reference', { skip }, async () => {
 			.filter((r) => r.matched_forms?.length)
 			.map((r) => [r.id, r.matched_forms!.map((f) => [f.form, f.tags])]);
 		assert.deepEqual(forms, c.forms ?? [], `matched forms for ${label}`);
+		// How old a result is; recorded only for the cases that have any
+		const old = got.results.filter((r) => r.old).map((r) => [r.id, r.old]);
+		assert.deepEqual(old, c.old ?? [], `old labels for ${label}`);
 		// What a VESUM-only word is (a surname), and the reflexive verb that led to an entry
 		const notes = [
 			...got.results.filter((r) => r.kind).map((r) => [r.word, r.kind]),

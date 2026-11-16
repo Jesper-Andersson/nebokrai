@@ -210,6 +210,15 @@ two lists differ.
 
 Within each step, more common words come first.
 
+An old word, one whose matched meanings are all tagged archaic, obsolete or
+dated, comes after the modern words of its step, and an old exact English
+meaning after the English mentions: `swedish` gives шве́дський first and the
+obsolete све́йський last. The commonness count is of spellings, so an old word
+would otherwise borrow the rank of a modern homograph (світ "light" from світ
+"world") or of a Russian word (ум). Steps 1 to 3 are left alone: whoever types
+свейський or sveiskyi means that word. "historical" does not count as old,
+because хрестоно́сець (crusader) is the modern word for a thing of the past.
+
 A result found through an inflected form also says which form the query is
 (`matched_forms`): `руки` is both руки́, the genitive singular of рука, and
 ру́ки, its nominative, accusative and vocative plural. The same holds for a

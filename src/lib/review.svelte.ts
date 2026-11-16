@@ -144,6 +144,16 @@ export class Review {
 	}
 
 	/**
+	 * Forget the pace, decks and goal: they were an account's too, and the
+	 * decks may name its lists. Left in place they would be sent to the next
+	 * account signed in to here, as though chosen for it.
+	 */
+	#dropSettings(): void {
+		store(SETTINGS_KEY, null);
+		this.settings = DEFAULT_SETTINGS;
+	}
+
+	/**
 	 * Browser only: read the stored cards and bring them in line with the
 	 * account. Called by the pages that show reviews, so the dictionary pages
 	 * cost the account nothing; a second call does nothing.
@@ -201,6 +211,7 @@ export class Review {
 				for (const key of [OWNER_KEY, SYNCED_KEY, UNSENT_KEY]) store(key, null);
 				this.#setCards(new Map());
 				this.#dropDays();
+				this.#dropSettings();
 			} else this.cards = local;
 			this.ready = true;
 			return;
@@ -221,6 +232,7 @@ export class Review {
 			this.#setCards(new Map());
 			this.#setUnsent(new Set());
 			this.#dropDays();
+			this.#dropSettings();
 		} else {
 			// First load after signing in: what was reviewed here while signed out joins the account.
 			this.cards = local;

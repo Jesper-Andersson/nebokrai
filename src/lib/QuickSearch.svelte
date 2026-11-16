@@ -4,6 +4,7 @@
      it is open, and what its box holds, is shared (quick-search.svelte.ts), so
      that a word in an example sentence can open it with itself typed in. -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Command, Dialog } from 'bits-ui';
 	import { goto } from '$app/navigation';
 	import { searchReporter } from '#lib/hit.ts';
@@ -32,6 +33,7 @@
 	// The highlighted row. Set to the first answer when answers arrive, so
 	// Enter opens the best match without an arrow key first.
 	let selected = $state('');
+	let input = $state<HTMLInputElement | null>(null);
 
 	$effect(() => {
 		const q = quick.query.trim();
@@ -65,8 +67,27 @@
 		if (!quick.open) quick.query = '';
 	});
 
+	// ⌘K on a Mac, Ctrl+K elsewhere: on a Mac, Ctrl+K in a text field deletes
+	// to the end of the line, and that is left alone.
+	let mac = false;
+	onMount(() => {
+		mac = /Mac|iPhone|iPad/.test(navigator.platform);
+	});
+
+	// event.key follows the layout: with Ukrainian on, the K key gives "л" and a
+	// check for "k" never matches. So a key that is not a Latin letter is read
+	// by its place (KeyK). Only then: on Dvorak the KeyK place types "t", and
+	// Ctrl+T there must still open a tab.
+	function isK(event: KeyboardEvent) {
+		const key = event.key.toLowerCase();
+		return key === 'k' || (!/^[a-z]$/.test(key) && event.code === 'KeyK');
+	}
+
 	function onWindowKeydown(event: KeyboardEvent) {
-		if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
+		const modifier = mac ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey;
+		// Not with Alt (AltGr is Ctrl+Alt on Windows) or Shift (Ctrl+Shift+K is
+		// Firefox's web console)
+		if (modifier && !event.altKey && !event.shiftKey && isK(event)) {
 			event.preventDefault();
 			quick.open = !quick.open;
 		}
@@ -112,8 +133,22 @@
 						autocomplete="off"
 						autocorrect="off"
 						spellcheck="false"
+						bind:ref={input}
 					/>
-					<kbd class="ui-kbd">Esc</kbd>
+					<!-- As on the search page. Esc is told once, in the line of keys below. -->
+					{#if quick.query}
+						<button
+							type="button"
+							class="ui-icon-btn"
+							aria-label={m.home.clear}
+							onclick={() => {
+								quick.query = '';
+								input?.focus();
+							}}
+						>
+							<Icon name="x" />
+						</button>
+					{/if}
 				</div>
 				<!-- A listbox with nothing to choose is announced as an empty list
 				     (WCAG 4.1.2), so while there are no rows the list is hidden and the
@@ -184,7 +219,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
-		padding: 0 0.9rem;
+		padding: 0 0.5rem 0 0.9rem;
 		border-bottom: 1px solid var(--border);
 		color: var(--muted);
 	}
@@ -221,8 +256,21 @@
 		cursor: pointer;
 	}
 
+	/* Grey, as in the settings menu: blue stays a thin accent, never a fill */
 	:global(.ui-quick-item[data-selected]) {
-		background: var(--accent-soft);
+		background: var(--surface-2);
+	}
+
+	/* A phone has room for a word or two of the meaning beside the headword, so
+	   the meaning takes a line of its own under it */
+	@media (max-width: 30rem) {
+		:global(.ui-quick-item) {
+			grid-template-columns: auto minmax(0, 1fr);
+		}
+
+		:global(.ui-quick-gloss) {
+			grid-column: 1 / -1;
+		}
 	}
 
 	:global(.ui-quick-item[data-disabled]) {
@@ -258,15 +306,13 @@
 		margin: 0;
 		padding: 0.55rem 0.9rem;
 		border-top: 1px solid var(--border);
-		background: var(--surface-2);
 		color: var(--muted);
 		font-size: var(--text-xs);
 	}
 
 	/* A phone has no arrow keys or Esc to explain */
 	@media (pointer: coarse) {
-		:global(.ui-quick-keys),
-		:global(.ui-quick-field .ui-kbd) {
+		:global(.ui-quick-keys) {
 			display: none;
 		}
 	}

@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-quick-search-ukrainian-layout',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Ctrl+K opens search on a Ukrainian keyboard too', uk: 'Ctrl+K відкриває пошук і з українською розкладкою' },
+		body: {
+			en: 'Ctrl+K (⌘K on a Mac) opens the quick search whichever keyboard layout is on, and on a phone each meaning sits on its own line under the word.',
+			uk: 'Ctrl+K (⌘K на Mac) відкриває швидкий пошук за будь-якої розкладки, а на телефоні кожне значення стоїть окремим рядком під словом.'
+		}
+	},
+	{
 		id: '2026-11-16-one-log-in-button',
 		date: '2026-11-16',
 		kind: 'changed',

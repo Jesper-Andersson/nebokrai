@@ -320,13 +320,14 @@ some pairs are entries of their own. For `w=ласка&before=будь&after=с�
     "pos": "phrase",
     "tags": [],
     "forms": [],
-    "meaning": "please"
+    "meaning": "please",
+    "freq_rank": null
   },
   "readings": [
     { "word": "ласка", "headword": "ла́ска", "pos": "noun", "tags": ["animal-not-person", "feminine"],
-      "forms": [], "meaning": "weasel (mammal, Mustela nivalis)" },
+      "forms": [], "meaning": "weasel (mammal, Mustela nivalis)", "freq_rank": 300 },
     { "word": "ласка", "headword": "ла́ска", "pos": "noun", "tags": ["feminine", "inanimate"],
-      "forms": [], "meaning": "caress, endearment" }
+      "forms": [], "meaning": "caress, endearment", "freq_rank": 301 }
   ]
 }
 ```
@@ -342,6 +343,7 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `word`, `headword`, `pos`, `tags` | As in `/api/search`. Link with `wordPath(word)`. |
 | `forms` | Which forms the word is: empty when it is the word itself. |
 | `meaning` | The first meaning, or `null` for a word only VESUM knows. |
+| `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
 
 Only entries that are the word or one of its forms are given: a word that

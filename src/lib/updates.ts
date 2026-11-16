@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-section-names',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Read section names without the small capitals', uk: 'Читайте назви розділів без дрібних великих літер' },
+		body: {
+			en: 'Names such as Word of the day and Meanings, and the tabs at the top, are no longer set in small capital letters: they are larger and written as ordinary words.',
+			uk: 'Назви на кшталт «Слово дня» й «Значення», а також вкладки вгорі більше не набрано дрібними великими літерами: вони більші й написані звичайними словами.'
+		}
+	},
+	{
 		id: '2026-11-16-learn-on-a-phone',
 		date: '2026-11-16',
 		kind: 'changed',

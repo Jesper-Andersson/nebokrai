@@ -230,11 +230,10 @@
 	.group {
 		margin: 0;
 		padding: 0.35rem 0.6rem 0.25rem;
-		color: var(--muted);
-		font-size: var(--text-xs);
+		color: var(--ink-2);
+		font-family: var(--font-heading);
+		font-size: var(--text-md);
 		font-weight: 700;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
 	}
 
 	ul {

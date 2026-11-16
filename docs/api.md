@@ -237,15 +237,16 @@ common first.
 | Field | Meaning |
 |---|---|
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
-| `ipa` | Pronunciation. `null` for about 1.5% of entries. |
-| `audio_url` | An mp3 on Wikimedia Commons. `null` for 43% of entries. |
-| `etymology` | Plain text, sometimes several lines. `null` for 18% of entries. |
-| `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … |
+| `ipa` | Pronunciation. `null` for about 2% of entries. |
+| `audio_url` | An mp3 on Wikimedia Commons. `null` for 45% of entries. |
+| `etymology` | Plain text, sometimes several lines. `null` for 20% of entries. |
+| `senses[].gloss` | The meaning in English. For a word Wiktionary describes through another word, the gloss says so: "comparative degree of вели́кий: bigger, larger, greater", "verbal noun of утвори́ти pf: formation", "female equivalent of а́втор (“author, authoress”)". The word it names is in `relations` as `related`, with `sense_n` set. |
+| `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … Such a meaning also carries `form-of` or `alt-of`. |
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
 | `forms` | One item per cell of the declension or conjugation table. Empty when the word does not inflect or has no table. |
 | `examples` | Up to three Tatoeba sentences. Link `https://tatoeba.org/sentences/show/<tatoeba_id>` for credit. |
 | `head_forms[].has_entry` | `true` when the form is spelled like another dictionary word. Here only, not in search results. See "Words that lead to other words". |
-| `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 39% of entries. |
+| `relations` | The other words the entry names: synonyms, antonyms, derived words and words of the same root. Empty for about 35% of entries. |
 
 ### Words that lead to other words
 
@@ -477,7 +478,7 @@ dashboard to switch at once.
 ## Suggestions while typing (no request)
 
 The dropdown under the search box does not call the server. The page
-downloads `static/words.json` once (29,020 headwords, most common first,
+downloads `static/words.json` once (31,149 headwords, most common first,
 about 175 KB compressed) and matches locally:
 
 ```ts

@@ -26,16 +26,37 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 30,982 |
-| `senses` | English meaning of an entry | 47,567 |
-| `forms` | inflected form (declension / conjugation cell) | 529,270 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 79,365 |
-| `examples` | Tatoeba sentence with English translation | 24,559 |
-| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,845 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,489,667 |
+| `entries` | dictionary word + part of speech | 33,537 |
+| `senses` | English meaning of an entry | 50,159 |
+| `forms` | inflected form (declension / conjugation cell) | 573,324 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 85,263 |
+| `examples` | Tatoeba sentence with English translation | 25,572 |
+| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,988 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,587,868 |
 
-Pages that only say "genitive singular of X" are skipped (29,315), because the
+Pages that only say "genitive singular of X" are skipped (26,760), because the
 same forms are already in X's own table.
+
+A "form of" page that is a word in its own right is kept (2,555): `більший`
+("comparative degree of великий"), `найкращий`, `утворення` ("verbal noun of
+утворити"), `окрім` ("alternative form of крім"), `авторка`, `створений`, `ст.`.
+Such a page has an inflection table of its own, so its cases are found too
+(`більшого`), or it names no cell of another word's table. `is_word_like` in
+`import_wiktionary.py` decides; misspellings, affixes and verb spellings without a
+table stay skipped. For a kept page:
+
+- the gloss is Wiktionary's, without the romanisation: "comparative degree of
+  вели́кий: bigger, larger, greater";
+- the label part of the gloss is not searchable in English (`comparative` does not
+  list every comparative); a meaning after a colon or in quotation marks is;
+- the word it points at is a `related` row on it, and it is one on that word
+  when the spelling has exactly one entry (`великий` names `більший`);
+- a participle, which Wiktionary files as a verb, gets `adj`, since it declines
+  as one and the table shown is chosen by part of speech;
+- it owns a spelling only where no ordinary entry does, so frequency counts,
+  example sentences and practice sentences of existing entries are unchanged
+  (`створений` stays a form of `створити`; `створена` belongs to the page).
+`meta.stats` has the numbers as `kept_form_of` and `kept_kinds`.
 
 ## Related words
 
@@ -142,8 +163,8 @@ A sentence is kept only when nothing about the gap is in doubt:
   the name, which has no entry, not the noun `том`).
 
 At most five sentences are kept for one noun at one point, and a point with
-fewer than 20 sentences is dropped. November 2026: 7,845 sentences at 24
-points, from 26 (`серед` + genitive) to 1,124 (`у`/`в` + locative); five points fell short
+fewer than 20 sentences is dropped. November 2026: 7,988 sentences at 24
+points, from 26 (`серед` + genitive) to 1,148 (`у`/`в` + locative); five points fell short
 (`крім`, `крізь`, `навколо`, `при`, `замість`). `meta.cloze_points` holds the
 count for each point, so the site can draw a sentence by its number (`n`)
 without counting.

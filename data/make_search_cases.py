@@ -22,7 +22,11 @@ QUERIES = [
     # search-as-you-type prefixes
     "кал", "неб", "чит", "kal", "neb", "pry",
     # only VESUM knows these
-    "соловейком", "книжечку", "нездійсненними",
+    "книжечку", "походити", "дорівнює",
+    # "form of" pages kept as words: a diminutive and a participle (only VESUM knew these two before),
+    # a comparative and one of its cases, a superlative, a verbal noun, alternative forms, a female
+    # equivalent, another participle; and the label that must not be searchable
+    "соловейком", "нездійсненними", "більший", "більшого", "найкращий", "утворення", "окрім", "немає", "авторку", "створена", "comparative",
     # guesses: other spellings, sound-alikes, typos, wrong keyboard layout
     "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
     "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",

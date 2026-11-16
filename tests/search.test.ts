@@ -128,6 +128,34 @@ test('related words', { skip }, async () => {
 	}
 });
 
+test('"form of" pages kept as words', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// більший is a page that only says "comparative degree of великий", and a word all the same:
+	// it has an entry and a table of its own, and each of the two names the other
+	const [bigger] = await wordDetails(db, 'більший');
+	assert.equal(bigger.pos, 'adj');
+	assert.equal(bigger.senses[0].gloss, 'comparative degree of вели́кий: bigger, larger, greater');
+	assert.ok(bigger.forms.some((f) => f.form === 'бі́льшого'));
+	assert.deepEqual(bigger.relations.find((x) => x.word === 'вели́кий'),
+		{ kind: 'related', sense_n: 1, word: 'вели́кий', tags: [], has_entry: true });
+	const [big] = await wordDetails(db, 'великий');
+	assert.deepEqual(big.relations.find((x) => x.word === 'бі́льший'),
+		{ kind: 'related', sense_n: null, word: 'бі́льший', tags: [], has_entry: true });
+
+	// A participle is filed under its verb, and declines as the adjective it is
+	const [created] = await wordDetails(db, 'створений');
+	assert.equal(created.pos, 'adj');
+	assert.ok(created.forms.some((f) => f.form === 'ство́рена'));
+
+	// The romanisation is dropped from the gloss, the meaning beside it is kept
+	const [author] = await wordDetails(db, 'авторка');
+	assert.equal(author.senses[0].gloss, 'female equivalent of а́втор (“author, authoress”)');
+
+	// A cell of another word's table is still no entry (книги, genitive of книга), nor is a misspelling
+	assert.ok((await wordDetails(db, 'книги')).every((e) => e.word !== 'книги'));
+	assert.deepEqual(await wordDetails(db, 'будь-ласка'), []);
+});
+
 test('a database built before related words were stored', { skip }, async () => {
 	const db = openLocal('nebokrai.db');
 	const old = {

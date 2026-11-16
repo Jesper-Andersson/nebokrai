@@ -46,6 +46,7 @@ test('the entry for a day', { skip }, async () => {
 
 	// A month of words: all different, and none a word to keep off the front page
 	const rude = ['vulgar', 'offensive', 'derogatory', 'slang'];
+	const old = ['archaic', 'obsolete', 'dated', 'rare', 'dialectal'];
 	const words = new Set<string>();
 	for (let d = day; d < day + 30; d++) {
 		const found = await wordOfDay(db, d);
@@ -55,6 +56,12 @@ test('the entry for a day', { skip }, async () => {
 			`SELECT s.tags FROM senses s JOIN entries e ON e.id = s.entry_id
 			 WHERE e.word = ? AND e.freq_rank = ?`, [found.word, found.freq_rank]);
 		for (const { tags } of all) assert.ok(!rude.some((tag) => tags.includes(`"${tag}"`)), found.word);
+		// nor one whose main meaning is out of use
+		assert.ok(!old.some((tag) => found.senses[0].tags.includes(tag)), found.word);
 	}
 	assert.equal(words.size, 30);
+
+	// 16 November 2026 landed on шпита́ль, "(archaic) hospital"
+	const after = await wordOfDay(db, today(Date.UTC(2026, 10, 16)));
+	assert.ok(after && after.word !== 'шпиталь');
 });

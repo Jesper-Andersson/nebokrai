@@ -68,8 +68,12 @@ Response `200`:
 | `vesum_only` | Present and `true` only on VESUM-only results. |
 | `kind` | On a VESUM-only result, what the word is, when VESUM says: `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
 | `through` | Present when the query led to this entry without being one of its forms: a reflexive verb with no entry (see "Reflexive verbs"), or a word the entry names on its head line (see "Words on a head line"). |
+| `old` | Present when every meaning that matched is tagged old: `dated`, `archaic` or `obsolete`, the mildest of those meanings' strongest tags. `swedish` → све́йський has `"old": "obsolete"`. Absent otherwise. |
 
-Results arrive already sorted; show them in the order given.
+Results arrive already sorted; show them in the order given. A result with
+`old` comes after the modern results of its `match`, and one whose `match` is
+`english` after the `english_mention` results too; with `match` `word`, `form`,
+`head` or `latin` it keeps its place.
 
 ### `match`
 

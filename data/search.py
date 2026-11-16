@@ -20,6 +20,12 @@ How a query is matched, best first:
 
 Within each step, more common words come first.
 
+An old word, one whose matched meanings are all archaic, obsolete or dated,
+comes after the modern words of its step, and an old exact English meaning
+after the English mentions: "swedish" gives шве́дський and шведомо́вний before
+the obsolete све́йський. Steps 1 to 3 are left alone, since whoever types
+свейський or sveiskyi means that word.
+
 A result found through an inflected form (steps 2 and 5) says which form in
 `matched_forms`: "книги" is the genitive singular кни́ги and the nominative
 plural кни́ги of книга.
@@ -47,6 +53,21 @@ from import_wiktionary import (KEYBOARD, TYPO_MIN, deletes, edits_apart, from_ru
 RANK = {"word": 0, "form": 1, "head": 2, "latin": 3, "english": 4, "latin_form": 5, "latin_loose": 6,
         "english_mention": 7, "prefix": 8}
 KIND = {v: k for k, v in RANK.items()}
+
+# Sense tags that make a meaning old, mildest first. Not "historical":
+# хрестоно́сець (crusader) is the modern word for a thing of the past, and the
+# right answer.
+OLD = ["dated", "archaic", "obsolete"]
+
+
+def old_label(senses):
+    """How old a word is by the meanings that matched: each meaning's strongest
+    tag, and of those the mildest, so the label never overstates. None when a
+    meaning has no such tag. све́йський (archaic, obsolete) is "obsolete"."""
+    strongest = [max((OLD.index(t) for t in tags if t in OLD), default=-1) for _, tags in senses]
+    if not strongest or min(strongest) < 0:
+        return None
+    return OLD[min(strongest)]
 
 # What a head-line word is to the entry that lists it, from Wiktionary's tags,
 # the first that applies. A word tagged with none of these (a genitive the
@@ -182,24 +203,37 @@ def search(db, query, limit=20, vesum=None):
     for eid, rank in hits.items():
         word, headword, pos, tags, head_forms, freq_rank = db.execute(
             "SELECT word, headword, pos, tags, head_forms, freq_rank FROM entries WHERE id=?", (eid,)).fetchone()
-        glosses = [g for (g,) in db.execute("SELECT gloss FROM senses WHERE entry_id=? ORDER BY n", (eid,))]
+        senses = [(g, json.loads(t)) for g, t in db.execute(
+            "SELECT gloss, tags FROM senses WHERE entry_id=? ORDER BY n", (eid,))]
+        glosses = [g for g, _ in senses]
         # Within one kind of match, common words come first. For English queries,
         # a word whose meaning *is* the query ("mother") beats one that merely
         # mentions it ("mother-in-law"). Case is ignored: "English" is the
         # meaning of англійський, and the query arrives lowercased.
         common = freq_rank if freq_rank is not None else 10**9
+        matched = senses
         if rank == RANK["english"]:
-            exact = any(q.lower() in [p.strip().lower() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]
-                        for g in glosses)
-            if not exact:
+            matched = [(g, t) for g, t in senses
+                       if q.lower() in [p.strip().lower() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]]
+            if not matched:
+                matched = senses
                 rank = RANK["english_mention"]
         elif rank == RANK["latin"] and national_translit(word) != q.lower():
             # "good" loosely matches год ("hod"), but the user most likely means English.
             rank = RANK["latin_loose"]
-        tie = common
+        # An old word goes after the modern ones. The commonness count is of
+        # spellings, so an old homograph borrows its rank: світ "light" (archaic)
+        # has the count of світ "world", ум (dated) that of the Russian word.
+        # Steps 1 to 3 keep their place: whoever types свейський means that word.
+        label = old_label(matched)
+        old = label is not None and rank > RANK["latin"]
+        place = RANK["english_mention"] if old and rank == RANK["english"] else rank
+        tie = (old, common)
         result = dict(id=eid, word=word, headword=headword, pos=pos,
                       tags=json.loads(tags), head_forms=json.loads(head_forms),
                       glosses=glosses, freq_rank=freq_rank, match=KIND[rank])
+        if label:
+            result["old"] = label
         if rank in (RANK["form"], RANK["latin_form"]):
             result["matched_forms"] = matched_forms(db, eid, key, cyrillic)
         if eid in through and rank == RANK["form"]:
@@ -208,7 +242,7 @@ def search(db, query, limit=20, vesum=None):
                 result["through"] = head_through(result["head_forms"], through[eid]["word"])
         if rank == RANK["head"]:
             result["through"] = head_through(result["head_forms"], key)
-        results.append((rank, tie, result))
+        results.append((place, tie, result))
     results.sort(key=lambda r: (r[0], r[1], r[2]["word"], r[2]["id"]))
     exact = [r[2] for r in results if r[0] <= RANK["head"]]
     rest = [r[2] for r in results if r[0] > RANK["head"]]

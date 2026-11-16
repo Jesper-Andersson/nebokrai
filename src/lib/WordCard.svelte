@@ -4,10 +4,14 @@
      it does on the word's own page. A result found through an inflected form
      says which form along its lower edge:
 
-       Form found: руки́ genitive singular · ру́ки nominative, accusative, vocative plural -->
+       Form found: руки́ genitive singular · ру́ки nominative, accusative, vocative plural
+
+     An old word (every meaning that matched is dated, archaic or obsolete)
+     says so in a badge beside the headword, and its headword and meanings
+     are set in the muted grey: свейський under шведський for "swedish". -->
 <script lang="ts">
 	import { groupMatched } from '#lib/forms.ts';
-	import { messagesFor } from '#lib/i18n.ts';
+	import { messagesFor, tagLabel } from '#lib/i18n.ts';
 	import type { SearchResult } from '#lib/search/search.ts';
 	import type { Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -58,6 +62,9 @@
 	// this word's forms: a reflexive verb, or a word on this word's head line.
 	let through = $derived('through' in entry ? entry.through : undefined);
 
+	// dated, archaic or obsolete; only a search result says
+	let old = $derived('old' in entry ? entry.old : undefined);
+
 	function speak() {
 		const utterance = new SpeechSynthesisUtterance(entry.word);
 		utterance.lang = 'uk-UA';
@@ -65,7 +72,7 @@
 	}
 </script>
 
-<article class:ui-card={framed} class:plain={vesumOnly}>
+<article class:ui-card={framed} class:plain={vesumOnly} class:old>
 	<div class="word">
 		<Headword text={entry.headword} href={vesumOnly ? undefined : wordPath(entry.word)} />
 		<Tip label={m.card.play}>
@@ -80,6 +87,7 @@
 				</button>
 			{/snippet}
 		</Tip>
+		{#if old}<span class="ui-badge">{tagLabel(m, settings.lang, old)}</span>{/if}
 	</div>
 
 	<div class="meta"><Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} brief /></div>
@@ -173,6 +181,24 @@
 
 	.play {
 		color: var(--play);
+	}
+
+	/* An old word stands back: its headword, stress included, and its meanings
+	   in the muted grey, closer to the page (user's pick, 2026-11-16) */
+	.old .word :global(.headword),
+	.old .word :global(.headword *),
+	.old .glosses {
+		color: var(--muted);
+	}
+
+	/* On a phone the badge goes under the headword rather than squeeze it:
+	   "вийшло з ужитку" beside свейський broke the word over three lines */
+	.old .word {
+		flex-wrap: wrap;
+	}
+
+	.word .ui-badge {
+		margin-left: 0.35rem;
 	}
 
 	.meta {

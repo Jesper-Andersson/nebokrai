@@ -212,6 +212,9 @@ test('the words of a field, without sound, pictures or notes', () => {
 	assert.deepEqual(wordsOf('ой!!'), ['ой']);
 	assert.deepEqual(wordsOf('Що?'), ['Що']);
 	assert.deepEqual(wordsOf('Ого! Ура!'), ['Ого', 'Ура']);
+	assert.deepEqual(wordsOf('умі́ти вмі́ти'), ['умі́ти', 'вмі́ти'], 'two spellings side by side are two words');
+	assert.deepEqual(wordsOf('Іти йти'), ['Іти', 'йти']);
+	assert.deepEqual(wordsOf('у вас'), ['у вас'], 'a phrase stays one');
 	assert.deepEqual(wordsOf('¿Як справи?'), ['Як справи']);
 	assert.deepEqual(wordsOf('мати (verb)'), ['мати']);
 	assert.deepEqual(wordsOf('будь ласка'), ['будь ласка']);
@@ -358,6 +361,11 @@ test('written words are matched to dictionary words', { skip }, async () => {
 	assert.equal(found['київ'].word, 'Київ');
 	assert.equal(found['Київ'].word, 'Київ');
 	assert.equal(found['ыыыыы'].word, null);
+	const variants = await matchWords(db, ['вмі́ти', 'узяти', 'взяти', 'вже']);
+	assert.equal(variants['вмі́ти'].word, 'уміти', 'у and в swap at the start of a word');
+	assert.equal(variants['узяти'].word, 'взяти');
+	assert.equal(variants['взяти'].word, 'взяти', 'the spelling as written comes first');
+	assert.equal(variants['вже'].word, 'уже');
 	assert.deepEqual(found['водаа'].suggestions, [], 'guesses only when asked');
 	const guessed = await matchWords(db, ['водаа'], { suggest: true });
 	assert.ok(guessed['водаа'].suggestions.includes('вода'), JSON.stringify(guessed));

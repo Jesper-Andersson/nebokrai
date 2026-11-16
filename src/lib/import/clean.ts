@@ -6,6 +6,7 @@
 // Pictures and sound are dropped here: an import never carries them.
 import { MAX_WORD_LENGTH } from '../saved.ts';
 import { isCyrillic } from '../search/normalize.ts';
+import { areInitialVariants } from '../search/variants.ts';
 
 const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
 
@@ -55,7 +56,8 @@ const MAX_TOKENS = 4;
 /**
  * The Ukrainian words a field names, in order and without repeats. Notes in
  * brackets and quotes are dropped. "!" and "?" end a word wherever they
- * stand, so Ого! is ого and «Ого! Ура!» is two words. Pieces with no
+ * stand, so Ого! is ого and «Ого! Ура!» is two words. Two spellings side by
+ * side («умі́ти вмі́ти», «уже вже») are two words, not a phrase. Pieces with no
  * Cyrillic, or as long as a sentence, are left out.
  */
 export function wordsOf(html: string): string[] {
@@ -70,8 +72,10 @@ export function wordsOf(html: string): string[] {
 				.replace(/\s+/g, ' ')
 		);
 		if (!word || !isCyrillic(word) || word.length > MAX_WORD_LENGTH) continue;
-		if (word.split(' ').length > MAX_TOKENS) continue;
-		if (!words.includes(word)) words.push(word);
+		const tokens = word.split(' ');
+		if (tokens.length > MAX_TOKENS) continue;
+		const named = tokens.length === 2 && areInitialVariants(tokens[0], tokens[1]) ? tokens : [word];
+		for (const w of named) if (!words.includes(w)) words.push(w);
 	}
 	return words;
 }

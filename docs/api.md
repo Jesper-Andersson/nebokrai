@@ -646,7 +646,9 @@ Response `200`:
 ```
 
 A word is matched by its own spelling first, with stress marks and letter
-case set aside, and then as an inflected form of a word (`автобусом`). Where
+case set aside, and then as an inflected form of a word (`автобусом`). Failing
+both, it is tried again with у and в, or і and й, swapped at the start, since
+Ukrainian writes either (`вміти` finds уміти). Where
 several entries share a spelling, the one spelled exactly as written wins,
 then the most common. `word` is the entry's exact spelling, the one
 `/api/saved` and `/api/review/sync` take. `suggestions` holds at most three

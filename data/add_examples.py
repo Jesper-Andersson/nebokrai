@@ -28,6 +28,8 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     db = sqlite3.connect(args.database)
+    if "adapted" not in {row[1] for row in db.execute("PRAGMA table_info(examples)")}:
+        db.execute("ALTER TABLE examples ADD COLUMN adapted INTEGER NOT NULL DEFAULT 0")  # built before 2026-11-16
     db.execute("DELETE FROM examples")
     stats = add_tatoeba(db, form_index(db), tatoeba_pairs(args.tatoeba))
     db.commit()

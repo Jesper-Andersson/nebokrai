@@ -142,7 +142,7 @@ for everyone.
 | Nebokrai's own entries (`data/abbreviations.tsv`, marked `source = 'nebokrai'`) | CC BY-SA 4.0 | Ours to license; kept under Wiktionary's licence so the dictionary stays one dataset | Sources page; "From Nebokrai" on each such word page |
 | Wikimedia Commons audio | per file, mostly CC BY-SA or public domain | Credit the author of each file | Link to the file's Commons page beside the play button |
 | The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence, say what was changed, share the changed files under the same licence | The line under the letters on `/alphabet` (author, licence, "cut down to the letter and cleaned of noise"); each letter's original on Commons beside its play button; Sources page. The files are `static/audio/letters/*.mp3`, made with their list (`src/lib/alphabet/recordings.ts`) by `data/letter_recordings.py`, and are CC BY-SA 4.0 themselves |
-| Tatoeba | CC BY 2.0 FR | Credit the author of each sentence | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored) |
+| Tatoeba | CC BY 2.0 FR | Credit the author of each sentence; say if changed | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored); a sentence corrected by `data/tatoeba-corrections.tsv` is credited "Tatoeba #id, adapted" |
 | FrequencyWords | CC BY-SA 4.0 | Credit; share-alike | Sources page |
 | VESUM | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; kept in its own database |
 | Background photo "field" (Igor Karimov, Unsplash) | Unsplash Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/field-*.webp` |

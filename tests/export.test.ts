@@ -7,7 +7,7 @@ import { ankiText, csv, exportFile, json, type ExportCard } from '../src/lib/exp
 const kalyna: ExportCard = {
 	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]', audio_url: null,
 	glosses: ['viburnum, guelder rose'],
-	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123 },
+	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123, adapted: false },
 	saved_at: Date.UTC(2026, 10, 11, 12)
 };
 // Text that would break a file if written as it is
@@ -65,7 +65,8 @@ test('JSON', () => {
 	assert.match(data.licence, /CC BY-SA 4\.0.*CC BY 2\.0 FR/);
 	assert.deepEqual(data.words.map((w: { word: string }) => w.word), ['калина', 'Київ']);
 	assert.deepEqual(data.words[0].example, {
-		uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123, url: 'https://tatoeba.org/sentences/show/123'
+		uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123, adapted: false,
+		url: 'https://tatoeba.org/sentences/show/123'
 	});
 	assert.equal(data.words[0].saved_at, kalyna.saved_at);
 	assert.equal(data.words[1].example, null);

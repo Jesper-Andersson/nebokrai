@@ -7,6 +7,7 @@
 // it against the real sentences.
 import type { Db } from '../search/db.ts';
 import { plain } from '../search/normalize.ts';
+import { withAdapted } from '../search/word.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
@@ -54,6 +55,7 @@ interface ClozeRow {
 	form: string;
 	number: 'singular' | 'plural';
 	tatoeba_id: number;
+	adapted: number;
 	word: string;
 	headword: string;
 }
@@ -152,14 +154,14 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 
 	const sentences = drawn.filter((draw) => Array.isArray(draw));
 	const rows = sentences.length
-		? await db.all<ClozeRow>(
-				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id,
+		? await withAdapted('c', (column) => db.all<ClozeRow>(
+				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id, ${column},
 				        e.word, e.headword
 				 FROM json_each(?) j
 				 CROSS JOIN cloze c ON c.point = json_extract(j.value, '$[0]') AND c.n = json_extract(j.value, '$[1]')
 				 JOIN entries e ON e.id = c.entry_id`,
 				[JSON.stringify(sentences)]
-			)
+			))
 		: [];
 	const found = new Map(rows.map((row) => [`${row.point} ${row.n}`, row]));
 
@@ -169,15 +171,15 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	// would make it one, at the next rebuild of the dictionary.
 	const wheres = drawn.filter((draw): draw is WhereDraw => 'where' in draw);
 	const whereRows = wheres.length
-		? await db.all<ClozeRow>(
-				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id,
+		? await withAdapted('c', (column) => db.all<ClozeRow>(
+				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id, ${column},
 				        e.word, e.headword
 				 FROM json_each(?) j
 				 CROSS JOIN cloze c
 				   ON c.point = json_extract(j.value, '$[0]') AND c.tatoeba_id = json_extract(j.value, '$[1]')
 				 JOIN entries e ON e.id = c.entry_id`,
 				[JSON.stringify(wheres.map((draw) => [draw.where, draw.id]))]
-			)
+			))
 		: [];
 	const foundWhere = new Map(whereRows.map((row) => [`${row.point} ${row.tatoeba_id}`, row]));
 	rows.push(...whereRows);
@@ -292,6 +294,7 @@ function gapOf(row: ClozeRow, forms: FormRow[], random: Random): Gap {
 		headword: row.headword,
 		choices: shuffled([row.form, ...offered], random),
 		forms: [...spellings.keys()],
-		tatoeba_id: row.tatoeba_id
+		tatoeba_id: row.tatoeba_id,
+		adapted: Boolean(row.adapted)
 	};
 }

@@ -58,7 +58,7 @@ export interface WordEntry {
 	/** The declension or conjugation table, one row per cell. Empty if there is none. */
 	forms: { form: string; tags: string[] }[];
 	/** Tatoeba sentences that use the word, up to three. */
-	examples: { uk: string; en: string; tatoeba_id: number }[];
+	examples: TatoebaSentence[];
 	/** Synonyms, antonyms, derived and related words, in Wiktionary's order. Empty if it names none. */
 	relations: Relation[];
 }
@@ -90,21 +90,39 @@ async function knownWords(db: Db, spellings: string[]): Promise<Set<string>> {
 	return new Set(rows.map((r) => r.key));
 }
 
+/**
+ * A sentence from Tatoeba. `adapted` when data/tatoeba-corrections.tsv
+ * changed it (Він пише на правильній англійській became Він пише правильною
+ * англійською): its credit then says so, as CC BY 2.0 FR asks.
+ */
+export type TatoebaSentence = { uk: string; en: string; tatoeba_id: number; adapted: boolean };
+
 export type EntrySource = 'wiktionary' | 'nebokrai';
 
 /**
- * Runs `query(column)` with the entries' `source` column, and again with a
- * constant in its place when the database was built before entries recorded
- * their source: every entry was Wiktionary's then.
+ * Runs `query(column)`, and again with `fallback` in its place when the
+ * database was built before that column was added. The code and the data then
+ * need not be published in the same moment.
  */
-async function withSource<T>(query: (column: string) => Promise<T>): Promise<T> {
+async function withColumn<T>(column: string, fallback: string, query: (column: string) => Promise<T>): Promise<T> {
 	try {
-		return await query('source');
+		return await query(column);
 	} catch (err) {
 		if (!/no such column/i.test(String(err))) throw err;
-		return query("'wiktionary' AS source");
+		return query(fallback);
 	}
 }
+
+/** With the entries' `source` column; every entry was Wiktionary's before it was added. */
+const withSource = <T>(query: (column: string) => Promise<T>) =>
+	withColumn('source', "'wiktionary' AS source", query);
+
+/**
+ * With `<table>.adapted` from `examples` or `cloze`, named `table`; nothing
+ * was adapted before 2026-11-16, when the column was added.
+ */
+export const withAdapted = <T>(table: string, query: (column: string) => Promise<T>) =>
+	withColumn(`${table}.adapted AS adapted`, '0 AS adapted', query);
 
 /** Where one entry is from; 'wiktionary' when there is no such entry. */
 export async function entrySource(db: Db, id: number): Promise<EntrySource> {
@@ -124,8 +142,8 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 			db.all<Record<string, any>>(
 				'SELECT n, gloss, tags, examples FROM senses WHERE entry_id=? ORDER BY n', [r.id]),
 			db.all<Record<string, any>>('SELECT form, tags FROM forms WHERE entry_id=? ORDER BY id', [r.id]),
-			db.all<WordEntry['examples'][number]>(
-				'SELECT uk, en, tatoeba_id FROM examples WHERE entry_id=? ORDER BY id', [r.id]),
+			withAdapted('examples', (column) => db.all<TatoebaSentence>(
+				`SELECT uk, en, tatoeba_id, ${column} FROM examples WHERE entry_id=? ORDER BY id`, [r.id])),
 			relationRows(db, r.id)
 		]);
 		loaded.push({ r, senses, forms, examples, relations, headForms: JSON.parse(r.head_forms) as HeadForm[] });
@@ -150,7 +168,7 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 			n: s.n, gloss: s.gloss, tags: JSON.parse(s.tags), examples: JSON.parse(s.examples)
 		})),
 		forms: forms.map((f) => ({ form: f.form, tags: JSON.parse(f.tags) })),
-		examples,
+		examples: examples.map((x) => ({ ...x, adapted: Boolean(x.adapted) })),
 		relations: relations.map((x) => ({
 			kind: x.kind, sense_n: x.sense_n, word: x.word, tags: JSON.parse(x.tags), has_entry: known.has(x.plain)
 		}))
@@ -190,7 +208,7 @@ export interface WordCard extends WordSummary {
 	/** A recording of the word on Wikimedia Commons, where there is one. The review page plays it; no export uses it. */
 	audio_url: string | null;
 	/** The first Tatoeba sentence that uses the word, if there is one. */
-	example: { uk: string; en: string; tatoeba_id: number } | null;
+	example: TatoebaSentence | null;
 	/** Asked for by the review page alone: what typing the word needs (review/recall.ts). */
 	recall?: Recall;
 }
@@ -208,11 +226,11 @@ export async function wordCards(db: Db, words: string[], options: { recall?: boo
 	const examples = new Map<number, NonNullable<WordCard['example']>>();
 	const forms = new Map<number, FormRow[]>();
 	if (best.size) {
-		const rows = await db.all<{ entry_id: number; uk: string; en: string; tatoeba_id: number }>(
-			`SELECT entry_id, uk, en, tatoeba_id FROM examples WHERE id IN (
+		const rows = await withAdapted('examples', (column) => db.all<TatoebaSentence & { entry_id: number }>(
+			`SELECT entry_id, uk, en, tatoeba_id, ${column} FROM examples WHERE id IN (
 			   SELECT MIN(id) FROM examples WHERE entry_id IN (SELECT value FROM json_each(?)) GROUP BY entry_id)`,
-			[ids]);
-		for (const { entry_id, ...example } of rows) examples.set(entry_id, example);
+			[ids]));
+		for (const { entry_id, ...example } of rows) examples.set(entry_id, { ...example, adapted: Boolean(example.adapted) });
 	}
 	if (best.size && options.recall) {
 		const rows = await db.all<{ entry_id: number; form: string; plain: string; tags: string }>(

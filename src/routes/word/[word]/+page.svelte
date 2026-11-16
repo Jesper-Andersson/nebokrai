@@ -279,7 +279,7 @@
 										<Sentence text={ex.uk} {own} />
 										<Translation text={ex.en} />
 										<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
-											Tatoeba #{ex.tatoeba_id}
+											Tatoeba #{ex.tatoeba_id}{#if ex.adapted}, {m.word.adapted}{/if}
 										</a>
 									</li>
 								{/each}

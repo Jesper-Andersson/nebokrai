@@ -91,11 +91,14 @@ async function knownWords(db: Db, spellings: string[]): Promise<Set<string>> {
 }
 
 /**
- * A sentence from Tatoeba. `adapted` when data/tatoeba-corrections.tsv
- * changed it (Він пише на правильній англійській became Він пише правильною
- * англійською): its credit then says so, as CC BY 2.0 FR asks.
+ * A sentence from Tatoeba. `adapted` when a correction changed it: a
+ * hand-written one in data/tatoeba-corrections.tsv (Він пише на правильній
+ * англійській became Він пише правильною англійською) or a checked one that
+ * fills a gap (data/sentence-fixes.tsv: нашомі became нашому). Its credit then
+ * says so, as CC BY 2.0 FR asks. `original` is Tatoeba's Ukrainian when the
+ * correction changed it, else null; the word page shows it behind the mark.
  */
-export type TatoebaSentence = { uk: string; en: string; tatoeba_id: number; adapted: boolean };
+export type TatoebaSentence = { uk: string; en: string; tatoeba_id: number; adapted: boolean; original: string | null };
 
 export type EntrySource = 'wiktionary' | 'nebokrai';
 
@@ -124,6 +127,15 @@ const withSource = <T>(query: (column: string) => Promise<T>) =>
 export const withAdapted = <T>(table: string, query: (column: string) => Promise<T>) =>
 	withColumn(`${table}.adapted AS adapted`, '0 AS adapted', query);
 
+/**
+ * With `examples.adapted` and `examples.original`; a database built before
+ * `original` was added (November 2026) gives null, and the page then shows
+ * the plain mark without Tatoeba's text.
+ */
+const withExampleColumns = <T>(query: (columns: string) => Promise<T>) =>
+	withAdapted('examples', (adapted) =>
+		withColumn('examples.original AS original', 'NULL AS original', (original) => query(`${adapted}, ${original}`)));
+
 /** Where one entry is from; 'wiktionary' when there is no such entry. */
 export async function entrySource(db: Db, id: number): Promise<EntrySource> {
 	const rows = await withSource((column) =>
@@ -142,8 +154,8 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 			db.all<Record<string, any>>(
 				'SELECT n, gloss, tags, examples FROM senses WHERE entry_id=? ORDER BY n', [r.id]),
 			db.all<Record<string, any>>('SELECT form, tags FROM forms WHERE entry_id=? ORDER BY id', [r.id]),
-			withAdapted('examples', (column) => db.all<TatoebaSentence>(
-				`SELECT uk, en, tatoeba_id, ${column} FROM examples WHERE entry_id=? ORDER BY id`, [r.id])),
+			withExampleColumns((columns) => db.all<TatoebaSentence>(
+				`SELECT uk, en, tatoeba_id, ${columns} FROM examples WHERE entry_id=? ORDER BY id`, [r.id])),
 			relationRows(db, r.id)
 		]);
 		loaded.push({ r, senses, forms, examples, relations, headForms: JSON.parse(r.head_forms) as HeadForm[] });
@@ -226,8 +238,8 @@ export async function wordCards(db: Db, words: string[], options: { recall?: boo
 	const examples = new Map<number, NonNullable<WordCard['example']>>();
 	const forms = new Map<number, FormRow[]>();
 	if (best.size) {
-		const rows = await withAdapted('examples', (column) => db.all<TatoebaSentence & { entry_id: number }>(
-			`SELECT entry_id, uk, en, tatoeba_id, ${column} FROM examples WHERE id IN (
+		const rows = await withExampleColumns((columns) => db.all<TatoebaSentence & { entry_id: number }>(
+			`SELECT entry_id, uk, en, tatoeba_id, ${columns} FROM examples WHERE id IN (
 			   SELECT MIN(id) FROM examples WHERE entry_id IN (SELECT value FROM json_each(?)) GROUP BY entry_id)`,
 			[ids]));
 		for (const { entry_id, ...example } of rows) examples.set(entry_id, { ...example, adapted: Boolean(example.adapted) });

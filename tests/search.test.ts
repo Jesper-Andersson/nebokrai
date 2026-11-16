@@ -292,11 +292,11 @@ test('word cards', { skip }, async () => {
 	assert.equal(kalyna.pos, 'noun');
 	assert.deepEqual(kalyna.tags, ['feminine', 'inanimate']);
 	assert.equal(kalyna.ipa, '[kɐˈɫɪnɐ]');
-	// The first of the entry's Tatoeba sentences, not all three
-	assert.deepEqual(read.example, {
-		uk: 'У молодості треба багато читати.', en: "You should read a lot of books while you're young.", tatoeba_id: 410638,
-		adapted: false
-	});
+	// The first of the entry's Tatoeba sentences, not all three. Which one that is
+	// follows the sentence ratings (data/sentence-ratings.tsv), so ask the word page.
+	const [readEntry] = await wordDetails(db, 'читати');
+	assert.ok(read.example);
+	assert.deepEqual(read.example, { ...readEntry.examples[0] });
 	assert.ok(got.every((c) => c.example === null || c.example.tatoeba_id > 0));
 	assert.deepEqual(await wordCards(db, []), []);
 	assert.deepEqual(await wordCards(db, ['qqqq']), []);

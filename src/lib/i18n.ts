@@ -441,8 +441,11 @@ const en = {
 		playVoice: 'Play computer voice',
 		meanings: 'Meanings',
 		examples: 'Example sentences',
-		/** After "Tatoeba #512282" when Nebokrai corrected the sentence (data/tatoeba-corrections.tsv) */
-		adapted: 'adapted',
+		/** After "Tatoeba #512282" when Nebokrai corrected the sentence: a hand-written
+		    correction (data/tatoeba-corrections.tsv) or a checked one (data/sentence-fixes.tsv).
+		    On a word page it is a badge that opens editedNote (EditedNote.svelte). */
+		adapted: 'edited',
+		editedNote: 'Corrected by Nebokrai. On Tatoeba:',
 		/** The card over a word of an example sentence (GlossWord.svelte) */
 		gloss: {
 			open: 'Open word',
@@ -1658,7 +1661,8 @@ const uk: Messages = {
 		playVoice: 'Прослухати синтезовану вимову',
 		meanings: 'Значення',
 		examples: 'Приклади речень',
-		adapted: 'змінено',
+		adapted: 'виправлено',
+		editedNote: 'Виправлено в Небокраї. У Tatoeba:',
 		gloss: {
 			open: 'Відкрити слово',
 			also: 'Також',

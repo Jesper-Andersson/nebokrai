@@ -12,7 +12,7 @@ import type { WordCard } from '../src/lib/search/word.ts';
 const kalyna: WordCard = {
 	word: 'калина', headword: 'кали́на', pos: 'noun', tags: ['feminine', 'inanimate'], ipa: '[kɐˈɫɪnɐ]', audio_url: null,
 	glosses: ['viburnum, guelder rose'],
-	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123, adapted: false }
+	example: { uk: 'Калина цвіте.', en: 'The viburnum is in bloom.', tatoeba_id: 123, adapted: false, original: null }
 };
 const kyiv: WordCard = {
 	word: 'Київ', headword: '"Ки́їв"', pos: 'name', tags: [], ipa: null, audio_url: null,

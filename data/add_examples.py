@@ -17,7 +17,7 @@ import argparse
 import sqlite3
 import sys
 
-from import_wiktionary import add_tatoeba, form_index, tatoeba_pairs
+from import_wiktionary import add_tatoeba, form_index, tatoeba_pairs, load_ratings, load_fixes
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -31,7 +31,8 @@ if __name__ == "__main__":
     if "adapted" not in {row[1] for row in db.execute("PRAGMA table_info(examples)")}:
         db.execute("ALTER TABLE examples ADD COLUMN adapted INTEGER NOT NULL DEFAULT 0")  # built before 2026-11-16
     db.execute("DELETE FROM examples")
-    stats = add_tatoeba(db, form_index(db), tatoeba_pairs(args.tatoeba))
+    stats = add_tatoeba(db, form_index(db), tatoeba_pairs(args.tatoeba), ratings=load_ratings(),
+                        fixes=load_fixes())
     db.commit()
     for key, value in stats.items():
         print(f"{key:>20}: {value}")

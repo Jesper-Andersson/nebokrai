@@ -45,7 +45,9 @@
 		<dd>
 			<a href="https://tatoeba.org/">Tatoeba</a>, available under the
 			<a href="https://creativecommons.org/licenses/by/2.0/fr/">Creative Commons Attribution 2.0 France</a>
-			licence. Each sentence's Tatoeba page names its author.
+			licence. Each sentence's Tatoeba page names its author. Sentences are chosen by an automated rating
+			of how natural they sound. Where a word's only sentences had mistakes, a few are shown corrected:
+			those are marked "edited", and the mark shows Tatoeba's original.
 		</dd>
 
 		<dt>Word frequency</dt>

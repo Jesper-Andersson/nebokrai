@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-16-head-line-words',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Find words listed under another word', uk: 'Знаходьте слова, подані в статті іншого слова' },
+		body: {
+			en: 'Searching історично or уперше now shows the word whose entry lists it, and says how the two are related.',
+			uk: 'Пошук слів історично чи уперше тепер показує слово, у статті якого їх подано, і пояснює, як вони пов’язані.'
+		}
+	},
+	{
 		id: '2026-11-15-updates-page',
 		date: '2026-11-15',
 		kind: 'new',

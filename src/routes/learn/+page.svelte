@@ -16,6 +16,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
+	import LoginButton from '#lib/LoginButton.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { Alphabet } from '#lib/alphabet.svelte.ts';
 	import { stateOf as letterState } from '#lib/alphabet/drill.ts';
@@ -115,6 +116,22 @@
 
 <PageMeta title="{m.pageTitle.learn} · Nebokrai" description={m.meta.learn} />
 
+<!-- Where the reviews are kept, and the Log in button that keeps them in an
+     account (user, 2026-11-16). Where accounts are not set up there is no
+     button, and the note does not ask the visitor to log in. -->
+{#snippet keptHere()}
+	{#if !saved.signedIn}
+		<div class="kept">
+			{#if data.providers?.length}
+				<p>{m.account.keptReviews}</p>
+				<LoginButton />
+			{:else}
+				<p>{m.review.kept}</p>
+			{/if}
+		</div>
+	{/if}
+{/snippet}
+
 <div class="ui-page page" class:waiting={!ready} class:newcomer={!started}>
 	<!-- No heading on show: the lit tab says where this is, and the doors are
 	     the page's first line. Kept for those who move about by headings. -->
@@ -192,7 +209,7 @@
 				</ol>
 			</section>
 			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} {ready} />
-			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}
+			{@render keptHere()}
 		</div>
 	{:else}
 		<aside class="rail">
@@ -201,7 +218,7 @@
 			<div class="goal-slot"><GoalCard {now} {ready} /></div>
 			<div class="activity-slot"><ActivityCard {now} {ready} /></div>
 			<!-- Where all this is kept, for someone who has no account to keep it in -->
-			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}
+			{@render keptHere()}
 		</aside>
 
 		<div class="main">
@@ -258,9 +275,16 @@
 		}
 	}
 
+	/* The note, and the Log in button under it at its own width */
 	.kept {
-		margin: 0;
+		display: grid;
+		justify-items: start;
+		gap: 0.6rem;
 		padding-inline: 0.25rem;
+	}
+
+	.kept p {
+		margin: 0;
 		color: var(--on-page);
 		font-size: var(--text-sm);
 		line-height: 1.45;

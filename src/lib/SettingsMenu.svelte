@@ -6,7 +6,9 @@
 	import { Popover, RadioGroup, Switch } from 'bits-ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
-	import AccountPanel from '#lib/AccountPanel.svelte';
+	import DeleteAccount from '#lib/DeleteAccount.svelte';
+	import LoginButton from '#lib/LoginButton.svelte';
+	import type { Provider, User } from '#lib/server/users.ts';
 	import fieldThumb from '#lib/assets/backgrounds/field-thumb.webp';
 	import hillsThumb from '#lib/assets/backgrounds/hills-thumb.webp';
 	import { messagesFor } from '#lib/i18n.ts';
@@ -47,7 +49,9 @@
 		applySetting(name, settings[name]);
 	}
 
-	let hasAccount = $derived(Boolean(page.data.user) || page.data.providers?.length > 0);
+	// Both from the root layout's load (src/routes/+layout.server.ts)
+	let user = $derived(page.data.user as User | null);
+	let providers = $derived((page.data.providers ?? []) as Provider[]);
 
 	// A touch screen: the open menu holds the page still (see the menu below)
 	const coarse = new MediaQuery('(pointer: coarse)');
@@ -70,7 +74,22 @@
 			preventScroll={coarse.current}
 		>
 			<div class="groups">
-				<section>
+				<!-- The account first (user, 2026-11-16): who is signed in with
+				     Log out, or the one Log in button -->
+				{#if user}
+					<section class="account-row">
+						<p>{user.name ? m.account.signedInAs(user.name) : m.account.signedIn}</p>
+						<form method="POST" action="/logout">
+							<button type="submit" class="ui-btn">{m.account.signOut}</button>
+						</form>
+					</section>
+				{:else if providers.length}
+					<section class="account-row">
+						<p class="account-hint">{m.account.signInHint}</p>
+						<LoginButton primary />
+					</section>
+				{/if}
+				<section class:divided={user || providers.length}>
 					<h2 id="ui-set-theme">{m.settings.appearance}</h2>
 					<RadioGroup.Root
 						class="ui-tiles"
@@ -232,10 +251,11 @@
 					</div>
 					<p class="hint" id="ui-set-blur-hint">{m.settings.blurHint}</p>
 				</section>
-				{#if hasAccount}
+				<!-- Deleting the account stays at the foot, away from Log out (user, 2026-11-16) -->
+				{#if user}
 					<section class="divided">
 						<h2>{m.account.legend}</h2>
-						<AccountPanel />
+						<DeleteAccount />
 					</section>
 				{/if}
 			</div>
@@ -520,6 +540,29 @@
 		:global(.ui-switch-thumb) {
 			transition: translate var(--duration);
 		}
+	}
+
+	/* Who is signed in, or why to log in, and the button at the other end */
+	.account-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.account-row p {
+		margin: 0;
+		font-size: var(--text-sm);
+		line-height: 1.4;
+	}
+
+	.account-row .account-hint {
+		color: var(--muted);
+		font-size: var(--text-xs);
+	}
+
+	.account-row form {
+		flex: none;
 	}
 
 	/* A line above: where the language settings start, the radio, and the account */

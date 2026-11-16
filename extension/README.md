@@ -61,11 +61,14 @@ Each store step is the owner's to take. Before the first submission:
 - [x] Run the Firefox build in Firefox 140 or later: done in Firefox 160 on 2026-11-15 (double-click, hover, saving, options).
 - [x] Run the Chrome build in Chrome itself: done in Chrome 157 on 2026-11-15 (double-click, hover, saving, themes, sizes).
 - [x] Screenshots at 1280 by 800 are in `store/screenshots/`: the card, a saved word, sepia, dark, the options page.
-- [ ] Chrome Web Store: developer account with 2-step verification, non-trader declaration; on the privacy tab
+- [x] Chrome Web Store: developer account with 2-step verification, non-trader declaration; on the privacy tab
       the single purpose below, the reasons from the table above, "website content" and "authentication
-      information" as the data handled, and the privacy page's address.
-- [ ] Firefox Add-ons: upload `.output/*-firefox.zip` and the repository source; decide whether Firefox for
-      Android is wanted (it needs `gecko_android` in `wxt.config.ts` and a test there).
+      information" as the data handled, and the privacy page's address. Submitted 0.1.2 on 2026-11-16, in
+      review; item id `lejebpdfdmifdnmemdnmjajemibffmgm`.
+- [x] Firefox Add-ons: 0.1.2 submitted on 2026-11-16, in review. The listing will be
+      https://addons.mozilla.org/firefox/addon/nebokrai/ (slug `nebokrai`; the store allows 30 characters).
+- [ ] Firefox for Android: not offered yet. It needs `gecko_android` in `wxt.config.ts`, a lookup on a
+      long-press selection (a double-tap zooms instead), and a test on a phone.
 - [ ] Edge Add-ons: the Chrome package as it is.
 - [ ] Once a store has it: put the address of its listing in src/lib/extension.ts. That switches on the /extension
       page, its links on About and in the footer, and the hint in the card on the site.

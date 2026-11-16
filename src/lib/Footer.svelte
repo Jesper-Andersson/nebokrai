@@ -2,6 +2,7 @@
      the credit line, and the pages the header has no room for. Its top
      edge is the horizon the site is named after, sky over land. -->
 <script lang="ts">
+	import { EXTENSION_LIVE } from '#lib/extension.ts';
 	import { page } from '$app/state';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -34,6 +35,7 @@
 		{ href: '/words', label: m.footer.words },
 		{ href: '/sources', label: m.footer.sources },
 		{ href: '/privacy', label: m.footer.privacy },
+		...(EXTENSION_LIVE ? [{ href: '/extension', label: m.footer.extension }] : []),
 		{ href: '/report', label: m.footer.report }
 	]);
 

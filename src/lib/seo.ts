@@ -7,6 +7,7 @@
 import {
 	ALPHABET, COMMON_PER_PAGE, COMMON_WORDS, OTHER, WORDS_PER_PAGE, commonPath, letterOf, letterPath
 } from './browse.ts';
+import { EXTENSION_LIVE } from './extension.ts';
 import { posLabel, type Messages, type WordFacts } from './i18n.ts';
 import type { Db } from './search/db.ts';
 import { wordPath } from './search/slug.ts';
@@ -48,7 +49,9 @@ export function wordDescription(m: Messages, entry: WordEntry): string {
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */
 const PAGES = [
 	'/', '/learn', '/alphabet', '/grammar', '/practice', '/resources', '/support', '/about', '/sources', '/privacy',
-	'/words', '/updates'
+	'/words', '/updates',
+	// The browser extension's page, once a store has it
+	...(EXTENSION_LIVE ? ['/extension'] : [])
 ];
 
 const xml = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');

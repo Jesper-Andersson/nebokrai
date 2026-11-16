@@ -1109,6 +1109,31 @@ select {
 	color: var(--ink-2);
 }
 
+/* The last line, offering the browser extension: quiet, and with a way to
+   put it away for good */
+.ui-gloss-hint {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	color: var(--muted);
+	font-size: var(--text-xs);
+}
+
+.ui-gloss-hint a {
+	color: var(--accent);
+}
+
+.ui-gloss-hint button {
+	display: grid;
+	padding: 2px;
+	border: 0;
+	border-radius: var(--radius-sm);
+	background: none;
+	color: inherit;
+	cursor: pointer;
+}
+
 .ui-gloss-actions {
 	display: flex;
 	align-items: center;

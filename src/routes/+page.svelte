@@ -5,6 +5,7 @@
 <script lang="ts">
 	import { onMount, tick, untrack } from 'svelte';
 	import { afterNavigate, beforeNavigate, goto } from '$app/navigation';
+	import { rememberSearch } from '#lib/last-search.ts';
 	import { Collapsible } from 'melt/builders';
 	import Icon from '#lib/Icon.svelte';
 	import PageMeta from '#lib/PageMeta.svelte';
@@ -98,6 +99,8 @@
 	beforeNavigate((navigation) => {
 		if (navigation.type === 'goto' && navigation.shallow) return;
 		searches.leaving();
+		// A word's page offers the way back to these results
+		rememberSearch(location.search);
 	});
 
 	const key = (entry: { id: number | null; word: string; pos: string }) =>

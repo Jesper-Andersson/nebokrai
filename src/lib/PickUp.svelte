@@ -57,26 +57,35 @@
 {#if shown}
 	<section class="ui-page" aria-labelledby="pick-up">
 		<h2 class="ui-label" id="pick-up">{m.home.pickUp}</h2>
+		<!-- Each line is one link from edge to edge: the name, what waits, and
+		     where it goes. Only "Review →" was a link until 2026-11-16, a small
+		     thing to hit at the far end of a wide line. -->
 		<ul>
 			{#if wordsBegun}
 				<li>
-					<b>{m.learn.kind.cards}</b>
-					<span>{cardsDue ? m.learn.action.cardsDue(cardsDue) : m.learn.action.cardsNone}</span>
-					<a href="/review">{m.learn.action.cardsGo} <Icon name="arrow-right" size={16} /></a>
+					<a href="/review">
+						<b>{m.learn.kind.cards}</b>
+						<span class="waits">{cardsDue ? m.learn.action.cardsDue(cardsDue) : m.learn.action.cardsNone}</span>
+						<span class="go">{m.learn.action.cardsGo} <Icon name="arrow-right" size={16} /></span>
+					</a>
 				</li>
 			{/if}
 			{#if rules.length}
 				<li>
-					<b>{m.learn.kind.grammar}</b>
-					<span>{rulesDue ? m.learn.action.rulesDue(rulesDue) : m.learn.action.rulesNone}</span>
-					<a href="/practice">{m.learn.action.rulesGo} <Icon name="arrow-right" size={16} /></a>
+					<a href="/practice">
+						<b>{m.learn.kind.grammar}</b>
+						<span class="waits">{rulesDue ? m.learn.action.rulesDue(rulesDue) : m.learn.action.rulesNone}</span>
+						<span class="go">{m.learn.action.rulesGo} <Icon name="arrow-right" size={16} /></span>
+					</a>
 				</li>
 			{/if}
 			{#if savedCount}
 				<li>
-					<b>{m.pageTitle.saved}</b>
-					<span>{m.home.savedCount(savedCount)}</span>
-					<a href="/saved">{m.home.savedGo} <Icon name="arrow-right" size={16} /></a>
+					<a href="/saved">
+						<b>{m.pageTitle.saved}</b>
+						<span class="waits">{m.home.savedCount(savedCount)}</span>
+						<span class="go">{m.home.savedGo} <Icon name="arrow-right" size={16} /></span>
+					</a>
 				</li>
 			{/if}
 		</ul>
@@ -90,18 +99,30 @@
 		margin-top: 1.5rem;
 	}
 
+	/* No rule after the heading here: a rule in this list stands between two
+	   entries and nowhere else. With the heading's and the first entry's, one
+	   entry alone had two lines over it and nothing to part (user, 2026-11-16). */
+	h2::after {
+		content: none;
+	}
+
 	ul {
-		margin: 0.4rem 0 0;
+		margin: 0.15rem 0 0;
 		padding: 0;
 		list-style: none;
 	}
 
-	li {
+	li + li {
+		border-top: 1px solid var(--border);
+	}
+
+	a {
 		display: flex;
 		align-items: baseline;
 		gap: 0.25rem 0.75rem;
 		padding: 0.7rem 0;
-		border-top: 1px solid var(--border);
+		color: inherit;
+		text-decoration: none;
 	}
 
 	/* The three names in one column, so what waits lines up under them */
@@ -109,12 +130,12 @@
 		min-width: 11rem;
 	}
 
-	span {
+	.waits {
 		flex: 1;
 		color: var(--ink-2);
 	}
 
-	a {
+	.go {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.3rem;
@@ -124,13 +145,19 @@
 		white-space: nowrap;
 	}
 
-	a:hover {
-		color: var(--link-hover);
+	@media (hover: hover) {
+		a:hover .go {
+			color: var(--link-hover);
+		}
+
+		a:hover b {
+			color: var(--accent);
+		}
 	}
 
 	/* On a phone: the name and the way in on one line, what waits under them */
 	@media (max-width: 600px) {
-		li {
+		a {
 			flex-wrap: wrap;
 		}
 
@@ -139,7 +166,7 @@
 			min-width: 0;
 		}
 
-		span {
+		.waits {
 			order: 1;
 			flex-basis: 100%;
 			font-size: var(--text-sm);

@@ -6,6 +6,7 @@
      (FormTables.svelte) and the etymology, closed. On a phone the two stack.
      A spelling with several entries gets a list of them first. -->
 <script lang="ts">
+	import { afterNavigate } from '$app/navigation';
 	import { mergeProps } from 'bits-ui';
 	import FormTables from '#lib/FormTables.svelte';
 	import FrequencyMeter from '#lib/FrequencyMeter.svelte';
@@ -27,6 +28,7 @@
 		RELATED_HEAD_FORMS, RELATED_ROW_TERMS, headFormLabel, headFormPlace, otherFormLabel, termOf, type TermId
 	} from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
+	import { lastSearch } from '#lib/last-search.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -41,6 +43,16 @@
 	const settings = useSettings();
 	const radio = useRadio();
 	let m = $derived(messagesFor(settings.lang));
+
+	// "Back to search" returns to the results the reader came from (/?q=voda),
+	// not to an empty box. Going on from one word to a related one keeps that
+	// search; arriving from anywhere else there is none to return to.
+	let back = $state('/');
+	afterNavigate(({ from }) => {
+		if (from?.url.pathname === '/') back = '/' + lastSearch();
+		else if (!from?.url.pathname.startsWith('/word/')) back = '/';
+	});
+
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
 
@@ -125,7 +137,7 @@
 
 <div class="ui-page" class:wide>
 	<p class="back">
-		<a href="/"><Icon name="arrow-left" size={16} />{m.word.back}</a>
+		<a href={back}><Icon name="arrow-left" size={16} />{m.word.back}</a>
 	</p>
 
 	<!-- стан is a noun five times over: say so before the first entry -->

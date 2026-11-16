@@ -50,7 +50,9 @@
 
 	const quick = useQuickSearch();
 
-	// How many flashcards are due, on the button that leads to them. Counted
+	// How many flashcards are due, on the Learn tab: the flashcards are one of
+	// its pages. Until 2026-11-16 the count stood on an icon of its own beside
+	// the settings, which had no word on it and was easy to miss. Counted
 	// from what this browser holds, with no request to the account; and for a
 	// visitor who has never reviewed a card, with no request at all.
 	const review = useReview();
@@ -71,10 +73,12 @@
 		return today.learning.length + today.due.length;
 	});
 
-	// The weekly goal on the same button, as /learn's ring draws it: days
+	// The weekly goal beside the settings, as /learn's ring draws it: days
 	// practised this week against the goal ("3/4"). It replaced a streak of
 	// days in a row (2026-11-15), whose flame asked to be kept alive. Without
-	// a goal there is nothing to count against, and nothing is shown.
+	// a goal there is nothing to count against, and nothing is shown. It
+	// stood on the flashcards' icon until that went (2026-11-16) and leads to
+	// /learn, where the goal is told in full.
 	let goal = $derived.by(() => {
 		const days = review.settings.goal_days;
 		if (!days) return null;
@@ -83,9 +87,6 @@
 	});
 	// The small ring: r = 7.5 in a 20-unit box
 	const ROUND = 2 * Math.PI * 7.5;
-	let cardsLabel = $derived(
-		[due ? m.review.openDue(due) : m.review.open, ...(goal ? [m.review.goal.week(goal.done, goal.days)] : [])]
-			.join('. '));
 
 	// The search page has its own box right under the header: a second field
 	// beside it only repeats it. The button is hidden there but keeps its
@@ -109,7 +110,17 @@
 		</a>
 		<nav aria-label={m.nav.label}>
 			{#each links as link (link.href)}
-				<a href={link.href} aria-current={current(link.href) ? 'page' : undefined}>{link.label}</a>
+				<a
+					href={link.href}
+					aria-current={current(link.href) ? 'page' : undefined}
+					title={link.href === '/learn' && due ? m.review.openDue(due) : undefined}
+				>
+					{link.label}
+					{#if link.href === '/learn' && due}
+						<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>
+						<span class="ui-sr-only">{', '}{m.review.openDue(due)}</span>
+					{/if}
+				</a>
 			{/each}
 		</nav>
 		<div class="tools">
@@ -156,34 +167,25 @@
 				<span class="label">{m.home.placeholder}</span>
 				<kbd class="ui-kbd">{mac ? '⌘K' : 'Ctrl K'}</kbd>
 			</button>
-			<a
-				class="ui-icon-btn cards"
-				href="/review"
-				aria-current={current('/review') ? 'page' : undefined}
-				aria-label={cardsLabel}
-				title={cardsLabel}
-			>
-				{#if due}<span class="count" aria-hidden="true">{due > 99 ? '99+' : due}</span>{/if}
-				<Icon name="cards" size={20} />
-				{#if goal}
-					<span class="goal" class:met={goal.met} aria-hidden="true">
-						<svg class="ring" viewBox="0 0 20 20">
-							<circle class="track" cx="10" cy="10" r="7.5" />
-							{#if !goal.met && goal.done}
-								<circle
-									class="fill"
-									cx="10"
-									cy="10"
-									r="7.5"
-									stroke-dasharray="{(goal.done / goal.days) * ROUND} {ROUND}"
-									transform="rotate(-90 10 10)"
-								/>
-							{/if}
-						</svg>
-						{goal.done}/{goal.days}
-					</span>
-				{/if}
-			</a>
+			{#if goal}
+				{@const label = m.review.goal.week(goal.done, goal.days)}
+				<a class="ui-icon-btn goal" class:met={goal.met} href="/learn" aria-label={label} title={label}>
+					<svg class="ring" viewBox="0 0 20 20" aria-hidden="true">
+						<circle class="track" cx="10" cy="10" r="7.5" />
+						{#if !goal.met && goal.done}
+							<circle
+								class="fill"
+								cx="10"
+								cy="10"
+								r="7.5"
+								stroke-dasharray="{(goal.done / goal.days) * ROUND} {ROUND}"
+								transform="rotate(-90 10 10)"
+							/>
+						{/if}
+					</svg>
+					<span aria-hidden="true">{goal.done}/{goal.days}</span>
+				</a>
+			{/if}
 			<SettingsMenu />
 		</div>
 	</div>
@@ -404,43 +406,30 @@
 		gap: 0.35rem;
 	}
 
-	/* The way to the flashcards, and what waits there, read in a row: how
-	   many are due, the cards, then the week against the goal (until
-	   2026-11-15, the days of a streak and its flame). Until
-	   2026-11-13 the count sat on the button's upper left corner and the flame,
-	   with the days written in it, on its upper right: two marks piled on one
-	   small icon, the flame hanging over the edge of the bar. Side by side
-	   each can be read, and the button is as wide as what it has to say: with
-	   nothing due and no goal it is the square it was. */
-	.cards {
-		gap: 0.3rem;
+	/* How many flashcards are due, on the Learn tab: a small pill in the
+	   links' colour, set as figures and not in the tab's spaced capitals */
+	.count {
+		margin-left: 0.4rem;
+		padding: 0.1rem 0.4rem;
+		border-radius: var(--radius-pill);
+		background: var(--accent);
+		color: var(--accent-ink);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0;
+		line-height: 1.3;
+	}
+
+	/* The week against the goal: a small ring and "3/4", as wide as what it
+	   has to say. Met, the ring is whole and green. */
+	.goal {
+		gap: 0.25rem;
 		width: auto;
-		min-width: 2.25rem;
 		padding: 0 0.5rem;
+		color: var(--ink);
 		font-size: var(--text-sm);
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
 		line-height: 1;
-	}
-
-	.cards[aria-current='page'] {
-		background: var(--accent-soft);
-		color: var(--accent);
-	}
-
-	/* How many are due: a figure in the links' colour, not a badge */
-	.count {
-		color: var(--accent);
-	}
-
-	/* The week against the goal, a little apart from the count: a small ring
-	   and "3/4". Met, the ring is whole and green. */
-	.goal {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.2rem;
-		margin-left: 0.3rem;
-		color: var(--ink);
 	}
 
 	.ring {
@@ -460,12 +449,6 @@
 
 	.goal.met .track {
 		stroke: var(--right);
-	}
-
-	@media (pointer: coarse) {
-		.cards {
-			min-width: 2.75rem;
-		}
 	}
 
 	/* The way to /support, the funds to donate to. No frame: a box here was

@@ -7,6 +7,7 @@
      research behind the goal found that a broken streak lowers later
      practice, and that one missed day barely slows a habit. -->
 <script lang="ts">
+	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { keyOfDay, weekProgress, weekStart } from '#lib/review/days.ts';
 	import { dayNumber } from '#lib/review/fsrs.ts';
@@ -77,13 +78,29 @@
 		{#if ready}<b>{m.review.heatmap.days(progress.month)}</b> {m.review.goal.thisMonth}{:else}–{/if}
 		{#if !goal}<br /><a href="/review#weekly-goal">{m.review.goal.set} →</a>{/if}
 	</p>
+
+	<!-- To where the goal and the plan are set, on /review -->
+	<a class="ui-icon-btn cog" href="/review#weekly-goal" aria-label={m.review.goal.settings} title={m.review.goal.settings}>
+		<Icon name="cog" size={16} />
+	</a>
 </section>
 
 <style>
 	.card {
+		position: relative;
 		display: grid;
 		gap: 0.6rem;
 		padding: 0.8rem 0.9rem 0.9rem;
+	}
+
+	/* A small cog in the card's lower right corner, beside the month's line */
+	.cog {
+		position: absolute;
+		right: 0.4rem;
+		bottom: 0.35rem;
+		width: 2rem;
+		height: 2rem;
+		color: var(--muted);
 	}
 
 	.top {
@@ -216,5 +233,57 @@
 
 	.month a {
 		font-weight: 600;
+	}
+
+	/* A phone: the week on one line, a smaller ring and its figure on the left
+	   and the seven days on the right, with the month under them. Stacked as
+	   in the rail (until 2026-11-16) the card was a fifth of the screen. */
+	@media (max-width: 640px) {
+		.card {
+			grid-template-columns: minmax(0, 1fr) auto;
+			align-items: center;
+			gap: 0.45rem 0.75rem;
+			padding: 0.6rem 0.8rem 0.65rem;
+		}
+
+		.top,
+		.heading {
+			grid-row: 1;
+			grid-column: 1;
+			gap: 0.55rem;
+		}
+
+		.week {
+			grid-row: 1;
+			grid-column: 2;
+			gap: 0.35rem;
+		}
+
+		.plan,
+		.month {
+			grid-column: 1 / -1;
+		}
+
+		.ring {
+			width: 2.25rem;
+			height: 2.25rem;
+		}
+
+		.figure {
+			font-size: var(--text-lg);
+		}
+
+		.week li {
+			gap: 0.15rem;
+		}
+
+		.dot {
+			width: 1rem;
+			height: 1rem;
+		}
+
+		.month {
+			padding-top: 0.45rem;
+		}
 	}
 </style>

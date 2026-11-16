@@ -53,6 +53,37 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-16-learn-on-a-phone',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'A shorter Learn page on a phone', uk: 'Коротша сторінка «Навчання» на телефоні' },
+		body: {
+			en: 'Flashcards and Grammar sit side by side, the weekly goal comes right after them, and the lessons scroll sideways with the open one just below.',
+			uk: 'Картки й Граматика стоять поруч, одразу за ними мета на тиждень, а уроки гортаються вбік, і відкритий урок видно просто під ними.'
+		},
+		href: '/learn'
+	},
+	{
+		id: '2026-11-16-due-on-learn-tab',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'See what is due on the Learn tab', uk: 'Бачте на вкладці «Навчання», що час повторити' },
+		body: {
+			en: 'The count of flashcards to review moved from its own icon onto the Learn tab, and the weekly goal stands beside the settings.',
+			uk: 'Кількість карток на повторення перейшла з окремої піктограми на вкладку «Навчання», а мета на тиждень стоїть біля налаштувань.'
+		}
+	},
+	{
+		id: '2026-11-16-back-to-results',
+		date: '2026-11-16',
+		kind: 'changed',
+		title: { en: 'Get back to your search results from a word', uk: 'Повертайтеся від слова до результатів пошуку' },
+		body: {
+			en: '“Back to search” on a word’s page now returns to the results you came from, and signing in brings you back to the page you were on.',
+			uk: '«До пошуку» на сторінці слова тепер повертає до результатів, з яких ви прийшли, а після входу ви опиняєтеся на сторінці, де були.'
+		}
+	},
+	{
 		id: '2026-11-16-flashcards-phone',
 		date: '2026-11-16',
 		kind: 'changed',

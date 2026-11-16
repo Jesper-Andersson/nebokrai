@@ -194,6 +194,13 @@
 	});
 	/** On a phone, whether the goal, plan and typing are unfolded */
 	let habitOpen = $state(false);
+	// /review#weekly-goal, where /learn's cog and "Set a weekly goal" lead:
+	// the goal is inside the fold, so the fold opens and the goal is shown
+	onMount(() => {
+		if (location.hash !== '#weekly-goal') return;
+		habitOpen = true;
+		requestAnimationFrame(() => document.getElementById('weekly-goal')?.scrollIntoView({ block: 'center' }));
+	});
 	let left = $derived(today.learning.length + today.due.length + today.fresh.length);
 	let ready = $derived(review.ready && saved.ready);
 	let info = $derived(current ? content.get(current.word) : undefined);
@@ -966,9 +973,12 @@
 		display: contents;
 	}
 
-	/* On a phone Today first, then the decks; the calendar after the settings,
-	   and the note on where reviews are kept last of all */
-	.today {
+	/* On a phone Today first, then the goal, folded to its one line, then the
+	   decks and the pace; the calendar after them, and the note on where
+	   reviews are kept last of all. Until 2026-11-16 the goal came after the
+	   pace, past the first screen, and nothing above it spoke of the week. */
+	.today,
+	.habit {
 		order: -1;
 	}
 
@@ -995,6 +1005,11 @@
 			display: grid;
 			gap: 1rem;
 			align-content: start;
+		}
+
+		/* In its own column here, under the decks or beside the pace */
+		.habit {
+			order: 0;
 		}
 
 		.one {

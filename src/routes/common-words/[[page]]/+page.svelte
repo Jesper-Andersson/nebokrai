@@ -39,7 +39,9 @@
 	metaTitle={data.page > 1 ? `${m.browse.commonTitle}: ${range(data.page)}` : m.browse.commonTitle}
 	description={m.meta.commonWords}
 >
-	<p class="lead">{m.browse.commonLead} <a href="/review">{m.review.practiseCommon}</a>.</p>
+	<p class="lead">{m.browse.commonLead} <a href="/review">{m.review.practiseCommon}</a>.
+		{m.browse.commonMore} <a href="/words">{m.browse.commonAll}</a>.
+	</p>
 	{@render pager(m.browse.commonPages)}
 
 	<ol class="words" start={data.first}>
@@ -56,8 +58,7 @@
 	</ol>
 
 	{@render pager(m.browse.commonPagesEnd)}
-	<p class="muted">{m.browse.commonSource} <a href="/sources">{m.footer.sourcesPage}</a>.</p>
-</ListPage>
+	<p class="muted">{m.browse.commonSource} <a href="/sources">{m.footer.sourcesPage}</a>.</p></ListPage>
 
 <style>
 	/* A row that wraps, and scrolls sideways on a phone (ui-scroll-row) */

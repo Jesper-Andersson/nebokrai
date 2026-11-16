@@ -54,3 +54,27 @@ export function rateKey(address: string): string {
 	}
 	return groups.slice(0, 4).map((g) => g.replace(/^0+(?=.)/, '')).join(':');
 }
+
+/** A path on this site and nothing else: `//host` and `/\host` leave it. */
+export function isLocalPath(path: string): boolean {
+	return path.length <= 500 && /^\/(?![/\\])/.test(path) && !/[\\\x00-\x1f]/.test(path);
+}
+
+/**
+ * Where a visitor was when they chose to sign in, read from the Referer
+ * header, so the callback can send them back to it and not always to Saved
+ * words. Null for another site's page, for no header, and for the addresses
+ * that are not pages to return to (/login, /auth, /logout, /api).
+ */
+export function returnPath(referer: string | null, origin: string): string | null {
+	if (!referer) return null;
+	try {
+		const url = new URL(referer);
+		if (url.origin !== origin) return null;
+		if (/^\/(login|auth|logout|api)(\/|$)/.test(url.pathname)) return null;
+		const path = url.pathname + url.search;
+		return isLocalPath(path) ? path : null;
+	} catch {
+		return null;
+	}
+}

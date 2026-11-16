@@ -196,14 +196,18 @@
 		</div>
 	{:else}
 		<aside class="rail">
-			<GoalCard {now} {ready} />
-			<ActivityCard {now} {ready} />
+			<!-- Each in a place of its own, so that a phone can set the goal
+			     right under the doors and leave the activity at the foot -->
+			<div class="goal-slot"><GoalCard {now} {ready} /></div>
+			<div class="activity-slot"><ActivityCard {now} {ready} /></div>
 			<!-- Where all this is kept, for someone who has no account to keep it in -->
 			{#if !saved.signedIn}<p class="kept">{m.review.kept}</p>{/if}
 		</aside>
 
 		<div class="main">
-			<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} onfirstwords={firstWords} />
+			<div class="doors-slot">
+				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} onfirstwords={firstWords} />
+			</div>
 			<VocabularyCard {now} {ready} />
 			<GrammarCard {offered} {now} {ready} />
 			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} {ready} />
@@ -436,6 +440,32 @@
 		.page {
 			gap: 1rem;
 			padding-top: 0.9rem;
+		}
+
+		/* The rail's two cards part company: the week against the goal comes
+		   right after the doors, as on /review it follows Today, and the
+		   activity stays at the foot with the note on where it all is kept.
+		   Until 2026-11-16 the whole rail was last, four cards down. The two
+		   boxes dissolve, so that their cards are ordered as one column. */
+		.rail,
+		.main {
+			display: contents;
+		}
+
+		.doors-slot {
+			order: -2;
+		}
+
+		.goal-slot {
+			order: -1;
+		}
+
+		.activity-slot {
+			order: 1;
+		}
+
+		.kept {
+			order: 2;
 		}
 
 		/* The three steps on one screen of a phone, under the header */

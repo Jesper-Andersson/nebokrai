@@ -219,7 +219,10 @@
 	</header>
 
 	{#if stage === 'setup'}
-		<p class="lead">{m.alphabet.lead}</p>
+		<p class="lead">
+			{m.alphabet.lead}
+			<span class="onward">{m.alphabet.onward} <a href="/common-words">{m.alphabet.onwardGo}</a>.</span>
+		</p>
 
 		<!-- One card for everything chosen before a round, so that the letters are on the first screen -->
 		<section class="ui-card setup" aria-busy={!alphabet.ready}>
@@ -438,6 +441,13 @@
 
 	.lead {
 		color: var(--on-page);
+	}
+
+	/* The way on for a reader who has the letters already */
+	.onward a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 
 	.muted {

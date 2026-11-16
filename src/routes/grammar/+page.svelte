@@ -39,6 +39,9 @@
 				</a>
 			{/each}
 		</nav>
+
+		<!-- From reading a rule to using it: the exercises are a page away -->
+		<p class="practise"><a href="/practice">{m.grammar.practise}</a></p>
 	</header>
 
 	{#each groups as group, i (group)}
@@ -185,6 +188,19 @@
 		grid-area: count;
 		color: var(--muted);
 		font-size: var(--text-sm);
+	}
+
+	.practise {
+		margin-top: 0.9rem;
+		font-size: var(--text-sm);
+		font-weight: 600;
+	}
+
+	/* Set as a link, where the contents above are set as names */
+	.practise a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 
 	@media (hover: hover) {

@@ -134,6 +134,9 @@ export async function fetchProfile(
 /** Short-lived cookie that carries `state` and the verifier to the callback. */
 export const ATTEMPT_COOKIE = 'oauth';
 
+/** As short-lived: the page the visitor was on, to return to once signed in. */
+export const RETURN_COOKIE = 'oauth_from';
+
 export function setSessionCookie(cookies: Cookies, token: string, expiresAt: number): void {
 	// SvelteKit adds Secure everywhere except on localhost.
 	cookies.set(SESSION_COOKIE, token, {

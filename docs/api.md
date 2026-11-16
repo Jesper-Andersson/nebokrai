@@ -528,6 +528,12 @@ them into named [lists](#lists).
 it by itself to same-site requests; it is `HttpOnly`, so page scripts never
 see it.
 
+The pop-up dictionary extension (`extension/`) saves with the same session:
+its background script asks `GET /api/saved` for the lists and sends
+`PUT` and `DELETE /api/saved/<word>` with the cookie. Those two writes are the
+only ones accepted from a browser extension's origin (`chrome-extension://…`,
+`moz-extension://…`); every other write from one gets `403 cross_site`.
+
 ### `POST /api/saved/merge`
 
 Called once, on the first page load after signing in, with the words saved in
@@ -955,7 +961,7 @@ These are pages the browser visits, not JSON endpoints.
 | `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. `POST /api/lists/<id>/words`: `add` or `remove` is not a list, or has more than 5,000 items. |
 | `400` | `{ "error": "invalid_list" }` | `PUT /api/lists/<id>`: the id does not have the shape above, or the name is empty or longer than 40 characters. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
-| `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`). |
+| `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`), but for `PUT` and `DELETE /api/saved/<word>` from a browser extension. |
 | `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
 | `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/lists/<id>/words`. |
 | `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |

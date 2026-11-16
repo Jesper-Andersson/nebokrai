@@ -13,6 +13,13 @@
 //   Only what lies inside a circle 80% of the width is sure to survive the
 //   cut, so the logo is drawn 58% wide: its corners then reach 41% from the
 //   centre at most.
+//
+// And the browser extension's three (extension/public/icon/, which WXT names
+// in the manifest by their file names): 16 for the toolbar, 48 for the list
+// of extensions, 128 for the stores. The Chrome Web Store asks for the
+// artwork of the 128 to be 96 wide with clear space around it, so that one
+// is drawn at 75%. A browser will not open a window 16 wide, so these are
+// drawn on a 256 page and photographed at a fraction of its size.
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -38,26 +45,34 @@ const logo = readFileSync('src/lib/assets/logo-icon.svg', 'utf8');
 /** --bg of src/app.css, the manifest's background_color */
 const PAGE = '#f7f6f2';
 
-const ICONS: { file: string; size: number; logo: number; background: string }[] = [
-	{ file: 'icon-192.png', size: 192, logo: 1, background: 'transparent' },
-	{ file: 'icon-512.png', size: 512, logo: 1, background: 'transparent' },
-	{ file: 'maskable-512.png', size: 512, logo: 0.58, background: PAGE }
+const APP = 'static/icons';
+const EXTENSION = 'extension/public/icon';
+
+/** `page`: the width of the page the icon is drawn on, when that is not the icon's own. */
+const ICONS: { to: string; file: string; size: number; logo: number; background: string; page?: number }[] = [
+	{ to: APP, file: 'icon-192.png', size: 192, logo: 1, background: 'transparent' },
+	{ to: APP, file: 'icon-512.png', size: 512, logo: 1, background: 'transparent' },
+	{ to: APP, file: 'maskable-512.png', size: 512, logo: 0.58, background: PAGE },
+	{ to: EXTENSION, file: '16.png', size: 16, logo: 1, background: 'transparent', page: 256 },
+	{ to: EXTENSION, file: '48.png', size: 48, logo: 1, background: 'transparent', page: 256 },
+	{ to: EXTENSION, file: '128.png', size: 128, logo: 0.75, background: 'transparent', page: 256 }
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'app-icons-'));
-mkdirSync('static/icons', { recursive: true });
 try {
 	for (const icon of ICONS) {
 		const page = join(dir, icon.file + '.html');
-		const out = resolve('static/icons', icon.file);
+		mkdirSync(icon.to, { recursive: true });
+		const out = resolve(icon.to, icon.file);
+		const drawn = icon.page ?? icon.size;
 		writeFileSync(
 			page,
 			`<!doctype html>
 <meta charset="utf-8">
 <style>
-	html, body { margin: 0; width: ${icon.size}px; height: ${icon.size}px; overflow: hidden; background: ${icon.background}; }
+	html, body { margin: 0; width: ${drawn}px; height: ${drawn}px; overflow: hidden; background: ${icon.background}; }
 	body { display: grid; place-items: center; }
-	svg { display: block; width: ${icon.size * icon.logo}px; height: ${icon.size * icon.logo}px; }
+	svg { display: block; width: ${drawn * icon.logo}px; height: ${drawn * icon.logo}px; }
 </style>
 ${logo}
 `
@@ -68,8 +83,8 @@ ${logo}
 				'--headless=new',
 				'--disable-gpu',
 				'--hide-scrollbars',
-				'--force-device-scale-factor=1',
-				`--window-size=${icon.size},${icon.size}`,
+				`--force-device-scale-factor=${icon.size / drawn}`,
+				`--window-size=${drawn},${drawn}`,
 				// Nothing behind the page, so that "transparent" is
 				'--default-background-color=00000000',
 				`--user-data-dir=${join(dir, 'profile')}`,
@@ -84,10 +99,10 @@ ${logo}
 		const png = readFileSync(out);
 		const [width, height] = [png.readUInt32BE(16), png.readUInt32BE(20)];
 		if (width !== icon.size || height !== icon.size) {
-			console.error(`static/icons/${icon.file} came out ${width} by ${height}, not ${icon.size} square.`);
+			console.error(`${icon.to}/${icon.file} came out ${width} by ${height}, not ${icon.size} square.`);
 			process.exit(1);
 		}
-		console.log(`static/icons/${icon.file} written, ${Math.round(png.length / 1024)} KB.`);
+		console.log(`${icon.to}/${icon.file} written, ${Math.round(png.length / 1024)} KB.`);
 	}
 } finally {
 	rmSync(dir, { recursive: true, force: true, maxRetries: 5 });

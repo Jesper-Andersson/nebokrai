@@ -15,6 +15,10 @@ import { SESSION_COOKIE, SESSION_TOKEN, validateSession } from '#lib/server/user
 import { readSettings } from '#lib/settings.ts';
 
 const WRITES = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+// Where a browser extension's own scripts ask from (Chrome and Edge; Firefox),
+// and the only addresses one may write to: PUT and DELETE /api/saved/<word>
+const EXTENSION_ORIGIN = /^(chrome|moz)-extension:\/\/[\w-]+$/;
+const EXTENSION_WRITES = /^\/api\/saved\/[^/]+$/;
 
 const HEADERS: Record<string, string> = {
 	// Never guess a file's type from its content
@@ -65,8 +69,17 @@ const answer: Handle = async ({ event, resolve }) => {
 	// posts only; the JSON endpoints (/api/report, /api/saved/…) need it too,
 	// or another site could write with a visitor's session. Requests with no
 	// Origin header are not from a page in a browser (curl, a script).
+	//
+	// One exception: a browser extension may save a word and remove it (the
+	// pop-up dictionary in extension/ does). No page can send an extension's
+	// origin, and the browser gives the session cookie only to an extension
+	// its user has let onto this site, which could already act here as them.
 	const origin = event.request.headers.get('origin');
-	if (WRITES.has(event.request.method) && origin !== null && origin !== event.url.origin) {
+	const allowed =
+		origin === null ||
+		origin === event.url.origin ||
+		(EXTENSION_ORIGIN.test(origin) && EXTENSION_WRITES.test(event.url.pathname));
+	if (WRITES.has(event.request.method) && !allowed) {
 		return Response.json({ error: 'cross_site' }, { status: 403 });
 	}
 

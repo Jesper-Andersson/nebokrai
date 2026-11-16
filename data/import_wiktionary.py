@@ -119,6 +119,9 @@ CREATE INDEX forms_entry ON forms(entry_id);
 CREATE INDEX forms_plain ON forms(plain);
 CREATE INDEX relations_entry ON relations(entry_id);
 CREATE INDEX search_key ON search_keys(key, kind);
+-- suggest() asks for the sound key of each typo guess by entry; without this
+-- index that reads all 1.5 million keys, 540 million rows on 2026-11-15.
+CREATE INDEX search_keys_entry ON search_keys(entry_id, kind);
 CREATE INDEX examples_entry ON examples(entry_id);
 CREATE INDEX entries_rank ON entries(freq_rank);
 """

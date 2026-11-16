@@ -59,14 +59,19 @@ const after = (letter: string) => String.fromCodePoint(letter.codePointAt(0)! + 
  * sign (words before "A"), from which the ones filed elsewhere are dropped.
  * OTHER is what stands outside the Cyrillic letters Ukrainian uses: before Є,
  * the first of them, and from U+0450 on, where only є, і, ї and ґ are Ukrainian.
+ *
+ * Each range is its own SELECT joined by UNION: written as one WHERE with OR,
+ * SQLite walks the whole index (31,000 rows for п instead of about 4,000).
  */
 export async function wordsUnder(db: Db, letter: string): Promise<string[]> {
 	const rows =
 		letter === OTHER
-			? await db.all<{ word: string }>("SELECT DISTINCT word FROM entries WHERE word < 'Є' OR word >= 'ѐ'")
+			? await db.all<{ word: string }>(
+					"SELECT word FROM entries WHERE word < 'Є' UNION SELECT word FROM entries WHERE word >= 'ѐ'")
 			: await db.all<{ word: string }>(
-					`SELECT DISTINCT word FROM entries
-					 WHERE (word >= ? AND word < ?) OR (word >= ? AND word < ?) OR word < 'A'`,
+					`SELECT word FROM entries WHERE word >= ? AND word < ?
+					 UNION SELECT word FROM entries WHERE word >= ? AND word < ?
+					 UNION SELECT word FROM entries WHERE word < 'A'`,
 					[letter, after(letter), letter.toUpperCase(), after(letter.toUpperCase())]);
 	const filed = letter === OTHER ? null : letter;
 	return sortWords(rows.map((row) => row.word).filter((word) => letterOf(word) === filed));

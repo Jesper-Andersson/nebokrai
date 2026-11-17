@@ -123,6 +123,7 @@
 									{#each lesson.points as { point, state } (point.id)}<i data-state={state}></i>{/each}
 								</span>
 								<span class="ui-sr-only">{m.learn.rulesKnown(lesson.known, lesson.points.length)}</span>
+								{#if lesson.placed}<span class="ui-sr-only">({m.path.knownFromTest})</span>{/if}
 							</button>
 						</li>
 					{/each}
@@ -147,7 +148,10 @@
 				<div class="title">
 					<div>
 						<h3>{open.n} · {m.learn.short[open.id]}</h3>
-						<span class="muted">{ready ? m.learn.rulesKnown(open.known, open.points.length) : ''}</span>
+						<span class="muted">
+							{ready ? m.learn.rulesKnown(open.known, open.points.length) : ''}
+							{#if ready && open.placed}· <span class="placed">{m.path.knownFromTest}</span>{/if}
+						</span>
 					</div>
 					<a class="ui-btn ui-btn-primary" href="/practice?lesson={open.id}">
 						{m.learn.practiseThis} <Icon name="arrow-right" size={16} />
@@ -348,6 +352,11 @@
 	.muted {
 		color: var(--muted);
 		font-size: var(--text-sm);
+	}
+
+	/* A lesson the placement test placed out (lessons.ts, placed) */
+	.placed {
+		color: var(--right);
 	}
 
 	.title .ui-btn {

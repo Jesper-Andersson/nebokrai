@@ -190,6 +190,7 @@
 							<span class="names">
 								<b>{name}</b>
 								<small lang="uk">{lesson.cues.join(' · ')}</small>
+								{#if lesson.placed}<small class="placed">{m.path.knownFromTest}</small>{/if}
 							</span>
 							<span class="segments" aria-hidden="true">
 								{#each lesson.points as { point, state } (point.id)}<i data-state={state}></i>{/each}
@@ -474,6 +475,12 @@
 		font-size: var(--text-sm);
 		white-space: nowrap;
 		text-overflow: ellipsis;
+	}
+
+	/* A lesson the placement test placed out (lessons.ts, placed) */
+	.names small.placed {
+		flex: none;
+		color: var(--right);
 	}
 
 	.segments {

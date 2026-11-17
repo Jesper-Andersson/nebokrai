@@ -137,6 +137,13 @@
 				</li>
 			{/each}
 		</ul>
+		{#if ready && review.start > 1}
+			<!-- The placement test moved where the common words start -->
+			<p class="muted start">
+				<span title={m.path.startingNote}>{m.path.startingFrom(number(review.start))}</span> ·
+				<a href="/placement">{m.path.retakeTest}</a>
+			</p>
+		{/if}
 	</div>
 </section>
 
@@ -234,6 +241,14 @@
 
 	.bar .learning {
 		background: color-mix(in srgb, var(--accent) 45%, var(--surface));
+	}
+
+	.start {
+		margin: 0;
+	}
+
+	.start a {
+		color: var(--accent);
 	}
 
 	.chips {

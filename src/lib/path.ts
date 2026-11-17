@@ -16,7 +16,9 @@
 // it does not take the stage away.
 //
 // Pure: no Svelte, no storage, so `npm test` runs it (tests/path.test.ts).
-import type { LessonGroup } from './practice/lessons.ts';
+import { coverage, milestones, type CoverageTable } from './coverage.ts';
+import { lessonRows, type LessonGroup } from './practice/lessons.ts';
+import { cardKey, type Point } from './practice/points.ts';
 import { stateOf as pointState, type PointState } from './practice/round.ts';
 import { COMMON_DECKS, type CommonDeckId } from './review/decks.ts';
 import type { ReviewCard } from './review/fsrs.ts';
@@ -72,6 +74,8 @@ export interface Criterion {
 	need: number;
 	done: boolean;
 	href: string;
+	/** For lessons, the first not yet done, by id: what the next step opens. */
+	lesson?: string;
 }
 
 export interface Stage {
@@ -193,7 +197,8 @@ function criterion(need: Need, input: PathInput): Criterion | null {
 			const first = asked.find((lesson) => !lessonDone(lesson));
 			return {
 				kind: 'lessons', key: `${need.group}:${need.upTo}`, have: done.length, need: asked.length,
-				done: done.length === asked.length, href: first ? `/practice?lesson=${first.id}` : '/practice'
+				done: done.length === asked.length, href: first ? `/practice?lesson=${first.id}` : '/practice',
+				...(first ? { lesson: first.id } : {})
 			};
 		}
 		case 'texts': {
@@ -206,7 +211,8 @@ function criterion(need: Need, input: PathInput): Criterion | null {
 			// In whole percents, as the page shows it
 			const have = Math.floor(input.coverage * 100 + 1e-9);
 			const wanted = Math.round(need.share * 100);
-			return { kind: 'coverage', key: 'coverage', have, need: wanted, done: have >= wanted, href: '/learn' };
+			// Coverage grows as words become known: reviewing is the way to it
+			return { kind: 'coverage', key: 'coverage', have, need: wanted, done: have >= wanted, href: '/review' };
 		}
 	}
 }
@@ -271,3 +277,45 @@ export function deckCounts(
  * `placedShare`), whichever is more.
  */
 export const pathCoverage = (own: number, placedShare = 0): number => Math.max(own, placedShare);
+
+/**
+ * The stage the learner is working towards, for the path card: the one after
+ * the current, or the last when every stage is reached.
+ */
+export function workingStage(path: Path): Stage {
+	const at = path.current ? STAGE_IDS.indexOf(path.current) + 1 : 0;
+	return path.stages[Math.min(at, path.stages.length - 1)];
+}
+
+/** What the pages hold, as `learnerInput` needs it. */
+export interface LearnerState {
+	cards: ReadonlyMap<string, ReviewCard>;
+	/** The decks of common words fetched so far. */
+	common: ReadonlyMap<string, readonly string[]>;
+	/** The coverage table, once fetched; without it the coverage criteria are left out. */
+	frequency: CoverageTable | null;
+	letters: PathInput['letters'];
+	start: number;
+	/** The grammar rules that have sentences. */
+	offered: readonly string[];
+	placed: ReadonlySet<string>;
+	now: number;
+}
+
+/** The path's input from what /learn and /placement hold. Texts are left out until there are stories. */
+export function learnerInput(state: LearnerState): PathInput {
+	const { cards, common, frequency, letters, start, offered, placed, now } = state;
+	const held = (point: Point) => pointState(cards.get(cardKey(point.id)), now);
+	return {
+		letters,
+		decks: deckCounts(cards, common, now),
+		start,
+		lessons: lessonRows(offered, held, placed),
+		...(frequency
+			? {
+					coverage: pathCoverage(
+						coverage(frequency, cards, now).known, start > 1 ? milestones(frequency, [start - 1])[0] : 0)
+				}
+			: {})
+	};
+}

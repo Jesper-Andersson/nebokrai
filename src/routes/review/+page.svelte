@@ -555,6 +555,15 @@
 				<!-- /review#decks is where /learn's "Manage decks" leads -->
 				<section class="ui-card options" id="decks">
 					<h2 class="ui-label" id="new-from">{m.review.newFrom}</h2>
+					<!-- Where the placement test moved the start of the common words, and the test to take or take again -->
+					<p class="placement-note">
+						{#if review.start > 1}
+							<span title={m.path.startingNote}>{m.path.startingFrom(review.start.toLocaleString(settings.lang === 'uk' ? 'uk' : 'en'))}</span> ·
+							<a href="/placement">{m.path.retakeTest}</a>
+						{:else}
+							{m.path.newcomerAsk} <a href="/placement">{m.path.takeTest}</a>
+						{/if}
+					</p>
 				<!-- A deck as a row: its tick, its name, a few of its words, how far it has got, and a menu -->
 				{#snippet deckRow(deck: string)}
 					{@const all = wordsOf(deck)}
@@ -947,6 +956,17 @@
 </div>
 
 <style>
+	/* Under "New words from": the placement test's start, and the test */
+	.placement-note {
+		margin: 0;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.placement-note a {
+		color: var(--accent);
+	}
+
 	.page {
 		/* A card leaving the pile must not widen the page */
 		overflow-x: clip;

@@ -34,7 +34,7 @@
 	// the others is one press away; /common-words/2 is one of them too.
 	// The flashcards are among them (2026-11-13): /learn sends a newcomer
 	// there, who then looked in vain for the way back.
-	const LEARN = ['/alphabet', '/common-words', '/grammar', '/practice', '/review'];
+	const LEARN = ['/alphabet', '/common-words', '/grammar', '/placement', '/practice', '/review'];
 	const within = (path: string) => page.url.pathname === path || page.url.pathname.startsWith(path + '/');
 
 	// A word's page belongs to the dictionary.

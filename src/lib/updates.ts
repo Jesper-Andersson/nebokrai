@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-suggest-a-correction',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Suggest a correction on any word page', uk: 'Запропонуйте виправлення на сторінці слова' },
+		body: {
+			en: 'Press the pencil beside a word, then the meaning, example or form that is wrong, and send your version. Every suggestion is read before anything changes.',
+			uk: 'Натисніть олівець біля слова, потім значення, приклад чи форму з помилкою і надішліть свій варіант. Кожну пропозицію читають, перш ніж щось змінити.'
+		}
+	},
+	{
 		id: '2026-11-17-surzhyk-and-offensive-labels',
 		date: '2026-11-17',
 		kind: 'changed',

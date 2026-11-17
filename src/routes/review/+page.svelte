@@ -177,7 +177,7 @@
 		(only ? wordsOf(only) : reviewWords(review.settings, savedWords, saved.lists, review.common))
 			.filter((word) => !gone.has(word)));
 	let newFrom = $derived(
-		(only ? wordsOf(only) : newWords(review.settings, savedWords, saved.lists, review.common))
+		(only ? wordsOf(only) : newWords(review.settings, savedWords, saved.lists, review.common, review.start))
 			.filter((word) => !gone.has(word)));
 	let today = $derived(plan(review.cards, words, review.settings.new_per_day, now, newFrom));
 	let estimate = $derived(reviewEstimate(review.settings.new_per_day));
@@ -189,7 +189,7 @@
 	let paceNow = $derived.by(() => {
 		if (!COMMON_DECKS.every((deck) => review.common.has(deck.id))) return null;
 		const common = COMMON_DECKS.flatMap((deck) => review.common.get(deck.id) ?? []);
-		const queue = newWords(review.settings, savedWords, saved.lists, review.common);
+		const queue = newWords(review.settings, savedWords, saved.lists, review.common, review.start);
 		return pace(queue, common, (word) => review.cards.has(word), review.settings.new_per_day, practice.perWeek, now);
 	});
 	/** On a phone, whether the goal, plan and typing are unfolded */

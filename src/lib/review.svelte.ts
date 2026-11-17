@@ -15,6 +15,10 @@
 // heatmap and the weekly goal. Each browser counts its own reviews and sends the
 // account its own numbers; the account answers with the other browsers' sum.
 // A number sent twice is the same number, so nothing is ever counted double.
+//
+// The progress outside the cards (review/progress.ts: the placement test, the
+// letters, the texts read) travels with the same exchange, a record at a time,
+// each joined with the account's copy rather than replaced by it.
 // Reviews brought in from Anki (the Import page) are counted the same way,
 // under a name of their own instead of this browser's, so importing a deck
 // twice does not count its history twice.
@@ -27,6 +31,9 @@ import { SYNC_MAX, mergeCards, parseCards } from './review/cards.ts';
 import { COMMON_DECKS, DEFAULT_SETTINGS, parseSettings, type ReviewSettings } from './review/decks.ts';
 import { DAYS_MAX, addDays, dayKey, parseDays, type DayCounts } from './review/days.ts';
 import { DAY, type ReviewCard } from './review/fsrs.ts';
+import {
+	mergeRecords, parseRecords, placedOf, startOf, type ProgressKind, type ProgressRecords
+} from './review/progress.ts';
 
 const CARDS_KEY = 'review';
 /** The id of the account the stored cards are a copy of. Absent while signed out. */
@@ -42,6 +49,10 @@ const DAYS_KEY = 'review-days';
 const OTHER_DAYS_KEY = 'review-days-others';
 /** Days whose count the account has not yet been sent. */
 const UNSENT_DAYS_KEY = 'review-days-unsent';
+/** The progress records (review/progress.ts), by kind. */
+const PROGRESS_KEY = 'review-progress';
+/** `true` while the account has not been sent the latest progress records. */
+const UNSENT_PROGRESS_KEY = 'review-progress-unsent';
 /** A random name for this browser, under which the account keeps its day counts. */
 const DEVICE_KEY = 'review-device';
 /** Reviews by day brought in from another app, not yet sent to the account (or kept here while signed out). */
@@ -75,6 +86,7 @@ interface SyncAnswer {
 	cards: unknown;
 	settings: unknown;
 	days: unknown;
+	progress?: unknown;
 	now: number;
 }
 
@@ -88,6 +100,12 @@ export class Review {
 	common = $state.raw<ReadonlyMap<string, string[]>>(new Map());
 	/** How often each common word is used, for the coverage figure, once fetched (fetchFrequency). */
 	frequency = $state.raw<CoverageTable | null>(null);
+	/** The placement test's results, the letters and the texts read. Replaced, never changed in place. */
+	progress = $state.raw<ProgressRecords>({});
+	/** Where new common words start, from the placement test in force: 1 without one (decks.ts newWords). */
+	start = $derived(startOf(this.progress.placement));
+	/** The grammar lessons the placement test placed out (lessons.ts lessonRows). */
+	placedLessons = $derived(placedOf(this.progress.placement));
 
 	#ownDays = $state.raw<DayCounts>({});
 	#otherDays = $state.raw<DayCounts>({});
@@ -97,6 +115,7 @@ export class Review {
 
 	#unsent = $state.raw<ReadonlySet<string>>(new Set());
 	#unsentDays = new Set<string>();
+	#unsentProgress = false;
 	#device = '';
 	#synced = 0;
 	#userId: string | null;
@@ -124,6 +143,16 @@ export class Review {
 	#setUnsentDays(days: Iterable<string>): void {
 		this.#unsentDays = new Set(days);
 		store(UNSENT_DAYS_KEY, this.#unsentDays.size ? [...this.#unsentDays] : null);
+	}
+
+	#setProgress(records: ProgressRecords): void {
+		this.progress = records;
+		store(PROGRESS_KEY, Object.keys(records).length ? records : null);
+	}
+
+	#setUnsentProgress(on: boolean): void {
+		this.#unsentProgress = on;
+		store(UNSENT_PROGRESS_KEY, on ? true : null);
 	}
 
 	/** One review more, or with -1 one fewer, on the day of `ms`. */
@@ -155,6 +184,8 @@ export class Review {
 	#dropSettings(): void {
 		store(SETTINGS_KEY, null);
 		this.settings = DEFAULT_SETTINGS;
+		this.#setProgress({});
+		this.#setUnsentProgress(false);
 	}
 
 	/**
@@ -209,6 +240,7 @@ export class Review {
 			if (event.key === CARDS_KEY) this.cards = readCards();
 			if (event.key === SETTINGS_KEY) this.settings = parseSettings(read(SETTINGS_KEY)) ?? DEFAULT_SETTINGS;
 			if (event.key === DAYS_KEY) this.#ownDays = parseDays(read(DAYS_KEY));
+			if (event.key === PROGRESS_KEY) this.progress = parseRecords(read(PROGRESS_KEY), Date.now() + DAY);
 		});
 		// Leaving the page: send what was answered, while there is still time to.
 		addEventListener('visibilitychange', () => {
@@ -216,6 +248,7 @@ export class Review {
 		});
 
 		this.settings = parseSettings(read(SETTINGS_KEY)) ?? DEFAULT_SETTINGS;
+		this.progress = parseRecords(read(PROGRESS_KEY), Date.now() + DAY);
 		const owner = read(OWNER_KEY);
 		const local = readCards();
 		this.#ownDays = parseDays(read(DAYS_KEY));
@@ -243,6 +276,7 @@ export class Review {
 			this.#unsent = new Set(Array.isArray(unsent) ? unsent.filter((word) => local.has(word)) : []);
 			const synced = read(SYNCED_KEY);
 			this.#synced = typeof synced === 'number' ? synced : 0;
+			this.#unsentProgress = read(UNSENT_PROGRESS_KEY) === true;
 		} else if (owner) {
 			// A copy of some other account: it is not sent anywhere.
 			for (const key of [OWNER_KEY, SYNCED_KEY]) store(key, null);
@@ -255,6 +289,7 @@ export class Review {
 			this.cards = local;
 			this.#setUnsent(new Set(local.keys()));
 			this.#setUnsentDays(Object.keys(this.#ownDays));
+			this.#setUnsentProgress(Object.keys(this.progress).length > 0);
 		}
 		const device = read(DEVICE_KEY);
 		this.#device = typeof device === 'string' ? device : crypto.randomUUID();
@@ -316,6 +351,17 @@ export class Review {
 		void this.sync();
 	}
 
+	/**
+	 * Keep a progress record as it now stands (a placement result taken or
+	 * undone, review/progress.ts addResult and undoResult; letters learnt; a
+	 * text read), and send it to the account.
+	 */
+	changeProgress<K extends ProgressKind>(kind: K, record: NonNullable<ProgressRecords[K]>): void {
+		this.#setProgress({ ...this.progress, [kind]: record });
+		if (this.#userId) this.#setUnsentProgress(true);
+		void this.sync();
+	}
+
 	/** Send the account what it has not had, and take in what changed elsewhere. Does nothing signed out. */
 	sync(): Promise<void> {
 		if (!this.#userId) return Promise.resolve();
@@ -326,10 +372,11 @@ export class Review {
 		const days: DayCounts = {};
 		for (const day of [...this.#unsentDays].slice(0, DAYS_MAX)) days[day] = this.#ownDays[day] ?? 0;
 		const imported = this.#importedDays;
+		const progress = this.#unsentProgress ? this.progress : null;
 		// Offline or the server failed: the cards stay marked as unsent and go with the next exchange.
 		this.#queue = this.#queue
 			.then(() => this.#sendImported(imported))
-			.then(() => this.#exchange(sending, days))
+			.then(() => this.#exchange(sending, days, progress))
 			.catch(() => {});
 		return this.#queue;
 	}
@@ -356,7 +403,7 @@ export class Review {
 		}
 	}
 
-	async #exchange(sending: ReviewCard[], days: DayCounts): Promise<void> {
+	async #exchange(sending: ReviewCard[], days: DayCounts, progress: ProgressRecords | null): Promise<void> {
 		const batches: ReviewCard[][] = [];
 		for (let i = 0; i < sending.length; i += SYNC_MAX) batches.push(sending.slice(i, i + SYNC_MAX));
 		if (!batches.length) batches.push([]);
@@ -374,7 +421,9 @@ export class Review {
 				signal: AbortSignal.timeout(SYNC_WAIT_MS),
 				body: JSON.stringify({
 					cards: batch,
-					...(last ? { since: this.#synced, settings: this.settings, device: this.#device, days } : {})
+					...(last
+						? { since: this.#synced, settings: this.settings, device: this.#device, days, ...(progress ? { progress } : {}) }
+						: {})
 				})
 			});
 			if (!res.ok) throw new Error(String(res.status));
@@ -392,6 +441,10 @@ export class Review {
 			}
 			// A day reviewed on again while this was on its way is still unsent.
 			this.#setUnsentDays([...this.#unsentDays].filter((day) => !(day in days) || this.#ownDays[day] !== days[day]));
+			// The account's records, joined with any changed here while this was on its way
+			const sentAsIs = progress !== null && this.progress === progress;
+			this.#setProgress(mergeRecords(this.progress, parseRecords(answer.progress, Date.now() + DAY)));
+			if (sentAsIs) this.#setUnsentProgress(false);
 			this.#otherDays = parseDays(answer.days);
 			store(OTHER_DAYS_KEY, this.#otherDays);
 			this.#synced = answer.now;

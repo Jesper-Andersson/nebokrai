@@ -746,6 +746,8 @@ them into named [lists](#lists).
 | `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
 | `GET /api/review/deck/<deck>` | no | The words of a ready-made review deck. |
 | `GET /api/coverage` | no | How often each common word is used, for the coverage figure on /learn. |
+| `GET /api/placement` | no | A new placement test: words to say yes or no to, and grammar sentences. |
+| `POST /api/placement` | no | Score the placement test's words. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
 
 "Signed in" means the request carries the `session` cookie. The browser sends
@@ -982,10 +984,10 @@ never been answered has no card.
 
 #### `POST /api/review/sync`
 
-Body: `{ "cards": [...], "since": 1794400000000, "settings": {...}, "device": "…", "days": {...} }`,
+Body: `{ "cards": [...], "since": 1794400000000, "settings": {...}, "device": "…", "days": {...}, "progress": {...} }`,
 every field optional, at most 500 cards and 400 days.
 
-Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794400300000 }`.
+Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "progress": {...}, "now": 1794400300000 }`.
 
 - `cards` sent are stored. When the account already has a card for the word,
   the copy with the later `last_review` is kept (with the same `last_review`,
@@ -1021,6 +1023,27 @@ Response `200`: `{ "cards": [...], "settings": {...}, "days": {...}, "now": 1794
   undone) is taken as it is. Days sent without a valid `device` are ignored.
 - `days` returned are the sums for the account's other browsers, without the
   rows of `device`: the browser adds its own. Empty without `since`.
+- `progress` holds the learner's progress outside the cards, a record per kind
+  (`src/lib/review/progress.ts`), each optional. Each record sent is joined
+  with the account's copy, never simply replaced by it, and `progress`
+  returned is every record the account has as it now stands (`{}` when none),
+  with or without `since`. A record that is malformed is left out; times later
+  than the server's clock are taken as now.
+  - `placement`: `{ "results": [{ "at": 1794400000000, "size": 1240, "start": 1001, "reliable": true,
+    "placed": ["where", "where-to"] }], "updated_at": 1794400000000 }`. The placement test's
+    results, newest first, at most 3; the first is the one in force, and `[]` is none (every result
+    undone). `start` is where new common words begin (1 to 2,001), `placed` the lessons placed out, by
+    id; an unreliable result has `start` 1 and none placed. Of two copies the one with the later
+    `updated_at` is kept whole, so an undo or a retake wins like any change.
+  - `alphabet`: `{ "letters": { "ж": { "box": 3, "seen": 8, "right": 7 } }, "skipped": false,
+    "cleared_at": 0, "updated_at": 1794400000000 }`. The alphabet trainer's letters, as `/alphabet`
+    keeps them. Joined letter by letter, the copy asked more often (`seen`) winning; a copy last changed
+    before the other's `cleared_at` (every letter forgotten) loses its letters. `skipped` (the learner
+    reads Cyrillic already) comes from the copy changed later.
+  - `reading`: `{ "texts": { "kit-i-mysha": { "band": 500, "at": 1794400000000 } }, "updated_at": … }`.
+    The texts read to the end, by id (lower-case letters, digits and `-`), each with its band (500,
+    1000, 2000 or 5000) and when it was first read. Joined as a union, the earlier `at` kept; at most
+    2,000. Nothing writes it yet: it waits for graded reading.
 
 A card stays when its word is removed from the saved list, as an exported
 mark does.
@@ -1057,6 +1080,78 @@ Response `200`:
 
 Names, capitalised spellings and what is not a word (letters, signs, affixes)
 are left out of both sides. About 11,600 words, 270 KB, 63 KB compressed.
+
+### Placement test
+
+About five minutes that say where a learner who knows some Ukrainian already
+should start (`src/lib/placement.ts`). It moves starting points only: where new
+common words begin, and lessons marked as placed out. It never makes a card,
+and nothing is stored on the server: the browser keeps the result as the
+`placement` record and an account gets it with the next `POST /api/review/sync`.
+Signed in or not alike.
+
+#### `GET /api/placement`
+
+Response `200`:
+
+```json
+{
+  "words": ["вікно", "кнашка", "дякувати", …],
+  "grammar": [{ "lesson": "where", "gaps": [{ "point": "u-loc", "uk": "…", … }, { "point": "na-loc", … }] }, …]
+}
+```
+
+- `words`: part 1, 80 words in random order: 12 drawn from each of five bands
+  of the commonest spellings (places 1–500, 501–1,000, 1,001–2,000,
+  2,001–3,000 and 3,001–5,000, as `/common-words` counts them) and 20 made-up
+  words that look Ukrainian. Which is which is not said; the learner answers
+  each "I know it" or "Not sure".
+- `grammar`: part 2, the lessons about cases after prepositions (`where` …
+  `above-below`) in order, each with two sentences of its own rules (a lesson of
+  one rule has it twice), as `GET /api/practice` gives them: 18 in all. Each is
+  answered by choosing among `choices`, or, for a who item, between its two
+  nouns. A lesson is placed out when both are right, and the part stops after
+  two lessons in a row with a mistake (`placeLessons`). A lesson with no
+  sentences in the dictionary is left out.
+
+The made-up words come from the dictionary build (`meta.placement_pseudo`,
+`data/README.md`). Any that VESUM knows as a word are dropped when the test is
+served, so a learner is never marked wrong for knowing a real word.
+
+Sent with `Cache-Control: no-store`. `503` with `{ "error": "unavailable" }`
+when the dictionary was built before the made-up words were, or has fewer
+than 20 left: without them a guess cannot be told from a word known.
+
+#### `POST /api/placement`
+
+Body: `{ "answers": [{ "word": "вікно", "yes": true }, …] }`, at most 80.
+
+Response `200`:
+
+```json
+{
+  "bands": [{ "from": 1, "to": 500, "asked": 12, "yes": 12, "known": 1 }, …],
+  "pseudo": { "asked": 20, "yes": 1 },
+  "size": 1240,
+  "start": 1001,
+  "reliable": true
+}
+```
+
+- `bands`: for each band, the words asked and the yes among them, and `known`,
+  the share of yes corrected for false alarms: with h the share of yes in the
+  band and f the share of yes to made-up words, max(0, (h − f) / (1 − f)).
+- `size`: the sum of each band's `known` times its width, rounded to tens: the
+  words estimated known among the commonest 5,000.
+- `start`: the first place of the first band whose `known` is under 0.8, at
+  most 2,001 (one past the last deck of common words); 1 when not reliable.
+- `reliable`: false when more than 40% of the made-up words had a yes, or fewer
+  than 10 were answered. An unreliable result places nothing.
+
+An answer for a word that is neither a common spelling nor a made-up word, or
+for a word answered already, is left out. Sent with `Cache-Control: no-store`.
+`400` with `{ "error": "invalid_answers", "max": 80 }` when `answers` is not a
+list, is empty or has more than 80 items.
 
 ### Grammar practice
 
@@ -1263,7 +1358,7 @@ These are pages the browser visits, not JSON endpoints.
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site, or that has no `Origin` header and either no `Content-Type` or a form's (`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`). Applies to every address on the site (`mayWrite` in `src/lib/server/request.ts`), but for `PUT` and `DELETE /api/saved/<word>` from a browser extension. |
 | `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/saved/exported` and `/api/lists/<id>/words`. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 384 KB for `/api/review/sync`, 16 KB for `/api/placement`, 2 MB for `/api/saved/merge`, 1 MB for `/api/saved/exported` and `/api/lists/<id>/words`. |
 | `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |
 | `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when 5,000 words are already saved. `PUT /api/lists/<id>` for a new list when the account already has 50. |
 | `409` | `{ "error": "name_taken" }` | `PUT /api/lists/<id>` when another of the account's lists has that name. |

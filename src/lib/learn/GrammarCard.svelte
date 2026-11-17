@@ -32,7 +32,7 @@
 
 	const held = (point: Point): PointState => (ready ? stateOf(review.cards.get(cardKey(point.id)), now) : 'new');
 
-	let lessons = $derived(lessonRows(offered, held));
+	let lessons = $derived(lessonRows(offered, held, review.placedLessons));
 	/** The two lists, each under its heading: the cases after prepositions, and the verbs' patterns. */
 	let groups = $derived(
 		[

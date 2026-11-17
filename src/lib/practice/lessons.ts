@@ -58,6 +58,8 @@ export interface LessonRow {
 	cues: string[];
 	/** How many of its rules are known. */
 	known: number;
+	/** Passed in the placement test (placement.ts): counted as done, though it has no cards. */
+	placed: boolean;
 }
 
 // A number's rule is shown by its example (1 книга · 2 книги · 5 книг): the
@@ -66,8 +68,13 @@ export interface LessonRow {
 // (у of у / в).
 export const cueOf = (point: Point): string => (isNumber(point) ? point.example : point.cue.split(' / ')[0]);
 
-/** The lessons with a rule in `offered` (ids of the rules that have sentences), in order. */
-export function lessonRows(offered: readonly string[], held: (point: Point) => PointState): LessonRow[] {
+/**
+ * The lessons with a rule in `offered` (ids of the rules that have sentences),
+ * in order. `placed` are the lessons the placement test placed out.
+ */
+export function lessonRows(
+	offered: readonly string[], held: (point: Point) => PointState, placed: ReadonlySet<string> = new Set()
+): LessonRow[] {
 	// Counted over every lesson of the group, not only those shown, so a
 	// lesson keeps its number when one before it has no sentences
 	const counted = new Map<LessonGroup, number>();
@@ -81,15 +88,32 @@ export function lessonRows(offered: readonly string[], held: (point: Point) => P
 			.map((point) => ({ point, state: held(point) }));
 		const cues = [...new Set(points.map(({ point }) => cueOf(point)))];
 		const known = points.filter(({ state }) => state === 'known').length;
-		return { id: lesson.id, group: lesson.group, n, points, cues, known };
+		return { id: lesson.id, group: lesson.group, n, points, cues, known, placed: placed.has(lesson.id) };
 	}).filter((lesson) => lesson.points.length);
 }
 
-/** The lesson to show open: the one chosen, or else the first not fully known, or else the first. */
+/**
+ * The lesson to show open: the one chosen, or else the first not fully known
+ * and not placed out by the placement test, or else the first.
+ */
 export const openLesson = (rows: readonly LessonRow[], chosen: string | null): LessonRow | undefined =>
 	rows.find((lesson) => lesson.id === chosen)
-	?? rows.find((lesson) => lesson.known < lesson.points.length)
+	?? rows.find((lesson) => !lesson.placed && lesson.known < lesson.points.length)
 	?? rows[0];
+
+/**
+ * The rules a round may bring in as new: those of `offered` outside the
+ * lessons placed out. A placed rule that already has a card stays, for its
+ * reviews; one with none is not started unasked, though it can still be
+ * practised by name (/practice?lesson=where).
+ */
+export function newPicks(
+	offered: readonly string[], placed: ReadonlySet<string>, hasCard: (id: string) => boolean
+): string[] {
+	if (!placed.size) return [...offered];
+	const placedPoints = new Set(LESSONS.filter((lesson) => placed.has(lesson.id)).flatMap((lesson) => lesson.points));
+	return offered.filter((id) => !placedPoints.has(id) || hasCard(id));
+}
 
 // The lesson last opened, on /learn or /practice: this browser's to remember,
 // as the practice page's way of answering is

@@ -64,7 +64,7 @@
 	/** As /review counts them, and the header: reviews from every deck not paused, new words from the ones ticked. */
 	let cardsToday = $derived(plan(
 		review.cards, reviewWords(review.settings, savedWords, saved.lists, review.common), review.settings.new_per_day, now,
-		newWords(review.settings, savedWords, saved.lists, review.common)));
+		newWords(review.settings, savedWords, saved.lists, review.common, review.start)));
 	let cardsDue = $derived(cardsToday.learning.length + cardsToday.due.length);
 	let wordsBegun = $derived([...review.cards.keys()].some((key) => !isPointKey(key)));
 

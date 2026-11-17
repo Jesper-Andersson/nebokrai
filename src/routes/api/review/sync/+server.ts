@@ -5,22 +5,25 @@ import { fail, signedIn } from '#lib/server/account.ts';
 import { getDatabases } from '#lib/server/db.ts';
 import { readJson } from '#lib/server/request.ts';
 import {
-	DEVICE, getReviewSettings, listReviewCards, listReviewDays, saveReviewCards, saveReviewDays, saveReviewSettings
+	DEVICE, getReviewSettings, listReviewCards, listReviewDays, saveProgress, saveReviewCards, saveReviewDays,
+	saveReviewSettings
 } from '#lib/server/users.ts';
 import { SYNC_MAX, parseCards } from '#lib/review/cards.ts';
 import { isPointKey } from '#lib/practice/points.ts';
 import { DAYS_MAX, parseDays } from '#lib/review/days.ts';
 import { parseSettings } from '#lib/review/decks.ts';
+import { parseRecords } from '#lib/review/progress.ts';
 import { wordSummaries } from '#lib/search/word.ts';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const who = await signedIn(locals);
 	if (who instanceof Response) return who;
-	// 500 cards with the longest dictionary words come to about 190 KB.
-	const body = await readJson(request, 256 * 1024);
+	// 500 cards with the longest dictionary words come to about 190 KB, and
+	// the progress records at their fullest (2,000 texts read) about 120 KB.
+	const body = await readJson(request, 384 * 1024);
 	if (body instanceof Response) return body;
-	const { cards: sentCards, settings: sentSettings, since, device: sentDevice, days: sentDays } =
+	const { cards: sentCards, settings: sentSettings, since, device: sentDevice, days: sentDays, progress: sentProgress } =
 		(body ?? {}) as Record<string, unknown>;
 	if (sentCards !== undefined && (!Array.isArray(sentCards) || sentCards.length > SYNC_MAX)) {
 		return fail(400, 'invalid_cards');
@@ -42,6 +45,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	// Day counts are kept under the name the browser gives itself; without one there is nowhere to put them.
 	const device = typeof sentDevice === 'string' && DEVICE.test(sentDevice) ? sentDevice : null;
 	if (device) await saveReviewDays(who.users, who.user.id, device, parseDays(sentDays, DAYS_MAX));
+	// The placement test, the letters and the texts read: each joined with the account's copy
+	const progress = await saveProgress(who.users, who.user.id, parseRecords(sentProgress, now), now);
 
 	// Without `since` the browser is still sending and wants nothing back yet.
 	const from = typeof since === 'number' && since >= 0 ? since : null;
@@ -49,6 +54,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		cards: from === null ? [] : await listReviewCards(who.users, who.user.id, from),
 		settings: await getReviewSettings(who.users, who.user.id),
 		days: from === null ? {} : await listReviewDays(who.users, who.user.id, device ?? ''),
+		progress,
 		now
 	});
 };

@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
 import { stripControls } from '../src/lib/report.ts';
-import { isLocalPath, rateKey, readJson, returnPath } from '../src/lib/server/request.ts';
+import { isLocalPath, mayWrite, rateKey, readJson, returnPath } from '../src/lib/server/request.ts';
 import { SESSION_TOKEN, createSession, findOrCreateUser } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -41,6 +41,38 @@ test('a body larger than it claims is still stopped', async () => {
 	} as RequestInit);
 	assert.equal(request.headers.get('content-length'), null);
 	assert.deepEqual(await refusal(await readJson(request, 1000)), [413, 'too_large']);
+});
+
+test('a write is let in by where it comes from', () => {
+	const site = 'https://nebokrai.app';
+	const json = 'application/json';
+	const to = (pathname: string) => ({ origin: site, pathname });
+	const save = to('/api/saved/%D0%BA%D0%BD%D0%B8%D0%B3%D0%B0');
+
+	// The site's own pages, whatever they send
+	assert.equal(mayWrite({ origin: site, contentType: null }, to('/logout')), true);
+	assert.equal(mayWrite({ origin: site, contentType: json }, to('/api/report')), true);
+	// Another site, whatever it sends
+	assert.equal(mayWrite({ origin: 'https://example.com', contentType: json }, save), false);
+	assert.equal(mayWrite({ origin: 'null', contentType: json }, save), false);
+
+	// The extension: saving and removing, with a body or without (0.1.2 and
+	// older send neither a body nor a content type for a plain save)
+	for (const origin of ['chrome-extension://abcdefghijklmnopabcdefghijklmnop', 'moz-extension://0a1b2c3d-4e5f-6789-abcd-ef0123456789']) {
+		assert.equal(mayWrite({ origin, contentType: null }, save), true);
+		assert.equal(mayWrite({ origin, contentType: json }, save), true);
+		assert.equal(mayWrite({ origin, contentType: json }, to('/api/saved/merge/x')), false);
+		assert.equal(mayWrite({ origin, contentType: json }, to('/api/account')), false);
+		assert.equal(mayWrite({ origin, contentType: null }, to('/logout')), false);
+	}
+	assert.equal(mayWrite({ origin: 'chrome-extension://a.example.com', contentType: json }, save), false);
+
+	// No Origin header: a script may send JSON, but nothing shaped like a form post
+	assert.equal(mayWrite({ origin: null, contentType: json }, to('/api/report')), true);
+	assert.equal(mayWrite({ origin: null, contentType: null }, save), false);
+	assert.equal(mayWrite({ origin: null, contentType: '' }, save), false);
+	assert.equal(mayWrite({ origin: null, contentType: 'Text/Plain; charset=utf-8' }, to('/api/report')), false);
+	assert.equal(mayWrite({ origin: null, contentType: 'multipart/form-data; boundary=x' }, to('/logout')), false);
 });
 
 test('rate limits count an IPv6 visitor by their /64', () => {

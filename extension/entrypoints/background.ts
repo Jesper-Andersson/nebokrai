@@ -84,9 +84,11 @@ async function save(request: SaveRequest): Promise<SaveReply> {
 		const response = await fetch(`${SITE}/api/saved/${encodeURIComponent(word)}`, {
 			method: request.type === 'save' ? 'PUT' : 'DELETE',
 			credentials: 'include',
-			...(request.type === 'save' && lists.length
-				? { headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lists }) }
-				: {})
+			// Always said to be JSON, with or without lists: SvelteKit takes a
+			// write with no content type for a form post, and answers one from
+			// an extension's origin with 403 before the site's own check sees it.
+			headers: { 'content-type': 'application/json' },
+			...(request.type === 'save' ? { body: JSON.stringify({ lists }) } : {})
 		});
 		if (response.status === 401) {
 			account = undefined;

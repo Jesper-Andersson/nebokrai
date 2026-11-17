@@ -36,6 +36,42 @@ export async function readJson(request: Request, maxBytes: number): Promise<unkn
 	}
 }
 
+// Where a browser extension's own scripts ask from (Chrome and Edge; Firefox),
+// and the only addresses one may write to: PUT and DELETE /api/saved/<word>
+const EXTENSION_ORIGIN = /^(chrome|moz)-extension:\/\/[\w-]+$/;
+const EXTENSION_WRITES = /^\/api\/saved\/[^/]+$/;
+// What a form on a page can send, with SvelteKit's own type for one
+const FORM_TYPES = new Set([
+	'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain', 'application/x-sveltekit-formdata'
+]);
+
+/**
+ * Whether a POST, PUT, PATCH or DELETE may go on to its endpoint, judged by
+ * where the browser says it comes from. This is the site's whole check on
+ * that: SvelteKit's own is turned off in vite.config.ts, because it runs
+ * first and cannot be told about the one exception below.
+ *
+ * - From the site itself: yes.
+ * - With no Origin header: not from a page in a browser (curl, a script), so
+ *   yes, unless it is shaped like a form post (a form's content type, or
+ *   none). SvelteKit refuses those, and an old browser may send one bare.
+ * - From a browser extension: only saving a word and removing it (the pop-up
+ *   dictionary in extension/ does). No page can send an extension's origin,
+ *   and the browser gives the session cookie only to an extension its user
+ *   has let onto this site, which could already act here as them.
+ * - From any other site: no.
+ */
+export function mayWrite(
+	from: { origin: string | null; contentType: string | null }, to: { origin: string; pathname: string }
+): boolean {
+	if (from.origin === to.origin) return true;
+	if (from.origin === null) {
+		const type = from.contentType?.split(';', 1)[0].trim().toLowerCase();
+		return Boolean(type) && !FORM_TYPES.has(type!);
+	}
+	return EXTENSION_ORIGIN.test(from.origin) && EXTENSION_WRITES.test(to.pathname);
+}
+
 /**
  * The address to count requests by. An IPv6 visitor is counted by their /64:
  * one home connection is given that whole range, so counting single addresses

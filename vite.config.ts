@@ -48,6 +48,13 @@ export default defineConfig({
 				}
 			},
 
+			// '*' turns SvelteKit's check on where a write comes from off. It
+			// runs before the site's own (`mayWrite`, called in src/hooks.server.ts),
+			// takes a list of exact origins only, and so refused the browser
+			// extension's saves: every Firefox install has an origin of its own.
+			// The site's check covers all that this one did, and JSON writes too.
+			csrf: { trustedOrigins: ['*'] },
+
 			// In `npm run dev` only: hold Alt+X and click anything on a page, and
 			// the editor opens the component that drew it. SvelteKit hands this
 			// option on to vite-plugin-svelte.

@@ -682,6 +682,10 @@ its background script asks `GET /api/saved` for the lists and sends
 `PUT` and `DELETE /api/saved/<word>` with the cookie. Those two writes are the
 only ones accepted from a browser extension's origin (`chrome-extension://…`,
 `moz-extension://…`); every other write from one gets `403 cross_site`.
+The extension sends both as `Content-Type: application/json`, `DELETE` included,
+though the site no longer asks for it: until SvelteKit's own origin check was
+turned off (`csrf.trustedOrigins` in `vite.config.ts`), a write with no content
+type from an extension got that check's `403` before the site's ran.
 
 ### `POST /api/saved/merge`
 
@@ -1116,7 +1120,7 @@ These are pages the browser visits, not JSON endpoints.
 | `400` | `{ "error": "invalid_words" }` | `/api/words/summary` and `/api/words/cards`: `words` is not a list, or has more than 500 items. `POST /api/lists/<id>/words`: `add` or `remove` is not a list, or has more than 5,000 items. |
 | `400` | `{ "error": "invalid_list" }` | `PUT /api/lists/<id>`: the id does not have the shape above, or the name is empty or longer than 40 characters. |
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
-| `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site. Applies to every address on the site (`src/hooks.server.ts`), but for `PUT` and `DELETE /api/saved/<word>` from a browser extension. |
+| `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site, or that has no `Origin` header and either no `Content-Type` or a form's (`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`). Applies to every address on the site (`mayWrite` in `src/lib/server/request.ts`), but for `PUT` and `DELETE /api/saved/<word>` from a browser extension. |
 | `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
 | `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/lists/<id>/words`. |
 | `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |

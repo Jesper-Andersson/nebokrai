@@ -43,7 +43,7 @@
 - **Keep your words.** Save words into lists, in the browser or with a Google or GitHub account; import an Anki
   deck with its progress, or a word list from a text or CSV file.
 - **Made for daily use.** English or Ukrainian interface, light, dark and sepia themes, installable on phone
-  and desktop, an Android app. No ads and no tracking.
+  and desktop, an Android app. No ads and no third-party trackers.
 
 ## How it is built
 

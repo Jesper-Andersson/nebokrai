@@ -133,7 +133,7 @@
 
 		<h2>Підтримати Nebokrai</h2>
 		<p>
-			Nebokrai повністю безкоштовний, без реклами й відстеження. Якщо він вам корисний, можете
+			Nebokrai повністю безкоштовний, без реклами й сторонніх трекерів. Якщо він вам корисний, можете
 			допомогти мені покрити витрати на хостинг. Внески цілком добровільні й не дають жодних переваг.
 			Усе на сайті лишається безкоштовним для всіх. Якщо хочете натомість допомогти Україні, дивіться:
 			<a href="/support">Підтримати Україну</a>.
@@ -246,7 +246,7 @@
 
 		<h2>Supporting Nebokrai</h2>
 		<p>
-			Nebokrai is completely free and has no ads or tracking. If you find it useful, you can help me
+			Nebokrai is completely free and has no ads or third-party trackers. If you find it useful, you can help me
 			cover the hosting costs. Donations are entirely voluntary and unlock nothing. Everything on the
 			site stays free for everyone. To give to Ukraine instead, see:
 			<a href="/support">Support Ukraine</a>.

@@ -589,6 +589,14 @@ the site's keeper has reviewed it.
 | `quote` | `sense_n`, `current` (the quotation as shown) | the quotation; `proposed_en` its English |
 | `example` | `tatoeba_id` | the Ukrainian sentence; `proposed_en` its English |
 | `form` | `form_tags` (`["genitive", "plural"]`), `current` (the form) | the form |
+| `new-word` | `pos` one of `noun`, `verb`, `adjective`, `adverb`, `other`, `unknown` | nothing: it is the English meaning |
+
+`new-word` is a word with no entry, offered where a search finds nothing.
+`word` is the spelling searched for, in Ukrainian letters (with `'`, `-` and
+spaces), at most 60 of them; `headword` is the same with the reader's stress
+marks (at most two, each after a vowel), or the same without any. The answer
+adds `others`, how many readers asked for the same word before and are still
+waiting: `{ "ok": true, "id": 42, "others": 2 }`.
 
 The entry is named by `word`, `pos` and `headword`, and the part by keys that
 survive a rebuild of the dictionary, never by an entry id. The server looks the
@@ -604,11 +612,12 @@ Response `200`: `{ "ok": true, "id": 41 }`.
 
 | Status | Body | When |
 |---|---|---|
-| `400` | `{ "error": "invalid_target" }` | `target` is not one of the six, or `word`, `pos` or `headword` is missing. |
+| `400` | `{ "error": "invalid_target" }` | `target` is not one of the seven, or `word`, `pos` or `headword` is missing; for `new-word`, also a `word`, `pos` or `headword` outside the rules above. |
 | `400` | `{ "error": "missing_proposed" }` | `proposed` is empty. |
 | `400` | `{ "error": "unchanged" }` | The proposal says what the dictionary already says. |
 | `403` | `{ "error": "bot_check" }` | Not signed in, and no token Cloudflare accepts. |
 | `404` | `{ "error": "not_found" }` | The dictionary has no such part: the page was loaded before the data changed. |
+| `409` | `{ "error": "exists" }` | `new-word` only: the dictionary has an entry for that spelling. |
 | `413` | `{ "error": "too_large" }` | A text is over its limit, or the body is over 16 KB. |
 | `429` | `{ "error": "too_many" }` | More than 10 suggestions in ten minutes from one address. |
 | `503` | `{ "error": "bot_check_unavailable" }` | Cloudflare gave no verdict on the token; send again. |

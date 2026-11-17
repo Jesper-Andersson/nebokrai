@@ -16,6 +16,8 @@
 	import type { Suggestion } from '#lib/search/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { mergeProps } from 'bits-ui';
+	import AddWord from './AddWord.svelte';
+	import { canAddWord } from '#lib/suggest.ts';
 	import FrequencyMeter from './FrequencyMeter.svelte';
 	import Grammar from './Grammar.svelte';
 	import Headword from './Headword.svelte';
@@ -133,6 +135,11 @@
 	<div class="glosses">
 		{#if vesumOnly}
 			<i>{'kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry}</i>
+			<!-- A real word with no entry: a reader may know what it means. Not for
+			     one VESUM calls distorted (таможня), which should not get an entry. -->
+			{#if !('kind' in entry && entry.kind === 'distorted') && canAddWord(entry.word)}
+				<div class="add"><AddWord word={entry.word} label={m.addWord.addMeaning} /></div>
+			{/if}
 		{:else}
 			<!-- The numerals are drawn, not text: copied, the meanings read one
 			     to a line -->
@@ -256,6 +263,10 @@
 	.ipa {
 		color: var(--muted);
 		font-family: var(--font-ipa);
+	}
+
+	.add {
+		margin-top: 0.6rem;
 	}
 
 	.glosses {

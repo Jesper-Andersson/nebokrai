@@ -996,6 +996,76 @@ select {
 	line-height: 1.45;
 }
 
+/* The suggestion forms' panel: corrections on a word's page (SuggestEdit.svelte)
+   and a missing word (AddWord.svelte). Here, not in either component, so that
+   each page has them whichever of the two it loads. */
+.ui-suggest form {
+	display: grid;
+	gap: 0.7rem;
+}
+
+.ui-suggest h2 {
+	margin: 0;
+	font-family: var(--font-text);
+	font-size: var(--text-sm);
+	font-weight: 700;
+}
+
+.ui-suggest label {
+	display: block;
+}
+
+.ui-suggest-label {
+	display: block;
+	margin-bottom: 0.2rem;
+	color: var(--muted);
+	font-size: var(--text-xs);
+}
+
+.ui-suggest p {
+	margin: 0;
+}
+
+.ui-suggest-now {
+	padding: 0.5rem 0.7rem;
+	border-radius: var(--radius-md);
+	background: var(--surface-2);
+	color: var(--ink-2);
+	overflow-wrap: anywhere;
+}
+
+.ui-suggest textarea.ui-field {
+	display: block;
+	font: inherit;
+	resize: vertical;
+}
+
+.ui-suggest label.ui-suggest-tick {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.ui-suggest-tick input {
+	accent-color: var(--accent);
+}
+
+.ui-suggest p.ui-suggest-small {
+	color: var(--muted);
+	font-size: var(--text-xs);
+	line-height: 1.4;
+}
+
+.ui-suggest p.ui-suggest-problem {
+	color: var(--stress);
+}
+
+.ui-suggest-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+}
+
 .ui-term-note p {
 	margin: 0;
 }

@@ -164,6 +164,13 @@ accepted fix to an example sentence is added by hand to
 name the reader gave, and the others are fixed on Wiktionary. Suggestions are
 kept in the private reports database, never in the dictionary's own.
 
+Where a search finds nothing, the same kind of form asks for the missing word:
+its stress, part of speech and English meaning, under the same CC BY-SA 4.0
+line. An accepted word is written up on Wiktionary by hand and comes back with
+the next build, so the dictionary keeps a single source for its entries. VESUM
+only decides whether the button is shown (not for a word it calls distorted);
+nothing from VESUM is put in the form or stored with the suggestion.
+
 ---
 
 ## What each licence asks

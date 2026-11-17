@@ -28,8 +28,19 @@
 		if (s.target === 'form') return m.suggest.part.form((s.form_tags ?? '').replaceAll(' ', ', '));
 		if (s.target === 'quote') return m.suggest.part.quote;
 		if (s.target === 'example') return m.suggest.part.example;
+		if (s.target === 'new-word') return m.suggest.part.newWord;
 		return m.suggest.part.headword;
 	}
+
+	// How many readers in this list asked for each new word: the reviewer sees
+	// which missing words are wanted most
+	let asks = $derived.by(() => {
+		const counts = new Map<string, number>();
+		for (const s of data.suggestions) {
+			if (s.target === 'new-word') counts.set(s.word, (counts.get(s.word) ?? 0) + 1);
+		}
+		return counts;
+	});
 
 	// What can be done with a suggestion in each list
 	const NEXT: Record<SuggestionStatus, SuggestionStatus[]> = {
@@ -91,7 +102,10 @@
 			<li class="ui-card">
 				<p class="about">
 					<a href={wordPath(s.word)} lang="uk"><b><Stressed text={s.headword} /></b></a>
-					<span>{posLabel(m, s.pos)} · {part(s)}</span>
+					<span>
+						{posLabel(m, s.pos)} · {part(s)}
+						{#if s.target === 'new-word'} · {r.asks(asks.get(s.word) ?? 1)}{/if}
+					</span>
 					{#if s.tatoeba_id}
 						<a class="quiet" href="https://tatoeba.org/sentences/show/{s.tatoeba_id}">Tatoeba #{s.tatoeba_id}</a>
 					{/if}
@@ -99,7 +113,7 @@
 				<div class="versions">
 					<div>
 						<h2>{r.now}</h2>
-						<p>{s.current}</p>
+						<p>{s.target === 'new-word' ? r.noEntry : s.current}</p>
 						{#if s.current_en}<p class="en">{s.current_en}</p>{/if}
 					</div>
 					<div>
@@ -108,7 +122,7 @@
 						{#if s.proposed_en}<p class="en">{s.proposed_en}</p>{/if}
 					</div>
 				</div>
-				{#if s.note}<p class="why"><b>{r.why}:</b> {s.note}</p>{/if}
+				{#if s.note}<p class="why"><b>{s.target === 'new-word' ? r.seen : r.why}:</b> {s.note}</p>{/if}
 				<p class="who">
 					#{s.id} · {when.format(new Date(s.created_at))}
 					{#if s.native} · {r.native}{/if}

@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-add-a-missing-word',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Ask for a word the dictionary is missing', uk: 'Попросіть додати слово, якого бракує' },
+		body: {
+			en: 'At the end of a search in Ukrainian or English, press Add, tap the stressed vowel and say what the word means. Every word is checked before it goes in.',
+			uk: 'Наприкінці пошуку українською чи англійською натисніть «Додати», позначте наголос і напишіть, що означає слово. Кожне слово перевіряють, перш ніж додати.'
+		}
+	},
+	{
 		id: '2026-11-17-suggest-a-correction',
 		date: '2026-11-17',
 		kind: 'new',

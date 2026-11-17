@@ -110,6 +110,20 @@ export async function listSuggestions(
 	);
 }
 
+/**
+ * How many readers asked for a word that is still waiting: `new` and
+ * `accepted` suggestions of the target `new-word`. The thank-you says "2 others
+ * asked for this word too"; nothing else about them is shown.
+ */
+export async function countWordAsks(db: SuggestionDb, word: string): Promise<number> {
+	const [row] = await db.all<{ n: number }>(
+		`SELECT COUNT(*) AS n FROM suggestions
+		 WHERE target = 'new-word' AND word = ? AND status IN ('new', 'accepted')`,
+		[word]
+	);
+	return row?.n ?? 0;
+}
+
 /** How many suggestions there are with each status. */
 export async function countSuggestions(db: SuggestionDb): Promise<Record<SuggestionStatus, number>> {
 	const rows = await db.all<{ status: string; n: number }>(
@@ -153,4 +167,35 @@ export function correctionRow(s: Suggestion): string | null {
 	const en = s.proposed_en !== null && s.proposed_en.trim() !== (s.current_en ?? '').trim() ? s.proposed_en : '';
 	const credit = ['Nebokrai suggestion ' + s.id, s.name, s.created_at.slice(0, 10)].filter(Boolean).join(', ');
 	return [String(s.tatoeba_id), cell(s.proposed), cell(en), cell(credit)].join('\t');
+}
+
+// Wiktionary's headings and head templates for the parts of speech a reader can choose.
+const WIKI_POS: Record<string, [string, string]> = {
+	noun: ['Noun', 'noun'],
+	verb: ['Verb', 'verb'],
+	adjective: ['Adjective', 'adjective'],
+	adverb: ['Adverb', 'adverb']
+};
+
+/**
+ * A draft English Wiktionary entry for an accepted new word, to check and
+ * finish by hand before saving it there: the language and part-of-speech
+ * headings, a generic head template with the reader's stress, and the meaning.
+ * "Other" and "not sure" leave the part of speech for the reviewer to fill in.
+ * The reader's note goes in as a comment, since it is evidence, not content.
+ */
+export function wiktionaryDraft(s: Suggestion): string | null {
+	if (s.target !== 'new-word') return null;
+	const line = (text: string) => text.replace(/\s+/g, ' ').trim();
+	const [heading, template] = WIKI_POS[s.pos] ?? ['<!-- part of speech -->', '<!-- part of speech -->'];
+	const lines = [
+		'==Ukrainian==',
+		'',
+		`===${heading}===`,
+		`{{head|uk|${template}|head=${line(s.headword)}}}`,
+		'',
+		`# ${line(s.proposed)}`
+	];
+	if (s.note) lines.push(`<!-- Nebokrai suggestion ${s.id}: ${line(s.note).replaceAll('--', '–')} -->`);
+	return lines.join('\n');
 }

@@ -37,8 +37,8 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 65,282 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,312 |
-| `examples` | Tatoeba sentence with English translation | 26,182 |
-| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 6,983 |
+| `examples` | Tatoeba sentence with English translation | 26,129 |
+| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 6,965 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,776,825 |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
@@ -100,7 +100,7 @@ from. These entries are thinner than the others:
   nothing would tell a Ukrainian word from a Russian one spelled the same in
   the subtitle list: он ("yonder") came out as the 39th most common word. They
   follow the ranked words in search results and stay out of the common words,
-  the review decks and the word of the day. 797 of them have an example
+  the review decks and the word of the day. 796 of them have an example
   sentence.
 - Search-as-you-type fills its window from the other entries first, and
   reaches these only when the others leave room: without that, `кал` lost
@@ -190,7 +190,7 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (11,494 entries), preferring sentences
+Up to three Tatoeba sentences per entry (11,471 entries), preferring sentences
 of about five words. `tatoeba_id` links back to the sentence for attribution.
 
 `tatoeba-corrections.tsv` corrects sentences that read badly, as a teacher
@@ -308,8 +308,8 @@ A sentence is kept only when nothing about the gap is in doubt:
   the name, which has no entry, not the noun `том`).
 
 At most five sentences are kept for one noun at one point, and a point with
-fewer than 20 sentences is dropped. November 2026: 6,983 sentences at 24
-points, from 23 (`серед` + genitive) to 1,016 (`у`/`в` + locative); five points fell short
+fewer than 20 sentences is dropped. November 2026: 6,965 sentences at 24
+points, from 23 (`серед` + genitive) to 1,015 (`у`/`в` + locative); five points fell short
 (`крім`, `крізь`, `навколо`, `при`, `замість`). `meta.cloze_points` holds the
 count for each point, so the site can draw a sentence by its number (`n`)
 without counting.

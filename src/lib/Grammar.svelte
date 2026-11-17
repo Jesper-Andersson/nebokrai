@@ -15,6 +15,10 @@
      to tab through (user, 2026-11-14). `inline` is the part of speech alone,
      as a span, to stand on the headword's own line (the footer, a saved word).
 
+     `takes` is a second line in the same style, on a verb's page: which case
+     it asks of its noun (practice/government.ts), each leading to practice
+     where it is practised: takes · кому? · за що?
+
      The italics are the text font slanted by the browser, on purpose. A true
      Cyrillic italic changes the letters (т becomes m, и becomes u), which a
      beginner cannot yet read; slanted, іменник keeps the letters it has
@@ -33,7 +37,8 @@
 		tags = [],
 		headForms = [],
 		brief = false,
-		inline = false
+		inline = false,
+		takes = []
 	}: {
 		pos: string;
 		tags?: string[];
@@ -41,6 +46,8 @@
 		headForms?: { form: string; tags: string[]; has_entry?: boolean }[];
 		brief?: boolean;
 		inline?: boolean;
+		/** The questions a verb's noun answers, each with its practice page where it has one. */
+		takes?: { ask: string; href?: string }[];
 	} = $props();
 
 	const settings = useSettings();
@@ -99,6 +106,18 @@
 			{/each}
 		</span>
 	</p>
+	{#if takes.length}
+		<p class="grammar">
+			<span class="row">
+				<span class="part">{m.word.takes}</span>
+				{#each takes as item (item.ask)}
+					<span class="part" lang="uk"
+						>{#if item.href}<a href={item.href}>{item.ask}</a>{:else}{item.ask}{/if}</span
+					>
+				{/each}
+			</span>
+		</p>
+	{/if}
 {/if}
 
 <style>

@@ -38,7 +38,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,295 |
 | `examples` | Tatoeba sentence with English translation | 26,118 |
-| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 6,965 |
+| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,556 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,774,768 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
@@ -386,6 +386,38 @@ this way in November 2026, all had the right case; two took a name for a
 common noun, which the rule about capitals now leaves out. The point's names
 are also listed in `src/lib/practice/points.ts`, and `npm test` fails when the
 two lists differ.
+
+### Case government
+
+A verb asks for a case too: `дякувати` the dative (`дякую мамі`),
+`користуватися` the instrumental, `чекати на` the accusative. These patterns
+are listed by hand, once, in `src/lib/practice/government.ts`, which
+`add_government` reads as `hand_picked_cloze` reads `where.ts`. Each practised
+pattern is a point named by its verb, preposition and case
+(`diakuvaty-dat`, `chekaty-na-acc`), and its rows in `cloze` carry
+`cue_start` and `cue_length`: where the verb stands, for the page to set in
+bold. A pattern whose preposition takes one case only (`думати про`) is shown
+on the word page and not practised.
+
+A Tatoeba sentence is kept for a pattern when a form of its verb that no other
+word has is followed, within three words and with only words that describe a
+noun between, by the pattern's preposition and a noun or a personal pronoun
+whose case is certain and the one asked for. A comma, a conjunction or another
+preposition ends the search, and nouns of time (`у неділю`, `на хвилину`)
+never count. `грати у` and `грати на` count only their own nouns (games,
+instruments). For `подобатися` the noun comes first (`Мені подобається`).
+
+Where fewer than 20 are found, sentences are made from a frame up to 20: a
+subject pronoun, the verb in the present tense, the preposition (`у`/`в`,
+`з`/`із`/`зі` as the sounds ask) and a noun from the pattern's set, with
+`tatoeba_id` 0: `Ми чекаємо на автобус.` An adjective is in the plural after
+ми, ви or вони (`Ми вдячні братові.`). November 2026: 53 patterns, 1,591
+sentences, of which 1,165 found and 426 made; 24 patterns needed no frames
+and 5 are frames only. `add_cloze.py --sample N` prints the found and made
+counts of every pattern and N sentences of each kind to read.
+
+`завдяки` (+ dative) is in `PREPOSITIONS` but has fewer than 20 sentences,
+so it is not offered.
 
 ## How search works (`search.py`)
 

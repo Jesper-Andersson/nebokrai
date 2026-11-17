@@ -42,6 +42,13 @@ const CASES: Record<string, readonly EndingRow[]> = {
 		row('-а, -я', 'молока́, мо́ря', 'neuter'),
 		row('-ів, -ей, —', 'дру́зів, люде́й, слів', 'plural')
 	],
+	dative: [
+		row('-ові, -еві', 'бра́тові, лі́кареві', 'masculine'),
+		row('-у, -ю', 'бра́ту, лі́карю', 'masculine'),
+		row('-і, -ї', 'ма́мі, землі́, ста́нції', 'feminine'),
+		row('-у, -ю', 'мі́сту, мо́рю', 'neuter'),
+		row('-ам, -ям', 'міста́м, дру́зям, лю́дям', 'plural')
+	],
 	locative: [
 		row('-і, -у', 'столі́, лі́сі, ри́нку', 'masculine'),
 		row('-і, -ї', 'шко́лі, землі́, ста́нції', 'feminine'),
@@ -106,11 +113,17 @@ export const EXAMPLES = 3;
 /**
  * The sentences a rule's card shows, from those drawn for its rule: none
  * with the noun being asked for, which would give the answer away (Кава без
- * цукру over Кава без [цукор]), and no sentence twice.
+ * цукру over Кава без [цукор]), and no sentence twice. Tatoeba's sentences
+ * come before those made from a frame (a verb's pattern: Я дякую мамі.).
  */
-export function examplesFor<T extends { uk: string; word: string }>(drawn: readonly T[], asked: { word: string }): T[] {
+export function examplesFor<T extends { uk: string; word: string; tatoeba_id?: number }>(
+	drawn: readonly T[],
+	asked: { word: string }
+): T[] {
 	const seen = new Set<string>();
-	return drawn
+	const made = (gap: T) => (gap.tatoeba_id === 0 ? 1 : 0);
+	return [...drawn]
+		.sort((a, b) => made(a) - made(b))
 		.filter((gap) => gap.word !== asked.word && !seen.has(gap.uk) && seen.add(gap.uk))
 		.slice(0, EXAMPLES);
 }

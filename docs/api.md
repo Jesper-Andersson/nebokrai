@@ -1035,7 +1035,16 @@ The practice page (`/practice`) asks for a noun in the case its preposition
 takes. A grammar point is a preposition with one case, named by both:
 `bez-gen` (без + genitive), `na-acc` and `na-loc` (на + accusative, на +
 locative). The points are listed in `src/lib/practice/points.ts`; the cases
-are `nom`, `gen`, `acc`, `ins` and `loc`.
+are `nom`, `gen`, `dat`, `acc`, `ins` and `loc`.
+
+A verb's pattern is a point too: the case a verb or an adjective asks of the
+noun after it (case government), named by the verb, its preposition if it
+has one, and the case: `diakuvaty-dat` (дякувати + кому?),
+`chekaty-na-acc` (чекати + на кого? на що?), `korystuvatysia-ins`
+(користуватися + чим?). The patterns are listed once, in
+`src/lib/practice/government.ts`, which `data/import_wiktionary.py` reads
+too. Their sentences are found in Tatoeba where they can be and made from a
+frame up to twenty (`Ми дякуємо сусідові.`, `tatoeba_id` `0`).
 
 Three points are numbers with the form of the noun they count: `one-nom`
 (1, 21, 31: the nominative singular, 21 рік), `few-nom` (2, 3, 4, 22: the
@@ -1117,6 +1126,39 @@ A number's sentence has the same shape, with these differences:
 - After 2, 3 and 4 `answer` has the letters of the nominative plural and the
   stress of the genitive singular (дві сестри́, два бра́ти), which is not
   always the stress the forms table gives the plural (се́стри, брати́).
+
+A verb's pattern has the same shape, plus where its verb stands, so that the
+page can set it in bold:
+
+```json
+{
+  "point": "zavazhaty-dat",
+  "uk": "Я заважаю дочці.",
+  "en": "I disturb my daughter.",
+  "start": 10, "length": 5,
+  "answer": "дочці́", "also": [],
+  "number": "singular",
+  "word": "дочка", "headword": "дочка́",
+  "choices": ["до́чки", "дочка́", "дочці́", "дочку́"],
+  "forms": ["дочка", "дочки", "дочок", "дочці", "дочкам", "дочку", "дочкою", "дочками", "дочках", "дочко"],
+  "tatoeba_id": 0,
+  "adapted": false,
+  "cue_start": 2, "cue_length": 7
+}
+```
+
+- `cue_start` and `cue_length` say where the verb stands in `uk`, as `start`
+  and `length` do for the noun. Absent on every other point, and on all
+  points while the database's `cloze` table predates them.
+- The verb may come after the noun: `Мені подобається…` has the gap first.
+- `choices` put the likeliest wrong cases first: for the dative the
+  accusative, then the genitive and the nominative; for the genitive the
+  accusative and the nominative; for the instrumental the nominative and the
+  accusative; after на or у with the accusative the locative; after з with
+  the instrumental the genitive. A preposition's points follow the same order.
+- A personal pronoun may be the gap (`Том довіряє нам.`): its `choices` and
+  `forms` are that pronoun's own (нам, нас, нами, ми), never another's.
+- `tatoeba_id` `0` marks a sentence made from a frame, with no credit.
 
 A point of у, на or під can be named with `:where` (`u-acc:where`,
 `na-loc:where`, `pid-ins:where`, and the same for `u-loc`, `na-acc`,

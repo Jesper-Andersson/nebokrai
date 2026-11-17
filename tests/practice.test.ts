@@ -49,13 +49,14 @@ function reviewed(points: string[], daysAgo: number): Map<string, ReviewCard> {
 	return cards;
 }
 
-test('every point is named once, by a preposition or a number and a case', () => {
+test('every point is named once, by a preposition, a number or a verb, and a case', () => {
 	assert.equal(new Set(ids).size, ids.length);
 	assert.deepEqual(numbers, ['one-nom', 'few-nom', 'many-gen']);
 	for (const point of POINTS) {
 		assert.equal(isNumberPoint(point.id), isNumber(point));
-		assert.match(point.id, /^[a-z]+-(nom|gen|acc|ins|loc)$/);
-		assert.equal(point.id.split('-')[1], point.case.slice(0, 3));
+		// A verb's pattern names its verb and its preposition too: dyvytysia-na-acc
+		assert.match(point.id, point.kind === 'government' ? /^[a-z]+(-[a-z]+)?-(gen|dat|acc|ins|loc)$/ : /^[a-z]+-(nom|gen|acc|ins|loc)$/);
+		assert.equal(point.id.split('-').at(-1), point.case.slice(0, 3));
 		assert.equal(pointOf(point.id), point);
 	}
 });

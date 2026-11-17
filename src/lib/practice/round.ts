@@ -65,6 +65,9 @@ export interface Gap {
 	roles?: { verb: string; doer: { word: string; headword: string; start: number; length: number } };
 	/** For a where item: the noun in the case of the other question, with stress (вершині beside вершину). */
 	partner?: string;
+	/** For a verb's pattern (government.ts): where the verb stands in `uk`, shown in bold (дякую мамі). */
+	cue_start?: number;
+	cue_length?: number;
 }
 
 /**
@@ -350,6 +353,18 @@ export function gradePoint(id: string, before: ReviewCard | undefined, outcomes:
 }
 
 /** A sentence as two halves round its gap. */
+/**
+ * A stretch of a gap's sentence, from `from` to `to`, cut where the verb of a
+ * government point stands, so that the verb can be shown in bold: head, verb,
+ * tail. With no verb in the stretch, all of it is the head.
+ */
+export function cueParts(gap: Gap, from: number, to: number): [head: string, cue: string, tail: string] {
+	const start = gap.cue_start ?? -1;
+	const end = start + (gap.cue_length ?? 0);
+	if (start < from || end > to || end <= start) return [gap.uk.slice(from, to), '', ''];
+	return [gap.uk.slice(from, start), gap.uk.slice(start, end), gap.uk.slice(end, to)];
+}
+
 export function split(gap: Gap): { before: string; word: string; after: string } {
 	return {
 		before: gap.uk.slice(0, gap.start),

@@ -13,30 +13,44 @@
 //
 // Nothing here imports from Svelte, so `npm test` can run it.
 
+import { GOVERNMENT_LESSONS } from './government.ts';
 import { isNumber, pointOf, type Point } from './points.ts';
 import type { PointState } from './round.ts';
 
+/**
+ * Which list a lesson is in: the cases after prepositions (with the numbers
+ * and who-whom), or the verbs' patterns (government.ts), which /learn and
+ * /practice list under a heading of their own.
+ */
+export type LessonGroup = 'preposition' | 'government';
+
 export interface Lesson {
 	id: string;
+	group: LessonGroup;
 	/** Ids of its points, in the order they are met. */
 	points: readonly string[];
 }
 
+const cases = (id: string, points: readonly string[]): Lesson => ({ id, group: 'preposition', points });
+
 export const LESSONS: readonly Lesson[] = [
-	{ id: 'where', points: ['u-loc', 'na-loc'] },
-	{ id: 'where-to', points: ['u-acc', 'na-acc', 'do-gen'] },
-	{ id: 'who-whom', points: ['who-acc'] },
-	{ id: 'with-from', points: ['z-ins', 'z-gen', 'vid-gen'] },
-	{ id: 'numbers', points: ['one-nom', 'few-nom', 'many-gen'] },
-	{ id: 'for-about', points: ['dlia-gen', 'bez-gen', 'pro-acc', 'za-acc'] },
-	{ id: 'before-after', points: ['pislia-gen', 'pered-ins', 'cherez-acc'] },
-	{ id: 'around', points: ['bilia-gen', 'za-ins', 'mizh-ins', 'sered-gen', 'po-loc'] },
-	{ id: 'above-below', points: ['nad-ins', 'pid-ins', 'pid-acc', 'proty-gen'] }
+	cases('where', ['u-loc', 'na-loc']),
+	cases('where-to', ['u-acc', 'na-acc', 'do-gen']),
+	cases('who-whom', ['who-acc']),
+	cases('with-from', ['z-ins', 'z-gen', 'vid-gen']),
+	cases('numbers', ['one-nom', 'few-nom', 'many-gen']),
+	cases('for-about', ['dlia-gen', 'bez-gen', 'pro-acc', 'za-acc']),
+	cases('before-after', ['pislia-gen', 'pered-ins', 'cherez-acc']),
+	cases('around', ['bilia-gen', 'za-ins', 'mizh-ins', 'sered-gen', 'po-loc']),
+	cases('above-below', ['nad-ins', 'pid-ins', 'pid-acc', 'proty-gen']),
+	// The verbs' patterns, a lesson to a question, the commonest verbs first
+	...GOVERNMENT_LESSONS.map(({ id, points }): Lesson => ({ id, group: 'government', points }))
 ];
 
 /** A lesson as the pages show it: its rules that have sentences, how well each is held, and the words it teaches. */
 export interface LessonRow {
 	id: string;
+	group: LessonGroup;
 	/** Its place in the list, from 1. */
 	n: number;
 	points: { point: Point; state: PointState }[];
@@ -62,7 +76,7 @@ export function lessonRows(offered: readonly string[], held: (point: Point) => P
 			.map((point) => ({ point, state: held(point) }));
 		const cues = [...new Set(points.map(({ point }) => cueOf(point)))];
 		const known = points.filter(({ state }) => state === 'known').length;
-		return { id: lesson.id, n: i + 1, points, cues, known };
+		return { id: lesson.id, group: lesson.group, n: i + 1, points, cues, known };
 	}).filter((lesson) => lesson.points.length);
 }
 

@@ -316,6 +316,8 @@ const en = {
 		off: 'no new words from it',
 		/** Over the list of lessons: what they are about. */
 		cases: 'Cases',
+		/** Over the second list of lessons: which case a verb asks for (дякувати + кому?). */
+		verbPatterns: 'Verb patterns',
 		/** Each lesson in a word or two, in the list beside the open one. */
 		short: {
 			where: 'Location',
@@ -326,7 +328,17 @@ const en = {
 			'for-about': 'For & About',
 			'before-after': 'Before & After',
 			around: 'Nearby',
-			'above-below': 'Above & Below'
+			'above-below': 'Above & Below',
+			'gov-na-acc': 'Verbs + на що?',
+			'gov-ins': 'Verbs + чим?',
+			'gov-gen': 'Verbs + чого?',
+			'gov-dat': 'Verbs + кому?',
+			'gov-za-acc': 'Verbs + за що?',
+			'gov-u-na': 'Verbs + у що? на чому?',
+			'gov-na-who': 'Verbs + на кого?',
+			'gov-z-ins': 'Verbs + з ким?',
+			'gov-dat-more': 'More verbs + кому?',
+			'gov-za-ins': 'Verbs + за ким?'
 		} as Record<string, string>,
 		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
 		/** Starts a round of the open lesson; and, on a row, of that rule alone. */
@@ -335,7 +347,7 @@ const en = {
 		lessonsMore: 'More lessons',
 		practise: 'Practise',
 		/** The columns of the open lesson's table. */
-		column: { after: 'After', takes: 'The noun takes', means: 'Means', example: 'Example', state: 'State' },
+		column: { after: 'After', verb: 'Verb', takes: 'The noun takes', means: 'Means', example: 'Example', state: 'State' },
 		state: { new: 'Not started', weak: 'Needs practice', learning: 'Learning', known: 'Known' },
 		/** The tiles of the pages for reading, at the foot. */
 		tile: {
@@ -536,6 +548,8 @@ const en = {
 		// A slur or a highly offensive word (data/marked-offensive.tsv): хохол
 		offensive: 'Highly offensive',
 		offensiveNote: 'This word is used to insult. It is here so you can recognise it, not to use it.',
+		/** Before the questions a verb's noun answers, under the grammar line: takes · кому? · за що? */
+		takes: 'takes',
 		recording: 'Recording on Wikimedia Commons',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
@@ -1676,6 +1690,7 @@ const uk: Messages = {
 		due: (n) => `на сьогодні: ${n}`,
 		off: 'нові слова звідси не беруться',
 		cases: 'Відмінки',
+		verbPatterns: 'Дієслівне керування',
 		short: {
 			where: 'Де',
 			'where-to': 'Куди',
@@ -1685,7 +1700,17 @@ const uk: Messages = {
 			'for-about': 'Для і про',
 			'before-after': 'До і після',
 			around: 'Поруч',
-			'above-below': 'Над і під'
+			'above-below': 'Над і під',
+			'gov-na-acc': 'Дієслова + на що?',
+			'gov-ins': 'Дієслова + чим?',
+			'gov-gen': 'Дієслова + чого?',
+			'gov-dat': 'Дієслова + кому?',
+			'gov-za-acc': 'Дієслова + за що?',
+			'gov-u-na': 'Дієслова + у що? на чому?',
+			'gov-na-who': 'Дієслова + на кого?',
+			'gov-z-ins': 'Дієслова + з ким?',
+			'gov-dat-more': 'Ще дієслова + кому?',
+			'gov-za-ins': 'Дієслова + за ким?'
 		},
 		// "з" takes the genitive: з 1 правила, з 3 правил
 		rulesKnown: (n, total) => `засвоєно ${n} з ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'правила' : 'правил'}`,
@@ -1693,7 +1718,7 @@ const uk: Messages = {
 		lessonsBack: 'Попередні уроки',
 		lessonsMore: 'Наступні уроки',
 		practise: 'Тренувати',
-		column: { after: 'Після', takes: 'Відмінок', means: 'Значення', example: 'Приклад', state: 'Стан' },
+		column: { after: 'Після', verb: 'Дієслово', takes: 'Відмінок', means: 'Значення', example: 'Приклад', state: 'Стан' },
 		state: { new: 'Не розпочато', weak: 'Потребує практики', learning: 'Вивчається', known: 'Засвоєно' },
 		tile: {
 			alphabet: 'Абетка (кирилиця)',
@@ -1856,6 +1881,7 @@ const uk: Messages = {
 			'У Вікісловнику ще немає статті про це слово. Ці значення взято з таблиць перекладів в англійських статтях, тож деяких може бракувати.',
 		offensive: 'Вкрай образливе',
 		offensiveNote: 'Це слово вживають, щоб образити. Його подано, щоб ви могли його впізнати, а не вживати.',
+		takes: 'вимагає',
 		recording: 'Запис на Вікісховищі',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',

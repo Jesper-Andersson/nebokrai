@@ -63,15 +63,18 @@ Each store step is the owner's to take. Before the first submission:
 - [x] Screenshots at 1280 by 800 are in `store/screenshots/`: the card, a saved word, sepia, dark, the options page.
 - [x] Chrome Web Store: developer account with 2-step verification, non-trader declaration; on the privacy tab
       the single purpose below, the reasons from the table above, "website content" and "authentication
-      information" as the data handled, and the privacy page's address. Submitted 0.1.2 on 2026-11-16, in
-      review; item id `lejebpdfdmifdnmemdnmjajemibffmgm`.
+      information" as the data handled, and the privacy page's address. Submitted 0.1.2 on 2026-11-16 and
+      published by 2026-11-17 at
+      https://chromewebstore.google.com/detail/nebokrai-ukrainian-pop-up/lejebpdfdmifdnmemdnmjajemibffmgm
+      (item id `lejebpdfdmifdnmemdnmjajemibffmgm`). 0.1.3 carries the fix for saving a word.
 - [x] Firefox Add-ons: 0.1.2 submitted on 2026-11-16, in review. The listing will be
       https://addons.mozilla.org/firefox/addon/nebokrai/ (slug `nebokrai`; the store allows 30 characters).
 - [ ] Firefox for Android: not offered yet. It needs `gecko_android` in `wxt.config.ts`, a lookup on a
       long-press selection (a double-tap zooms instead), and a test on a phone.
 - [ ] Edge Add-ons: the Chrome package as it is.
-- [ ] Once a store has it: put the address of its listing in src/lib/extension.ts. That switches on the /extension
-      page, its links on About and in the footer, and the hint in the card on the site.
+- [x] Once a store has it: put the address of its listing in src/lib/extension.ts. That switches on the /extension
+      page, its links on About and in the footer, and the hint in the card on the site. Chrome's is in since
+      2026-11-17; Firefox's and Edge's go in as those stores publish.
 
 The extension is free and carries no advertising, as the site is: VESUM's licence asks for that
 ([`docs/sources-and-licences.md`](../docs/sources-and-licences.md)).

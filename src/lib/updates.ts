@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-chrome-extension',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Look up words on any page in Chrome', uk: 'Шукайте слова на будь-якій сторінці в Chrome' },
+		body: {
+			en: 'The free Nebokrai extension is in the Chrome Web Store: double-click a Ukrainian word on any page to see its meaning, stress and form.',
+			uk: 'Безплатне розширення Небокрай є в Chrome Web Store: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму.'
+		},
+		href: '/extension'
+	},
+	{
 		id: '2026-11-17-add-a-missing-word',
 		date: '2026-11-17',
 		kind: 'new',

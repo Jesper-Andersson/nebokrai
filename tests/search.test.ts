@@ -148,12 +148,13 @@ test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	assert.equal(verb.vesum_only, true);
 	assert.equal('kind' in verb, false);
 
-	// утворюватися has no entry: the verb it is made from answers, and says how it was reached
-	const [form] = await search(db, 'утворюються', { vesum });
-	assert.equal(form.word, 'утворювати');
+	// автоматизуватися has no entry: the verb it is made from answers, and says how it was reached.
+	// (утворюватися was the example until own-meanings.tsv gave it an entry.)
+	const [form] = await search(db, 'автоматизуються', { vesum });
+	assert.equal(form.word, 'автоматизувати');
 	assert.equal(form.match, 'form');
 	assert.deepEqual(form.matched_forms, []);
-	assert.deepEqual(form.through, { word: 'утворюватися', kind: 'reflexive' });
+	assert.deepEqual(form.through, { word: 'автоматизуватися', kind: 'reflexive' });
 	// A reflexive verb with an entry of its own is that entry, reached through nothing
 	const [learn] = await search(db, 'вчитися', { vesum });
 	assert.equal(learn.word, 'вчитися');

@@ -33,13 +33,13 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 46,730 |
-| `senses` | English meaning of an entry | 65,368 |
+| `entries` | dictionary word + part of speech | 47,082 |
+| `senses` | English meaning of an entry | 65,841 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 87,366 |
-| `examples` | Tatoeba sentence with English translation | 26,322 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 87,444 |
+| `examples` | Tatoeba sentence with English translation | 26,469 |
 | `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 6,965 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,777,372 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,782,687 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
@@ -76,7 +76,7 @@ rebuild. An abbreviation written with a full stop is found without it too:
 `ст` finds `ст.`.
 
 `data/own-meanings.tsv` holds English meanings written for Nebokrai for common
-words that Wiktionary has no page for (`облишити`, `класний`, `подалі`; 354 rows
+words that Wiktionary has no page for (`облишити`, `класний`, `подалі`; 706 rows
 in November 2026), with the stressed headword and part of speech. The words were
 chosen by how often they occur in the FrequencyWords list, with VESUM used only
 to find the dictionary form while drafting; nothing of VESUM's is in the file.

@@ -59,8 +59,8 @@ export const UPDATES: Update[] = [
 		kind: 'changed',
 		title: { en: 'More sentences shown as their authors wrote them', uk: 'Більше речень так, як їх написали автори' },
 		body: {
-			en: 'Corrections that a check against dictionaries showed were not needed are gone: 117 example sentences no longer carry the "edited" mark.',
-			uk: 'Прибрано виправлення, непотрібні за словниками: 117 прикладів знову показано без позначки «виправлено».'
+			en: 'Corrections that a check against dictionaries showed were not needed are gone: 122 example sentences no longer carry the "edited" mark.',
+			uk: 'Прибрано виправлення, непотрібні за словниками: 122 приклади знову показано без позначки «виправлено».'
 		}
 	},
 	{

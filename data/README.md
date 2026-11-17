@@ -220,7 +220,7 @@ to be Tatoeba's text unchanged and went back as ordinary rated sentences.
 
 `data/sentence-fix-checks.tsv` holds a second check of every fix, made against
 Горох (goroh.pp.ua), slovnyk.ua and VESUM: one row per Tatoeba sentence with a
-verdict, its basis and a note. Of 570 sentences, 140 were `unneeded`: Tatoeba's
+verdict, its basis and a note. Of 570 sentences, 144 were `unneeded`: Tatoeba's
 text was right (спражній is a СУМ word, -сь is as good as -ся, a hyphen where a
 dash belongs is not worth hiding a sentence). For those, `load_fixes` drops the
 fix and `load_ratings` clears the error, russianism and calque flags and counts

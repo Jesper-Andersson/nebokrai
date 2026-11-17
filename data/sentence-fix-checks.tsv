@@ -151,7 +151,7 @@ tatoeba_id	hash	verdict	basis	note
 1576046	8334cebfbd53	needed	dictionary	a wrong word, form or calque
 1577025	a6040b4fa559	needed	grammar	punctuation the spelling rules require
 1577631	28a9f091398a	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
-1587561	f1070cdafbc6	needed	grammar	capital letters the spelling rules require
+1587561	f1070cdafbc6	unneeded	dictionary	СУМ: розповсюджений; the fix only moves words
 1601567	0aa0e690515f	needed	dictionary	a wrong word or a calque
 1606864	b949cca0a780	needed	dictionary	a wrong word or a calque
 1607828	eca29803efd9	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
@@ -476,8 +476,8 @@ tatoeba_id	hash	verdict	basis	note
 9023776	c558a3dc7d98	needed	dictionary	a wrong word or a calque
 9047425	995746a6a1f3	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
 9081879	7c7fbae0fbf7	needed	dictionary	a wrong word or a calque
-9093895	fbed32e018f6	needed	grammar	capital letters the spelling rules require
-9093896	a7cbd189aded	needed	grammar	capital letters the spelling rules require
+9093895	fbed32e018f6	unneeded	style	word order only
+9093896	a7cbd189aded	unneeded	style	word order only
 9177748	878da1d05790	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
 9195509	b427f08761a0	needed	dictionary	a wrong word or a calque
 9230832	af74fce5b630	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
@@ -528,7 +528,7 @@ tatoeba_id	hash	verdict	basis	note
 10956948	6473051b2f9a	unneeded	style	style
 11063208	dc8501fa4ffc	needed	dictionary	a wrong word or a calque
 11067284	f6a7283f3ba9	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
-11073400	a87cdb2e3f6f	needed	grammar	capital letters the spelling rules require
+11073400	a87cdb2e3f6f	unneeded	style	word order only
 11263840	fa0c184ac9e2	needed	grammar	punctuation the spelling rules require
 11410025	215db785b99e	unchecked	meaning	changes the meaning to fit the English; a dictionary cannot settle that
 11490101	f52d30621313	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)

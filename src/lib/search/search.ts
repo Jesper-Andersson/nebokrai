@@ -262,6 +262,37 @@ async function stubFor(
 }
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
+// Meanings are written in the singular ("sibling"), so an English query in the
+// plural ("siblings") also looks for the words it may be the plural of.
+// IRREGULAR_PLURALS and NOT_PLURALS in search.py.
+const IRREGULAR_PLURALS: Record<string, string> = {
+	men: 'man', women: 'woman', children: 'child', people: 'person', feet: 'foot',
+	teeth: 'tooth', mice: 'mouse', geese: 'goose'
+};
+// Words that end in -s but are no plural of a word without it: news is not
+// more than one new
+const NOT_PLURALS = new Set((
+	'news series species means thanks always perhaps sometimes besides towards afterwards ' +
+	'politics physics mathematics economics ethics athletics clothes scissors trousers ' +
+	'glasses jeans pyjamas measles diabetes').split(' '));
+
+/**
+ * The English words `word` may be the plural or the possessive of, in order:
+ * siblings -> sibling; boxes -> boxe, box; cities -> citie, city; knives ->
+ * knive, knif, knife; children -> child; mother's -> mother. Empty for a word
+ * that is no plural. A candidate that is no word finds nothing.
+ */
+export function singulars(word: string): string[] {
+	if (word.endsWith("'s")) return [word.slice(0, -2)];
+	if (Object.hasOwn(IRREGULAR_PLURALS, word)) return [IRREGULAR_PLURALS[word]];
+	if (word.length < 4 || !word.endsWith('s') || NOT_PLURALS.has(word) || /(ss|us|is)$/.test(word)) return [];
+	const found = [word.slice(0, -1)];
+	if (word.endsWith('es')) found.push(word.slice(0, -2));
+	if (word.endsWith('ies')) found.push(word.slice(0, -3) + 'y');
+	if (word.endsWith('ves')) found.push(word.slice(0, -3) + 'f', word.slice(0, -3) + 'fe');
+	return found;
+}
+
 /** The `source` of the thin entries (THIN_SOURCES in word.ts): no forms, no frequency rank. */
 const THIN = ['wiktionary-translations', 'ukwiktionary'];
 
@@ -379,14 +410,18 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			add(await db.all<KeyRow>(
 				"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('latin','latin_form')", [key]));
 		}
-		// English: every word of the query must appear in the entry's meanings.
+		// English: every word of the query must appear in the entry's meanings,
+		// as typed or, for a plural, in the singular (siblings, sibling).
 		const meaningful = words.filter((w) => !ENGLISH_FILLER.has(w));
 		const content = meaningful.length ? meaningful : words;
 		let common: number[] | null = null;
 		for (const w of content) {
-			const rows = await db.all<{ entry_id: number }>(
-				"SELECT entry_id FROM search_keys WHERE key=? AND kind='english'", [w]);
-			const ids = new Set(rows.map((r) => r.entry_id));
+			const ids = new Set<number>();
+			for (const k of [w, ...singulars(w)]) {
+				const rows = await db.all<{ entry_id: number }>(
+					"SELECT entry_id FROM search_keys WHERE key=? AND kind='english'", [k]);
+				for (const r of rows) ids.add(r.entry_id);
+			}
 			common = common === null ? [...ids] : common.filter((id: number) => ids.has(id));
 		}
 		if (common) add(common.map((entry_id: number) => ({ entry_id, kind: 'english' as const })));
@@ -412,7 +447,12 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		else sensesOf.set(entry_id, [sense]);
 	}
 
+	// A meaning that is exactly the query, or the query with its last word in
+	// the singular: "sibling" is exactly what "siblings" asks for
 	const lower = q.toLowerCase();
+	const parts = lower.split(' ');
+	const last = parts.pop()!;
+	const wanted = new Set([lower, ...singulars(last).map((s) => [...parts, s].join(' '))]);
 	const ranked = entries.map((e) => {
 		let rank = hits.get(e.id)!;
 		const senses = sensesOf.get(e.id) ?? [];
@@ -423,7 +463,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 			// mentions it ("mother-in-law"). Case is ignored: "English" is the
 			// meaning of англійський, and the query arrives lowercased.
 			matched = senses.filter((s) =>
-				s.gloss.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => part.trim().toLowerCase() === lower));
+				s.gloss.replace(/\(.*?\)/g, '').split(/[,;]/).some((part) => wanted.has(part.trim().toLowerCase())));
 			if (!matched.length) {
 				matched = senses;
 				rank = RANK.english_mention;

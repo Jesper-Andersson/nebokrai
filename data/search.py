@@ -201,6 +201,38 @@ def stub_for(db, vesum, lemma, pos, ours):
     return stub
 
 
+# Meanings are written in the singular ("sibling"), so an English query in the
+# plural ("siblings") also looks for the words it may be the plural of.
+IRREGULAR_PLURALS = {"men": "man", "women": "woman", "children": "child", "people": "person", "feet": "foot",
+                     "teeth": "tooth", "mice": "mouse", "geese": "goose"}
+# Words that end in -s but are no plural of a word without it: news is not
+# more than one new
+NOT_PLURALS = frozenset("news series species means thanks always perhaps sometimes besides towards afterwards "
+                        "politics physics mathematics economics ethics athletics clothes scissors trousers "
+                        "glasses jeans pyjamas measles diabetes".split())
+
+
+def singulars(word):
+    """The English words `word` may be the plural or the possessive of, in
+    order: siblings -> sibling; boxes -> boxe, box; cities -> citie, city;
+    knives -> knive, knif, knife; children -> child; mother's -> mother. Empty
+    for a word that is no plural. A candidate that is no word finds nothing."""
+    if word.endswith("'s"):
+        return [word[:-2]]
+    if word in IRREGULAR_PLURALS:
+        return [IRREGULAR_PLURALS[word]]
+    if len(word) < 4 or not word.endswith("s") or word in NOT_PLURALS or word.endswith(("ss", "us", "is")):
+        return []
+    found = [word[:-1]]
+    if word.endswith("es"):
+        found.append(word[:-2])
+    if word.endswith("ies"):
+        found.append(word[:-3] + "y")
+    if word.endswith("ves"):
+        found += [word[:-3] + "f", word[:-3] + "fe"]
+    return found
+
+
 # The `source` of the entries made from translation tables and from Ukrainian
 # Wiktionary (THIN_SOURCES in import_wiktionary.py): no forms, no frequency rank.
 THIN = ("wiktionary-translations", "ukwiktionary")
@@ -298,14 +330,20 @@ def search(db, query, limit=20, vesum=None):
         if key and " " not in q:
             add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('latin','latin_form')",
                            (key,)))
-        # English: every word of the query must appear in the entry's meanings.
+        # English: every word of the query must appear in the entry's meanings,
+        # as typed or, for a plural, in the singular (siblings, sibling).
         content = [w for w in words if w not in ("to", "a", "an", "the")] or words
-        sets = [set(r[0] for r in db.execute(
-            "SELECT entry_id FROM search_keys WHERE key=? AND kind='english'", (w,))) for w in content]
+        sets = [set(r[0] for k in [w, *singulars(w)] for r in db.execute(
+            "SELECT entry_id FROM search_keys WHERE key=? AND kind='english'", (k,))) for w in content]
         if sets:
             add(((eid, "english") for eid in set.intersection(*sets)))
         if len(hits) < limit and key and " " not in q and len(key) >= 3:
             add(prefixed(db, "latin", key, key + "{", limit, hits), RANK["prefix"])
+
+    # A meaning that is exactly the query, or the query with its last word in
+    # the singular: "sibling" is exactly what "siblings" asks for
+    *before, last = q.lower().split(" ")
+    wanted = {q.lower()} | {" ".join([*before, s]) for s in singulars(last)}
 
     results = []
     for eid, rank in hits.items():
@@ -322,7 +360,7 @@ def search(db, query, limit=20, vesum=None):
         matched = senses
         if rank == RANK["english"]:
             matched = [(g, t) for g, t in senses
-                       if q.lower() in [p.strip().lower() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))]]
+                       if wanted & {p.strip().lower() for p in re.split(r"[,;]", re.sub(r"\(.*?\)", "", g))}]
             if not matched:
                 matched = senses
                 rank = RANK["english_mention"]

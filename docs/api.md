@@ -84,7 +84,7 @@ Results arrive already sorted; show them in the order given. A result with
 | `form` | `книги` → книга | The query is an inflected form. `matched_forms` says which. |
 | `head` | `історично` → історичний | The query has no entry, but this entry names it on its head line. `through` says how. |
 | `latin` | `kalyna` → калина | Latin letters in the official romanisation. |
-| `english` | `good` → добрий | One of the meanings is exactly the query. |
+| `english` | `good` → добрий | One of the meanings is exactly the query, or the query with its last word in the singular (`siblings` → родженство, "sibling"). |
 | `latin_form` | `knyhy` → книга | An inflected form in Latin letters. |
 | `latin_loose` | `kalina` → калина | Latin letters, spelled approximately. |
 | `english_mention` | `good` → добро | A meaning contains the query words. |

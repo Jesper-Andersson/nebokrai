@@ -19,6 +19,8 @@ QUERIES = [
     "kalyna", "kalina", "khata", "xata", "pryvit", "Kyiv", "shchastia", "dobryi", "čytáty",
     # English meanings
     "good", "dog", "to go", "mother", "to read", "the horizon", "viburnum", "guelder rose", "in", "water",
+    # English plurals and possessives find the singular meaning; news is no plural of new
+    "siblings", "children", "cities", "knives", "mother's", "news",
     # a capitalised meaning is still an exact match: English -> англійський
     "English",
     # old words (archaic, obsolete, dated) after modern ones: an obsolete exact meaning after the

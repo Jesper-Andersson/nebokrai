@@ -475,7 +475,10 @@ two lists differ.
 1. Exact word, stress and case ignored: `калина`
 2. Any inflected form: `книги` finds `книга`, `читаю` finds `читати`
 3. Latin letters in the official romanisation: `kalyna`, `khata`
-4. English meaning that is exactly the query: `good` finds `добрий`
+4. English meaning that is exactly the query: `good` finds `добрий`. A plural
+   or a possessive counts as its singular (`siblings`, `children`, `mother's`),
+   since meanings are written in the singular; `news` and the like are left as
+   they are
 5. Latin letters, loosely spelled: `kalina`
 6. English meaning that mentions the query: `good` also finds `добро`
 7. Prefix match, for search-as-you-type; entries from translation tables only

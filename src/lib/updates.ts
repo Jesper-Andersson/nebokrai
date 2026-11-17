@@ -53,6 +53,16 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-18-english-plurals',
+		date: '2026-11-18',
+		kind: 'changed',
+		title: { en: 'Search in the English plural', uk: 'Пошук англійською в множині' },
+		body: {
+			en: 'Searching siblings, children or knives now finds the words whose meaning is sibling, child or knife.',
+			uk: 'Пошук siblings, children чи knives тепер знаходить слова зі значенням sibling, child чи knife.'
+		}
+	},
+	{
 		id: '2026-11-18-everyday-words',
 		date: '2026-11-18',
 		kind: 'new',

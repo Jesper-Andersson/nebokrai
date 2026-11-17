@@ -84,6 +84,16 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-17-word-of-day-spelling',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'Word of the day shows its Latin and phonetic spelling', uk: 'Слово дня латиницею і фонетичним записом' },
+		body: {
+			en: 'With Latin spelling or Phonetic spelling turned on in the settings, the word of the day shows them under the word, as a word’s page does.',
+			uk: 'Якщо в налаштуваннях увімкнено «Латиницею» чи «Фонетичний запис», слово дня показує їх під словом, як і сторінка слова.'
+		}
+	},
+	{
 		id: '2026-11-16-natural-example-sentences',
 		date: '2026-11-16',
 		kind: 'changed',

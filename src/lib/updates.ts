@@ -54,6 +54,17 @@ export const UPDATES: Update[] = [
 		href: '/practice'
 	},
 	{
+		id: '2026-11-17-everyday-coverage',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'See how much everyday Ukrainian you know', uk: 'Дізнайтеся, скільки повсякденної української ви знаєте' },
+		body: {
+			en: 'Under your word count on Learn, a line now says what share of everyday Ukrainian your known words cover, weighted by how often each word is used.',
+			uk: 'Під кількістю слів на сторінці «Навчання» тепер видно, яку частку повсякденної української охоплюють ваші засвоєні слова, з огляду на те, як часто вживають кожне.'
+		},
+		href: '/learn'
+	},
+	{
 		id: '2026-11-17-add-a-missing-word',
 		date: '2026-11-17',
 		kind: 'new',
@@ -101,6 +112,16 @@ export const UPDATES: Update[] = [
 		body: {
 			en: 'Words with no Wiktionary entry of their own, such as шериф, now show the meanings given in the translation tables of English entries.',
 			uk: 'Слова без власної статті у Вікісловнику, як-от шериф, тепер показують значення з таблиць перекладів в англійських статтях.'
+		}
+	},
+	{
+		id: '2026-11-17-other-spellings',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'Another spelling of a word leads to its entry', uk: 'Інше написання слова веде до його статті' },
+		body: {
+			en: 'Searching for блоґ or указувати now opens блог and вказувати, instead of a thin entry of its own.',
+			uk: 'Пошук «блоґ» чи «указувати» тепер відкриває «блог» і «вказувати», а не окрему куцу статтю.'
 		}
 	},
 	{

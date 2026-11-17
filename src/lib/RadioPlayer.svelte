@@ -201,8 +201,9 @@
      footer, with no height of its own (the styles say what that is for).
 
      The button's middle is held at least 2rem from each edge of the window,
-     whatever share was kept: a window made smaller does not lose the button -->
-<div class="dock">
+     whatever share was kept: a window made smaller does not lose the button.
+     A dragged button is lifted over the header (see .dock.placed) -->
+<div class="dock" class:placed={place}>
 <div
 	bind:this={root}
 	class="radio"
@@ -364,6 +365,15 @@
 		bottom: 0;
 		z-index: 20;
 		height: 0;
+	}
+
+	/* A button dragged to a place of its own may be dropped on the header.
+	   Under it (20 under 30) it could no longer be pressed or dragged back
+	   (seen 2026-11-17), so a placed button is drawn over the header, and
+	   still under the overlays (40). In its own spots it stays under the
+	   header, which it never reaches there. */
+	.dock.placed {
+		z-index: 35;
 	}
 
 	/* Toasts.svelte keeps its messages clear of this corner. Being placed

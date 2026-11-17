@@ -33,7 +33,7 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 46,607 |
+| `entries` | dictionary word + part of speech | 46,376 |
 | `senses` | English meaning of an entry | 65,108 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,295 |
@@ -82,7 +82,7 @@ An English Wiktionary entry lists translations of each of its meanings: under
 pulls the Ukrainian ones out of the English extract, and `--translations` puts
 them to two uses.
 
-**Words with no entry of their own get one** (13,015 entries, 14,894 meanings in
+**Words with no entry of their own get one** (12,784 entries, 14,638 meanings in
 November 2026), with `entries.source` set to `wiktionary-translations`. The
 tables give the stress, often the gender or aspect, and one meaning per English
 word, written `sheriff (all meanings)`: the English word, then the table's note
@@ -107,11 +107,32 @@ from. These entries are thinner than the others:
   reaches these only when the others leave room: without that, `кал` lost
   календа́р to a hundred rarer words.
 
-**Words that have an entry get more English search keys** (7,731 keys).
+**Words that have an entry get more English search keys** (7,820 keys).
 комітет is listed under "board (managing committee)", so `board` finds it as a
 meaning that mentions the query, after the words whose own entry says "board".
 The part of speech must agree, which keeps "voting" (verb) away from
 голосування (noun); 792 translations were dropped for that.
+
+**Another spelling of a word with an entry counts as that word** (231 words).
+`new_words.py` decides whether a word is new, and finds the spellings that
+tell no two words apart:
+
+- у/в and і/й at the start before a consonant: `указувати`, `вказувати`;
+- з, із, зі and зо;
+- ґ in the table's word where the entry has г: `блоґ`, `блог`. Not the other
+  way round, since гвалтувати and ґвалтувати are two words;
+- the 2019 spelling of -єкт: `проект`, `проєкт`.
+
+Two real words can meet this way too: уступати "to yield" and вступати "to
+enter". So the two must also share an English word (other than "to", "get",
+"put" and the like). Where they do, the spelling gives its English words to
+the entry and becomes a `head` key on it (151), so `блоґ` finds блог. Where
+they do not, it keeps an entry of its own (12, among them `уступати`). Of two
+spellings that both lack an entry, the first in alphabetical order gets one.
+
+Every build writes `data/raw/new-words-review.tsv`: each spelling from the
+tables, whether it got an entry, and if not, why and which entry it met.
+`python3 data/new_words.py --selftest` runs its fixed cases.
 
 Left out:
 
@@ -480,7 +501,8 @@ cd .. && npm install && npm test
 An entry's head line names other words (`head_forms`): істори́чний its adverb
 істори́чно, впе́рше another spelling упе́рше. Where such a word has no entry
 and no table row of its own, `add_head_keys()` gives it a `head` key pointing
-at the entry that names it: 9,649 rows. They are added after every entry is
+at the entry that names it: 9,600 rows, besides the 151 that translation
+tables add for other spellings. They are added after every entry is
 in, so a word with an entry further down the file is found as itself. An
 entry from translation tables does not count as such an entry: `походити` has
 one and keeps its key to ходити. Search looks them up together with words and
@@ -665,7 +687,7 @@ articles. It is a working list: never commit it, never load it into
 ## Known gaps
 
 - 1,161 nouns, verbs and adjectives from Wiktionary's own pages have no
-  inflection table, nor have any of the 13,015 entries from translation tables.
+  inflection table, nor have any of the 12,784 entries from translation tables.
 - 18,410 entries have audio.
 - Words missing from both Wiktionary's pages and its translation tables (for
   example `почитати`, `походжати`) are found through VESUM but have no

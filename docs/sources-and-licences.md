@@ -53,7 +53,8 @@ Tatoeba's original text. The API returns `examples[].adapted` and
 [FrequencyWords](https://github.com/hermitdave/FrequencyWords) by Hermit Dave
 (CC BY-SA 4.0), which is based on film and television subtitles from
 [OpenSubtitles](https://www.opensubtitles.org/) collected in the
-[OPUS](https://opus.nlpl.eu/) corpus.
+[OPUS](https://opus.nlpl.eu/) corpus. The share of everyday Ukrainian a
+learner's known words cover, on /learn, is derived from the same frequencies.
 
 **Recognising word forms** that are missing from Wiktionary:
 Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM).

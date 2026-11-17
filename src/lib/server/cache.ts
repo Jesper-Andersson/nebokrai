@@ -18,6 +18,8 @@
 // and канєшно old in at least one data centre until their hour ran out:
 // check a word the release changed before calling it live, and keep the old
 // database, the way back, until that word shows the new build.
+// /api/coverage is kept for a day, by browsers too, not an hour: after a
+// release its table can be a day old, which moves the percentage by a hair.
 //
 // This is the Cache API, called from here. Cloudflare's "Workers Cache",
 // which caches by response headers alone, is deliberately not switched on in

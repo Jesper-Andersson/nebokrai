@@ -825,11 +825,12 @@ STOCK_NAMES = re.compile(r"(?<![\w'’ʼ])(?:Том(?:а|у|ом|ові|е)?|М�
 
 
 # data/sentence-fix-checks.tsv: each fix of data/sentence-fixes.tsv checked against Горох, slovnyk.ua
-# and VESUM (2026-11-17). "unneeded" means Tatoeba's sentence was right after all (спражній is a СУМ
-# word, -сь is as good as -ся): the fix is dropped and the original shown. Every other verdict keeps it.
+# and VESUM, and each meaning fix against its English (2026-11-17). "unneeded" means Tatoeba's sentence
+# was right after all (спражній is a СУМ word, -сь is as good as -ся, «Ми з ним посварилися» says "I had
+# a quarrel with him"): the fix is dropped and the original shown. Every other verdict keeps it.
 FIX_CHECKS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentence-fix-checks.tsv")
-# Flags a dictionary check can refute. mistranslation, offensive and proverb are not about the words.
-REFUTED = {"error", "russianism", "calque"}
+# Flags the check can refute. offensive and proverb are not about mistakes, so they stay.
+REFUTED = {"error", "russianism", "calque", "mistranslation"}
 
 
 def unneeded_fixes(path=FIX_CHECKS):
@@ -855,7 +856,7 @@ def load_ratings(path=RATINGS, checks=None):
     """tatoeba id -> row of data/sentence-ratings.tsv as a dict; empty when there is no file.
 
     A sentence whose fix a dictionary check found unneeded (data/sentence-fix-checks.tsv)
-    was hidden for a mistake it does not have: its error, russianism and calque flags
+    was hidden for a mistake it does not have: its error, russianism, calque and mistranslation flags
     are dropped and it counts as at least a 3, so Tatoeba's own text is shown again."""
     if not path or not os.path.exists(path):
         return {}

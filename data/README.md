@@ -219,16 +219,16 @@ a fixed sentence. November 2026: 621 fixes; 123 more proposed fixes turned out
 to be Tatoeba's text unchanged and went back as ordinary rated sentences.
 
 `data/sentence-fix-checks.tsv` holds a second check of every fix, made against
-Горох (goroh.pp.ua), slovnyk.ua and VESUM: one row per Tatoeba sentence with a
-verdict, its basis and a note. Of 570 sentences, 144 were `unneeded`: Tatoeba's
-text was right (спражній is a СУМ word, -сь is as good as -ся, a hyphen where a
-dash belongs is not worth hiding a sentence). For those, `load_fixes` drops the
-fix and `load_ratings` clears the error, russianism and calque flags and counts
-the sentence as at least a 3, so Tatoeba's own text is shown, unedited. The
-other verdicts keep the fix: `needed` (a real mistake), `unsure`, and
-`unchecked` (flagged as a mistranslation: a dictionary cannot say whether the
-Ukrainian should follow the English). Like the fixes, a row lapses when Tatoeba
-edits the sentence.
+Горох (goroh.pp.ua), slovnyk.ua and VESUM, and for the 180 meaning fixes
+against the English: one row per Tatoeba sentence with a verdict, its basis and
+a note. Of 570 sentences, 241 were `unneeded`: Tatoeba's text was right
+(спражній is a СУМ word, -сь is as good as -ся, «Ми з ним посварилися» says "I
+had a quarrel with him", a hyphen where a dash belongs is not worth hiding a
+sentence). For those, `load_fixes` drops the fix and `load_ratings` clears the
+error, russianism, calque and mistranslation flags and counts the sentence as
+at least a 3, so Tatoeba's own text is shown, unedited. The other verdicts keep
+the fix: `needed` (a real mistake, 325) and `unsure` (4). Like the fixes, a row
+lapses when Tatoeba edits the sentence.
 
 ## Sentences with a gap (`cloze`)
 

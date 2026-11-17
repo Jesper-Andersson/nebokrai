@@ -16,15 +16,12 @@ import { dev } from '$app/env';
 import type { Handle } from '@sveltejs/kit/hooks';
 import { isCounted, limitKey, tooMany } from '#lib/server/crawler.ts';
 import { clearSessionCookie, setSessionCookie } from '#lib/server/oauth.ts';
+import { mayWrite } from '#lib/server/request.ts';
 import { getUserDb } from '#lib/server/user-db.ts';
 import { SESSION_COOKIE, SESSION_TOKEN, validateSession } from '#lib/server/users.ts';
 import { readSettings } from '#lib/settings.ts';
 
 const WRITES = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
-// Where a browser extension's own scripts ask from (Chrome and Edge; Firefox),
-// and the only addresses one may write to: PUT and DELETE /api/saved/<word>
-const EXTENSION_ORIGIN = /^(chrome|moz)-extension:\/\/[\w-]+$/;
-const EXTENSION_WRITES = /^\/api\/saved\/[^/]+$/;
 
 const HEADERS: Record<string, string> = {
 	// Never guess a file's type from its content
@@ -98,20 +95,13 @@ async function overLimit(event: Parameters<Handle>[0]['event']): Promise<boolean
 const answer: Handle = async ({ event, resolve }) => {
 	if (await overLimit(event)) return tooMany(event.url.pathname);
 
-	// A browser says where a write comes from. SvelteKit checks this for form
-	// posts only; the JSON endpoints (/api/report, /api/saved/…) need it too,
-	// or another site could write with a visitor's session. Requests with no
-	// Origin header are not from a page in a browser (curl, a script).
-	//
-	// One exception: a browser extension may save a word and remove it (the
-	// pop-up dictionary in extension/ does). No page can send an extension's
-	// origin, and the browser gives the session cookie only to an extension
-	// its user has let onto this site, which could already act here as them.
-	const origin = event.request.headers.get('origin');
-	const allowed =
-		origin === null ||
-		origin === event.url.origin ||
-		(EXTENSION_ORIGIN.test(origin) && EXTENSION_WRITES.test(event.url.pathname));
+	// A browser says where a write comes from, and one from another site is
+	// refused, or that site could write with a visitor's session. `mayWrite`
+	// has the rules, and the one exception (a browser extension saving a word).
+	const allowed = mayWrite(
+		{ origin: event.request.headers.get('origin'), contentType: event.request.headers.get('content-type') },
+		event.url
+	);
 	if (WRITES.has(event.request.method) && !allowed) {
 		return Response.json({ error: 'cross_site' }, { status: 403 });
 	}

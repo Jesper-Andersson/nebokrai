@@ -40,7 +40,11 @@ export interface NewReport {
 /** The part of Cloudflare's D1Database used here. */
 export interface D1Writable {
 	prepare(sql: string): {
-		bind(...params: unknown[]): { run(): Promise<{ meta?: { last_row_id?: number } }> };
+		bind(...params: unknown[]): {
+			run(): Promise<{ meta?: { last_row_id?: number } }>;
+			/** Used for the suggestions kept in the same database (suggestion-db.ts). */
+			all<T>(): Promise<{ results: T[] }>;
+		};
 		run(): Promise<unknown>;
 	};
 }

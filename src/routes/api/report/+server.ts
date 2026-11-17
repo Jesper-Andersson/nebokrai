@@ -12,11 +12,10 @@
 // The word and part of speech are looked up from `entry` here rather than
 // taken from the browser. IP addresses are used only for the rate limit below,
 // in memory, and never stored.
-import { TURNSTILE_SECRET } from '$app/env/private';
+import { botCheck, rateLimiter } from '#lib/server/bot-check.ts';
 import { getDatabases } from '#lib/server/db.ts';
 import { saveReport } from '#lib/server/reports.ts';
 import { rateKey, readJson } from '#lib/server/request.ts';
-import { MAX_TOKEN, verifyTurnstile } from '#lib/server/turnstile.ts';
 import { isReportKind, stripControls } from '#lib/report.ts';
 import type { RequestHandler } from './$types';
 
@@ -24,25 +23,9 @@ const MAX_MESSAGE = 2000;
 const MAX_EMAIL = 254;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// At most 5 reports per 10 minutes from one address. Kept in memory, so on
-// Cloudflare it counts per server instance: a brake, not a wall. Turnstile
-// (below) is the protection against real spam.
-const WINDOW_MS = 10 * 60 * 1000;
-const LIMIT = 5;
-const recent = new Map<string, number[]>();
-
-function tooMany(ip: string): boolean {
-	const now = Date.now();
-	const times = (recent.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-	if (times.length >= LIMIT) {
-		recent.set(ip, times);
-		return true;
-	}
-	times.push(now);
-	recent.set(ip, times);
-	if (recent.size > 10_000) recent.clear(); // keep memory bounded
-	return false;
-}
+// At most 5 reports per 10 minutes from one address: a brake, not a wall
+// (see rateLimiter). Turnstile (below) is the protection against real spam.
+const tooMany = rateLimiter(5, 10 * 60 * 1000);
 
 // Everything stored passes through here: a report is read in a terminal
 // (`npm run reports`, wrangler), so it must not carry control characters.
@@ -73,13 +56,8 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 
 	// Before anything is stored or mailed. A token is good for one check, so
 	// this comes after the mistakes a person can fix and send again.
-	if (TURNSTILE_SECRET) {
-		const token = typeof body.turnstile === 'string' && body.turnstile.length <= MAX_TOKEN ? body.turnstile : '';
-		if (!token) return fail(403, 'bot_check');
-		const verdict = await verifyTurnstile(token, TURNSTILE_SECRET, getClientAddress());
-		if (verdict === 'refused') return fail(403, 'bot_check');
-		if (verdict === 'unreachable') return fail(503, 'bot_check_unavailable');
-	}
+	const refused = await botCheck(body.turnstile, getClientAddress());
+	if (refused) return refused;
 
 	// Count only reports that would be stored, so fixing a typo doesn't use up the limit.
 	// getClientAddress() is the visitor's address as Cloudflare saw it. A

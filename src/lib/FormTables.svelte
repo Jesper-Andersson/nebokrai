@@ -21,13 +21,21 @@
 	import { HINTS, termOfLabel } from '#lib/grammar.ts';
 	import { formLabel, messagesFor, tagLabel } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import type { SuggestPlace } from '#lib/suggest.ts';
 	import { stressMoved } from './stress.ts';
 	import Stressed from './Stressed.svelte';
+	import SuggestEdit from './SuggestEdit.svelte';
 	import Term from './Term.svelte';
 
 	// `headword` is what each form's stress is compared with; leave it out and
 	// no form is marked as moving the stress.
-	let { tables, headword = '' }: { tables: FormTable[]; headword?: string } = $props();
+	// `suggest` names the entry while the word page's pencil is pressed: each
+	// form can then be pressed to suggest a correction (SuggestEdit.svelte).
+	let { tables, headword = '', suggest = null }: {
+		tables: FormTable[];
+		headword?: string;
+		suggest?: Pick<SuggestPlace, 'word' | 'pos' | 'headword'> | null;
+	} = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -67,10 +75,14 @@
 {/snippet}
 
 <!-- The forms of one cell: one to a line, each with the note that tells it from the others -->
-{#snippet forms(cell: CellItem[])}
+{#snippet forms(cell: CellItem[], pressable: boolean)}
 	{#each cell as item, i}
 		<!-- {' '}: Svelte drops a space at the start of a block, and the note ran into the form -->
-		{#if i}<br />{/if}<Stressed text={item.form} moved={stressMoved(headword, item.form)} />{#if item.note}{' '}<small lang={settings.lang}
+		{#if i}<br />{/if}<SuggestEdit
+			place={pressable && suggest ? { ...suggest, target: 'form', form_tags: item.tags } : null}
+			label={m.suggest.part.form(item.tags.join(', '))}
+			current={item.form}
+		><Stressed text={item.form} moved={stressMoved(headword, item.form)} /></SuggestEdit>{#if item.note}{' '}<small lang={settings.lang}
 				>{tagLabel(m, settings.lang, item.note)}</small
 			>{/if}
 	{:else}<span class="none">—</span>{/each}
@@ -153,10 +165,10 @@
 											: `${m.word.coverShow}: ${[row.label, table.columns[c]].filter(Boolean).map((label) => formLabel(m, label)).join(', ')}`}
 										onclick={() => flip(key)}
 									>
-										{#if shown.has(key)}{@render forms(cell)}{/if}
+										{#if shown.has(key)}{@render forms(cell, false)}{/if}
 									</button>
 								{:else}
-									{@render forms(cell)}
+									{@render forms(cell, true)}
 								{/if}
 							</td>
 						{/each}

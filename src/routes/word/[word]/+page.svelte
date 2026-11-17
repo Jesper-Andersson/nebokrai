@@ -19,6 +19,7 @@
 	import Sentence from '#lib/Sentence.svelte';
 	import ShareButton from '#lib/ShareButton.svelte';
 	import Stressed from '#lib/Stressed.svelte';
+	import SuggestEdit from '#lib/SuggestEdit.svelte';
 	import Term from '#lib/Term.svelte';
 	import Tip from '#lib/Tip.svelte';
 	import Translation from '#lib/Translation.svelte';
@@ -132,6 +133,10 @@
 
 	// The list of entries names each headword only when they are not all the
 	// same (за́мок and замо́к, or а, А and -а behind one address).
+	// The entry whose parts can be pressed to suggest a correction (the pencil
+	// beside its headword), by its id; one entry at a time.
+	let suggesting = $state<number | null>(null);
+
 	let varied = $derived(new Set(data.entries.map((e) => e.headword)).size > 1);
 	let stressedApart = $derived(
 		data.entries.some((a, i) => data.entries.slice(i + 1).some((b) => differOnlyByStress(a.headword, b.headword)))
@@ -181,6 +186,8 @@
 		{@const first = entry.senses.slice(0, FIRST_MEANINGS)}
 		{@const rest = entry.senses.slice(FIRST_MEANINGS)}
 		{@const pronounced = (settings.roman === 'on' && entry.roman) || (settings.ipa === 'on' && entry.ipa)}
+		<!-- Which entry a suggested correction is about, while its pencil is pressed -->
+		{@const at = suggesting === entry.id ? { word: entry.word, pos: entry.pos, headword: entry.headword } : null}
 		<article id="entry-{entry.id}" class="ui-card">
 			<header>
 				<!-- How common the word is, first: it says how much the rest is worth learning now -->
@@ -191,7 +198,14 @@
 					</div>
 				{/if}
 				<div class="title">
-					<Headword text={entry.headword} size="lg" tag="h1" />
+					<SuggestEdit
+						place={at && { ...at, target: 'headword' }}
+						label={m.suggest.part.headword}
+						current={entry.headword}
+						block
+					>
+						<Headword text={entry.headword} size="lg" tag="h1" />
+					</SuggestEdit>
 					<!-- A slur or a highly offensive word (data/marked-offensive.tsv), said before anything else -->
 					{#if entry.offensive}<span class="ui-badge offensive">{m.word.offensive}</span>{/if}
 					<div class="actions">
@@ -214,6 +228,19 @@
 							headword={entry.headword}
 							size={21}
 						/>
+						<Tip label={m.suggest.toggle}>
+							{#snippet trigger(props)}
+								<button
+									{...mergeProps(props, { onclick: () => (suggesting = suggesting === entry.id ? null : entry.id) })}
+									type="button"
+									class="ui-icon-btn"
+									aria-pressed={suggesting === entry.id}
+									aria-label={m.suggest.toggle}
+								>
+									<Icon name="pencil" size={21} />
+								</button>
+							{/snippet}
+						</Tip>
 					</div>
 				</div>
 				<!-- Latin letters and the phonetic alphabet, each as the settings ask -->
@@ -227,6 +254,8 @@
 					<Grammar pos={entry.pos} tags={entry.tags} headForms={lineForms} />
 				</div>
 				{#if entry.offensive}<p class="offensive-note">{m.word.offensiveNote}</p>{/if}
+				<!-- What the dotted outlines are for, said once the pencil is pressed -->
+				{#if at}<p class="suggest-how" role="status">{m.suggest.how}</p>{/if}
 			</header>
 
 			<div class="columns" class:single={!hasSide(entry)}>
@@ -243,15 +272,29 @@
 									{#if remarks.length}
 										<i class="tag">({#each remarks as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
 									{/if}
-									{gloss}
+									<SuggestEdit
+										place={at && { ...at, target: 'meaning', sense_n: sense.n }}
+										label={m.suggest.part.meaning(sense.n)}
+										current={sense.gloss}
+									>
+										{gloss}
+									</SuggestEdit>
 								</p>
 								{#if note}<p class="note">{note}</p>{/if}
 								{#if sense.examples.length}
 									<ul class="quotes">
 										{#each sense.examples as ex, i (i)}
 											<li>
-												<Sentence text={ex.text} {own} />
-												{#if ex.english}<Translation text={ex.english} />{/if}
+												<SuggestEdit
+													place={at && { ...at, target: 'quote', sense_n: sense.n }}
+													label={m.suggest.part.quote}
+													current={ex.text}
+													currentEn={ex.english}
+													block
+												>
+													<Sentence text={ex.text} {own} />
+													{#if ex.english}<Translation text={ex.english} />{/if}
+												</SuggestEdit>
 											</li>
 										{/each}
 									</ul>
@@ -290,8 +333,16 @@
 							<ul class="sentences">
 								{#each entry.examples as ex (ex.tatoeba_id)}
 									<li>
-										<Sentence text={ex.uk} {own} />
-										<Translation text={ex.en} />
+										<SuggestEdit
+											place={at && { ...at, target: 'example', tatoeba_id: ex.tatoeba_id }}
+											label={m.suggest.part.example}
+											current={ex.uk}
+											currentEn={ex.en}
+											block
+										>
+											<Sentence text={ex.uk} {own} />
+											<Translation text={ex.en} />
+										</SuggestEdit>
 										<span class="credit-line">
 											<a class="credit" href="https://tatoeba.org/sentences/show/{ex.tatoeba_id}">
 												Tatoeba #{ex.tatoeba_id}{#if ex.adapted && !ex.original}, {m.word.adapted}{/if}
@@ -322,7 +373,7 @@
 						{#if tables.length || other.length}
 							<section>
 								<h2 class="ui-label">{entry.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
-								{#if tables.length}<FormTables {tables} headword={base} />{/if}
+								{#if tables.length}<FormTables {tables} headword={base} suggest={at} />{/if}
 								{#if other.length}
 									<dl class="other">
 										{#each other as group, i (i)}
@@ -332,7 +383,11 @@
 												<dt>{#if label.term}<Term id={label.term}>{text}</Term>{:else}{text}{/if}</dt>
 												<dd lang="uk">
 													<!-- {', '}: Svelte drops a space at the end of a block, and the forms ran together -->
-													{#each group.forms as form, i}{#if i}{', '}{/if}<Stressed text={form} moved={stressMoved(base, form)} />{/each}
+													{#each group.forms as form, i}{@const tags = entry.forms.find((f) => f.form === form)?.tags ?? []}{#if i}{', '}{/if}<SuggestEdit
+													place={at && { ...at, target: 'form', form_tags: tags }}
+													label={m.suggest.part.form(tags.join(', '))}
+													current={form}
+												><Stressed text={form} moved={stressMoved(base, form)} /></SuggestEdit>{/each}
 												</dd>
 											</div>
 										{/each}
@@ -513,6 +568,13 @@
 
 	.play {
 		color: var(--play);
+	}
+
+	/* Shown while the pencil is pressed: what the dotted outlines are for */
+	.suggest-how {
+		margin-top: 0.6rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
 	}
 
 	.pron {

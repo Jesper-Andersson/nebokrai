@@ -559,6 +559,68 @@ are all dropped without an error. A browser driven by a program
 and the IP address is not stored (see `stats.ts`). A request whose `Origin`
 names another site gets the site-wide `403 cross_site`.
 
+## `POST /api/suggest`
+
+A reader's suggested correction to one part of a word's page: the headword,
+its stress, a meaning, a quotation under a meaning, an example sentence or a
+form in the tables. The word page sends it; nothing is shown publicly until
+the site's keeper has reviewed it.
+
+```json
+{
+  "target": "meaning",
+  "word": "вода",
+  "pos": "noun",
+  "headword": "вода́",
+  "sense_n": 2,
+  "current": "waters, body of water",
+  "proposed": "waters; a body of water (sea, lake, river)",
+  "note": "optional: a source, or why",
+  "native": true,
+  "name": "optional, for the credit",
+  "turnstile": "<token of the form's bot check>"
+}
+```
+
+| `target` | Also needed | What `proposed` replaces |
+|---|---|---|
+| `headword`, `stress` | | the headword, with its stress mark (`вода́`) |
+| `meaning` | `sense_n`, `current` (the meaning as shown) | the meaning |
+| `quote` | `sense_n`, `current` (the quotation as shown) | the quotation; `proposed_en` its English |
+| `example` | `tatoeba_id` | the Ukrainian sentence; `proposed_en` its English |
+| `form` | `form_tags` (`["genitive", "plural"]`), `current` (the form) | the form |
+
+The entry is named by `word`, `pos` and `headword`, and the part by keys that
+survive a rebuild of the dictionary, never by an entry id. The server looks the
+part up and stores what the dictionary holds there as the "before"; `current`
+only helps to find it. `proposed` and `proposed_en` are at most 500 characters,
+`note` 1,000 and `name` 60.
+
+A visitor who is not signed in needs `turnstile`, as on `/api/report`; a
+signed-in one does not. By sending, the reader agrees that the suggestion may
+be published under CC BY-SA 4.0, which the form says.
+
+Response `200`: `{ "ok": true, "id": 41 }`.
+
+| Status | Body | When |
+|---|---|---|
+| `400` | `{ "error": "invalid_target" }` | `target` is not one of the six, or `word`, `pos` or `headword` is missing. |
+| `400` | `{ "error": "missing_proposed" }` | `proposed` is empty. |
+| `400` | `{ "error": "unchanged" }` | The proposal says what the dictionary already says. |
+| `403` | `{ "error": "bot_check" }` | Not signed in, and no token Cloudflare accepts. |
+| `404` | `{ "error": "not_found" }` | The dictionary has no such part: the page was loaded before the data changed. |
+| `413` | `{ "error": "too_large" }` | A text is over its limit, or the body is over 16 KB. |
+| `429` | `{ "error": "too_many" }` | More than 10 suggestions in ten minutes from one address. |
+| `503` | `{ "error": "bot_check_unavailable" }` | Cloudflare gave no verdict on the token; send again. |
+
+### `POST /api/suggest/<id>`
+
+For the site's keeper only, from the page `/suggestions`: moves suggestion
+`<id>` to another status. Body: `{ "status": "accepted" }`, where the status is
+`new`, `accepted`, `rejected` or `applied`, with an optional `note`. Response
+`200`: `{ "ok": true }`. Anyone else, and an id that does not exist, gets
+`404 not_found`; a status that is none of the four gets `400 invalid_status`.
+
 ## Licence of the data
 
 The answers carry dictionary data, and each source keeps its own licence

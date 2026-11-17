@@ -41,7 +41,7 @@ const HEADERS: Record<string, string> = {
 // /stats is the private visit counts (404 for all but the site's owner).
 // /dev is pages for building the site (the style guide): the built site
 // answers 404 for them, and this is the second lock on that door.
-const NOT_FOR_SEARCH = /^\/(api|saved|review|import|report|login|auth|logout|dev|stats)(\/|$)/;
+const NOT_FOR_SEARCH = /^\/(api|saved|review|import|report|login|auth|logout|dev|stats|suggestions)(\/|$)/;
 // Nor is a search made from the address (/?q=kava): the page to find is the
 // search page itself, and the words have pages of their own.
 const isSearch = (url: URL) => url.pathname === '/' && url.searchParams.has('q');

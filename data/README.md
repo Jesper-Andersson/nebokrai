@@ -240,6 +240,13 @@ over the ratings and the checked fixes below. A corrected sentence has
 word page shows behind the mark. `add_examples.py` and `add_cloze.py` apply
 them to a built database without new entry ids.
 
+Readers can suggest such a fix on a word's page. Once a suggestion has been
+accepted on the site's review page, `npm run suggestions` prints it as a line
+for this file, credited "Nebokrai suggestion 41, Ольга, 2026-11-20"; the line
+is pasted in by hand, so nothing reaches the data unread. Accepted suggestions
+about a headword, a meaning or a form are listed by the same command for
+fixing on Wiktionary: there is no file here that overrides those.
+
 Many spellings belong to more than one entry: `осі` is a form of `вісь`
 ("axis") and of `оса` ("wasp"), `мати` is the noun "mother" and the verb "to
 have". `sentence_readings` in `import_wiktionary.py` gives a sentence only to

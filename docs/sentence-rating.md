@@ -118,6 +118,11 @@ Tatoeba's weekly export has more than the three files we read. These cost nothin
   kept only when Opus confirms it is natural, means what the English says, and still holds the word.
 7.3 A fixed sentence is our edit of a CC BY sentence: the site must mark it as edited and still credit the
   original on Tatoeba, and `docs/sources-and-licences.md` must stop saying sentences are shown unchanged.
+7.4 Every fix checked against dictionaries (user, 2026-11-17), because a pilot of 20 found only 5 real mistakes:
+  Горох, slovnyk.ua and VESUM, verdicts in `data/sentence-fix-checks.tsv`. 140 of 570 were unneeded (59 style,
+  38 refuted by a dictionary entry, 34 grammar both ways right, 9 typography only); those show Tatoeba's text
+  again. 249 needed, 180 unchecked (mistranslation), 1 unsure. The verdicts beyond a dictionary entry are still
+  a model's judgement; a native speaker has not read them.
 
 ## 8. Follow-up: send fixes back to Tatoeba (to figure out)
 

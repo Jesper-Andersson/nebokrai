@@ -54,6 +54,16 @@ export const UPDATES: Update[] = [
 		href: '/saved'
 	},
 	{
+		id: '2026-11-17-fewer-edited-sentences',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'More sentences shown as their authors wrote them', uk: 'Більше речень так, як їх написали автори' },
+		body: {
+			en: 'Corrections that a check against dictionaries showed were not needed are gone: 117 example sentences no longer carry the "edited" mark.',
+			uk: 'Прибрано виправлення, непотрібні за словниками: 117 прикладів знову показано без позначки «виправлено».'
+		}
+	},
+	{
 		id: '2026-11-16-natural-example-sentences',
 		date: '2026-11-16',
 		kind: 'changed',

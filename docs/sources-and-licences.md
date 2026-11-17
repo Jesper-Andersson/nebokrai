@@ -40,7 +40,8 @@ Which sentences are shown is decided partly by an automated rating of how
 natural each one sounds. Some sentences are shown corrected: those a teacher
 pointed out (`data/tatoeba-corrections.tsv`), and, where a word's only
 sentences had mistakes, checked corrections that fill the gap
-(`data/sentence-fixes.tsv`, each checked by a second model). CC BY allows
+(`data/sentence-fixes.tsv`, each checked by a second model and then against
+dictionaries, `data/sentence-fix-checks.tsv`). CC BY allows
 adaptations: each one is marked "edited", still links to Tatoeba, and shows
 Tatoeba's original text. The API returns `examples[].adapted` and
 `examples[].original`.

@@ -824,13 +824,39 @@ NEVER_SHOWN = {"offensive", "mistranslation", "proverb", "russianism", "rejected
 STOCK_NAMES = re.compile(r"(?<![\w'’ʼ])(?:Том(?:а|у|ом|ові|е)?|Мері|Джон\w*|Аліс\w*)(?![\w'’ʼ])")
 
 
+# data/sentence-fix-checks.tsv: each fix of data/sentence-fixes.tsv checked against Горох, slovnyk.ua
+# and VESUM (2026-11-17). "unneeded" means Tatoeba's sentence was right after all (спражній is a СУМ
+# word, -сь is as good as -ся): the fix is dropped and the original shown. Every other verdict keeps it.
+FIX_CHECKS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentence-fix-checks.tsv")
+# Flags a dictionary check can refute. mistranslation, offensive and proverb are not about the words.
+REFUTED = {"error", "russianism", "calque"}
+
+
+def unneeded_fixes(path=FIX_CHECKS):
+    """tatoeba id -> hash of Tatoeba's text, for each fix the dictionary check found unneeded."""
+    if not path or not os.path.exists(path):
+        return {}
+    with open(path, encoding="utf-8", newline="") as f:
+        rows = f.read().splitlines()[1:]
+    out = {}
+    for line in rows:
+        sid, digest, verdict = line.split("\t")[:3]
+        if verdict == "unneeded":
+            out[int(sid)] = digest
+    return out
+
+
 def text_hash(text):
     """Short hash of a sentence, so that a rating is dropped when Tatoeba edits the sentence."""
     return hashlib.sha1(text.encode("utf-8")).hexdigest()[:12]
 
 
-def load_ratings(path=RATINGS):
-    """tatoeba id -> row of data/sentence-ratings.tsv as a dict; empty when there is no file."""
+def load_ratings(path=RATINGS, checks=None):
+    """tatoeba id -> row of data/sentence-ratings.tsv as a dict; empty when there is no file.
+
+    A sentence whose fix a dictionary check found unneeded (data/sentence-fix-checks.tsv)
+    was hidden for a mistake it does not have: its error, russianism and calque flags
+    are dropped and it counts as at least a 3, so Tatoeba's own text is shown again."""
     if not path or not os.path.exists(path):
         return {}
     with open(path, encoding="utf-8", newline="") as f:
@@ -842,6 +868,11 @@ def load_ratings(path=RATINGS):
     for line in lines[1:]:
         row = dict(zip(head, line.split("\t")))
         rows[int(row["tatoeba_id"])] = row
+    for sid, digest in unneeded_fixes(FIX_CHECKS if checks is None else checks).items():
+        row = rows.get(sid)
+        if row and row.get("hash") == digest and row.get("natural"):
+            row["natural"] = str(max(int(row["natural"]), UNRATED))
+            row["flags"] = ",".join(f for f in row.get("flags", "").split(",") if f and f not in REFUTED)
     return rows
 
 
@@ -860,16 +891,19 @@ def rating_of(ratings, sid, text):
 FIXES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentence-fixes.tsv")
 
 
-def load_fixes(path=FIXES):
-    """tatoeba id -> (hash of Tatoeba's text, corrected text, naturalness of the correction)."""
+def load_fixes(path=FIXES, checks=None):
+    """tatoeba id -> (hash of Tatoeba's text, corrected text, naturalness of the correction),
+    leaving out the fixes data/sentence-fix-checks.tsv found unneeded."""
     if not path or not os.path.exists(path):
         return {}
     with open(path, encoding="utf-8", newline="") as f:
         rows = f.read().splitlines()[1:]
+    unneeded = unneeded_fixes(FIX_CHECKS if checks is None else checks)
     out = {}
     for line in rows:
         sid, digest, fixed, natural = line.split("\t")[:4]
-        out[int(sid)] = (digest, fixed, int(natural))
+        if unneeded.get(int(sid)) != digest:
+            out[int(sid)] = (digest, fixed, int(natural))
     return out
 
 

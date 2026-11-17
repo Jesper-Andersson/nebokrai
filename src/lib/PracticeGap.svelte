@@ -56,7 +56,7 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { isNumber, meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import {
-		checkAnswer, climb, cueParts, cut, endingOf, hintStep, noteKey, split, struckEnding, type Gap, type Outcome,
+		asInGap, checkAnswer, climb, cueParts, cut, endingOf, hintStep, noteKey, split, struckEnding, type Gap, type Outcome,
 		type Step
 	} from '#lib/practice/round.ts';
 	import type { Typed } from '#lib/review/recall.ts';
@@ -416,7 +416,7 @@
 						onclick={() => choose(option)}
 					>
 						<kbd class="ui-kbd">{i + 1}</kbd>
-						<span><Stressed text={option} /></span>
+						<span><Stressed text={asInGap(gap, option)} /></span>
 					</button>
 				{/each}
 			</div>

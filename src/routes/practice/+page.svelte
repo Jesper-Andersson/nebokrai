@@ -74,11 +74,11 @@
 
 	let lessons = $derived(lessonRows(offered, held));
 	let open = $derived(openLesson(lessons, chosen));
-	/** The two lists: the cases after prepositions, and the verbs' patterns (дякувати + кому?). */
+	/** The two lists, each under its heading: the cases after prepositions, and the verbs' patterns (дякувати + кому?). */
 	let groups = $derived(
 		[
-			{ label: m.learn.cases, rows: lessons.filter((lesson) => lesson.group === 'preposition') },
-			{ label: m.learn.verbPatterns, rows: lessons.filter((lesson) => lesson.group === 'government') }
+			{ id: 'practice-cases', label: m.learn.cases, rows: lessons.filter((lesson) => lesson.group === 'preposition') },
+			{ id: 'practice-verbs', label: m.learn.verbPatterns, rows: lessons.filter((lesson) => lesson.group === 'government') }
 		].filter((group) => group.rows.length)
 	);
 	const meaning = (point: Point) => meaningOfPoint(m.practice.meaning, point, settings.lang);
@@ -165,8 +165,10 @@
 			</div>
 		</section>
 
-		{#each groups as group (group.label)}
-		<section class="ui-card rows" aria-label={group.label}>
+		{#each groups as group (group.id)}
+		<section class="group" aria-labelledby={group.id}>
+		<h2 class="ui-label" id={group.id}>{group.label}</h2>
+		<div class="ui-card rows">
 			{#each group.rows as lesson (lesson.id)}
 				{@const isOpen = lesson.id === open?.id}
 				{@const name = m.learn.short[lesson.id]}
@@ -273,6 +275,7 @@
 					{/if}
 				</div>
 			{/each}
+		</div>
 		</section>
 		{/each}
 
@@ -388,6 +391,12 @@
 		color: var(--muted);
 		font-size: var(--text-sm);
 		font-weight: 600;
+	}
+
+	/* --- A list of lessons under its heading, the heading close to its card --- */
+	.group {
+		display: grid;
+		gap: 0.5rem;
 	}
 
 	/* --- A row per lesson --- */

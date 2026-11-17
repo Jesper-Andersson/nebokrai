@@ -3,7 +3,7 @@
 // about one thing to say: where something is (у місті, на столі), where it
 // goes (у місто, на стіл, до школи).
 //
-// A lesson's number is its place in the list and is kept nowhere, so a
+// A lesson's number is its place in its group's list and is kept nowhere, so a
 // lesson can be put between two others. Its short name is interface text, in
 // i18n.ts (`learn.short`).
 //
@@ -51,7 +51,7 @@ export const LESSONS: readonly Lesson[] = [
 export interface LessonRow {
 	id: string;
 	group: LessonGroup;
-	/** Its place in the list, from 1. */
+	/** Its place in its group's list, from 1: the verbs' patterns start again at 1. */
 	n: number;
 	points: { point: Point; state: PointState }[];
 	/** The words it teaches, each once: у · на, з · від. */
@@ -68,7 +68,12 @@ export const cueOf = (point: Point): string => (isNumber(point) ? point.example 
 
 /** The lessons with a rule in `offered` (ids of the rules that have sentences), in order. */
 export function lessonRows(offered: readonly string[], held: (point: Point) => PointState): LessonRow[] {
-	return LESSONS.map((lesson, i) => {
+	// Counted over every lesson of the group, not only those shown, so a
+	// lesson keeps its number when one before it has no sentences
+	const counted = new Map<LessonGroup, number>();
+	return LESSONS.map((lesson) => {
+		const n = (counted.get(lesson.group) ?? 0) + 1;
+		counted.set(lesson.group, n);
 		const points = lesson.points
 			.filter((id) => offered.includes(id))
 			.map(pointOf)
@@ -76,7 +81,7 @@ export function lessonRows(offered: readonly string[], held: (point: Point) => P
 			.map((point) => ({ point, state: held(point) }));
 		const cues = [...new Set(points.map(({ point }) => cueOf(point)))];
 		const known = points.filter(({ state }) => state === 'known').length;
-		return { id: lesson.id, group: lesson.group, n: i + 1, points, cues, known };
+		return { id: lesson.id, group: lesson.group, n, points, cues, known };
 	}).filter((lesson) => lesson.points.length);
 }
 

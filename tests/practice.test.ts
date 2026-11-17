@@ -13,7 +13,7 @@ import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
 import {
-	ROUND, askWhere, checkAnswer, climb, cut, endingOf, gradePoint, hintStep, noteKey, planRound, planWeak, ratingOf, split,
+	ROUND, asInGap, askWhere, checkAnswer, climb, cut, endingOf, gradePoint, hintStep, noteKey, planRound, planWeak, ratingOf, split,
 	stateOf, struckEnding, type Gap
 } from '../src/lib/practice/round.ts';
 import { WHERE, whereAnswer } from '../src/lib/practice/where.ts';
@@ -83,6 +83,22 @@ test('a lesson is shown by its words, and the one open is chosen, else the first
 	assert.equal(openLesson(rows, 'gone')?.id, 'where-to');
 	// A rule without sentences is left out, and a lesson left with none
 	assert.equal(lessonRows(['u-loc'], () => 'new').length, 1);
+});
+
+test('each group numbers its lessons from 1, and a lesson keeps its number when one before it is hidden', () => {
+	const all = LESSONS.flatMap((lesson) => lesson.points);
+	const rows = lessonRows(all, () => 'new');
+	for (const group of ['preposition', 'government'] as const) {
+		const ns = rows.filter((row) => row.group === group).map((row) => row.n);
+		assert.deepEqual(ns, ns.map((_, i) => i + 1), group);
+	}
+	const firstVerb = LESSONS.find((lesson) => lesson.group === 'government')!;
+	const secondVerb = LESSONS.filter((lesson) => lesson.group === 'government')[1];
+	// Only the second verb lesson has sentences: it is still 2
+	const [only] = lessonRows([secondVerb.points[0]], () => 'new');
+	assert.equal(only.id, secondVerb.id);
+	assert.equal(only.n, 2);
+	assert.equal(rows.find((row) => row.id === firstVerb.id)?.n, 1);
 });
 
 test('a point keeps its id: progress is kept under it', () => {
@@ -164,6 +180,21 @@ test('a typed answer is right whatever its stress, capitals or apostrophe', () =
 	assert.equal(checkAnswer(SUGAR, 'цукру'), 'right');
 	assert.equal(checkAnswer(SUGAR, ' Цу́кру '), 'right');
 	assert.equal(checkAnswer({ ...SUGAR, answer: "м'яче́м" }, 'м’ячем'), 'right');
+});
+
+test('a gap that starts the sentence offers its choices with a capital, and takes a typed answer in either case', () => {
+	const ME: Gap = {
+		point: 'podobatysia-dat', uk: 'Мені подобається чай.', en: 'I like tea.', start: 0, length: 4, answer: 'мені́',
+		also: [], number: 'singular', word: 'я', headword: 'я', choices: ['мене́', 'мені́', 'мно́ю', 'я'],
+		forms: ['я', 'мене', 'мені', 'мною'], tatoeba_id: 1
+	};
+	// The stress mark stays on its vowel
+	assert.deepEqual(ME.choices.map((option) => asInGap(ME, option)), ['Мене́', 'Мені́', 'Мно́ю', 'Я']);
+	assert.equal(asInGap({ ...ME, choices: ['їй'] }, 'їй'), 'Їй');
+	// Inside a sentence, or after a lower-case start, the form is shown as it is
+	assert.equal(asInGap(SUGAR, 'цу́кру'), 'цу́кру');
+	assert.equal(asInGap({ ...ME, uk: 'мені подобається чай.' }, 'мені́'), 'мені́');
+	for (const typed of ['мені', 'Мені', 'МЕНІ', 'Мені́']) assert.equal(checkAnswer(ME, typed), 'right', typed);
 });
 
 test('the right word in the wrong form is told from a wrong word', () => {

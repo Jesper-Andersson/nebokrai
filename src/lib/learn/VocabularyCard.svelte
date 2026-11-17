@@ -76,6 +76,13 @@
 	let coveredKnown = $derived(covered ? percent(covered.known) : 0);
 	// What the words being learnt add once they are known too
 	let coveredGain = $derived(covered ? percent(covered.known + covered.learning) - coveredKnown : 0);
+	// The line split before its last word, which stays on one line with the
+	// help icon, so on a phone the icon never wraps alone («… ~12% | української ?»)
+	let coverageLine = $derived.by(() => {
+		const text = m.learn.coverage(coveredKnown) + (coveredGain > 0 ? ` · ${m.learn.coverageLearning(coveredGain)}` : '');
+		const cut = text.lastIndexOf(' ') + 1;
+		return { head: text.slice(0, cut), tail: text.slice(cut) };
+	});
 
 	// A thousand is written 1,000 in English and 1000 in Ukrainian
 	const number = (n: number) => (settings.lang === 'uk' ? String(n) : n.toLocaleString('en'));
@@ -103,12 +110,11 @@
 			</span>
 			{#if covered?.knownWords}
 				<p class="muted coverage">
-					{m.learn.coverage(coveredKnown)}{#if coveredGain > 0} · {m.learn.coverageLearning(coveredGain)}{/if}
-					<Tip label={m.learn.coverageNote}>
-						{#snippet trigger(props)}
-							<button type="button" class="ui-icon-btn" aria-label={m.learn.coverageNote} {...props}><Icon name="help" size={16} /></button>
-						{/snippet}
-					</Tip>
+					{coverageLine.head}<span class="tail">{coverageLine.tail}<Tip label={m.learn.coverageNote}>
+							{#snippet trigger(props)}
+								<button type="button" class="ui-icon-btn" aria-label={m.learn.coverageNote} {...props}><Icon name="help" size={16} /></button>
+							{/snippet}
+						</Tip></span>
 				</p>
 			{/if}
 		</div>
@@ -188,6 +194,17 @@
 	/* The coverage line, under the figure and the bar */
 	.coverage {
 		grid-column: 1 / -1;
+	}
+
+	/* The last word and the help icon, kept on one line */
+	.tail {
+		white-space: nowrap;
+	}
+
+	/* Full-size to tap, but not stretching its line apart from the others */
+	.tail .ui-icon-btn {
+		margin-block: -0.75rem;
+		vertical-align: middle;
 	}
 
 	.figure {

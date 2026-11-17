@@ -311,6 +311,17 @@ const en = {
 		/** After the large figure of words known: "9 of 3,051 words known". */
 		wordsKnown: (total: string) => `of ${total} words known`,
 		learning: (n: number) => `${n} learning`,
+		/**
+		 * Under the words known: the share of everyday speech they make up
+		 * (src/lib/coverage.ts), what the words being learnt would add, and
+		 * the caveat, in a tooltip.
+		 */
+		coverage: (percent: number) => `Your known words cover ~${percent}% of everyday Ukrainian`,
+		coverageLearning: (percent: number) => `+${percent}% once your learning words settle`,
+		coverageNote:
+			'Each word counts as often as it is used in film and TV subtitles (FrequencyWords). ' +
+			'Only dictionary words count, without names or grammar, so this is a rough guide, ' +
+			'not the share of a text you will understand.',
 		/** A deck's chip: the figure on it, and a deck not among those reviewed. */
 		due: (n: number) => (n === 1 ? '1 due today' : `${n} due today`),
 		off: 'no new words from it',
@@ -1673,6 +1684,12 @@ const uk: Messages = {
 		manageDecks: 'Керувати колодами',
 		wordsKnown: (total) => `з ${total} слів засвоєно`,
 		learning: (n) => `вивчається: ${n}`,
+		coverage: (percent) => `Ваші засвоєні слова охоплюють ~${percent}% повсякденної української`,
+		coverageLearning: (percent) => `+${percent}%, коли закріпляться слова, які ви вивчаєте`,
+		coverageNote:
+			'Кожне слово враховується стільки разів, скільки його вживають у субтитрах фільмів і серіалів (FrequencyWords). ' +
+			'Рахуються лише слова словника, без імен і граматики, тож це приблизна оцінка, а не частка тексту, ' +
+			'яку ви зрозумієте.',
 		due: (n) => `на сьогодні: ${n}`,
 		off: 'нові слова звідси не беруться',
 		cases: 'Відмінки',

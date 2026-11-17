@@ -29,7 +29,7 @@
 	import ListPicker from '#lib/ListPicker.svelte';
 	import SaveButton from '#lib/SaveButton.svelte';
 	import { messagesFor, posLabel } from '#lib/i18n.ts';
-	import { MAX_LIST_NAME, SUMMARY_MAX } from '#lib/saved.ts';
+	import { MAX_LIST_NAME, SUMMARY_MAX, type SavedWord } from '#lib/saved.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import type { WordCard, WordSummary } from '#lib/search/word.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -186,8 +186,12 @@
 	// more step from the visitor, and a send has a result or a reason it failed.
 	type AnkiNote =
 		| { kind: 'file' }
-		// A Readlang file: `count` words of the `total` that were asked for
-		| { kind: 'readlang'; count: number; total: number }
+		// A Readlang file. `words` is everything the export was asked for, kept
+		// as it was then, and the file just downloaded held words[from..to).
+		// Readlang takes 200 words per file, so a longer list goes out in parts,
+		// the next one a button away. Not by "Not exported yet": that is empty
+		// once the words have gone out in any other format.
+		| { kind: 'readlang'; words: SavedWord[]; from: number; to: number }
 		| { kind: 'sent'; result: SendResult; deck: string }
 		| { kind: 'error'; error: AnkiError };
 	let ankiNote = $state.raw<AnkiNote | null>(null);
@@ -200,14 +204,22 @@
 		/** Offer the add-on's page, or the settings, as the way out */
 		addon?: boolean;
 		settings?: boolean;
+		/** The label of a button for the next Readlang file */
+		next?: string;
 	};
 	let notice = $derived.by((): Notice | null => {
 		if (!ankiNote) return null;
 		if (ankiNote.kind === 'file') return { tone: 'info', title: m.export.ankiFile, body: m.export.ankiHint };
 		if (ankiNote.kind === 'readlang') {
-			const { count, total } = ankiNote;
-			const more = total > count ? ` ${m.export.readlangMore(count, total)}` : '';
-			return { tone: 'info', title: m.export.readlangFile, body: m.export.readlangHint + more };
+			const { words, from, to } = ankiNote;
+			const total = words.length;
+			if (total <= READLANG_MAX) return { tone: 'info', title: m.export.readlangFile, body: m.export.readlangHint };
+			return {
+				tone: 'info',
+				title: m.export.readlangFile,
+				body: `${m.export.readlangHint} ${m.export.readlangPart(from + 1, to, total)}`,
+				next: to < total ? m.export.readlangNext(to + 1, Math.min(to + READLANG_MAX, total)) : undefined
+			};
 		}
 		if (ankiNote.kind === 'sent') {
 			const { added, updated, unchanged } = ankiNote.result;
@@ -220,10 +232,10 @@
 		return { tone: 'error', ...m.export.ankiError[reason], settings: reason === 'setup' };
 	});
 
-	// Everything a card holds, for the words in scope. A list that could not
-	// be fetched whole throws: half a deck would look like a finished one.
-	async function cardsInScope(limit = Infinity) {
-		const items = inScope(scope).slice(0, limit);
+	// Everything a card holds, for the words in scope (or these words). A list
+	// that could not be fetched whole throws: half a deck would look like a
+	// finished one.
+	async function cardsInScope(items: SavedWord[] = inScope(scope)) {
 		const cards = new Map<string, WordCard>();
 		for (let i = 0; i < items.length; i += SUMMARY_MAX) {
 			const res = await fetch('/api/words/cards', {
@@ -243,7 +255,7 @@
 		return rows;
 	}
 
-	// `partial`: only some of the words in scope went out (Readlang's limit),
+	// `partial`: only some of the words in scope went out (one Readlang file),
 	// so the rest of the ticked ones stay ticked for the next file.
 	function afterExport(words: string[], partial = false) {
 		void saved.markExported(words);
@@ -295,32 +307,57 @@
 		}
 	}
 
+	function download(name: string, type: string, text: string) {
+		const url = URL.createObjectURL(new Blob([text], { type }));
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = name;
+		link.click();
+		// Not at once: the browser may not have started reading the file yet.
+		setTimeout(() => URL.revokeObjectURL(url), 10_000);
+	}
+
 	// Build the file here and hand it to the browser as a download.
 	async function exportAs(format: ExportFormat) {
+		if (format === 'readlang') return readlangPart(inScope(scope), 0);
 		if (exporting) return;
 		exporting = true;
 		try {
-			// Readlang takes a limited number of words per file: the first ones go
-			// now, and "Not exported yet" gives the next ones.
-			const total = inScope(scope).length;
-			const rows = await cardsInScope(format === 'readlang' ? READLANG_MAX : undefined);
+			const rows = await cardsInScope();
 			const file = exportFile(format, rows, (pos) => posLabel(m, pos), new Date());
-			const url = URL.createObjectURL(new Blob([file.text], { type: file.type }));
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = file.name;
-			link.click();
-			// Not at once: the browser may not have started reading the file yet.
-			setTimeout(() => URL.revokeObjectURL(url), 10_000);
-			ankiNote = format === 'anki'
-				? { kind: 'file' }
-				: format === 'readlang' ? { kind: 'readlang', count: Math.min(total, READLANG_MAX), total } : null;
-			afterExport(rows.map((row) => row.word), format === 'readlang' && total > READLANG_MAX);
+			download(file.name, file.type, file.text);
+			ankiNote = format === 'anki' ? { kind: 'file' } : null;
+			afterExport(rows.map((row) => row.word));
 		} catch {
 			toaster.addToast({ data: { title: m.export.failed } });
 		} finally {
 			exporting = false;
 		}
+	}
+
+	// One Readlang file: up to READLANG_MAX of `words`, starting at `from`.
+	// A list in several parts numbers its files (…-readlang-2.csv), so the
+	// browser does not name the second one "(1)".
+	async function readlangPart(words: SavedWord[], from: number) {
+		if (exporting || from >= words.length) return;
+		exporting = true;
+		try {
+			const to = Math.min(from + READLANG_MAX, words.length);
+			const rows = await cardsInScope(words.slice(from, to));
+			const file = exportFile('readlang', rows, (pos) => posLabel(m, pos), new Date());
+			const part = words.length > READLANG_MAX ? `-${from / READLANG_MAX + 1}` : '';
+			download(file.name.replace(/\.csv$/, `${part}.csv`), file.type, file.text);
+			ankiNote = { kind: 'readlang', words, from, to };
+			afterExport(rows.map((row) => row.word), to < words.length);
+		} catch {
+			toaster.addToast({ data: { title: m.export.failed } });
+		} finally {
+			exporting = false;
+		}
+	}
+
+	function nextReadlangPart() {
+		if (ankiNote?.kind === 'readlang') void readlangPart(ankiNote.words, ankiNote.to);
 	}
 </script>
 
@@ -500,6 +537,14 @@
 						<ol>
 							{#each notice.steps as step (step)}<li>{step}</li>{/each}
 						</ol>
+					{/if}
+					{#if notice.next}
+						<div class="note-actions">
+							<button type="button" class="ui-btn primary" disabled={exporting} onclick={nextReadlangPart}>
+								<Icon name="download" size={16} />
+								{notice.next}
+							</button>
+						</div>
 					{/if}
 					{#if notice.tone === 'error'}
 						<div class="note-actions">

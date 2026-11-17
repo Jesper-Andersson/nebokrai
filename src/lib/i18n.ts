@@ -93,8 +93,10 @@ const en = {
 		readlangFile: 'One more step, in Readlang',
 		readlangHint:
 			'On Readlang’s “Import Words From CSV” page, upload the downloaded file. Each line has the word, its meanings and, where the example sentence has the word in exactly this form, the sentence.',
-		readlangMore: (count: number, total: number) =>
-			`Readlang takes ${count} words per file, so this one has the first ${count} of ${total}. For the next ones, export again and choose “Not exported yet”.`,
+		/** Words `from` to `to` (counted from 1) of `total` went into the file just downloaded. */
+		readlangPart: (from: number, to: number, total: number) =>
+			`Readlang takes 200 words per file, so this one has words ${from}–${to} of ${total}.`,
+		readlangNext: (from: number, to: number) => `Next file: words ${from}–${to}`,
 		json: 'JSON',
 		failed: 'The export didn’t work. Please try again.',
 		ankiHint:
@@ -1367,8 +1369,9 @@ const uk: Messages = {
 		readlangFile: 'Ще один крок, у Readlang',
 		readlangHint:
 			'У Readlang на сторінці «Import Words From CSV» завантажте отриманий файл. У кожному рядку слово, його значення і, якщо в прикладі слово стоїть саме в цій формі, речення.',
-		readlangMore: (count, total) =>
-			`Readlang бере до ${count} слів з одного файлу, тому в цьому перші ${count} із ${total}. Щоб отримати наступні, експортуйте ще раз і виберіть «Ще не експортовані».`,
+		readlangPart: (from, to, total) =>
+			`Readlang бере до 200 слів з одного файлу, тому в цьому слова ${from}–${to} із ${total}.`,
+		readlangNext: (from, to) => `Наступний файл: слова ${from}–${to}`,
 		json: 'JSON',
 		failed: 'Не вдалося експортувати. Спробуйте ще раз.',
 		ankiHint:

@@ -11,8 +11,8 @@
      With "Hide translations" on, the meanings are blurred as the example's
      English is: the learner did not choose this word, so it can be guessed
      first, and the word itself in the example opens no card (Sentence.svelte)
-     while every other word does. Latin letters and the phonetic alphabet are left to the word's
-     page, as a search result leaves them. -->
+     while every other word does. Latin letters and the phonetic alphabet
+     show under the word as the settings ask, as on the word's page. -->
 <script lang="ts">
 	import { messagesFor } from '#lib/i18n.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -37,7 +37,7 @@
 <section class="ui-page" aria-labelledby="word-of-day">
 	<div class="ui-card">
 		<h2 id="word-of-day" class="ui-label">{m.home.wordOfDay}</h2>
-		<WordCard entry={card} framed={false} hideMeanings />
+		<WordCard entry={card} framed={false} hideMeanings pron={entry} />
 		<div class="example">
 			<p>
 				<Sentence text={entry.example.uk} own={new Set(entry.own)} />

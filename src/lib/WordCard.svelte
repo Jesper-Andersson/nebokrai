@@ -34,7 +34,8 @@
 	let {
 		entry,
 		framed = true,
-		hideMeanings = false
+		hideMeanings = false,
+		pron
 	}: {
 		entry: SearchResult | Suggestion | CardEntry;
 		/** Off when the card sits inside a frame of its own (WordOfDay.svelte) */
@@ -42,6 +43,9 @@
 		/** Blur each meaning until pressed, with "Hide translations" on: a word
 		    the learner did not ask for can be guessed before it is read */
 		hideMeanings?: boolean;
+		/** The word in Latin letters and the phonetic alphabet, shown as the
+		    settings ask (the word of the day); a search result leaves them to the word's page */
+		pron?: { roman: string | null; ipa: string | null };
 	} = $props();
 
 	const settings = useSettings();
@@ -69,6 +73,9 @@
 	);
 	// A Russian word or surzhyk with no Ukrainian word to offer: the stub, its word greyed
 	let distorted = $derived(vesumOnly && 'kind' in entry && entry.kind === 'distorted');
+
+	let roman = $derived(settings.roman === 'on' ? pron?.roman : null);
+	let ipa = $derived(settings.ipa === 'on' ? pron?.ipa : null);
 
 	// dated, archaic or obsolete; only a search result says
 	let old = $derived('old' in entry ? entry.old : undefined);
@@ -113,7 +120,15 @@
 		{#if old}<span class="ui-badge">{tagLabel(m, settings.lang, old)}</span>{/if}
 	</div>
 
-	<div class="meta"><Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} brief /></div>
+	<div class="meta">
+		{#if roman || ipa}
+			<p class="pron">
+				{#if roman}<span>{roman}</span>{/if}
+				{#if ipa}<span class="ipa">{ipa}</span>{/if}
+			</p>
+		{/if}
+		<Grammar pos={entry.pos} tags={entry.tags} headForms={entry.head_forms} brief />
+	</div>
 
 	<div class="glosses">
 		{#if vesumOnly}
@@ -227,6 +242,20 @@
 	.meta {
 		grid-area: meta;
 		min-width: 0;
+	}
+
+	/* As on the word's page, under the headword: vodá  [wɔˈda] */
+	.pron {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 0.75rem;
+		margin: 0 0 0.1rem;
+		color: var(--ink-2);
+	}
+
+	.ipa {
+		color: var(--muted);
+		font-family: var(--font-ipa);
 	}
 
 	.glosses {

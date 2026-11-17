@@ -1068,10 +1068,38 @@ def tatoeba_corrections(path=CORRECTIONS):
     return corrections
 
 
-def tatoeba_pairs(folder, corrections=None):
+EXCLUDED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "excluded-sentences.tsv")
+
+
+def excluded_sentences(path=EXCLUDED):
+    """The Tatoeba ids the site never shows, decided by hand: id -> group.
+
+    No native speaker reads the sentences before they are shown, so a sentence
+    that is political in a way a dictionary should not be (Путін у новорічну
+    ніч подякував росіянам...) is listed here by id, with its group and why.
+    `rate_sentences.py screen` lists the candidates by keyword; nothing is left
+    out by keyword alone, so a neutral or critical sentence stays.
+    """
+    excluded = {}
+    with open(path, encoding="utf-8") as f:
+        for n, line in enumerate(f, 1):
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            cols = line.split("\t")
+            if len(cols) != 3 or not cols[0].isdigit() or not cols[1] or not cols[2]:
+                raise ValueError(f"{path}:{n}: want id, group and reason, tab-separated")
+            if int(cols[0]) in excluded:
+                raise ValueError(f"{path}:{n}: {cols[0]} is listed twice")
+            excluded[int(cols[0])] = cols[1]
+    return excluded
+
+
+def tatoeba_pairs(folder, corrections=None, excluded=None):
     """Tatoeba's Ukrainian sentences that have an English translation, with the
-    corrections applied: id -> (Ukrainian, English, adapted, original), where
-    `original` is Tatoeba's Ukrainian when the correction changed it, else None."""
+    corrections applied and the excluded sentences left out: id -> (Ukrainian,
+    English, adapted, original), where `original` is Tatoeba's Ukrainian when
+    the correction changed it, else None."""
     def rows(name):
         with bz2.open(os.path.join(folder, name), "rt", encoding="utf-8") as f:
             for line in f:
@@ -1096,6 +1124,10 @@ def tatoeba_pairs(folder, corrections=None):
             text, english, _, _ = pairs[sid]
             pairs[sid] = (new_uk, new_en or english, new_uk != text or bool(new_en and new_en != english),
                           text if new_uk != text else None)
+    # Here rather than in add_tatoeba and add_cloze, so that neither can show
+    # an excluded sentence and rate_sentences.py does not spend on rating one.
+    for sid in excluded_sentences() if excluded is None else excluded:
+        pairs.pop(sid, None)
     return pairs
 
 

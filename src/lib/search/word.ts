@@ -54,6 +54,8 @@ export interface WordEntry {
 	freq_rank: number | null;
 	/** Where the entry is from: Wiktionary, or written for Nebokrai (the abbreviations км, англ.). */
 	source: EntrySource;
+	/** A slur or a highly offensive word the page warns about (data/marked-offensive.tsv): хохол. */
+	offensive: boolean;
 	senses: Sense[];
 	/** The declension or conjugation table, one row per cell. Empty if there is none. */
 	forms: { form: string; tags: string[] }[];
@@ -152,11 +154,16 @@ export async function entrySource(db: Db, id: number): Promise<EntrySource> {
 	return rows[0]?.source ?? 'wiktionary';
 }
 
+/** With `entries.offensive`; a database built before 2026-11-17 marks nothing. */
+const withOffensive = <T>(query: (column: string) => Promise<T>) =>
+	withColumn('offensive', 'NULL AS offensive', query);
+
 export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
-	const rows = await withSource((column) => db.all<Record<string, any>>(
-		`SELECT id, word, headword, pos, tags, head_forms, roman, ipa, audio_url, etymology, freq_rank, ${column}
+	const rows = await withSource((source) => withOffensive((offensive) => db.all<Record<string, any>>(
+		`SELECT id, word, headword, pos, tags, head_forms, roman, ipa, audio_url, etymology, freq_rank, ${source},
+		        ${offensive}
 		 FROM entries WHERE id IN (SELECT entry_id FROM search_keys WHERE key = ? AND kind = 'word')
-		 ORDER BY freq_rank IS NULL, freq_rank, id`, [plain(word)]));
+		 ORDER BY freq_rank IS NULL, freq_rank, id`, [plain(word)])));
 	const loaded = [];
 	for (const r of rows) {
 		const [senses, forms, examples, relations] = await Promise.all([
@@ -185,6 +192,7 @@ export async function wordDetails(db: Db, word: string): Promise<WordEntry[]> {
 		roman: r.roman, ipa: r.ipa, audio_url: r.audio_url, etymology: r.etymology,
 		freq_rank: r.freq_rank,
 		source: r.source,
+		offensive: r.offensive === 1,
 		senses: senses.map((s) => ({
 			n: s.n, gloss: s.gloss, tags: JSON.parse(s.tags), examples: JSON.parse(s.examples)
 		})),

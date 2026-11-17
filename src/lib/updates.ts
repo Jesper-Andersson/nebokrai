@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-surzhyk-and-offensive-labels',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'Word pages say when a word is surzhyk or offensive', uk: 'Сторінки слів позначають суржик і образливі слова' },
+		body: {
+			en: 'Meanings now carry labels such as surzhyk on канєшно and slang on about 80 words, and slurs such as хохол show a Highly offensive badge with a note.',
+			uk: 'Значення тепер мають позначки, як-от «суржик» у слова канєшно та «сленг» у близько 80 слів, а образи на кшталт «хохол» позначено як «Вкрай образливе» з поясненням.'
+		}
+	},
+	{
 		id: '2026-11-17-not-standard-ukrainian',
 		date: '2026-11-17',
 		kind: 'new',

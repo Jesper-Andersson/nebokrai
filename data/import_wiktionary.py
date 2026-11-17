@@ -54,6 +54,7 @@ CREATE TABLE entries (
     etymology   TEXT,
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
     freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
+    offensive   INTEGER,                  -- 1 = marked highly offensive (marked-offensive.tsv); NULL = not
     -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv). No DEFAULT:
     -- export_sql.py cannot carry a quoted value in a CREATE statement to D1.
     source      TEXT NOT NULL
@@ -594,6 +595,97 @@ SKIP_FORM_TAGS = {"table-tags", "inflection-template", "class", "romanization",
                   # "Future conjugation of бути + infinitive", not real forms.
                   "error-unrecognized-form"}
 NOISE_TAGS = {"error-unknown-tag"}
+
+# Labels wiktextract leaves in the gloss text without turning them into tags:
+# канєшно has raw_glosses ["(Surzhyk) of course, certainly"] and tags [], so
+# the word would look like plain standard Ukrainian. Each label here becomes
+# tags the site already names; "surzhyk" and "highly-offensive" are the only
+# new ones. Only usage labels are listed: topic labels ("military", "law")
+# and grammar notes ("rarely transitive") stay out on purpose.
+GLOSS_LABELS = {
+    "surzhyk": ["surzhyk"],
+    "highly offensive": ["highly-offensive"],
+    **{label: ["offensive"] for label in (
+        "potentially offensive", "now offensive", "now usually offensive",
+        "somewhat offensive", "mildly offensive")},
+    **{label: ["slang"] for label in (
+        "internet slang", "chiefly internet slang", "school slang", "university slang",
+        "student slang", "youth slang", "criminal slang", "prison slang", "army slang",
+        "military slang", "fandom slang", "gaming slang")},
+    "taboo slang": ["slang", "vulgar"],
+    "chiefly taboo slang": ["slang", "vulgar"],
+    "low colloquial": ["colloquial"],
+    "rarely": ["rare"],
+    "rare in this sense": ["rare"],
+    "dialect": ["dialectal"],
+    "now dialectal": ["dialectal"],
+    "chiefly dialectal": ["dialectal"],
+    **{label: ["derogatory"] for label in (
+        "chiefly derogatory", "usually derogatory", "sometimes derogatory")},
+    **{label: ["vulgar"] for label in ("somewhat vulgar", "chiefly vulgar", "slightly vulgar")},
+    "somewhat proscribed": ["proscribed"],
+}
+GLOSS_LABEL = re.compile(r"\(([^()]*)\)")
+
+
+def sense_tags(sense):
+    """A sense's tags: wiktextract's own, then the usage labels it left in the
+    gloss text (GLOSS_LABELS). "(Surzhyk) of course" on канєшно gives ["surzhyk"];
+    "(derogatory, ethnic slur, highly offensive)" on хохол adds "highly-offensive"
+    to the derogatory, ethnic and slur tags it already has."""
+    tags = list(sense.get("tags") or [])
+    raw = (sense.get("raw_glosses") or [""])[0]
+    found = GLOSS_LABEL.match(raw)
+    if found:
+        for label in re.split(r",\s*|\s+or\s+", found.group(1)):
+            for tag in GLOSS_LABELS.get(label.strip().lower(), []):
+                if tag not in tags:
+                    tags.append(tag)
+    return tags
+
+
+# Words the site marks as highly offensive: a slur on a people or a faith, or
+# Wiktionary's "highly offensive". Written by hand, because a sense's tags say
+# a word is a slur but not on whom; slurs on Russians are left unmarked. See
+# the file's header for the format.
+MARKED_OFFENSIVE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "marked-offensive.tsv")
+MARK_CANDIDATE_TAGS = ("slur", "highly-offensive")
+
+
+def marked_offensive(path=MARKED_OFFENSIVE):
+    """The rows of marked-offensive.tsv: {(spelling, part of speech or None): True to mark}."""
+    rows = {}
+    if not os.path.exists(path):
+        return rows
+    with open(path, encoding="utf-8") as lines:
+        for line in lines:
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            cells = [c.strip() for c in line.split("\t")] + ["", ""]
+            if cells[2] not in ("mark", "leave"):
+                raise ValueError(f"marked-offensive.tsv: '{cells[2]}' for {cells[0]} is neither mark nor leave")
+            rows[(cells[0], cells[1] or None)] = cells[2] == "mark"
+    return rows
+
+
+def mark_offensive(db, rows):
+    """Set entries.offensive = 1 on the entries the list marks, and return the
+    words whose senses carry a slur or highly-offensive tag that the list does
+    not mention either way, so a rebuild shows each new one for a decision."""
+    def listed(word, pos):
+        return rows.get((word, pos), rows.get((word, None)))
+    marked = 0
+    for (word, pos), mark in rows.items():
+        if mark:
+            marked += db.execute(
+                "UPDATE entries SET offensive = 1 WHERE word = ? AND (? IS NULL OR pos = ?)",
+                (word, pos, pos)).rowcount
+    like = " OR ".join(f"s.tags LIKE '%\"{tag}\"%'" for tag in MARK_CANDIDATE_TAGS)
+    unreviewed = sorted({f"{word} ({pos})" for word, pos in db.execute(
+        f"SELECT DISTINCT e.word, e.pos FROM entries e JOIN senses s ON s.entry_id = e.id WHERE {like}")
+        if listed(word, pos) is None})
+    return marked, unreviewed
 
 
 TOKEN = re.compile(r"[\u0400-\u04FF]+(?:['’ʼ-][\u0400-\u04FF]+)*")
@@ -1339,7 +1431,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
                         for x in s.get("examples") or [] if x.get("text")]
             had_example |= bool(examples)
             db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,?,?,?,?)",
-                       (eid, n, gloss, json.dumps(s.get("tags") or [], ensure_ascii=False),
+                       (eid, n, gloss, json.dumps(sense_tags(s), ensure_ascii=False),
                         json.dumps(examples, ensure_ascii=False)))
             stats["senses"] += 1
             related += related_words(s, n)
@@ -1402,6 +1494,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         stats.update(found)
         stats["entries"] += found["entries_from_translations"]
         stats["senses"] += found["senses_from_translations"]
+    stats["marked_offensive"], stats["offensive_unreviewed"] = mark_offensive(db, marked_offensive())
     stats["kept_linked_back"] = link_kept_pages(db, kept_links)
     stats["head_keys"] = add_head_keys(db)
     stats.update(finish_relations(db))

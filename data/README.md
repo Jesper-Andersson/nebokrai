@@ -153,6 +153,25 @@ report draws on VESUM, so it must not be committed or loaded anywhere, and
 A word in the head line of another entry keeps its `head` key beside an entry
 from the tables: `походити` finds both its own entry and ходити, which names it.
 
+## Usage labels in the gloss text, and highly offensive words
+
+wiktextract turns most of Wiktionary's usage labels into sense tags, but leaves
+some only in the gloss text: канєшно has `raw_glosses` "(Surzhyk) of course,
+certainly" and no tags. `GLOSS_LABELS` in `import_wiktionary.py` turns those
+labels into tags the site already names (internet slang becomes `slang`, low
+colloquial `colloquial`), plus two of their own, `surzhyk` and
+`highly-offensive`; 99 entries gained a tag that way in November 2026. Topic
+labels such as "military" are left out on purpose.
+
+`data/marked-offensive.tsv` is Nebokrai's own list of words the word page warns
+about: one row per word, the part of speech (empty for every one) and `mark` or
+`leave`. Marked: slurs on a people or a faith and what Wiktionary calls highly
+offensive (`хохол`, `жид`, `сучий син`; 14 entries). Slurs on Russians are
+`leave` by choice and keep Wiktionary's own tags. The importer sets
+`entries.offensive` to 1 on the marked entries and prints, as
+`offensive_unreviewed`, every word tagged `slur` or `highly-offensive` that the
+list does not mention, so a new one from a Wiktionary update gets a decision.
+
 ## Related words
 
 `relations` holds the other words Wiktionary lists on an entry or on one of

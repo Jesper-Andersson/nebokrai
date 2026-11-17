@@ -7,7 +7,8 @@ import { test } from 'node:test';
 
 import { formTables } from '../src/lib/forms.ts';
 import {
-	entryParts, EXAMPLES, GROUPS, headFormLabel, HINTS, otherFormLabel, pronounFor, termOf, termOfLabel, TERMS
+	entryParts, EXAMPLES, GROUPS, headFormLabel, HINTS, otherFormLabel, pronounFor, remarkTags, termOf, termOfLabel,
+	TERMS
 } from '../src/lib/grammar.ts';
 import { formName, messagesFor, tagLabel } from '../src/lib/i18n.ts';
 import { plain } from '../src/lib/search/normalize.ts';
@@ -187,4 +188,15 @@ test('every example is spelled as the dictionary spells it', { skip: !hasDb }, a
 			assert.ok(found.length > 0, `${id}: "${word}" is not in the dictionary`);
 		}
 	}
+});
+
+test('a slur reads as one remark, and a marked word leaves the badge to say how offensive it is', () => {
+	// wiktextract sorts the tags, so "ethnic" and "slur" need not stand together (кацап)
+	assert.deepEqual(remarkTags(['derogatory', 'ethnic', 'offensive', 'slang', 'slur']),
+		['derogatory', 'ethnic-slur', 'offensive', 'slang']);
+	assert.deepEqual(remarkTags(['derogatory', 'ethnic', 'slur', 'highly-offensive'], true), ['derogatory', 'ethnic-slur']);
+	assert.deepEqual(remarkTags(['highly-offensive']), ['highly-offensive']);
+	assert.deepEqual(remarkTags(['ethnic']), ['ethnic']);
+	assert.equal(tagLabel(messagesFor('uk'), 'uk', 'ethnic-slur'), 'етнічна образа');
+	assert.equal(tagLabel(messagesFor('en'), 'en', 'ethnic-slur'), 'ethnic slur');
 });

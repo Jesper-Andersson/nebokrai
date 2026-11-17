@@ -530,6 +530,9 @@ const en = {
 		wiktionaryTables: 'Wiktionary translation tables',
 		fromTranslations:
 			'Wiktionary has no entry for this word yet. These meanings come from the translation tables of its English entries, so some may be missing.',
+		// A slur or a highly offensive word (data/marked-offensive.tsv): хохол
+		offensive: 'Highly offensive',
+		offensiveNote: 'This word is used to insult. It is here so you can recognise it, not to use it.',
 		recording: 'Recording on Wikimedia Commons',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
@@ -644,7 +647,8 @@ const en = {
 			dated: { name: 'Dated', text: 'Once common and still heard now and then, but it sounds old-fashioned.' },
 			archaic: { name: 'Archaic', text: 'No longer in general use, but still understood; found in old texts and in writing made to sound old.' },
 			figurative: { name: 'Figurative', text: 'Not the literal meaning: the word is used as an image.' },
-			slang: { name: 'Slang', text: 'Very informal words used inside one group of people: a trade, an age, a pastime.' }
+			slang: { name: 'Slang', text: 'Very informal words used inside one group of people: a trade, an age, a pastime.' },
+			surzhyk: { name: 'Surzhyk', text: 'A mix of Ukrainian and Russian: heard in everyday speech, but not standard Ukrainian.' }
 		} as Record<TermId, { name: string; text: string }>,
 		/** A form beside the headword: "related adjective ка́вовий" */
 		headForms: {
@@ -1756,6 +1760,8 @@ const uk: Messages = {
 		wiktionaryTables: 'таблиці перекладів Вікісловника',
 		fromTranslations:
 			'У Вікісловнику ще немає статті про це слово. Ці значення взято з таблиць перекладів в англійських статтях, тож деяких може бракувати.',
+		offensive: 'Вкрай образливе',
+		offensiveNote: 'Це слово вживають, щоб образити. Його подано, щоб ви могли його впізнати, а не вживати.',
 		recording: 'Запис на Вікісховищі',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',
@@ -1870,7 +1876,8 @@ const uk: Messages = {
 			dated: { name: 'Застаріле', text: 'Колись було звичним і ще часом трапляється, але звучить старомодно.' },
 			archaic: { name: 'Архаїчне', text: 'Вийшло із загального вжитку, але ще зрозуміле; трапляється в давніх текстах і в текстах, стилізованих під давнину.' },
 			figurative: { name: 'Переносне значення', text: 'Не пряме значення: слово вжито як образ.' },
-			slang: { name: 'Сленг', text: 'Дуже неформальні слова, що їх уживають у певному колі людей: за фахом, віком чи захопленням.' }
+			slang: { name: 'Сленг', text: 'Дуже неформальні слова, що їх уживають у певному колі людей: за фахом, віком чи захопленням.' },
+			surzhyk: { name: 'Суржик', text: 'Суміш української та російської: трапляється в повсякденному мовленні, але не належить до літературної мови.' }
 		},
 		headForms: {
 			genitive: 'родовий відмінок', plural: 'множина', genitivePlural: 'родовий множини',
@@ -1893,7 +1900,9 @@ const uk: Messages = {
 		tags: {
 			rare: 'рідкісне', uncommon: 'рідковживане', obsolete: 'вийшло з ужитку', historical: 'історичне',
 			literary: 'книжне', poetic: 'поетичне', informal: 'неформальне', vulgar: 'вульгарне',
-			derogatory: 'зневажливе', offensive: 'образливе', humorous: 'жартівливе', ironic: 'іронічне',
+			derogatory: 'зневажливе', offensive: 'образливе', 'highly-offensive': 'вкрай образливе',
+			slur: 'образа', 'ethnic-slur': 'етнічна образа', 'religious-slur': 'релігійна образа',
+			proscribed: 'ненормативне', humorous: 'жартівливе', ironic: 'іронічне',
 			neologism: 'неологізм', abbreviation: 'скорочення', literally: 'буквально', idiomatic: 'ідіома',
 			usually: 'зазвичай', often: 'часто', broadly: 'у ширшому значенні', reflexive: 'зворотне',
 			present: 'теперішній час', past: 'минулий час', future: 'майбутній час',

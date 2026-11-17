@@ -25,7 +25,7 @@ export const GROUPS = {
 	words: [
 		'comparative', 'superlative', 'relational', 'predicative', 'diminutive', 'augmentative', 'derived', 'same-root'
 	],
-	usage: ['colloquial', 'dialectal', 'dated', 'archaic', 'figurative', 'slang']
+	usage: ['colloquial', 'dialectal', 'dated', 'archaic', 'figurative', 'slang', 'surzhyk']
 } as const;
 
 export type Group = keyof typeof GROUPS;
@@ -49,6 +49,23 @@ const TERM_OF: Record<string, TermId> = {
 /** The term that explains a grammar tag or a part of speech, if there is one. */
 export function termOf(tag: string): TermId | undefined {
 	return TERM_OF[tag] ?? (IS_TERM.has(tag) ? (tag as TermId) : undefined);
+}
+
+/**
+ * A meaning's tags as the remark before it shows them. wiktextract splits
+ * "ethnic slur" into two tags and sorts them, which would read "(derogatory,
+ * ethnic, offensive, slang, slur)" on кацап, so the pair is one remark again,
+ * where "ethnic" stood. On an entry the page already marks as highly
+ * offensive, the badge says that, and the remark leaves it out: хохол reads
+ * "(derogatory, ethnic slur) a Ukrainian".
+ */
+export function remarkTags(tags: string[], marked = false): string[] {
+	const kind = tags.includes('slur') ? tags.find((t) => t === 'ethnic' || t === 'religious') : undefined;
+	return tags.flatMap((tag) => {
+		if (marked && tag === 'highly-offensive') return [];
+		if (kind && tag === 'slur') return [];
+		return tag === kind ? [`${kind}-slur`] : [tag];
+	});
 }
 
 // A hint in Ukrainian, the same in both interface languages. A gender is

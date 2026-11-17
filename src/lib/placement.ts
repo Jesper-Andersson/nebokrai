@@ -11,14 +11,15 @@
 // yes/no vocabulary tests (Meara and Buxton 1987), so a learner who says yes to
 // everything is placed nowhere.
 //
-// Part 2 is two grammar items for each lesson about cases after prepositions,
-// in the lessons' order, as multiple choice (the gaps of /api/practice). A
-// lesson is placed out when both are right; the part stops after two failed
-// lessons in a row.
+// Part 2 is grammar, as multiple choice (the gaps of /api/practice): two items
+// for each lesson about cases after prepositions, then one for each lesson of
+// verbs' patterns (дякувати + кому?), each in the lessons' order. A lesson is
+// placed out when all its items are right. Each group stops after two failed
+// lessons in a row, so a beginner is not walked through all 28.
 //
 // Pure: GET and POST /api/placement draw and score with it, and the browser
 // works out the lessons placed out with it. No SvelteKit imports.
-import { LESSONS } from './practice/lessons.ts';
+import { LESSONS, type Lesson, type LessonGroup } from './practice/lessons.ts';
 import type { Random } from './practice/round.ts';
 import { COMMON_DECKS } from './review/decks.ts';
 
@@ -49,9 +50,23 @@ export const MIN_PSEUDO_ANSWERS = 10;
  */
 export const MAX_START = COMMON_DECKS[COMMON_DECKS.length - 1].to + 1;
 
-/** The lessons part 2 asks about, in order: the cases after prepositions, nine of them. */
-export const PLACEMENT_LESSONS = LESSONS.filter((lesson) => lesson.group === 'preposition');
-export const ITEMS_PER_LESSON = 2;
+/**
+ * The lessons part 2 asks about, in order: the nine about cases after
+ * prepositions, then the ten of verbs' patterns. Every lesson there is.
+ */
+export const PLACEMENT_LESSONS: readonly Lesson[] = [
+	...LESSONS.filter((lesson) => lesson.group === 'preposition'),
+	...LESSONS.filter((lesson) => lesson.group === 'government')
+];
+/**
+ * Items a lesson is asked with: two for a preposition's (у місті, на столі are
+ * two rules a learner can half know), one for a verbs' pattern, whose lesson
+ * is one question (кому?) over several verbs. 9 × 2 + 10 × 1 = 28.
+ */
+export const ITEMS_PER_LESSON: Readonly<Record<LessonGroup, number>> = { preposition: 2, government: 1 };
+const GROUP_OF = new Map(LESSONS.map((lesson) => [lesson.id, lesson.group]));
+/** Items part 2 holds with every lesson's sentences in the dictionary. */
+export const GRAMMAR_ITEMS = PLACEMENT_LESSONS.reduce((sum, lesson) => sum + ITEMS_PER_LESSON[lesson.group], 0);
 
 function shuffled<T>(items: readonly T[], random: Random): T[] {
 	const out = [...items];
@@ -164,15 +179,17 @@ export interface GrammarAsk {
 }
 
 /**
- * The rules part 2 asks, two for each placement lesson that has sentences
- * (`offered`, the rules that do), in the lessons' order: two of its rules drawn
- * at random, or its one rule twice. 18 in all, within one /api/practice call.
+ * The rules part 2 asks for each placement lesson that has sentences
+ * (`offered`, the rules that do), in the lessons' order: ITEMS_PER_LESSON of
+ * its rules drawn at random, a rule again where it has fewer. 28 in all.
  */
 export function grammarAsks(offered: readonly string[], random: Random): GrammarAsk[] {
 	return PLACEMENT_LESSONS.flatMap((lesson) => {
 		const points = lesson.points.filter((id) => offered.includes(id));
 		if (!points.length) return [];
-		const drawn = points.length === 1 ? [points[0], points[0]] : sample(points, ITEMS_PER_LESSON, random);
+		const wanted = ITEMS_PER_LESSON[lesson.group];
+		const drawn = sample(points, wanted, random);
+		while (drawn.length < wanted) drawn.push(drawn[drawn.length % points.length]);
 		return [{ lesson: lesson.id, points: drawn }];
 	});
 }
@@ -187,21 +204,28 @@ export interface GrammarResult {
 export const STOP_AFTER_FAILS = 2;
 
 /**
- * Part 2 so far: the lessons placed out (every item right, and at least
- * ITEMS_PER_LESSON of them), and whether to stop asking. Lessons are taken
- * in the order given, which is the order asked.
+ * Part 2 so far: the lessons placed out (all of a lesson's ITEMS_PER_LESSON
+ * items right), and the groups to stop asking: those with two failed lessons
+ * in a row. The groups are counted apart, so a learner who stumbles over the
+ * prepositions is still asked about the verbs. Lessons are taken in the order
+ * given, which is the order asked; a lesson not part of the test is ignored.
  */
-export function placeLessons(results: readonly GrammarResult[]): { placed: string[]; stop: boolean } {
+export function placeLessons(results: readonly GrammarResult[]): { placed: string[]; stopped: LessonGroup[] } {
 	const placed: string[] = [];
-	let fails = 0;
+	const fails = new Map<LessonGroup, number>();
+	const stopped: LessonGroup[] = [];
 	for (const { lesson, right } of results) {
-		if (right.length >= ITEMS_PER_LESSON && right.every(Boolean)) {
+		const group = GROUP_OF.get(lesson);
+		if (!group || stopped.includes(group)) continue;
+		const wanted = ITEMS_PER_LESSON[group];
+		if (right.length >= wanted && right.every(Boolean)) {
 			placed.push(lesson);
-			fails = 0;
-		} else if (right.length >= ITEMS_PER_LESSON || right.some((r) => !r)) {
-			fails += 1;
-			if (fails >= STOP_AFTER_FAILS) return { placed, stop: true };
+			fails.set(group, 0);
+		} else if (right.length >= wanted || right.some((r) => !r)) {
+			const failed = (fails.get(group) ?? 0) + 1;
+			fails.set(group, failed);
+			if (failed >= STOP_AFTER_FAILS) stopped.push(group);
 		}
 	}
-	return { placed, stop: false };
+	return { placed, stopped };
 }

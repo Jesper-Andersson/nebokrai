@@ -105,12 +105,23 @@ test('an input left out drops its criteria, and every stage can still be reached
 });
 
 test('a placement past the end of the decks counts every deck as had, without cards', () => {
-	const placed = PathInputPlaced(2001, LESSONS.filter((l) => l.group === 'preposition').map((l) => l.id));
-	const path = pathOf(placed);
-	const words = path.stages.flatMap((stage) => stage.criteria.filter((c) => c.kind === 'deck'));
+	const prepositions = LESSONS.filter((l) => l.group === 'preposition').map((l) => l.id);
+	const verbs = LESSONS.filter((l) => l.group === 'government').map((l) => l.id);
+	// Every lesson placed out, prepositions and verbs: past Getting around, to Reading
+	const all = pathOf(PathInputPlaced(2001, [...prepositions, ...verbs]));
+	const words = all.stages.flatMap((stage) => stage.criteria.filter((c) => c.kind === 'deck'));
 	assert.ok(words.every((c) => c.done));
-	assert.ok(path.stages.find((s) => s.id === 'letters')!.met);
-	// Every lesson about prepositions is placed; the verbs' patterns are not, so Getting around waits on the first
+	assert.ok(all.stages.find((s) => s.id === 'letters')!.met);
+	assert.equal(all.current, 'reading');
+	// With the coverage the placed words give (the commonest 2,000 cover about 90%), still Reading
+	assert.equal(pathOf({ ...PathInputPlaced(2001, [...prepositions, ...verbs]), coverage: pathCoverage(0.1, 0.897) })
+		.current, 'reading');
+	// The first verb lesson placed and not the rest: Getting around, and the next step is the verbs
+	const some = pathOf(PathInputPlaced(2001, [...prepositions, verbs[0]]));
+	assert.equal(some.current, 'getting-around');
+	assert.deepEqual([some.next?.stage, some.next?.criterion.key], ['conversations', 'government:all']);
+	// No verb lesson placed: the stages build on each other, so Getting around waits on the first
+	const path = pathOf(PathInputPlaced(2001, prepositions));
 	assert.equal(path.current, 'everyday');
 	assert.deepEqual([path.next?.stage, path.next?.criterion.key], ['getting-around', 'government:1']);
 

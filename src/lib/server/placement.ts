@@ -3,7 +3,7 @@
 // reads the databases. No SvelteKit imports, so tests/placement.test.ts runs
 // it on the local files.
 import { commonRange } from '../browse.ts';
-import { drawGaps, pointCounts } from '../practice/gaps.ts';
+import { MAX_GAPS, drawGaps, pointCounts } from '../practice/gaps.ts';
 import type { Gap, Random } from '../practice/round.ts';
 import {
 	PSEUDO_COUNT, TEST_WORDS, drawWords, grammarAsks, scoreWords, type WordAnswer, type WordScore
@@ -38,7 +38,7 @@ export async function unknownToVesum(words: readonly string[], vesum: Db | undef
 export interface PlacementTest {
 	/** Part 1: 80 words, real and made up, shuffled. */
 	words: string[];
-	/** Part 2: for each lesson, in order, its sentences to choose a form for. */
+	/** Part 2: for each lesson, in order (prepositions, then verbs' patterns), its sentences to choose a form for. */
 	grammar: { lesson: string; gaps: Gap[] }[];
 }
 
@@ -50,7 +50,11 @@ export async function drawTest(db: Db, vesum: Db | undefined, random: Random): P
 
 	const counts = await pointCounts(db);
 	const asks = grammarAsks(Object.keys(counts).filter((point) => counts[point] > 0), random);
-	const gaps = await drawGaps(db, asks.flatMap((ask) => ask.points), random);
+	// More than one /api/practice call holds (MAX_GAPS), so drawn in turns of it,
+	// never two sentences alike within a turn
+	const points = asks.flatMap((ask) => ask.points);
+	const gaps: Gap[] = [];
+	for (let i = 0; i < points.length; i += MAX_GAPS) gaps.push(...await drawGaps(db, points.slice(i, i + MAX_GAPS), random));
 	// Gaps come back in the order asked, one for each rule that had a sentence
 	let at = 0;
 	const grammar = asks.map(({ lesson, points }) => {

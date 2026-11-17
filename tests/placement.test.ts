@@ -7,7 +7,7 @@ import { test } from 'node:test';
 
 import { commonRange } from '../src/lib/browse.ts';
 import {
-	BANDS, MAX_START, PLACEMENT_LESSONS, PSEUDO_COUNT, TEST_WORDS, WORDS_PER_BAND, WORD_ITEMS,
+	BANDS, GRAMMAR_ITEMS, ITEMS_PER_LESSON, MAX_START, PLACEMENT_LESSONS, PSEUDO_COUNT, TEST_WORDS, WORDS_PER_BAND, WORD_ITEMS,
 	bandOf, drawWords, grammarAsks, placeLessons, scoreWords, sizeRange, type WordAnswer
 } from '../src/lib/placement.ts';
 import { pointCounts } from '../src/lib/practice/gaps.ts';
@@ -97,29 +97,38 @@ test('false alarms are taken off each band, and over 40% of them is not reliable
 	assert.equal(sizeRange(0), null);
 });
 
-test('part 2 asks two rules of each lesson about prepositions, and places a lesson with both right', () => {
+test('part 2 asks two rules of each preposition lesson and one of each verbs’ lesson, 28 in all', () => {
 	const offered = PLACEMENT_LESSONS.flatMap((lesson) => lesson.points);
 	const asks = grammarAsks(offered, seeded(5));
-	assert.equal(asks.length, 9);
-	assert.equal(asks.flatMap((a) => a.points).length, 18);
+	assert.equal(asks.length, 19);
+	assert.equal(asks.flatMap((a) => a.points).length, GRAMMAR_ITEMS);
+	assert.equal(GRAMMAR_ITEMS, 28);
 	assert.deepEqual(asks.map((a) => a.lesson), PLACEMENT_LESSONS.map((l) => l.id));
+	// The prepositions first, then the verbs
+	assert.deepEqual([asks[8].lesson, asks[9].lesson], ['above-below', 'gov-na-acc']);
 	for (const ask of asks) {
 		const lesson = PLACEMENT_LESSONS.find((l) => l.id === ask.lesson)!;
 		assert.ok(ask.points.every((p) => lesson.points.includes(p)));
+		assert.equal(ask.points.length, ITEMS_PER_LESSON[lesson.group]);
 		// Two rules where the lesson has two; its only one twice
-		assert.equal(new Set(ask.points).size, Math.min(2, lesson.points.length));
+		assert.equal(new Set(ask.points).size, Math.min(ITEMS_PER_LESSON[lesson.group], lesson.points.length));
 	}
 	// A lesson without sentences is left out
 	assert.ok(!grammarAsks(offered.filter((p) => p !== 'who-acc'), seeded(5)).some((a) => a.lesson === 'who-whom'));
 
 	const r = (lesson: string, ...right: boolean[]) => ({ lesson, right });
 	assert.deepEqual(placeLessons([r('where', true, true), r('where-to', true, false), r('who-whom', true, true)]),
-		{ placed: ['where', 'who-whom'], stop: false });
-	// Two failed lessons in a row end the part
-	assert.deepEqual(placeLessons([r('where', true, true), r('where-to', false, true), r('who-whom', false, false), r('numbers', true, true)]),
-		{ placed: ['where'], stop: true });
-	// A lesson still being answered: one right is not yet a pass or a fail
-	assert.deepEqual(placeLessons([r('where', true)]), { placed: [], stop: false });
+		{ placed: ['where', 'who-whom'], stopped: [] });
+	// Two failed lessons in a row stop that group; the verbs are still asked, one right item placing a lesson
+	assert.deepEqual(placeLessons([
+		r('where', true, true), r('where-to', false, true), r('who-whom', false, false), r('numbers', true, true),
+		r('gov-na-acc', true), r('gov-ins', false), r('gov-gen', true)
+	]), { placed: ['where', 'gov-na-acc', 'gov-gen'], stopped: ['preposition'] });
+	assert.deepEqual(placeLessons([r('gov-na-acc', false), r('gov-ins', false)]).stopped, ['government']);
+	// A preposition lesson still being answered: one right is not yet a pass or a fail
+	assert.deepEqual(placeLessons([r('where', true)]), { placed: [], stopped: [] });
+	// A lesson not in the test is ignored
+	assert.deepEqual(placeLessons([r('made-up', true, true)]), { placed: [], stopped: [] });
 });
 
 const skipDb = !existsSync('nebokrai.db') && 'nebokrai.db is missing';
@@ -148,13 +157,16 @@ test('a test drawn from the database, and scored against it', { skip: skipDb }, 
 	assert.ok(drawn);
 	assert.equal(drawn.words.length, WORD_ITEMS);
 
-	// Every lesson about prepositions that has sentences, two sentences each, of its own rules
+	// Every lesson that has sentences, prepositions then verbs, with its own number of sentences of its own rules
 	const counts = await pointCounts(db);
 	const withSentences = PLACEMENT_LESSONS.filter((l) => l.points.some((p) => counts[p] > 0));
 	assert.deepEqual(drawn.grammar.map((g) => g.lesson), withSentences.map((l) => l.id));
+	assert.equal(drawn.grammar.flatMap((g) => g.gaps).length, GRAMMAR_ITEMS);
+	// A verb's sentence marks its verb
+	assert.ok(drawn.grammar.filter((g) => g.lesson.startsWith('gov-')).every((g) => g.gaps[0].cue_length! > 0));
 	for (const { lesson, gaps } of drawn.grammar) {
-		assert.equal(gaps.length, 2, lesson);
-		const points = PLACEMENT_LESSONS.find((l) => l.id === lesson)!.points;
+		const { points, group } = PLACEMENT_LESSONS.find((l) => l.id === lesson)!;
+		assert.equal(gaps.length, ITEMS_PER_LESSON[group], lesson);
 		// Each is answered by choice: among forms, or for a who item between its two nouns
 		assert.ok(gaps.every((gap) => points.includes(gap.point) && (gap.choices.length > 1 || gap.kind === 'who')), lesson);
 	}

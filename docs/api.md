@@ -1106,13 +1106,17 @@ Response `200`:
   2,001–3,000 and 3,001–5,000, as `/common-words` counts them) and 20 made-up
   words that look Ukrainian. Which is which is not said; the learner answers
   each "I know it" or "Not sure".
-- `grammar`: part 2, the lessons about cases after prepositions (`where` …
-  `above-below`) in order, each with two sentences of its own rules (a lesson of
-  one rule has it twice), as `GET /api/practice` gives them: 18 in all. Each is
-  answered by choosing among `choices`, or, for a who item, between its two
-  nouns. A lesson is placed out when both are right, and the part stops after
-  two lessons in a row with a mistake (`placeLessons`). A lesson with no
-  sentences in the dictionary is left out.
+- `grammar`: part 2, every lesson of `/practice` in order: the nine about
+  cases after prepositions (`where` … `above-below`), then the ten of verbs'
+  patterns (`gov-na-acc` … `gov-za-ins`). A preposition lesson has two
+  sentences of its own rules (a lesson of one rule has it twice), a verbs'
+  lesson one: 28 in all, as `GET /api/practice` gives them (a verb's sentence
+  with `cue_start` and `cue_length`). Each is answered by choosing among
+  `choices`, or, for a who item, between its two nouns. A lesson is placed
+  out when all its sentences are right. The two groups stop apart: after two
+  lessons in a row with a mistake, the rest of that group is not asked
+  (`placeLessons`), and the verbs are still asked after the prepositions
+  stop. A lesson with no sentences in the dictionary is left out.
 
 The made-up words come from the dictionary build (`meta.placement_pseudo`,
 `data/README.md`). Any that VESUM knows as a word are dropped when the test is

@@ -321,6 +321,7 @@ Response `200`:
       "audio_url": null,
       "etymology": "From не́бо (nébo) + -о- (-o-) + кра́й (kráj).",
       "freq_rank": 13765,
+      "offensive": false,
       "senses": [
         {
           "n": 1,
@@ -357,6 +358,7 @@ common first.
 | Field | Meaning |
 |---|---|
 | `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`); or `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"). Credit and link accordingly: neither of the last two has a Wiktionary page. An entry from translation tables is thin: no `forms`, `etymology`, `ipa` or `freq_rank`, and each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`. |
+| `offensive` | `true` for a slur on a people or a faith, or a word Wiktionary calls highly offensive (`хохол`), from Nebokrai's hand-written `data/marked-offensive.tsv`. Show a warning with it. Slurs on Russians are `false` by choice; their meanings still carry Wiktionary's tags (`derogatory`, `ethnic`, `slur`). |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
 | `ipa` | Pronunciation. `null` for 30% of entries, nearly all of them entries from translation tables (2% of the others). |
 | `audio_url` | An mp3 on Wikimedia Commons. `null` for 61% of entries. |

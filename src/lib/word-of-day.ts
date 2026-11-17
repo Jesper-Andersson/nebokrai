@@ -49,7 +49,7 @@ export function today(now = Date.now()): number {
 
 // The frequency list comes from film subtitles, and so лайно́ and ку́рва are
 // common words. They have entries, and no place on the front page.
-const NOT_FOR_THE_FRONT_PAGE = ['vulgar', 'offensive', 'derogatory', 'slang']
+const NOT_FOR_THE_FRONT_PAGE = ['vulgar', 'offensive', 'highly-offensive', 'derogatory', 'slang', 'surzhyk']
 	.map((tag) => `tags LIKE '%"${tag}"%'`).join(' OR ');
 
 // A word whose main meaning is marked like this is not one to learn today:

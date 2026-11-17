@@ -203,6 +203,18 @@ test('word details', { skip }, async () => {
 	assert.ok((await wordDetails(db, 'стан')).length > 1); // several entries, one spelling
 	assert.deepEqual(await wordDetails(db, 'qqqq'), []);
 
+	// Labels Wiktionary leaves in the gloss text: "(Surzhyk) of course, certainly"
+	const [kaneshno] = await wordDetails(db, 'канєшно');
+	assert.deepEqual(kaneshno.senses[0].tags, ['surzhyk']);
+	// data/marked-offensive.tsv marks a slur on Ukrainians and leaves those on Russians
+	const [khokhol] = await wordDetails(db, 'хохол');
+	assert.equal(khokhol.offensive, true);
+	assert.ok(khokhol.senses[0].tags.includes('highly-offensive'));
+	const [katsap] = await wordDetails(db, 'кацап');
+	assert.equal(katsap.offensive, false);
+	assert.ok(katsap.senses[0].tags.includes('slur'));
+	assert.equal(kalyna.offensive, false);
+
 	// The forms beside a headword: the aspect partner has a page, the genitive does not
 	assert.deepEqual(read.head_forms.find((f) => f.tags.includes('perfective')),
 		{ form: 'прочита́ти', tags: ['perfective'], has_entry: true });

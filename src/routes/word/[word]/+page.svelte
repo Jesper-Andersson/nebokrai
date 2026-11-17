@@ -26,7 +26,7 @@
 	import { commonsPage } from '#lib/commons.ts';
 	import { formTables } from '#lib/forms.ts';
 	import {
-		RELATED_HEAD_FORMS, RELATED_ROW_TERMS, headFormLabel, headFormPlace, otherFormLabel, termOf, type TermId
+		RELATED_HEAD_FORMS, RELATED_ROW_TERMS, headFormLabel, headFormPlace, otherFormLabel, remarkTags, termOf, type TermId
 	} from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { lastSearch } from '#lib/last-search.ts';
@@ -192,6 +192,8 @@
 				{/if}
 				<div class="title">
 					<Headword text={entry.headword} size="lg" tag="h1" />
+					<!-- A slur or a highly offensive word (data/marked-offensive.tsv), said before anything else -->
+					{#if entry.offensive}<span class="ui-badge offensive">{m.word.offensive}</span>{/if}
 					<div class="actions">
 						<Tip label={playLabel}>
 							{#snippet trigger(props)}
@@ -224,6 +226,7 @@
 				<div class="grammar">
 					<Grammar pos={entry.pos} tags={entry.tags} headForms={lineForms} />
 				</div>
+				{#if entry.offensive}<p class="offensive-note">{m.word.offensiveNote}</p>{/if}
 			</header>
 
 			<div class="columns" class:single={!hasSide(entry)}>
@@ -233,11 +236,12 @@
 						{#if entry.source === FROM_TRANSLATIONS}<p class="thin">{m.word.fromTranslations}</p>{/if}
 						{#snippet senseItem(sense: Sense, big: boolean)}
 							{@const [gloss, note] = big ? splitGloss(sense.gloss) : [sense.gloss, null]}
+							{@const remarks = remarkTags(sense.tags, entry.offensive)}
 							<li>
 								<p class:big>
 									<!-- A remark that is a grammar word can be pressed for its note -->
-									{#if sense.tags.length}
-										<i class="tag">({#each sense.tags as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
+									{#if remarks.length}
+										<i class="tag">({#each remarks as tag, i (i)}{@const term = termOf(tag)}{#if i}{', '}{/if}{#if term}<Term id={term} />{:else}{tagLabel(m, settings.lang, tag)}{/if}{/each})</i>
 									{/if}
 									{gloss}
 								</p>
@@ -484,6 +488,21 @@
 
 	.grammar {
 		margin-top: 0.6rem;
+	}
+
+	/* A slur or a highly offensive word: the badge in the stress red, which
+	   passes 4.5:1 on the card in every theme, and a plain note between rules */
+	.ui-badge.offensive {
+		border: 1px solid var(--stress);
+		background: none;
+		color: var(--stress);
+	}
+
+	.offensive-note {
+		margin-top: 1rem;
+		padding: 0.75rem 0;
+		border-block: 1px solid var(--border-strong);
+		font-size: var(--text-sm);
 	}
 
 	.actions {

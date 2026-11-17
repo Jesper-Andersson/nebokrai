@@ -1,0 +1,45 @@
+# Words the site marks as highly offensive, and slurs it leaves unmarked.
+#
+# import_wiktionary.py sets entries.offensive = 1 on each "mark" row, and the word page then warns
+# before the meanings. Marked: slurs on a people or a faith, and what Wiktionary calls highly
+# offensive. Slurs on Russians are left unmarked by choice; they keep Wiktionary's own labels
+# ("derogatory, ethnic slur"), so nothing the source says is hidden.
+#
+# Written by hand: word as Wiktionary spells it, a tab, the part of speech (noun, adj, name, ...;
+# empty for every part of speech), a tab, and "mark" or "leave". Every word whose senses carry a
+# slur or highly-offensive tag must have a row: the import prints the ones that do not, as
+# offensive_unreviewed, so a new slur in a Wiktionary update gets a decision.
+
+# On Ukrainians
+хохол		mark
+хохлушка		mark
+малорос		mark
+Малоросія		mark
+# On Jews
+жид		mark
+жидівка		mark
+жидівський		mark
+# On Muslims, Christians and other peoples
+гяур		mark
+абрек		mark
+татарва		mark
+німчура		mark
+білорусня		mark
+# Highly offensive insults
+сучий син		mark
+
+# Slurs on Russians: left unmarked
+кацап		leave
+кацапчик		leave
+кацапеня		leave
+кацапня		leave
+Кацапщина		leave
+москаль		leave
+русня		leave
+росня		leave
+руснявий		leave
+свинособака		leave
+орк		leave
+оркиня		leave
+орочня		leave
+йбн рсн		leave

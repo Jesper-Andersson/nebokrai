@@ -260,6 +260,18 @@ async function stubFor(
 	if (kind === 'distorted') stub.use = await useInstead(db, vesum, lemma, ours ?? []);
 	return stub;
 }
+
+/**
+ * What search would say about a word only VESUM knows: its kind and, for a
+ * distorted word, what to say instead. The word's own page (vesum-word.ts)
+ * asks this, so the page and the search result never disagree.
+ */
+export async function vesumNote(
+	db: Db, vesum: Db, lemma: string, pos: string
+): Promise<Pick<SearchResult, 'kind' | 'use'>> {
+	const { kind, use } = await stubFor(db, vesum, lemma, pos, await nonstandard(db, lemma));
+	return { kind, use };
+}
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
 /** The `source` of an entry made from translation tables (FROM_TRANSLATIONS in word.ts). */

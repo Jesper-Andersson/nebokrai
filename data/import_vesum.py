@@ -58,7 +58,7 @@ FORM_TAGS = {"nomn": "nominative", "gent": "genitive", "datv": "dative", "accs":
              "1per": "first-person", "2per": "second-person", "3per": "third-person",
              "pres": "present", "futr": "future", "past": "past", "impr": "imperative",
              "infn": "infinitive", "Impe": "impersonal",
-             "Arch": "archaic", "Slng": "slang", "Infr": "informal",
+             "Arch": "archaic", "Slng": "slang", "Infr": "colloquial",
              # A form VESUM marks as not standard Ukrainian: a wrong genitive
              # of an ordinary word, or every form of таможня. Kept, so the
              # page of a distorted word still has its table, but marked.
@@ -66,7 +66,7 @@ FORM_TAGS = {"nomn": "nominative", "gent": "genitive", "datv": "dative", "accs":
 # Grammemes that belong to the word rather than to one form, as the tags of a
 # Wiktionary entry do: a noun's gender and animacy, a verb's aspect.
 WORD_TAGS = {"anim": "animate", "inan": "inanimate", "impf": "imperfective", "perf": "perfective",
-             "Pltm": "plural-only", "Sgtm": "singular-only"}
+             "Pltm": "plural-only"}
 NOUN_GENDER = {"masc": "masculine", "femn": "feminine", "neut": "neuter"}
 
 

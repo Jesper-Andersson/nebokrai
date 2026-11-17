@@ -59,7 +59,7 @@
 	const SHOWN = 2;
 	let shown = $derived(entry.glosses.slice(0, SHOWN));
 	let more = $derived(entry.glosses.length - shown.length);
-	// A VESUM-only word has no entry, so nothing to save or open.
+	// A VESUM-only word has no entry, so nothing to save; its page has its forms and no meaning.
 	let vesumOnly = $derived('vesum_only' in entry && entry.vesum_only === true);
 	// Present when the query was an inflected form of this word. Empty when
 	// only VESUM knew that: it tells the word, not which of its forms.
@@ -103,7 +103,7 @@
 
 <article class:ui-card={framed} class:plain={vesumOnly} class:old class:distorted>
 	<div class="word">
-		<Headword text={entry.headword} href={vesumOnly ? undefined : wordPath(entry.word)} />
+		<Headword text={entry.headword} href={wordPath(entry.word)} />
 		<Tip label={m.card.play}>
 			{#snippet trigger(props)}
 				<button

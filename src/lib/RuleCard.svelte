@@ -28,7 +28,7 @@
 	import Translation from '#lib/Translation.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import type { Point } from '#lib/practice/points.ts';
+	import { meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { split, type Gap } from '#lib/practice/round.ts';
 	import { endingsOf, examplesFor } from '#lib/practice/rules.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -111,12 +111,19 @@
 
 			{#if first}<p class="ui-rule-new">{t.new}</p>{/if}
 			<Dialog.Title class="ui-rule-title">
-				<b lang="uk">{point.cue}</b>
-				<Icon name="arrow-right" size={16} />
-				<Term id={point.case} />{#if point.number}&nbsp;{m.practice.ofNumber[point.number]}{/if}
+				{#if point.ask}
+					<!-- A verb's pattern: дякувати + кому?, its case named in the line under the meaning -->
+					<b lang="uk">{ruleOf(point)}</b>
+				{:else}
+					<b lang="uk">{point.cue}</b>
+					<Icon name="arrow-right" size={16} />
+					<Term id={point.case} />{#if point.number}&nbsp;{m.practice.ofNumber[point.number]}{/if}
+				{/if}
 			</Dialog.Title>
-			<Dialog.Description class="ui-rule-meaning">{m.practice.meaning[point.id] ?? ''}</Dialog.Description>
-			{#if HINTS[point.case]}
+			<Dialog.Description class="ui-rule-meaning">{meaningOfPoint(m.practice.meaning, point, settings.lang)}</Dialog.Description>
+			{#if point.ask}
+				<p class="ui-rule-question"><Term id={point.case} /></p>
+			{:else if HINTS[point.case]}
 				<p class="ui-rule-question">
 					{m.grammar.terms[point.case].name}
 					{m.practice.answers}

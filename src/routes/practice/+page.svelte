@@ -24,7 +24,7 @@
 	import PracticeRound from '#lib/PracticeRound.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { LESSONS, lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
-	import { POINTS, cardKey, pointOf, type Point } from '#lib/practice/points.ts';
+	import { POINTS, cardKey, meaningOfPoint, pointOf, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -74,6 +74,14 @@
 
 	let lessons = $derived(lessonRows(offered, held));
 	let open = $derived(openLesson(lessons, chosen));
+	/** The two lists: the cases after prepositions, and the verbs' patterns (дякувати + кому?). */
+	let groups = $derived(
+		[
+			{ label: m.learn.cases, rows: lessons.filter((lesson) => lesson.group === 'preposition') },
+			{ label: m.learn.verbPatterns, rows: lessons.filter((lesson) => lesson.group === 'government') }
+		].filter((group) => group.rows.length)
+	);
+	const meaning = (point: Point) => meaningOfPoint(m.practice.meaning, point, settings.lang);
 
 	function choose(id: string) {
 		chosen = id;
@@ -157,8 +165,9 @@
 			</div>
 		</section>
 
-		<section class="ui-card rows" aria-label={m.learn.cases}>
-			{#each lessons as lesson (lesson.id)}
+		{#each groups as group (group.label)}
+		<section class="ui-card rows" aria-label={group.label}>
+			{#each group.rows as lesson (lesson.id)}
 				{@const isOpen = lesson.id === open?.id}
 				{@const name = m.learn.short[lesson.id]}
 				<div class="row" class:open={isOpen}>
@@ -203,7 +212,7 @@
 							<table>
 								<thead>
 									<tr>
-										<th>{m.learn.column.after}</th>
+										<th>{lesson.group === 'government' ? m.learn.column.verb : m.learn.column.after}</th>
 										<th>{m.learn.column.takes}</th>
 										<th>{m.learn.column.means}</th>
 										<th>{m.learn.column.example}</th>
@@ -214,9 +223,9 @@
 								<tbody>
 									{#each lesson.points as { point, state } (point.id)}
 										<tr>
-											<td class="cue" lang="uk">{point.cue}</td>
+											<td class="cue" lang="uk">{ruleOf(point)}</td>
 											<td>{takes(point)}</td>
-											<td>{m.practice.meaning[point.id]}</td>
+											<td>{meaning(point)}</td>
 											<td class="example" lang="uk">{point.example}</td>
 											<td><span class="state" data-state={state}><i></i>{m.learn.state[state]}</span></td>
 											<td>
@@ -245,11 +254,11 @@
 											disabled={!review.ready}
 											onclick={() => (round = { only: [point.id] })}
 										>
-											<span class="cue" lang="uk">{point.cue}</span>
+											<span class="cue" lang="uk">{ruleOf(point)}</span>
 											<span class="mid">
 												<span>{takes(point)}</span>
 												<small>
-													{m.practice.meaning[point.id]} · <b lang="uk">{point.example}</b>
+													{#if meaning(point)}{meaning(point)}{' · '}{/if}<b lang="uk">{point.example}</b>
 												</small>
 											</span>
 											<span class="state" data-state={state}>
@@ -265,6 +274,7 @@
 				</div>
 			{/each}
 		</section>
+		{/each}
 
 		<p class="kept">{m.practice.kept}</p>
 	{/if}

@@ -365,6 +365,18 @@ export function cueParts(gap: Gap, from: number, to: number): [head: string, cue
 	return [gap.uk.slice(from, start), gap.uk.slice(start, end), gap.uk.slice(end, to)];
 }
 
+/**
+ * A form as it would stand in the gap: with a capital where the gap starts
+ * the sentence and the sentence has one there (Мені́ подобається…), else as
+ * given. Only what is shown changes: a choice is still marked by `plain()`,
+ * which ignores case, and a typed мені or Мені are both right.
+ */
+export function asInGap(gap: Gap, form: string): string {
+	const first = gap.uk.charAt(0);
+	if (gap.start !== 0 || first === first.toLocaleLowerCase('uk')) return form;
+	return form.charAt(0).toLocaleUpperCase('uk') + form.slice(1);
+}
+
 export function split(gap: Gap): { before: string; word: string; after: string } {
 	return {
 		before: gap.uk.slice(0, gap.start),

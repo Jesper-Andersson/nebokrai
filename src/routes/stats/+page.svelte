@@ -167,6 +167,8 @@
 
 <div class="ui-page page">
 	<h1 class="ui-title">{m.pageTitle.stats}</h1>
+	<!-- The other page that is the owner's alone: corrections readers have suggested -->
+	<p class="owner-pages"><a class="ui-btn" href="/suggestions">{m.suggestReview.link(data.waiting)}</a></p>
 
 	{#if !report}
 		<p class="note">{s.off}</p>
@@ -351,6 +353,10 @@
 </div>
 
 <style>
+	.owner-pages {
+		margin: 0.75rem 0 0;
+	}
+
 	.page {
 		max-width: var(--frame-width);
 		padding-block: var(--gap-block) var(--gap-section);

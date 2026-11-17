@@ -155,6 +155,15 @@ Most mistakes come from the sources. You can report one with "Report an issue",
 and many can be fixed directly on Wiktionary or Tatoeba, which improves them
 for everyone.
 
+On a word's page the pencil beside the headword lets a reader suggest a
+correction to the word, a meaning, an example sentence or a form. The form
+says that a suggestion may be published under CC BY-SA 4.0, the licence of the
+dictionary data it would become part of. Nothing is published unread: an
+accepted fix to an example sentence is added by hand to
+`data/tatoeba-corrections.tsv`, credited with the suggestion's number and the
+name the reader gave, and the others are fixed on Wiktionary. Suggestions are
+kept in the private reports database, never in the dictionary's own.
+
 ---
 
 ## What each licence asks

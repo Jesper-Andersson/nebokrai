@@ -13,6 +13,8 @@ export interface CellItem {
 	form: string;
 	/** The tag that tells apart the variants one cell holds: "animate", "inanimate", "dated" */
 	note?: string;
+	/** Every tag of the form, as the dictionary has them: what a suggested correction names the form by. */
+	tags: string[];
 }
 
 export interface FormTable {
@@ -157,7 +159,7 @@ export function formTables(
 					if (f.tags.some((t) => NOT_IN_TABLES.has(t))) continue;
 					used.add(f);
 					const note = f.tags.find((t) => NOTES.has(t));
-					if (!items.some((i) => i.form === f.form && i.note === note)) items.push({ form: f.form, note });
+					if (!items.some((i) => i.form === f.form && i.note === note)) items.push({ form: f.form, note, tags: f.tags });
 				}
 				return items;
 			})

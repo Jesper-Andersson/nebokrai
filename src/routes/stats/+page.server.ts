@@ -8,6 +8,8 @@ import { error } from '@sveltejs/kit';
 import { STATS_USER_IDS } from '$app/env/private';
 import { ownerIds, statsReport } from '#lib/server/stats.ts';
 import { getStatsDb } from '#lib/server/stats-db.ts';
+import { getSuggestionDb } from '#lib/server/suggestion-db.ts';
+import { countSuggestions } from '#lib/server/suggestions.ts';
 import { getUserDb } from '#lib/server/user-db.ts';
 import { accountStats } from '#lib/server/users.ts';
 import type { PageServerLoad } from './$types';
@@ -26,9 +28,13 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders, depends })
 	const days = RANGES.includes(asked) ? asked : 30;
 	const now = Date.now();
 	const [stats, users] = await Promise.all([getStatsDb(), getUserDb()]);
+	// How many suggested corrections wait at /suggestions, for the button that
+	// opens it. The counts on this page must not fail with that database.
+	const waiting = await getSuggestionDb().then(countSuggestions).then((counts) => counts.new, () => 0);
 	return {
 		days,
 		ranges: RANGES,
+		waiting,
 		report: stats ? await statsReport(stats, now, days, LISTED) : null,
 		accounts: users ? await accountStats(users, now) : null
 	};

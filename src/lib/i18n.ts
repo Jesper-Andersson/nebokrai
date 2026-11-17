@@ -1194,7 +1194,7 @@ const en = {
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
-		privacy: 'Privacy', stats: 'Usage', import: 'Import words', updates: 'Updates',
+		privacy: 'Privacy', stats: 'Usage', suggestions: 'Suggestions', import: 'Import words', updates: 'Updates',
 		extension: 'Nebokrai in your browser'
 	},
 	/**
@@ -1210,6 +1210,7 @@ const en = {
 		extension: 'A free browser extension for Chrome, Firefox and Edge: double-click a Ukrainian word on any page to see its meaning, stress and form, and save it to your lists.',
 		privacy: 'What Nebokrai keeps and what it does not: no ads and no tracking, cookies only for signing in and settings, and what an account or a report stores.',
 		stats: 'Visits, searches and accounts on Nebokrai, counted without cookies. For the site’s owner only.',
+		suggestions: 'Corrections to the dictionary that readers have suggested, for review. For the site’s owner only.',
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
@@ -1335,6 +1336,54 @@ const en = {
 		preview: 'What was sent',
 		another: 'Report something else',
 		toWord: 'Back to the word'
+	},
+	/** Suggesting a correction to one part of a word's page (SuggestEdit.svelte). */
+	suggest: {
+		toggle: 'Suggest an edit',
+		how: 'Click the part you want to correct: the word, a meaning, an example or a form.',
+		part: {
+			headword: 'The word',
+			meaning: (n: number) => `Meaning ${n}`,
+			quote: 'Quotation',
+			example: 'Example sentence',
+			form: (tags: string) => (tags ? `Form: ${tags}` : 'Form')
+		},
+		open: (part: string) => `Suggest an edit: ${part}`,
+		now: 'Now',
+		proposed: 'Your suggestion',
+		ukrainian: 'Ukrainian',
+		english: 'English',
+		note: 'Why (optional)',
+		notePlaceholder: 'A source, or how you would say it',
+		native: 'I am a native speaker',
+		name: 'Name for the credit (optional)',
+		licence: 'By sending, you agree your suggestion may be published under CC BY-SA 4.0.',
+		cancel: 'Cancel',
+		send: 'Send',
+		sending: 'Sending…',
+		gone: 'This part of the page has changed. Reload the page and try again.',
+		tooLong: 'The text is too long. Shorten it and send again.',
+		failed: 'Your suggestion couldn’t be sent. Please try again.',
+		tooMany: 'You’ve sent many suggestions in a short time. Please wait a few minutes and try again.',
+		thanks: 'Thank you! Your suggestion was sent.'
+	},
+	/** /suggestions: readers' suggested corrections, for the site's owner only. */
+	suggestReview: {
+		tabs: { new: 'New', accepted: 'Accepted', rejected: 'Rejected', applied: 'Applied' },
+		none: 'Nothing here.',
+		now: 'Now',
+		suggested: 'Suggested',
+		why: 'Why',
+		native: 'native speaker',
+		signedIn: 'signed in',
+		anonymous: 'not signed in',
+		accept: 'Accept',
+		reject: 'Reject',
+		reopen: 'Reopen',
+		markApplied: 'Mark as applied',
+		failed: 'That didn’t work. Try again.',
+		/** The button on /stats that opens the list. */
+		link: (n: number) => (n ? `Suggestions to review (${n})` : 'Suggestions')
 	}
 };
 
@@ -2382,7 +2431,7 @@ const uk: Messages = {
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
-		privacy: 'Приватність', stats: 'Відвідуваність', import: 'Імпорт слів', updates: 'Оновлення',
+		privacy: 'Приватність', stats: 'Відвідуваність', suggestions: 'Пропозиції', import: 'Імпорт слів', updates: 'Оновлення',
 		extension: 'Nebokrai у вашому браузері'
 	},
 	meta: {
@@ -2393,6 +2442,7 @@ const uk: Messages = {
 		extension: 'Безплатне розширення для Chrome, Firefox та Edge: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму та зберегти до своїх списків.',
 		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й відстеження, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
 		stats: 'Відвідування, пошуки й облікові записи Nebokrai, пораховані без файлів cookie. Лише для власника сайту.',
+		suggestions: 'Виправлення до словника, які запропонували читачі, на розгляд. Лише для власника сайту.',
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',
@@ -2513,6 +2563,51 @@ const uk: Messages = {
 		preview: 'Що надіслано',
 		another: 'Повідомити про інше',
 		toWord: 'Назад до слова'
+	},
+	suggest: {
+		toggle: 'Запропонувати виправлення',
+		how: 'Натисніть на те, що хочете виправити: слово, значення, приклад або форму.',
+		part: {
+			headword: 'Слово',
+			meaning: (n: number) => `Значення ${n}`,
+			quote: 'Цитата',
+			example: 'Приклад речення',
+			form: (tags: string) => (tags ? `Форма: ${tags}` : 'Форма')
+		},
+		open: (part: string) => `Запропонувати виправлення: ${part}`,
+		now: 'Зараз',
+		proposed: 'Ваша пропозиція',
+		ukrainian: 'Українською',
+		english: 'Англійською',
+		note: 'Чому (необов’язково)',
+		notePlaceholder: 'Джерело або як сказали б ви',
+		native: 'Українська — моя рідна мова',
+		name: 'Ім’я для подяки (необов’язково)',
+		licence: 'Надсилаючи, ви погоджуєтеся, що вашу пропозицію можна опублікувати на умовах CC BY-SA 4.0.',
+		cancel: 'Скасувати',
+		send: 'Надіслати',
+		sending: 'Надсилаємо…',
+		gone: 'Ця частина сторінки змінилася. Оновіть сторінку і спробуйте ще раз.',
+		tooLong: 'Текст задовгий. Скоротіть його і надішліть ще раз.',
+		failed: 'Не вдалося надіслати пропозицію. Спробуйте ще раз.',
+		tooMany: 'Ви надіслали багато пропозицій за короткий час. Зачекайте кілька хвилин і спробуйте ще раз.',
+		thanks: 'Дякуємо! Вашу пропозицію надіслано.'
+	},
+	suggestReview: {
+		tabs: { new: 'Нові', accepted: 'Прийняті', rejected: 'Відхилені', applied: 'Внесені' },
+		none: 'Тут порожньо.',
+		now: 'Зараз',
+		suggested: 'Пропозиція',
+		why: 'Чому',
+		native: 'носій мови',
+		signedIn: 'з обліковим записом',
+		anonymous: 'без облікового запису',
+		accept: 'Прийняти',
+		reject: 'Відхилити',
+		reopen: 'Відкрити знову',
+		markApplied: 'Позначити внесеним',
+		failed: 'Не вдалося. Спробуйте ще раз.',
+		link: (n: number) => (n ? `Пропозиції на розгляд (${n})` : 'Пропозиції')
 	}
 };
 

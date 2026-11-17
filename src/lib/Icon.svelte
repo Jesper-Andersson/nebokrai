@@ -51,7 +51,9 @@
 		play: '<path d="M8 5.5v13l10.5-6.5z"/>',
 		// Three rings round a point: aim at what is held least well (Weak spots on /practice)
 		target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6"/>',
-		stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/>'
+		stop: '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/>',
+		// Suggest a correction to a word's page (SuggestEdit.svelte)
+		pencil: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'
 	};
 
 	export type IconName = keyof typeof PATHS;

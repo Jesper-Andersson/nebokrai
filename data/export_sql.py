@@ -88,7 +88,7 @@ def export(source, target):
         sys.exit(f"{source} has rows that refer to rows that do not exist; D1 would refuse them: {broken}")
 
     schema = db.execute(
-        "SELECT type, name, sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite_%' ORDER BY rowid"
+        "SELECT type, name, sql FROM sqlite_master WHERE sql IS NOT NULL AND name NOT LIKE 'sqlite\\_%' ESCAPE '\\' ORDER BY rowid"
     ).fetchall()
     other = [kind for kind, _, _ in schema if kind not in ("table", "index")]
     if other:

@@ -5,8 +5,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import { ATTEMPT_COOKIE, RETURN_COOKIE, fetchProfile, isProvider, setSessionCookie } from '#lib/server/oauth.ts';
 import { isLocalPath } from '#lib/server/request.ts';
-import { getUserDb } from '#lib/server/user-db.ts';
-import { createSession, findOrCreateUser } from '#lib/server/users.ts';
+import { getUserDb, hasUserDb } from '#lib/server/user-db.ts';
+import { SESSION_COOKIE, createSession, deleteSession, findOrCreateUser } from '#lib/server/users.ts';
 import type { RequestHandler } from './$types';
 
 /** The Saved page shows a "sign-in didn't work" note for this address. */
@@ -25,13 +25,25 @@ export const GET: RequestHandler = async ({ params, url, cookies, fetch }) => {
 	// answer was not asked for by this browser.
 	if (!code || !state || !verifier || url.searchParams.get('state') !== state) redirect(303, FAILED);
 
-	const users = await getUserDb();
-	if (!users) error(404);
-	const profile = await fetchProfile(provider, url.origin, code, verifier, fetch);
-	if (!profile) redirect(303, FAILED);
-
-	const userId = await findOrCreateUser(users, provider, profile.id, profile.name);
-	const session = await createSession(users, userId);
+	if (!hasUserDb()) error(404);
+	let session: { token: string; expiresAt: number } | null = null;
+	try {
+		const users = await getUserDb();
+		const profile = users && (await fetchProfile(provider, url.origin, code, verifier, fetch));
+		if (users && profile) {
+			// Signing in again, perhaps to another account: the session this
+			// browser had ends here instead of staying valid for its 30 days.
+			const previous = cookies.get(SESSION_COOKIE);
+			if (previous) await deleteSession(users, previous);
+			const userId = await findOrCreateUser(users, provider, profile.id, profile.name);
+			session = await createSession(users, userId);
+		}
+	} catch (err) {
+		// The provider or the user database failed: the Saved page says so,
+		// rather than the visitor meeting an error page.
+		console.error('sign-in failed', err);
+	}
+	if (!session) redirect(303, FAILED);
 	setSessionCookie(cookies, session.token, session.expiresAt);
 	redirect(303, isLocalPath(from) ? from : '/saved');
 };

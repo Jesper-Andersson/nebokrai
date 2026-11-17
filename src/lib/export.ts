@@ -112,7 +112,9 @@ const CSV_COLUMNS = [
  * Ukrainian letters as Western European ones (ÐºÐ½Ð¸Ð³Ð° for книга).
  */
 export function csv(cards: ExportCard[]): string {
-	const quote = (text: string) => `"${text.replace(/"/g, '""')}"`;
+	// A field starting = + - or @ is read as a formula by spreadsheets, even in
+	// quotes: the suffix -а would show as #NAME?. A leading ' keeps it text.
+	const quote = (text: string) => `"${(/^[=+\-@]/.test(text) ? `'${text}` : text).replace(/"/g, '""')}"`;
 	const rows = cards.map((card) => [
 		card.word, card.headword, card.pos, card.tags.join(', '), card.ipa ?? '', card.glosses.join('; '),
 		card.example?.uk ?? '', card.example?.en ?? '', wordUrl(card.word), new Date(card.saved_at).toISOString()

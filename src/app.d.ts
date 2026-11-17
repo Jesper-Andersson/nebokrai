@@ -2,7 +2,10 @@
 // for information about these interfaces
 declare global {
 	namespace App {
-		// interface Error {}
+		interface Error {
+			/** On `/api/…` answers: a short machine-readable reason, as docs/api.md lists them ("internal"). */
+			error?: string;
+		}
 		interface Locals {
 			settings: import('#lib/settings.ts').Settings;
 			/** The signed-in visitor, or null. Set in hooks.server.ts from the session cookie. */

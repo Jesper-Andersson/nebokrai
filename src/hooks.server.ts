@@ -13,7 +13,7 @@
 // the dictionary too often gets 429 (src/lib/server/crawler.ts).
 import { env } from 'cloudflare:workers';
 import { dev } from '$app/env';
-import type { Handle } from '@sveltejs/kit/hooks';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 import { isCounted, limitKey, tooMany } from '#lib/server/crawler.ts';
 import { clearSessionCookie, setSessionCookie } from '#lib/server/oauth.ts';
 import { mayWrite } from '#lib/server/request.ts';
@@ -91,6 +91,15 @@ async function overLimit(event: Parameters<Handle>[0]['event']): Promise<boolean
 		return false;
 	}
 }
+
+// Something broke that no code here expected (the dictionary database cannot be
+// reached, say). An API client gets the body docs/api.md promises,
+// { "error": "internal" }, beside SvelteKit's own status and message.
+export const handleError: HandleServerError = ({ kind, error, event }) => {
+	if (kind !== 'unknown') return;
+	console.error(error);
+	if (event.url.pathname.startsWith('/api/')) return { error: 'internal' };
+};
 
 const answer: Handle = async ({ event, resolve }) => {
 	if (await overLimit(event)) return tooMany(event.url.pathname);

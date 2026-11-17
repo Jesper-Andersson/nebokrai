@@ -25,7 +25,7 @@ All text is UTF-8. Ukrainian words in a URL must be percent-encoded
 | Parameter | | |
 |---|---|---|
 | `q` | required | What the user typed: Ukrainian, Latin letters or English. At most 100 characters. |
-| `limit` | optional | Most results to return. Default 20, at most 50. |
+| `limit` | optional | Most results to return. Default 20, at most 50. A value that is not a whole number above 0 counts as 20. |
 
 A longer `q` gets `400` with `{ "error": "query_too_long" }`. The search box
 has the same limit (`MAX_QUERY_LENGTH` in `src/lib/limits.ts`), so a visitor
@@ -650,14 +650,13 @@ VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
 
 | Status | When |
 |---|---|
-| `400` | `limit` is not a number. |
 | `400` | `/api/search` with `q` over 100 characters. Body: `{ "error": "query_too_long" }`. |
 | `400` | `/api/gloss` with a word over 40 characters. Body: `{ "error": "word_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `404` | `/api/radio/now/…` for a station that is not in the list. |
 | `400` | `/api/practice` with no `points`, or more than 20. Body: `{ "error": "bad_points", "max": 20 }`. |
 | `429` | `/api/search`, `/api/word/…` or `/api/gloss` asked too often. Body: `{ "error": "too_many" }`; see below. |
-| `500` | Anything unexpected. Body: `{ "error": "internal" }`. |
+| `500` | Anything unexpected. Body: `{ "error": "internal" }`, with SvelteKit's `status` and `message` beside it. |
 
 ### Too many requests
 
@@ -1193,7 +1192,7 @@ These are pages the browser visits, not JSON endpoints.
 | `401` | `{ "error": "signed_out" }` | No session, or it has ended. |
 | `403` | `{ "error": "cross_site" }` | A `POST`, `PUT`, `PATCH` or `DELETE` whose `Origin` header names another site, or that has no `Origin` header and either no `Content-Type` or a form's (`application/x-www-form-urlencoded`, `multipart/form-data`, `text/plain`). Applies to every address on the site (`mayWrite` in `src/lib/server/request.ts`), but for `PUT` and `DELETE /api/saved/<word>` from a browser extension. |
 | `400` | `{ "error": "invalid_cards" }` | `/api/review/sync`: `cards` is not a list, or has more than 500 items. |
-| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/lists/<id>/words`. |
+| `413` | `{ "error": "too_large" }` | The body is over the limit: 128 KB for `/api/words/summary` and `/api/words/cards`, 256 KB for `/api/review/sync`, 2 MB for `/api/saved/merge`, 1 MB for `/api/saved/exported` and `/api/lists/<id>/words`. |
 | `404` | `{ "error": "not_found" }` | `PUT /api/saved/<word>` for a word with no entry. `POST /api/lists/<id>/words` for a list the account does not have. `GET /api/review/deck/<deck>` for a deck that does not exist. |
 | `409` | `{ "error": "full" }` | `PUT /api/saved/<word>` when 5,000 words are already saved. `PUT /api/lists/<id>` for a new list when the account already has 50. |
 | `409` | `{ "error": "name_taken" }` | `PUT /api/lists/<id>` when another of the account's lists has that name. |

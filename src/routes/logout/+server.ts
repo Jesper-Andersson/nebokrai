@@ -8,8 +8,16 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ cookies }) => {
 	const token = cookies.get(SESSION_COOKIE);
-	const users = token ? await getUserDb() : undefined;
-	if (token && users) await deleteSession(users, token);
+	// The cookie goes first: if the database then fails, this browser is still
+	// signed out, and the session row simply runs out.
 	clearSessionCookie(cookies);
+	if (token) {
+		try {
+			const users = await getUserDb();
+			if (users) await deleteSession(users, token);
+		} catch (err) {
+			console.error('sign-out could not delete the session', err);
+		}
+	}
 	redirect(303, '/');
 };

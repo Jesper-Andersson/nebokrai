@@ -37,8 +37,8 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 65,108 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,295 |
-| `examples` | Tatoeba sentence with English translation | 26,118 |
-| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,556 |
+| `examples` | Tatoeba sentence with English translation | 25,970 |
+| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,548 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,774,768 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
@@ -247,7 +247,7 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (11,463 entries), preferring sentences
+Up to three Tatoeba sentences per entry (11,395 entries), preferring sentences
 of about five words. `tatoeba_id` links back to the sentence for attribution.
 
 `tatoeba-corrections.tsv` corrects sentences that read badly, as a teacher
@@ -260,6 +260,26 @@ over the ratings and the checked fixes below. A corrected sentence has
 `original` keeps Tatoeba's Ukrainian when the correction changed it, which the
 word page shows behind the mark. `add_examples.py` and `add_cloze.py` apply
 them to a built database without new entry ids.
+
+`excluded-sentences.tsv` lists sentences the site never shows, by Tatoeba id.
+No native speaker reads the sentences first, so a person decides each one: praise
+of a regime (Путін у новорічну ніч подякував росіянам...), slurs and sweeping
+claims about a people or a faith, insults aimed at a named politician, contested
+claims put as fact, profanity. Neutral, factual and critical sentences stay
+(Росія вторглася в Україну). `tatoeba_pairs` drops the listed ids, so they are
+gone from `examples` and `cloze` and are never sent for rating. To add one:
+
+1. List the candidates by keyword group, either the sentences the database shows
+   now or every Tatoeba pair:
+   `python3 data/rate_sentences.py screen data/raw --db nebokrai.db` (or `--all`).
+   A keyword only finds a sentence for a person to judge; it excludes nothing.
+2. Add a line to `excluded-sentences.tsv`: the id, the group (`russia`,
+   `ukraine-war`, `soviet`, `politicians`, `faith-people`, `extremism` or
+   `other`) and the reason with who decided and when, tab-separated.
+3. Run `python3 data/add_examples.py nebokrai.db data/raw` and
+   `python3 data/add_cloze.py nebokrai.db data/raw` (no new entry ids, so the
+   search cases stay), then `npm test`: `tests/excluded.test.ts` fails while a
+   listed id is still in the database.
 
 Readers can suggest such a fix on a word's page. Once a suggestion has been
 accepted on the site's review page, `npm run suggestions` prints it as a line

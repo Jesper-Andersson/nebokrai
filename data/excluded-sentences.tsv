@@ -1,0 +1,64 @@
+# Tatoeba sentences the site never shows, as an example or in grammar practice.
+#
+# No native speaker reads the sentences before they are shown, so a sentence that a dictionary for
+# learners should not carry is listed here by hand. The trigger: the grammar card for дякувати showed
+# "Путін у новорічну ніч подякував росіянам за готовність відстоювати інтереси країни".
+# Listed: praise of or propaganda for a regime, slurs and sweeping claims about a people or a faith,
+# insults aimed at a named politician, contested claims stated as fact, and profanity. Not listed:
+# sentences that are neutral, factual or critical (Росія вторглася в Україну), however political.
+#
+# Candidates come from `python3 data/rate_sentences.py screen data/raw --db nebokrai.db` (or --all),
+# which lists sentences by keyword group; a person decides each one. A match alone excludes nothing.
+#
+# One line per sentence, three columns separated by tabs:
+#   id       the Tatoeba id of the Ukrainian sentence (https://tatoeba.org/sentences/show/<id>)
+#   group    the screen group it came from (russia, ukraine-war, soviet, politicians, faith-people,
+#            extremism) or "other"
+#   reason   why it is left out, in a few words, and who decided it and when
+#
+# import_wiktionary.py, add_examples.py and add_cloze.py drop every listed id; tests/excluded.test.ts
+# checks that none is in nebokrai.db. Lines starting with # are comments.
+3950344	russia	praise of Putin, Kremlin messaging (the дякувати grammar card) (user, 2026-11-17)
+3950337	russia	pro-Putin (user, 2026-11-17)
+398714	russia	crude Putin quote with no context (user, 2026-11-17)
+467465	russia	imperial claim; Tatoeba's English says Russian cities (user, 2026-11-17)
+4520824	russia	sweeping claim about a people (user, 2026-11-17)
+500581	russia	ethnic saying (user, 2026-11-17)
+4199832	russia	stereotype about Russians (user, 2026-11-17)
+4199949	russia	stereotype about Russians (user, 2026-11-17)
+469071	russia	slur (москаль) (user, 2026-11-17)
+8581034	russia	slurs (ватник, вишиватниця) (user, 2026-11-17)
+12057607	russia	profanity (user, 2026-11-17)
+10114482	russia	loaded term (gay propaganda) (user, 2026-11-17)
+10790866	russia	lowercase росії, a spelling a learner would copy (user, 2026-11-17)
+10841437	russia	lowercase росії, a spelling a learner would copy (user, 2026-11-17)
+10793421	russia	lowercase росії, a spelling a learner would copy (user, 2026-11-17)
+428062	soviet	Soviet propaganda slogan (user, 2026-11-17)
+4269506	soviet	Soviet propaganda slogan (user, 2026-11-17)
+10558111	extremism	accusation against a state stated as fact (user, 2026-11-17)
+7085632	faith-people	ties a faith to terrorism (user, 2026-11-17)
+8756091	politicians	claim about a named politician's health (user, 2026-11-17)
+8749653	politicians	insult aimed at a named politician (user, 2026-11-17)
+8756080	politicians	insult aimed at a named politician (user, 2026-11-17)
+9053325	politicians	insult aimed at a named politician (user, 2026-11-17)
+12003790	politicians	insult aimed at a named politician (user, 2026-11-17)
+5128218	politicians	partisan jab (user, 2026-11-17)
+13151399	politicians	accusation against a named politician (user, 2026-11-17)
+13152374	politicians	accusation against a named politician (user, 2026-11-17)
+8632000	politicians	false claim about a named politician (user, 2026-11-17)
+11583815	politicians	partisan insult (user, 2026-11-17)
+7978823	politicians	partisan jab (user, 2026-11-17)
+6210341	politicians	partisan insult (user, 2026-11-17)
+7963730	politicians	out of date: Obama as president (user, 2026-11-17)
+10806132	politicians	out of date: Biden as vice-president (user, 2026-11-17)
+558769	faith-people	slur (жид); 558770 with єврей stays (user, 2026-11-17)
+8851522	faith-people	claim about a faith (user, 2026-11-17)
+10281096	faith-people	says a Jewish town is cursed (user, 2026-11-17)
+6277314	faith-people	a creed stated as fact (user, 2026-11-17)
+528269	faith-people	a creed stated as fact (user, 2026-11-17)
+6458818	faith-people	a creed stated as fact (user, 2026-11-17)
+501122	faith-people	flippant about a faith (user, 2026-11-17)
+6789013	faith-people	conversion story (user, 2026-11-17)
+6856797	faith-people	anti-migrant generalisation (user, 2026-11-17)
+7318648	faith-people	contested capital stated as fact (user, 2026-11-17)
+8049526	faith-people	contested capital stated as fact (user, 2026-11-17)

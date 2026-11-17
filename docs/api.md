@@ -357,7 +357,7 @@ common first.
 
 | Field | Meaning |
 |---|---|
-| `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`, and English meanings of our own for common words Wiktionary has no page for, `облишити`; such an entry has no `forms`, `etymology` or `ipa`); or `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"). Credit and link accordingly: neither of the last two has a Wiktionary page. An entry from translation tables is thin: no `forms`, `etymology`, `ipa` or `freq_rank`, and each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`. |
+| `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`, and English meanings of our own for common words Wiktionary has no page for, `облишити`; such an entry has no `forms`, `etymology` or `ipa`); `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"); or `ukwiktionary` for a word neither has, made from the English in the translation table of its Ukrainian Wiktionary page (`мурал`, at `https://uk.wiktionary.org/wiki/мурал`). Credit and link accordingly: none of the last three has an English Wiktionary page. An entry from translation tables of either kind is thin: no `forms`, `etymology`, `ipa` or `freq_rank`. From English tables each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`; from Ukrainian ones it is the English of one table, `askew, awry`. |
 | `offensive` | `true` for a slur on a people or a faith, or a word Wiktionary calls highly offensive (`хохол`), from Nebokrai's hand-written `data/marked-offensive.tsv`. Show a warning with it. Slurs on Russians are `false` by choice; their meanings still carry Wiktionary's tags (`derogatory`, `ethnic`, `slur`). |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
 | `ipa` | Pronunciation. `null` for 30% of entries, nearly all of them entries from translation tables (2% of the others). |
@@ -637,7 +637,7 @@ The answers carry dictionary data, and each source keeps its own licence
 
 | What | Licence |
 |---|---|
-| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 (`source: "wiktionary-translations"` too); entries with `source: "nebokrai"` are Nebokrai's, same licence |
+| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 (`source: "wiktionary-translations"` too; `source: "ukwiktionary"` is Ukrainian Wiktionary, same licence); entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
 | Results with `vesum_only: true`, their `kind`, `use` past Nebokrai's own suggestions, and `through` on a result with `match: "form"` | VESUM and dict_uk, CC BY-NC-SA 4.0: no commercial use |
 | `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |

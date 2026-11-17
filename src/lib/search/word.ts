@@ -106,12 +106,19 @@ export type TatoebaSentence = { uk: string; en: string; tatoeba_id: number; adap
  * Where an entry is from: a Wiktionary page of its own; Nebokrai's own entries
  * (the abbreviations км, англ.); or the translation tables of English
  * Wiktionary pages, for a word with no page of its own (шериф, under
- * "sheriff"). The last are thin: no forms, no etymology, no frequency rank.
+ * "sheriff"); or the translation tables of Ukrainian Wiktionary, for a word
+ * neither has (мурал). The last two are thin: no forms, no etymology, no
+ * frequency rank.
  */
-export type EntrySource = 'wiktionary' | 'nebokrai' | 'wiktionary-translations';
+export type EntrySource = 'wiktionary' | 'nebokrai' | 'wiktionary-translations' | 'ukwiktionary';
 
 /** The `source` of an entry made from translation tables; FROM_TRANSLATIONS in import_wiktionary.py. */
 export const FROM_TRANSLATIONS = 'wiktionary-translations';
+/** The `source` of an entry made from Ukrainian Wiktionary; FROM_UK_WIKTIONARY in import_wiktionary.py. */
+export const FROM_UK_WIKTIONARY = 'ukwiktionary';
+
+/** An entry with no forms, etymology or frequency rank, made from translation tables. */
+export const isThin = (source: EntrySource) => source === FROM_TRANSLATIONS || source === FROM_UK_WIKTIONARY;
 
 /**
  * Runs `query(column)`, and again with `fallback` in its place when the

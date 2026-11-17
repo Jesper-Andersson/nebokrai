@@ -201,23 +201,25 @@ def stub_for(db, vesum, lemma, pos, ours):
     return stub
 
 
-# The `source` of an entry made from translation tables (FROM_TRANSLATIONS in import_wiktionary.py).
-THIN = "wiktionary-translations"
+# The `source` of the entries made from translation tables and from Ukrainian
+# Wiktionary (THIN_SOURCES in import_wiktionary.py): no forms, no frequency rank.
+THIN = ("wiktionary-translations", "ukwiktionary")
 
 
 def prefixed(db, kind, low, high, limit, hits):
     """The entries a word starting with the query may be, for search-as-you-type.
 
     The window is the first limit * 3 keys in alphabetical order; the common
-    words among them are sorted first afterwards. The entries made from
-    translation tables would crowd it (кал has more than a hundred words),
-    and they sort last anyway, so the window is filled from the others, and
-    from those only while the results are still short: шер finds шериф."""
+    words among them are sorted first afterwards. The thin entries (from
+    translation tables or Ukrainian Wiktionary) would crowd it (кал has more
+    than a hundred words), and they sort last anyway, so the window is filled
+    from the others, and from those only while the results are still short:
+    шер finds шериф."""
     sql = ("SELECT k.entry_id, k.kind FROM search_keys k JOIN entries e ON e.id = k.entry_id"
-           f" WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source {{}} ? ORDER BY k.key LIMIT ?")
-    rows = db.execute(sql.format("!="), (kind, low, high, THIN, limit * 3)).fetchall()
+           f" WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source {{}} (?, ?) ORDER BY k.key LIMIT ?")
+    rows = db.execute(sql.format("NOT IN"), (kind, low, high, *THIN, limit * 3)).fetchall()
     if len({eid for eid, _ in rows} | set(hits)) < limit:
-        rows += db.execute(sql.format("="), (kind, low, high, THIN, limit * 3)).fetchall()
+        rows += db.execute(sql.format("IN"), (kind, low, high, *THIN, limit * 3)).fetchall()
     return rows
 
 

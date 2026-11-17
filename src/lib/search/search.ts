@@ -262,27 +262,28 @@ async function stubFor(
 }
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
-/** The `source` of an entry made from translation tables (FROM_TRANSLATIONS in word.ts). */
-const THIN = 'wiktionary-translations';
+/** The `source` of the thin entries (THIN_SOURCES in word.ts): no forms, no frequency rank. */
+const THIN = ['wiktionary-translations', 'ukwiktionary'];
 
 /**
  * The entries a word starting with the query may be, for search-as-you-type.
  *
  * The window is the first limit * 3 keys in alphabetical order; the common
- * words among them are sorted first afterwards. The entries made from
- * translation tables would crowd it (кал has more than a hundred words), and
- * they sort last anyway, so the window is filled from the others, and from
- * those only while the results are still short: шер finds шериф.
+ * words among them are sorted first afterwards. The thin entries (from
+ * translation tables or Ukrainian Wiktionary) would crowd it (кал has more
+ * than a hundred words), and they sort last anyway, so the window is filled
+ * from the others, and from those only while the results are still short:
+ * шер finds шериф.
  */
 async function prefixed(
 	db: Db, kind: 'word' | 'latin', low: string, high: string, limit: number, hits: Map<number, number>
 ): Promise<KeyRow[]> {
 	const sql = (op: string) =>
 		'SELECT k.entry_id, k.kind FROM search_keys k JOIN entries e ON e.id = k.entry_id' +
-		` WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source ${op} ? ORDER BY k.key LIMIT ?`;
-	const rows = await db.all<KeyRow>(sql('!='), [kind, low, high, THIN, limit * 3]);
+		` WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source ${op} (?, ?) ORDER BY k.key LIMIT ?`;
+	const rows = await db.all<KeyRow>(sql('NOT IN'), [kind, low, high, ...THIN, limit * 3]);
 	const found = new Set([...rows.map((row) => row.entry_id), ...hits.keys()]);
-	if (found.size < limit) rows.push(...await db.all<KeyRow>(sql('='), [kind, low, high, THIN, limit * 3]));
+	if (found.size < limit) rows.push(...await db.all<KeyRow>(sql('IN'), [kind, low, high, ...THIN, limit * 3]));
 	return rows;
 }
 

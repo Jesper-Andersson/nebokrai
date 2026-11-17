@@ -4,6 +4,7 @@
 Usage:
     python3 import_wiktionary.py raw/uk.jsonl nebokrai.db [--freq FILE] [--tatoeba DIR]
         [--abbreviations FILE] [--own-meanings FILE] [--translations FILE]
+        [--ukwiktionary FILE]
 
     --freq FILE           word frequency list, one "word count" per line
                           (FrequencyWords uk_full.txt, built from film subtitles)
@@ -14,6 +15,8 @@ Usage:
                           words that Wiktionary has no page for
     --translations FILE   the Ukrainian translations from English Wiktionary's
                           translation tables, as extract_translations.py writes them
+    --ukwiktionary FILE   the Wikimedia dump of Ukrainian Wiktionary (.xml.bz2), for
+                          words the others lack (import_ukwiktionary.py)
 
 Input:  kaikki.org-dictionary-Ukrainian.jsonl (English Wiktionary, CC BY-SA)
 Output: a SQLite database with seven tables:
@@ -425,6 +428,11 @@ UKRAINIAN_ONLY = re.compile("[а-щьюяєіїґА-ЩЬЮЯЄІЇҐ́'’ʼ -]+
 # The `source` of an entry made from translation tables, not from a page of the
 # word's own. The word page says so above its meanings.
 FROM_TRANSLATIONS = "wiktionary-translations"
+# The `source` of an entry made from Ukrainian Wiktionary (import_ukwiktionary.py)
+FROM_UK_WIKTIONARY = "ukwiktionary"
+# Entries thinner than a page of English Wiktionary's own: no table of forms,
+# no frequency rank, after the others in search-as-you-type (THIN in search.py)
+THIN_SOURCES = (FROM_TRANSLATIONS, FROM_UK_WIKTIONARY)
 # What a translation says about the word itself. Anything else among its tags
 # ("usually", "also") is left out. A gender is kept for a noun only and an
 # aspect for a verb only: the tables also put "masculine" on adjectives, which
@@ -679,11 +687,12 @@ def add_head_keys(db):
     found as themselves. Run after every entry is in, so a word that has an
     entry further down the file is not keyed twice.
 
-    An entry made from translation tables does not count: it is too thin to
-    stand alone, so істори́чно finds both its own entry and істори́чний."""
+    An entry made from translation tables or Ukrainian Wiktionary does not
+    count: it is too thin to stand alone, so істори́чно finds both its own
+    entry and істори́чний."""
     known = {k for (k,) in db.execute(
         "SELECT k.key FROM search_keys k JOIN entries e ON e.id = k.entry_id"
-        " WHERE k.kind IN ('word','form') AND e.source != ?", (FROM_TRANSLATIONS,))}
+        " WHERE k.kind IN ('word','form') AND e.source NOT IN (?, ?)", THIN_SOURCES)}
     rows = set()
     for eid, head_forms in db.execute("SELECT id, head_forms FROM entries"):
         for f in json.loads(head_forms):
@@ -1443,7 +1452,8 @@ def add_cloze(db, index, pairs, per_noun=5, ratings=None):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None,
+          ukwiktionary=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
@@ -1600,14 +1610,23 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         stats["senses"] += own_senses
     turned_down = nonstandard()
     stats["nonstandard_words"] = add_nonstandard(db, turned_down)
+    review = []
     if translations:
-        review = []
         found = add_translations(db, translations, {(word, pos) for word, pos, _ in turned_down}, review)
-        # Next to the translations file, in data/raw/, which git ignores
-        new_words.write_review(os.path.join(os.path.dirname(translations), "new-words-review.tsv"), review)
         stats.update(found)
         stats["entries"] += found["entries_from_translations"]
         stats["senses"] += found["senses_from_translations"]
+    if ukwiktionary:
+        # Imported here, not at the top: it imports from this module
+        from import_ukwiktionary import add_ukwiktionary
+        found = add_ukwiktionary(db, ukwiktionary, {word for word, _, _ in turned_down}, review)
+        stats.update(found)
+        stats["entries"] += found["ukwikt_entries"]
+        stats["senses"] += found["ukwikt_senses"]
+    if review:
+        # Next to the input files, in data/raw/, which git ignores
+        new_words.write_review(os.path.join(os.path.dirname(translations or ukwiktionary),
+                                            "new-words-review.tsv"), review)
     stats["marked_offensive"], stats["offensive_unreviewed"] = mark_offensive(db, marked_offensive())
     stats["kept_linked_back"] = link_kept_pages(db, kept_links)
     stats["head_keys"] = add_head_keys(db)
@@ -1616,7 +1635,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         index = form_index(db)
         if freq:
             reference = ukrainian_counts(tatoeba) if tatoeba else None
-            thin = {eid for (eid,) in db.execute("SELECT id FROM entries WHERE source=?", (FROM_TRANSLATIONS,))}
+            thin = {eid for (eid,) in db.execute("SELECT id FROM entries WHERE source IN (?, ?)", THIN_SOURCES)}
             stats.update(add_frequency(db, index, freq, reference, unranked=thin))
         if tatoeba:
             pairs = tatoeba_pairs(tatoeba)
@@ -1653,7 +1672,10 @@ if __name__ == "__main__":
     ap.add_argument("--translations",
                     help="data/raw/uk_translations.jsonl from extract_translations.py: entries for words "
                          "with no Wiktionary page of their own")
+    ap.add_argument("--ukwiktionary",
+                    help="data/raw/ukwiktionary.xml.bz2, the Wikimedia dump of Ukrainian Wiktionary: entries "
+                         "from its translation tables for words the others lack (import_ukwiktionary.py)")
     args = ap.parse_args()
     for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations,
-                      args.translations, args.own_meanings).items():
+                      args.translations, args.own_meanings, args.ukwiktionary).items():
         print(f"{k:>16}: {v}")

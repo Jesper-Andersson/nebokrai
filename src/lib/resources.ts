@@ -447,6 +447,18 @@ export const RESOURCES: Resource[] = [
 		explainedIn: 'en',
 		checked: '2026-11-12'
 	},
+	{
+		name: 'їLearn',
+		url: 'https://ilearnua.com/',
+		logo: 'resources/ilearn-ukrainian.png',
+		en: 'Small-group courses and private lessons, online or in Oxford; free one-to-one trial lesson.',
+		uk: 'Курси в малих групах та індивідуальні уроки, онлайн або в Оксфорді; безплатний пробний індивідуальний урок.',
+		kind: 'tutor',
+		levels: ALL,
+		cost: 'paid',
+		explainedIn: 'en',
+		checked: '2026-11-17'
+	},
 
 	// Community
 	{

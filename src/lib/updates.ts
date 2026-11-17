@@ -43,6 +43,26 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-not-standard-ukrainian',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Search a Russian word, find the Ukrainian one', uk: 'Шукаєте російське слово — знайдете українське' },
+		body: {
+			en: 'Search for a Russian word or surzhyk, such as криша or таможня, and you get the Ukrainian word to use instead, with the word you typed struck through.',
+			uk: 'Шукайте російське слово чи суржик, як-от «криша» або «таможня», і побачите українське слово, яке варто вжити, а набране слово закреслене.'
+		}
+	},
+	{
+		id: '2026-11-17-translation-table-words',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'About 13,000 more words have a meaning', uk: 'Ще близько 13 000 слів мають значення' },
+		body: {
+			en: 'Words with no Wiktionary entry of their own, such as шериф, now show the meanings given in the translation tables of English entries.',
+			uk: 'Слова без власної статті у Вікісловнику, як-от шериф, тепер показують значення з таблиць перекладів в англійських статтях.'
+		}
+	},
+	{
 		id: '2026-11-17-readlang-export',
 		date: '2026-11-17',
 		kind: 'new',
@@ -52,6 +72,16 @@ export const UPDATES: Update[] = [
 			uk: 'Кнопка «Експортувати» на сторінці збережених тепер дає файл для Readlang зі значеннями слів і прикладом, де він підходить, до 200 слів у файлі.'
 		},
 		href: '/saved'
+	},
+	{
+		id: '2026-11-17-fewer-edited-sentences',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'More sentences shown as their authors wrote them', uk: 'Більше речень так, як їх написали автори' },
+		body: {
+			en: 'Corrections that a second check showed were not needed are gone: 217 example sentences no longer carry the "edited" mark.',
+			uk: 'Прибрано виправлення, які після перевірки виявилися зайвими: 217 прикладів знову показано без позначки «виправлено».'
+		}
 	},
 	{
 		id: '2026-11-16-natural-example-sentences',

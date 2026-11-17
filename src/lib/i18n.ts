@@ -420,6 +420,8 @@ const en = {
 		noEntry: 'A Ukrainian word with no dictionary entry yet.',
 		// What a word without an entry is, where VESUM says so
 		kind: {
+			// A Russian word, surzhyk or a misspelling: таможня, криша
+			distorted: 'Not standard Ukrainian.',
 			'given-name': 'A given name with no dictionary entry yet.',
 			patronymic: 'A patronymic with no dictionary entry yet.',
 			surname: 'A surname with no dictionary entry yet.',
@@ -430,6 +432,8 @@ const en = {
 		// "Listed as": Wiktionary names the word this way, and a word can be more
 		// (походити, "to come from", is also a verb of its own).
 		through: {
+			// After a Russian word or surzhyk, struck through, on the card of the Ukrainian word: ~~криша~~ on дах
+			nonstandard: 'is not standard Ukrainian.',
 			reflexive: 'is its reflexive (-ся) form.',
 			alternative: 'is another spelling of this word.',
 			adverb: 'is listed as its adverb.',
@@ -444,6 +448,10 @@ const en = {
 			superlative: 'is listed as its superlative.',
 			form: 'is listed as one of its forms.'
 		},
+		/** After "криша is not standard Ukrainian.", before the other Ukrainian words to say: осуд, суд */
+		alsoUse: 'Also:',
+		/** Quick search: the heading over the Ukrainian words offered for a non-standard one */
+		inUkrainian: 'In Ukrainian',
 		/** Before the form of the word that the search found: руки́ genitive singular */
 		formFound: 'Form found:',
 		moreForms: (n: number) => `+${n} more`,
@@ -518,6 +526,10 @@ const en = {
 		wiktionary: 'Wiktionary',
 		// An entry written for this dictionary, not taken from Wiktionary: the abbreviations км, англ.
 		ownEntry: 'Nebokrai',
+		// An entry made from the translation tables of English pages: шериф, under "sheriff"
+		wiktionaryTables: 'Wiktionary translation tables',
+		fromTranslations:
+			'Wiktionary has no entry for this word yet. These meanings come from the translation tables of its English entries, so some may be missing.',
 		recording: 'Recording on Wikimedia Commons',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
@@ -1662,12 +1674,14 @@ const uk: Messages = {
 		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.',
 		kind: {
+			distorted: 'Ненормативне слово.',
 			'given-name': 'Ім’я, якого ще немає в словнику.',
 			patronymic: 'По батькові, якого ще немає в словнику.',
 			surname: 'Прізвище, якого ще немає в словнику.',
 			abbreviation: 'Скорочення, якого ще немає в словнику.'
 		},
 		through: {
+			nonstandard: '— ненормативне слово.',
 			reflexive: '— зворотна форма (-ся) цього дієслова.',
 			alternative: '— інше написання цього слова.',
 			adverb: '— подано як прислівник від цього слова.',
@@ -1682,6 +1696,8 @@ const uk: Messages = {
 			superlative: '— подано як найвищий ступінь порівняння цього слова.',
 			form: '— подано як одна з форм цього слова.'
 		},
+		alsoUse: 'Також:',
+		inUkrainian: 'Українською',
 		formFound: 'Знайдена форма:',
 		moreForms: (n: number) => `ще ${n}`,
 		moreMeanings: (n: number) => `ще ${n}`,
@@ -1737,6 +1753,9 @@ const uk: Messages = {
 		from: 'Джерело:',
 		wiktionary: 'Вікісловник',
 		ownEntry: 'Небокрай',
+		wiktionaryTables: 'таблиці перекладів Вікісловника',
+		fromTranslations:
+			'У Вікісловнику ще немає статті про це слово. Ці значення взято з таблиць перекладів в англійських статтях, тож деяких може бракувати.',
 		recording: 'Запис на Вікісховищі',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',

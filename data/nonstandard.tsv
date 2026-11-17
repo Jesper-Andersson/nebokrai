@@ -1,0 +1,172 @@
+# Words that are not standard Ukrainian: Russian words, surzhyk, misspellings.
+#
+# Each row does two things. import_wiktionary.py --translations turns the word down, so it gets no
+# entry from the translation tables; and search says about it "not standard Ukrainian", followed by
+# the Ukrainian word(s) in the third column, ahead of any VESUM suggests.
+#
+# Written by hand: word, a tab, the part of speech as the tables give it (noun, verb, adj, ...; empty
+# for every part of speech), a tab, and the Ukrainian word or words to say instead, separated by "|"
+# (may be empty). check_russianisms.py lists candidates. Never copy suggestions from VESUM, dict_uk or
+# LanguageTool into this file: those lists are under other licences and stay out of nebokrai.db.
+#
+# November 2026 draft: the rows come from the 223 entries check_russianisms.py flagged; the Ukrainian
+# words were written for the 64 that VESUM has no linkable suggestion for. Both need a native reader.
+#
+# word	pos	use
+багатообіцяючий	adj	
+багаточисельний	adj	
+банкрот	adj	
+банкротство	noun	
+баришня	noun	
+бебісіттер	noun	няня
+бедро	noun	стегно
+безпорядок	noun	
+близкість	noun	близькість
+блистіти	verb	
+болільниця	noun	уболівальниця
+бровка	noun	бордюр
+Бєларусь	name	Білорусь
+вимишлений	adj	
+високомірність	noun	
+власяниця	noun	волосяниця
+вмираючий	adj	
+внутрівенний	adj	внутрішньовенний
+воюючий	adj	
+всевідаючий	adj	
+відпочиваючий	noun	
+візігот	noun	вестгот
+голосуючий	noun	
+горнична	noun	покоївка
+грасирувати	verb	гаркавити
+грузовик	noun	
+дерзати	verb	наважуватися
+довгожительство	noun	довголіття
+домик	noun	
+допомогати	verb	допомагати
+достоїнство	noun	
+жвачка	noun	жуйка
+жувачка	noun	жуйка
+забастовка	noun	
+забруднюючий	adj	
+задержка	noun	затримка
+задіювати	verb	
+заказ	noun	
+заключення	noun	
+занавіска	noun	
+заряджаючий	noun	
+зборка	noun	
+збуджуючий	adj	
+згвалтувати	verb	зґвалтувати
+зговір	noun	
+здержаний	adj	
+зломщик	noun	злодій
+знаток	noun	
+зникаючий	adj	
+керуючий	noun	
+клікнути	verb	
+колдун	noun	
+конькобіжець	noun	ковзаняр
+костиль	noun	
+кофейник	noun	
+кошачий	adj	
+криша	noun	дах
+кровосос	noun	кровопивця
+любимий	adj	
+людоненависниця	noun	людиноненависниця
+лісопилка	noun	
+мачта	noun	
+наверху	adv	
+навик	noun	
+надурочно	adv	понаднормово
+найом	noun	
+намекати	verb	
+нарікаючий	adj	буркотливий
+наслідник	noun	
+наслідниця	noun	
+наїзник	noun	
+наїзниця	noun	вершниця
+неваляшка	noun	
+невмираючий	adj	безсмертний
+невіруючий	adj	
+невіруючий	noun	
+недивно	phrase	
+недостаток	noun	
+неуникненний	adj	
+нудьгуючий	adj	знуджений
+обезглавити	verb	обезголовити
+обезглавлювати	verb	обезголовлювати
+обжерство	noun	ненажерливість
+облягаючий	adj	обтислий
+однофамільник	noun	однофамілець
+однофамільниця	noun	
+озаглавлювати	verb	
+окорок	noun	
+оп'яніти	verb	
+оправдати	verb	
+оправдувати	verb	
+осанка	noun	
+освіжаючий	adj	освіжний
+оскопляти	verb	каструвати
+оспорювати	verb	
+охмеліти	verb	
+пагубний	adj	
+падаючий	adj	падний
+переважаючий	adj	
+перевозка	noun	
+переговорник	noun	перемовник
+передуючий	adj	
+перила	noun	
+перчатка	noun	рукавичка
+першопрохідник	noun	
+питомець	noun	
+поводок	noun	повідець
+поломка	noun	несправність
+полоса	noun	
+постилка	noun	
+пресловутий	adj	сумнозвісний
+приговор	noun	
+прилягаючий	adj	
+принижуючий	adj	принизливий
+промокашка	noun	
+протестуючий	noun	
+пустишка	noun	
+піддержка	noun	
+підсковзнутися	verb	посковзнутися
+ремигаючий	adj	жуйний
+рибачка	noun	рибалка
+розложення	noun	
+розслабляючий	adj	розслаблювальний
+розчаровуючий	adj	розчарувальний
+рукоятка	noun	
+рукоять	noun	
+сищик	noun	
+скалистий	adj	
+скриватися	verb	
+скука	noun	нудьга
+слабоумство	noun	деменція
+соковижималка	noun	соковитискач
+соскоподібний	adj	
+стажер	noun	
+стажерка	noun	
+старушка	noun	бабуся
+стержень	noun	
+страждаючий	adj	
+стрекоза	noun	
+стрем'янка	noun	
+сіновал	noun	сінник
+таможня	noun	
+таракан	noun	
+творог	noun	
+трущоба	noun	
+туземець	noun	
+угощення	noun	частування
+ханжа	noun	святенник
+четвероногий	adj	
+чоловіконенавидниця	noun	
+чулан	noun	
+шляпка	noun	
+шокуючий	adj	
+штатський	adj	
+шумиха	noun	
+ямщик	noun	
+індіанин	noun	індіанець

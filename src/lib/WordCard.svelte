@@ -59,8 +59,16 @@
 	let matched = $derived('matched_forms' in entry && entry.matched_forms ? groupMatched(entry.matched_forms) : null);
 
 	// The word that was searched for, when it led here without being one of
-	// this word's forms: a reflexive verb, or a word on this word's head line.
+	// this word's forms: a reflexive verb, a word on this word's head line, or
+	// a Russian word or surzhyk this word is the Ukrainian for (криша, on дах).
 	let through = $derived('through' in entry ? entry.through : undefined);
+	// For a non-standard word, the other Ukrainian words to say instead: осуд
+	// and суд beside вирок, for приговор
+	let also = $derived(
+		'use' in entry && entry.use ? entry.use.filter((u) => u.word.replace(/\u0301/g, '') !== entry.word) : []
+	);
+	// A Russian word or surzhyk with no Ukrainian word to offer: the stub, its word greyed
+	let distorted = $derived(vesumOnly && 'kind' in entry && entry.kind === 'distorted');
 
 	// dated, archaic or obsolete; only a search result says
 	let old = $derived('old' in entry ? entry.old : undefined);
@@ -72,7 +80,22 @@
 	}
 </script>
 
-<article class:ui-card={framed} class:plain={vesumOnly} class:old>
+{#snippet led(t: NonNullable<typeof through>)}
+	{#if t.kind === 'nonstandard'}
+		<!-- ~~криша~~ is not standard Ukrainian. Also: осуд, суд (option C, user's pick, 2026-11-17) -->
+		<span class="form"><s lang="uk"><b>{t.word}</b></s> {m.card.through.nonstandard}</span>
+		{#if also.length}
+			<span class="form">
+				{m.card.alsoUse}
+				{#each also as u, i (u.word)}{#if i}{', '}{/if}{#if u.has_entry}<a class="also" lang="uk" href={wordPath(u.word.replace(/\u0301/g, ''))}><Stressed text={u.word} /></a>{:else}<span lang="uk"><Stressed text={u.word} /></span>{/if}{/each}
+			</span>
+		{/if}
+	{:else}
+		<span class="form"><b lang="uk"><Stressed text={t.word} /></b> {m.card.through[t.kind]}</span>
+	{/if}
+{/snippet}
+
+<article class:ui-card={framed} class:plain={vesumOnly} class:old class:distorted>
 	<div class="word">
 		<Headword text={entry.headword} href={vesumOnly ? undefined : wordPath(entry.word)} />
 		<Tip label={m.card.play}>
@@ -130,7 +153,7 @@
 				{/each}
 				{#if matched.more}<span class="form">{m.card.moreForms(matched.more)}</span>{/if}
 			{:else if through}
-				<span class="form"><b lang="uk"><Stressed text={through.word} /></b> {m.card.through[through.kind]}</span>
+				{@render led(through)}
 			{:else}
 				{m.card.someForm}
 			{/if}
@@ -138,7 +161,7 @@
 	{:else if through}
 		<!-- Found by a word this word's head line names: історично, its adverb -->
 		<p class="found wrap">
-			<span class="form"><b lang="uk"><Stressed text={through.word} /></b> {m.card.through[through.kind]}</span>
+			{@render led(through)}
 		</p>
 	{/if}
 </article>
@@ -287,6 +310,20 @@
 	.found b {
 		color: var(--ink-2);
 		font-size: 1rem;
+	}
+
+	/* The other Ukrainian words, quiet as the related-word links are */
+	.also {
+		color: var(--ink-2);
+		text-decoration: underline;
+		text-decoration-color: var(--border-strong);
+		text-underline-offset: 3px;
+	}
+
+	/* A Russian word or surzhyk with nothing to offer: its word stands back */
+	.distorted .word :global(.headword),
+	.distorted .word :global(.headword *) {
+		color: var(--muted);
 	}
 
 	/* Phones: the word, how common it is and the buttons share one line, the

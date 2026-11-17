@@ -28,7 +28,10 @@
 			licence. The authors of each entry are listed in its Wiktionary page history.
 			About fifty common abbreviations that Wiktionary has no page for (<span lang="uk">км</span>,
 			<span lang="uk">англ.</span>, <span lang="uk">ЗМІ</span>) were written for Nebokrai and are
-			under the same licence; their pages name Nebokrai as the source.
+			under the same licence; their pages name Nebokrai as the source. About 13,000 words that have
+			no entry there yet are shown with the meanings Wiktionary gives them in the translation tables
+			of English words (<span lang="uk">шериф</span> under “sheriff”); their pages say so and link to
+			a search that lists those English pages.
 		</dd>
 
 		<dt>Audio recordings</dt>
@@ -58,7 +61,7 @@
 			collected in the <a href="https://opus.nlpl.eu/">OPUS</a> corpus.
 		</dd>
 
-		<dt>Recognising word forms missing from Wiktionary</dt>
+		<dt>Recognising word forms missing from Wiktionary, and words that are not standard Ukrainian</dt>
 		<dd>
 			<!-- Worded as VESUM's README asks to be cited. It gives no version
 			     number: the package we read is a snapshot that does not name one. -->
@@ -69,7 +72,11 @@
 			By Andriy Rysin, Vasyl Starko and the BrUK team, with the data published at
 			<a href="https://github.com/brown-uk/dict_uk">brown-uk/dict_uk</a> under the
 			<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0</a>
-			licence. Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022.
+			licence. Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022. The
+			Ukrainian words offered instead of a Russian word or surzhyk (<span lang="uk">митниця</span> for
+			<span lang="uk">таможня</span>) come from the same project’s list of distorted words, as of
+			November 2026; the few Nebokrai adds itself (<span lang="uk">дах</span> for
+			<span lang="uk">криша</span>) are under the dictionary’s licence.
 		</dd>
 	</dl>
 

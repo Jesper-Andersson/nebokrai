@@ -11,7 +11,7 @@ import {
 } from '../src/lib/search/normalize.ts';
 import { search } from '../src/lib/search/search.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
-import { wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
+import { FROM_TRANSLATIONS, wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
 
 test('normalisation', () => {
@@ -74,7 +74,47 @@ test('search matches the Python reference', { skip }, async () => {
 			...got.results.filter((r) => r.through).map((r) => [r.word, r.through!.word])
 		];
 		assert.deepEqual(notes, c.notes ?? [], `kinds and reflexives for ${label}`);
+		// What to say instead of a non-standard word; recorded only for the cases that have any
+		const use = got.results.filter((r) => r.use).map((r) => [r.word, r.use!.map((u) => [u.word, u.has_entry])]);
+		assert.deepEqual(use, c.use ?? [], `Ukrainian words instead for ${label}`);
 	}
+});
+
+test('words that are not standard Ukrainian point to Ukrainian ones', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const vesum = openLocal('vesum.db');
+	// VESUM's own suggestion answers with that word's own entry, saying how it was reached
+	const [customs] = await search(db, 'таможня', { vesum });
+	assert.deepEqual([customs.word, customs.match, customs.through], ['митниця', 'form', { word: 'таможня', kind: 'nonstandard' }]);
+	assert.deepEqual(customs.use, [{ word: 'ми́тниця', has_entry: true }]);
+	assert.ok(customs.glosses.length > 0 && customs.id !== null);
+	// Several words to say instead: the first with an entry answers, the others ride along
+	const [verdict] = await search(db, 'приговор', { vesum });
+	assert.equal(verdict.use?.length, 3);
+	assert.equal(verdict.use?.[0].word.replace('́', ''), verdict.word);
+	// Nebokrai's own list: криша has no VESUM suggestion, and still gives дах, from a form too
+	for (const query of ['криша', 'криші']) {
+		const [roof] = await search(db, query, { vesum });
+		assert.deepEqual([roof.word, roof.through?.word], ['дах', 'криша'], query);
+	}
+	// ... and without VESUM at all, for the spelling itself
+	const [alone] = await search(db, 'криша');
+	assert.deepEqual([alone.word, alone.through?.kind], ['дах', 'nonstandard']);
+	// таракан is a surname too, but the Russian word comes first
+	const [cockroach] = await search(db, 'таракан', { vesum });
+	assert.equal(cockroach.word, 'тарган');
+	// None of these got an entry from the translation tables
+	assert.deepEqual(await wordDetails(db, 'криша'), []);
+
+	// A database built before the lists existed: the word is a bare result, marked, with nothing to offer
+	const noTables = (base: typeof db, table: string) => ({
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes(table)
+				? Promise.reject(new Error(`D1_ERROR: no such table: ${table}: SQLITE_ERROR`))
+				: base.all<T>(sql, params)
+	});
+	const [old] = await search(noTables(db, 'nonstandard'), 'таможня', { vesum: noTables(vesum, 'vesum_suggest') });
+	assert.deepEqual([old.word, old.vesum_only, old.kind, old.use], ['таможня', true, 'distorted', []]);
 });
 
 test('words named on another entry\'s head line', { skip }, async () => {
@@ -103,7 +143,8 @@ test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	const [patronymic] = await search(db, 'максимовичу', { vesum });
 	assert.equal(patronymic.kind, 'patronymic');
 	// A plain word that only VESUM knows has no kind
-	const [verb] = await search(db, 'посідати', { vesum });
+	// (посідати was one, until the translation tables gave it an entry)
+	const [verb] = await search(db, 'походжати', { vesum });
 	assert.equal(verb.vesum_only, true);
 	assert.equal('kind' in verb, false);
 
@@ -248,6 +289,28 @@ test('entries written for Nebokrai', { skip }, async () => {
 	const [oldKm] = await wordDetails(old, 'км');
 	assert.equal(oldKm.source, 'wiktionary');
 	assert.ok(oldKm.senses.length > 0);
+});
+
+test('entries made from translation tables', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// шериф has no Wiktionary page; "sheriff" lists it in its translation table
+	const [sheriff] = await wordDetails(db, 'шериф');
+	assert.equal(sheriff.source, FROM_TRANSLATIONS);
+	assert.equal(sheriff.headword, 'шери́ф');
+	assert.deepEqual(sheriff.senses.map((s) => s.gloss), ['sheriff (all meanings)']);
+	assert.deepEqual(sheriff.tags, ['masculine']);
+	// Thin: no table of forms and no rank, which keeps it out of the common words
+	assert.deepEqual([sheriff.forms, sheriff.freq_rank], [[], null]);
+	// A word with a page of its own stays Wiktionary's
+	assert.ok((await wordDetails(db, 'комітет')).every((e) => e.source === 'wiktionary'));
+
+	// The head-line key of another entry still finds that entry beside the new one
+	const found = await search(db, 'походити');
+	assert.deepEqual(found.map((r) => [r.word, r.match]), [['походити', 'word'], ['ходити', 'head']]);
+	// Search-as-you-type fills its window from the other entries first: кал lists
+	// калина's neighbours, not a hundred rarer words from the tables
+	const typed = await search(db, 'кал');
+	assert.ok(typed.slice(0, 8).every((r) => r.freq_rank !== null));
 });
 
 test('a database built before related words were stored', { skip }, async () => {

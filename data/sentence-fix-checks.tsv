@@ -1,0 +1,571 @@
+tatoeba_id	hash	verdict	basis	note
+379789	dfc5fddfc777	needed	dictionary	a wrong word, form or calque
+382041	afd20eb473b5	needed	meaning	trees for the tree
+384375	66b31b332759	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+386831	5c2476626353	unneeded	dictionary	VESUM: крілики, plural of крілик
+405928	20c7e69dba81	unneeded	meaning	tense only
+414747	6df2c0148867	unneeded	style	собака is right; пес is a synonym
+422092	f1c494017d94	unneeded	style	folk saying; the cut is style
+422316	6c123e82c348	unneeded	style	folk saying with an old form (ліпшая)
+426031	fc95f147e7fc	unneeded	meaning	списати блокноти: used up
+426079	a9bdc9537692	unneeded	meaning	в or у; тяжко = важко
+467746	72905b3863df	needed	grammar	a wrong case, agreement or form
+468534	fc94da64aced	unneeded	meaning	word order only
+468636	295da46baccd	needed	meaning	змінювати for lose
+472453	3fcf635ce50e	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+472482	e52b25c1b6f2	unneeded	meaning	same meaning
+472824	ac8c01b1d460	unneeded	grammar	автобус на Оксфорд is fine
+480578	7d52094b2894	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+480746	e399831efb24	needed	dictionary	a wrong word or a calque
+481324	f233973974e7	unneeded	meaning	same meaning
+482741	5d8c786d2790	needed	grammar	a wrong case, agreement or form
+485012	74ca447b6a10	unneeded	meaning	достатньо for much: close
+485031	2ad7ebb4ad24	needed	meaning	heavy for not heavy
+485057	0ac950f461c3	needed	dictionary	a wrong word or a calque
+489917	25fe440beee6	unneeded	meaning	знакові for shaped: close
+490034	4d6c554d008b	needed	meaning	open for operate
+490268	a59fe0af258b	unneeded	meaning	tense only
+490872	b6d425dd1755	unneeded	grammar	impersonal Їй здуло вітром капелюха is good Ukrainian
+490880	67b5f9f4929b	unneeded	style	style
+490928	84a6afd0b1c0	unneeded	grammar	-сь and -ся are both correct
+490986	b0c33bbeeb84	needed	grammar	punctuation the spelling rules require
+491003	46b52e22ea9d	unneeded	meaning	same question
+491005	a785ff7887f9	needed	meaning	his for our
+491407	bc56e04ec6a3	unneeded	meaning	same question
+491953	3db3e95af4dc	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+491984	c20b3dd49347	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+492145	ddffbc37a3a8	needed	grammar	a wrong case, agreement or form
+492902	cf835302f8c8	unneeded	meaning	same meaning; style
+493347	b727248f6314	unneeded	grammar	в after a vowel (якщо в вас) follows the euphony rule
+493454	a5b34772acff	needed	meaning	befriended for got acquainted
+493478	e9cdb1140f20	unneeded	meaning	у or в
+493586	2ebb74034a4d	needed	dictionary	a wrong word, form or calque
+494701	f7cfb375fb45	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+495204	1eb0185d6828	unneeded	style	style; hyphen for a dash
+495279	bcc597b5057d	unneeded	style	style
+495406	032a24586aff	unneeded	grammar	їх as a possessive and такий лютий are accepted
+495648	724baad5febd	needed	meaning	he for we
+496336	53c0493214b6	unneeded	meaning	close enough
+496963	ac265f5ece70	unneeded	style	style
+498467	069b4bb38db2	needed	grammar	punctuation the spelling rules require
+498939	27a1c3240f34	needed	meaning	provided for obtained; wrong body
+500138	e252aa713d3f	needed	meaning	magazines, rereading
+500242	d4d61103f862	needed	meaning	travellers for the traveller
+500596	9c5ea3f0249f	needed	meaning	insects for the insect
+500703	c1f04f06c4d3	needed	grammar	a wrong case, agreement or form
+500704	25c1dfb32880	needed	meaning	says the opposite
+500707	108d03388c8c	needed	meaning	animals for the animal
+500713	fc06b5ef118d	needed	grammar	capital letters the spelling rules require
+501096	8ea705052ce5	unneeded	dictionary	СУМ-11: задавати питання (Довженко, Гончар)
+501903	d9db1aa10c75	unneeded	meaning	tense only
+502033	5c58f6276591	unneeded	meaning	знаходяться for are: fine
+502075	372619a1905b	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+502081	a14c15246983	unneeded	dictionary	СУМ: закупи (Л. Костенко)
+502128	e61385ca4205	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+502129	c1d81b794910	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+502434	d877bf29a593	needed	meaning	staged for set
+502557	3bdd2e031f8a	unneeded	grammar	-сь and -ся are both correct
+503833	c8295963d6e7	needed	dictionary	a wrong word, form or calque
+504695	6ea848b1bcc9	unneeded	meaning	possessive is style
+504912	69a9fbcaf6e6	unneeded	dictionary	СУМ: застебнути
+504949	30adb2902e5f	needed	grammar	a wrong case, agreement or form
+504998	81888a20e92a	unneeded	style	style
+505108	c34672b9f3bd	unneeded	meaning	ми з ним посварилися is the Ukrainian idiom
+505196	9493b6fac127	needed	meaning	we for you
+505225	536625bad681	unneeded	meaning	same meaning
+505524	7f48f3dbb3e9	needed	grammar	a wrong case, agreement or form
+505543	c3cb53c9b23b	needed	meaning	"no" for so
+506205	a13ef20e54e2	unneeded	meaning	same meaning
+506227	e958b31a4ca8	unneeded	meaning	close
+506291	6f98ca5851ed	needed	dictionary	a wrong word, form or calque
+506660	a3e0cc943a64	unneeded	style	style
+507204	02e6e8bea638	unneeded	meaning	possessive is style
+508169	8beb67861351	unneeded	meaning	японка: fine for a kimono
+508192	a4514d6cd29f	needed	grammar	capital letters the spelling rules require
+508235	cf2646745e17	unneeded	meaning	мозок: fine
+508284	211239052244	unneeded	meaning	замала = надто мала
+508324	defdaae78036	unneeded	meaning	розв'язано: close
+508544	c1da1e78c066	needed	meaning	the baker for the shop
+509022	204aa927046d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+511050	3005a0661e1d	unneeded	style	style
+511816	788005d0c9ce	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+511874	41b5735487d1	unneeded	dictionary	СУМ: рідкий, "який трапляється нечасто"
+513107	1fa5b7a217c6	unneeded	typography	Твітер is the usual spelling; quotes and dash only
+513700	67a133fd2bb1	needed	dictionary	a wrong word or a calque
+513938	45d139d9e73f	needed	grammar	a wrong case, agreement or form
+514416	0386594cf7cc	needed	grammar	a wrong case, agreement or form
+516135	3813bc1f8e2d	needed	grammar	punctuation the spelling rules require
+522949	4c22b1b8b4df	needed	dictionary	a wrong word or a calque
+523370	0d0aa495e4d2	needed	dictionary	a wrong word, form or calque
+536289	ee5ff57b2b17	needed	meaning	Місяць needs a capital
+537474	7a296da7788f	needed	dictionary	a wrong word or a calque
+538639	f58e298f812e	needed	dictionary	a wrong word, form or calque
+546408	d5edcba1c924	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+547188	c5433b373fa0	needed	dictionary	a wrong word, form or calque
+555480	8b46861aed9e	needed	dictionary	a wrong word, form or calque
+555506	6ec84df44fbd	unneeded	style	style
+572295	70efb9886636	needed	meaning	sister for cousin
+575575	9cd52c7767bc	needed	meaning	iron fist for a grip of steel
+578763	da03cb0470be	needed	meaning	grain for corn
+578767	506f26c248bc	needed	dictionary	a wrong word, form or calque
+589012	fb7c553003ae	unneeded	dictionary	Горох (словозміна): родовий столу, стола
+615711	ad635f407c35	needed	meaning	fire caught flame: nonsense
+629379	91aa5a831e68	unneeded	meaning	tense only
+636096	66d886bf941e	unneeded	dictionary	СУМ: освічувати
+651754	1a4dac5e8601	needed	meaning	by the way for actually
+651755	f36e36451d88	needed	meaning	in principle for actually
+667238	4c0c8e76438d	needed	dictionary	a wrong word or a calque
+670312	1b282fc44bff	unneeded	grammar	-сь and -ся are both correct
+676634	f0441af55e62	needed	dictionary	a wrong word or a calque
+697899	0cee6ae11fce	needed	meaning	weekends for weekdays
+744815	1a4461416251	needed	meaning	the prosecution cannot find guilty
+753644	14140d5d4024	needed	dictionary	a wrong word or a calque
+779282	def884aff7e9	unneeded	typography	hyphen for a dash only
+832335	a5ad6da3f71c	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+875216	b046d4a80a03	needed	grammar	a wrong case, agreement or form
+893066	bf5f5d69b0e8	unneeded	style	style
+897084	6550c78d04d0	needed	meaning	young missing; джентельмен misspelt
+897090	f19d3c529a27	unneeded	meaning	omits "they say"
+915404	5549d1049ba8	needed	meaning	he for she
+915937	de5134c1f674	unneeded	dictionary	СУМ: питання, "звертання, яке потребує відповіді"
+916801	18753e6edc03	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+917256	e7bd981145df	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+917474	c6e1240c17e1	needed	grammar	a wrong case, agreement or form
+918297	d5f6b7bbb506	needed	dictionary	a wrong word, form or calque
+918305	63cf5ab0b4ca	needed	grammar	punctuation the spelling rules require
+918504	28ff3e1477a0	needed	dictionary	a wrong word or a calque
+920377	11f7480f87f8	needed	grammar	punctuation the spelling rules require
+920525	df2d8a954d8b	unneeded	style	варити їсти: colloquial, correct
+920529	64ab31cdf93e	unneeded	meaning	tense only
+920530	f0017b5fbe72	unneeded	meaning	tense only
+922155	7b8a3f46137b	unneeded	grammar	В or У at the start of a sentence: both allowed
+926503	080919e1dc4c	unneeded	style	style; hyphen for a dash
+938213	10624a5f1072	needed	grammar	a wrong case, agreement or form
+946704	d9b8efb8829a	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+1103906	d25a4afb51b0	unneeded	grammar	a partitive genitive (придбала буханця) is correct
+1224734	7deaea1aed51	unneeded	style	style
+1562125	40738bf16871	needed	dictionary	a wrong word or a calque
+1567169	eb822d3398aa	needed	grammar	a wrong case, agreement or form
+1574600	7ffd033346e7	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+1575651	2a23174800e5	unneeded	dictionary	СУМ-11: спражній, "те саме, що справжній"
+1576046	8334cebfbd53	needed	dictionary	a wrong word, form or calque
+1577025	a6040b4fa559	needed	grammar	punctuation the spelling rules require
+1577631	28a9f091398a	needed	meaning	God for Bob
+1587561	f1070cdafbc6	unneeded	dictionary	СУМ: розповсюджений; the fix only moves words
+1601567	0aa0e690515f	needed	dictionary	a wrong word or a calque
+1606864	b949cca0a780	needed	dictionary	a wrong word or a calque
+1607828	eca29803efd9	needed	meaning	Latin letters; butter for oil
+1609879	20f74b69c023	unneeded	grammar	в Кюрасао is fine
+1618618	d0e93ce4c286	needed	dictionary	a wrong word, form or calque
+1646949	e615c0db1188	needed	grammar	punctuation the spelling rules require
+1649419	f0e6824eab2c	unsure	grammar	непокоїтися про or за: not settled by the dictionaries
+1684953	39407e7706a2	needed	grammar	capital letters the spelling rules require
+1793108	fdddd6c90cd1	unneeded	style	Franko: Лупайте сю скалу!
+1794697	d3e82bf990a9	needed	dictionary	a wrong word or a calque
+1797468	056eed9ba80b	needed	dictionary	a wrong word or a calque
+1853490	7f6356b29fa0	needed	meaning	refraction for deflection
+2062364	43eecc733b08	needed	dictionary	a wrong word, form or calque
+2171890	0a1ed5dffb3f	needed	meaning	lost courage missing
+2221269	55c33acad1ee	needed	grammar	punctuation the spelling rules require
+2351180	e77b2dd7ffce	needed	grammar	a wrong case, agreement or form
+2351208	ade27373c17f	needed	dictionary	a wrong word or a calque
+2423895	447eaad1b27c	needed	grammar	a wrong case, agreement or form
+2598207	673bc6f4e2eb	needed	meaning	she for he
+2703150	ec32419d214c	unneeded	style	собака is right; пес is a synonym
+2783676	7bf6078aefbd	needed	grammar	a wrong case, agreement or form
+2907133	3cd054872bed	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+3013948	7ddf3add628f	unneeded	style	a joke on дивитися телевізор; the fix loses it
+3014984	e2947f5c54e8	unneeded	meaning	знищені for cut off: close
+3014988	e03b49083c32	needed	meaning	a different sentence
+3080122	f4ac8cb30cc4	needed	dictionary	a wrong word, form or calque
+3082578	9560c7134c43	needed	dictionary	a wrong word or a calque
+3125577	1ca7bb909874	unneeded	meaning	same meaning
+3131598	6b4efed4f534	needed	grammar	a wrong case, agreement or form
+3277952	a036ad984611	unneeded	meaning	close
+3628073	5f47a474a912	needed	dictionary	a wrong word, form or calque
+3764577	d7f20d6cb335	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+3772166	e2daec9b8608	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+3838892	8044646d73af	needed	meaning	detained for stopped
+3925614	4bf01d362755	unneeded	style	style
+3936564	07ff033ef5c0	unneeded	style	style
+3942340	1d1162b285ff	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+3987583	5c6535dfb589	needed	dictionary	a wrong word, form or calque
+4066336	adf63542a384	needed	grammar	a wrong case, agreement or form
+4200031	c46829cacbe8	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+4218180	3addd4eac9ea	needed	dictionary	a wrong word or a calque
+4261232	98308b70bc65	needed	dictionary	a wrong word or a calque
+4308872	22925ab893cf	needed	dictionary	a wrong word or a calque
+4308876	bc42592bfe10	needed	dictionary	a wrong word, form or calque
+4439695	07d1eb12a396	unneeded	meaning	accusative after a negation is allowed
+4632937	dab426f99b95	needed	meaning	загубити for an abstract loss
+4653192	75d9d64e3e08	unneeded	grammar	В or У; word order
+4660579	9dde59394d01	needed	meaning	на віку is the phrase (СУМ)
+4872305	272a9ad1f9a9	needed	dictionary	a wrong word, form or calque
+4905820	0352c0fabe0f	unneeded	dictionary	СУМ: слідкувати, "уважно стежити"
+4913983	9b34db96234a	needed	dictionary	a wrong word, form or calque
+4916309	a9ca5c51a960	unneeded	meaning	close
+4919999	c96fabe4e9c4	unneeded	grammar	-сь and -ся are both correct; маленькі is fine
+4920942	684cc2ffffc9	unneeded	grammar	accusative after a negation is allowed
+4930175	d63f3a181b16	unneeded	dictionary	СУМ: здобутися чого
+4975677	763aec92f1b9	needed	grammar	punctuation the spelling rules require
+5042725	3e6927581692	unneeded	typography	comma inside незважаючи на те що is optional
+5057431	2bceae05257b	unneeded	style	style
+5070525	cb1b2c083982	unneeded	meaning	tense only
+5142257	b80eb090b8ff	needed	dictionary	a wrong word, form or calque
+5142972	bb6e46e83a7e	needed	dictionary	a wrong word, form or calque
+5144684	e03f9dedf6d9	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5149375	0e42337d8ed5	unneeded	dictionary	СУМ: проявляти; the rest is style
+5153472	2c9c0916f3af	unneeded	typography	hyphen for a dash; в or у
+5168645	dabbc7d9f21d	needed	dictionary	a wrong word, form or calque
+5176783	57226e08d0a1	unneeded	meaning	лихо = зло here
+5200717	ea51b5450384	unneeded	style	style
+5227606	5bc451e06c6e	needed	meaning	new missing
+5266791	fa430e34021a	unneeded	dictionary	СУМ: кусок; жив та був is a folk opening
+5533029	652e91e1c495	needed	dictionary	a wrong word, form or calque
+5538728	5a7f22636f87	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5698726	d7a6b2dcf502	unneeded	dictionary	СУМ: задача, "завдання"
+5702464	04a7e7a40476	unneeded	grammar	розпродаж is masculine: на розпродажу
+5703174	905627d1303b	needed	dictionary	a wrong word, form or calque
+5706260	1cd484677afb	unneeded	meaning	same meaning
+5713148	51bb8a0595a1	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5713390	5fab5d5ef959	needed	meaning	back for bottom; зворотній
+5713797	1019e1d0afd8	needed	grammar	a wrong case, agreement or form
+5713799	f6b00a783a3c	needed	grammar	a wrong case, agreement or form
+5716038	cdfdf3208192	unneeded	meaning	не в гуморі: bad mood, good Ukrainian
+5730313	dd938290290f	unneeded	meaning	видатний: a pun, correct
+5731285	44e636a43f4e	unneeded	dictionary	СУМ: турбуватися = хвилюватися
+5739947	5f11449192f2	unneeded	dictionary	СУМ: миттєво
+5741894	579cc8425221	needed	meaning	chickenpox for smallpox
+5742009	76214990c0db	unneeded	style	style
+5742035	74ff5191db4b	unneeded	meaning	ти or ви
+5743696	b461d5b5aee5	unneeded	style	збирати пасьянс: colloquial, СУМ has розкладати
+5752833	d5e8ae741d3d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5759557	9ccfa23de7fb	unneeded	typography	hyphen for a dash only
+5778833	0f038ef7f869	needed	dictionary	a wrong word or a calque
+5784967	ff6185af0b79	needed	meaning	July for June
+5786868	860aae135817	unneeded	meaning	favourite complaints: close
+5788540	2b93d681206a	needed	grammar	punctuation the spelling rules require
+5794647	96f80a455592	unneeded	meaning	tense only
+5794695	692637fd2289	needed	meaning	Tom for John
+5798620	a5cf044d0f7d	unneeded	meaning	що = які
+5801760	80715f6f8667	unneeded	style	style
+5805096	423554408849	unneeded	style	style
+5805161	13fc7af69c64	unneeded	meaning	та = і
+5809051	fbc8e4124a9f	needed	grammar	punctuation the spelling rules require
+5810139	9d4626b3e000	needed	dictionary	a wrong word or a calque
+5810921	be07296cf20a	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5816841	b6a4141adec0	needed	dictionary	a wrong word or a calque
+5816940	7326e6058b79	unneeded	style	та = і
+5818607	3f8d63c3815b	needed	dictionary	a wrong word, form or calque
+5821163	e1c9e6766c32	unneeded	meaning	a saying rendered freely
+5822106	bb1d554699d9	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5828169	54959ed49bc9	unneeded	meaning	та = і
+5828189	39d276ea08fc	unneeded	grammar	лоб or лоба: both correct
+5843047	64b4275cf095	needed	grammar	a wrong case, agreement or form
+5860174	ea851c1e776c	unneeded	meaning	говорить = каже
+5868821	4ce36f3bb7e8	needed	dictionary	a wrong word or a calque
+5875326	b4de4616c3a3	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5877277	80e17cc5db49	unneeded	grammar	a genitive object (встромив пальця) is correct
+5887508	05a552ce6715	unneeded	grammar	accusative after a negation is allowed
+5889217	a16554e34da7	needed	meaning	a double negative
+5889675	3a2b87aee8d7	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5891461	7122e225c3f6	needed	meaning	today for again
+5894779	7f822573805b	needed	meaning	a wrong case
+5897743	357b7e54cb07	unneeded	grammar	locative -у or -і: both correct
+5904536	9b1eed6734c4	needed	meaning	you for Tom
+5906870	f72fce2bd07f	needed	grammar	a wrong case, agreement or form
+5906909	f16f7d6e8c5d	unneeded	meaning	tense only
+5907073	d8c5e23a0cd8	needed	meaning	себе: the sailors tie themselves; мачта
+5908246	3e5f3aab15c0	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5908247	4eb3f9bc2d0d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5910477	903a7f825014	unneeded	dictionary	СУМ: затрата
+5923724	a14211135adc	needed	meaning	Tom for you
+5924940	afc2d1a9e1d4	needed	grammar	a wrong case, agreement or form
+5925574	63d147d3e803	unneeded	meaning	буйний: exuberant
+5925727	ea5389a053a9	needed	dictionary	a wrong word, form or calque
+5925743	271735233473	unneeded	style	style
+5927741	de5006578e37	unneeded	meaning	дозвіл на обшук: understandable
+5927744	4ced01f668ef	unneeded	style	style
+5931361	be900072f2b6	needed	dictionary	a wrong word or a calque
+5942919	460c77695541	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+5946344	b2c3697bbc77	needed	grammar	a wrong case, agreement or form
+5948870	7ba2daea66c1	unneeded	meaning	punctuation only
+5953589	fa5a1533f51b	unneeded	dictionary	СУМ: розповсюджений
+5967011	17ed9a640b3b	needed	grammar	a wrong case, agreement or form
+5967111	92ae01dbb395	needed	dictionary	a wrong word or a calque
+5983021	46806bb989fe	unneeded	meaning	same meaning
+6022872	b41567924fd2	needed	grammar	a wrong case, agreement or form
+6033515	bc23c257588d	needed	dictionary	a wrong word or a calque
+6033954	0944f775755e	unneeded	style	що = яка
+6036910	8069861ac0b6	unneeded	style	a pun on зводити; correct
+6042933	e4f23402d9d3	needed	dictionary	a wrong word or a calque
+6056329	d2626092e70e	unneeded	dictionary	СУМ: задача, "завдання"
+6063259	3c9207d230c2	unneeded	dictionary	СУМ: виновий, "піковий" (cards)
+6065242	84a82d1b323c	unneeded	dictionary	СУМ: настроєний; СУМ-11 has вияснити
+6072293	da9ec2cec844	needed	meaning	detonator for fuse
+6081356	5caf5f5b2593	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6081357	2fa1a5bb2993	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6081439	b650a121512d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6088724	ceaa2e742964	needed	grammar	a wrong case, agreement or form
+6091766	10def8e374b0	needed	grammar	a wrong case, agreement or form
+6091781	ecd1af736135	needed	dictionary	a wrong word or a calque
+6091784	ce3c8624fdc8	needed	dictionary	a wrong word or a calque
+6102253	a5f509b766e8	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6119014	87e7b811827d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6119088	9d033f151136	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6121267	b48bb9f19a41	needed	meaning	her for his
+6130689	a0afec4f975e	unneeded	dictionary	СУМ: невірний, "неправильний, хибний"
+6132590	582aebfc33a7	needed	meaning	our for your
+6134126	744940aca951	needed	grammar	a wrong case, agreement or form
+6134773	b1a10d705bd1	needed	grammar	a wrong case, agreement or form
+6136639	f087a3cbe212	needed	dictionary	a wrong word or a calque
+6149028	5fc7a3bcb57c	unneeded	dictionary	СУМ: лінгвістично; the change is style
+6164310	8f0d2864de93	needed	meaning	відшкурено is no word (Горох)
+6198638	45662363e1ac	needed	grammar	punctuation the spelling rules require
+6198684	40d3a9ab3b50	needed	grammar	a wrong case, agreement or form
+6201634	d951fdf7c68f	needed	meaning	slugs for snails
+6204449	8f83adef510f	needed	dictionary	a wrong word or a calque
+6215468	9bc13b86a501	needed	dictionary	a wrong word or a calque
+6217686	9bd7c4a14df5	needed	grammar	capital letters the spelling rules require
+6227233	0347171353cb	needed	grammar	a wrong case, agreement or form
+6227253	b41eaaef380d	unneeded	meaning	same meaning
+6285528	66ddf0bbf639	needed	meaning	a calque that means something else
+6290271	8698adeeba32	unneeded	meaning	same meaning
+6290285	33e5529060af	unneeded	meaning	close
+6292505	b93edc9554a7	needed	dictionary	a wrong word or a calque
+6292506	95d1deaa81c3	needed	dictionary	a wrong word or a calque
+6294581	c99fa2709f1c	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6296945	c210e5262494	unneeded	meaning	в or у
+6298085	b9711000a406	unneeded	meaning	same meaning
+6312725	6e826313d46b	needed	grammar	a wrong case, agreement or form
+6313234	ded91293f721	needed	dictionary	a wrong word, form or calque
+6313624	94a088cd5952	unneeded	dictionary	СУМ фразеологія: не годен у слід ступити
+6319654	8016ccd29bc3	needed	dictionary	a wrong word or a calque
+6326385	d972f4c7d5c2	unsure	meaning	угору за течією: the dictionaries have за течією (downstream) and проти течії
+6326387	d11cc850bd81	unsure	meaning	угору за течією: the dictionaries have за течією (downstream) and проти течії
+6326388	89eff540791a	unsure	meaning	угору за течією: the dictionaries have за течією (downstream) and проти течії
+6361887	213583cedbd3	needed	grammar	capital letters the spelling rules require
+6376848	b56dc99e4f4e	needed	grammar	a wrong case, agreement or form
+6387674	0c1d5811c21b	needed	dictionary	a wrong word or a calque
+6398634	032efe805ab3	unneeded	dictionary	повинен is fine; СУМ-11 has вияснити
+6401646	2c0f0d8e8679	unneeded	style	style
+6404508	543fa8fe2e91	needed	grammar	a wrong case, agreement or form
+6445653	217dea3a550e	needed	meaning	Tom for Sami
+6449472	e5db0bedc135	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6455346	601450dede61	needed	meaning	take part for run
+6458132	8f73449d648b	unneeded	dictionary	СУМ: витягти, розм. "красти"
+6469004	8e10cc1dd333	needed	meaning	заробітня is misspelt
+6481526	ff6aa2711309	needed	meaning	leave for live
+6537173	f9f075d9cea0	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6545943	d6f2de817536	unneeded	meaning	same meaning
+6551707	7dd2cc2180d9	needed	dictionary	a wrong word or a calque
+6563042	6c748cba6459	needed	dictionary	a wrong word or a calque
+6581401	51e2be844bf6	unneeded	meaning	не вистачатиме = бракуватиме
+6590744	c8467c99dc90	unneeded	dictionary	СУМ: настроєний, "має певний настрій"
+6608975	c79c39c9f111	unneeded	grammar	покласти до сумки is accepted
+6608977	f33e37e631f1	unneeded	grammar	до with a container is accepted
+6629655	ef6a1dc79135	needed	grammar	a wrong case, agreement or form
+6629674	7e9d27194fa9	unneeded	grammar	нарікання is plural here: змінять
+6633631	803ed5dc4679	unneeded	meaning	same meaning
+6639283	1d7a7d586e60	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6640682	dfa64101df4a	unneeded	meaning	same meaning
+6674372	652d65c5840e	needed	meaning	airborne for Marines
+6674376	48077401b17a	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6679886	61f50378ae29	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6680067	da4f0024dfa8	needed	grammar	capital letters the spelling rules require
+6685852	c4e2cd544d63	needed	grammar	a wrong case, agreement or form
+6685853	be07faf0c4d3	needed	grammar	a wrong case, agreement or form
+6688727	be8fd2456b4a	unneeded	style	style
+6692951	560ce910d1c1	needed	grammar	a wrong case, agreement or form
+6770514	73435c855502	unneeded	meaning	удочерити: an orphan girl, correct
+6788967	1c3d165b8edb	unneeded	dictionary	СУМ: знаходитися, "бути, перебувати"; quotes only
+6790675	58edb5f4dbbc	needed	meaning	complications for difficulty
+6814603	eda033879c30	needed	dictionary	a wrong word or a calque
+6822529	b060398472c3	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6856994	31fa8ce5c8bc	unneeded	meaning	поважаю for admire: close
+6859690	c38817251873	needed	dictionary	a wrong word or a calque
+6883252	d0232812ee95	unneeded	dictionary	СУМ: вік, "те саме, що сторіччя"
+6895734	5f45f64870a4	needed	meaning	must split for have split
+6921375	5545797eecae	needed	dictionary	a wrong word or a calque
+6931741	95ca8029edc9	needed	meaning	North for South
+6934802	8f0746216eea	unneeded	style	style
+6950190	8036c6d56655	unneeded	grammar	будь розсудливий or розсудливим: both correct
+6952304	366d8ae86aa6	needed	grammar	a wrong case, agreement or form
+6954048	05d9563b49b7	unneeded	meaning	same wish
+6957605	92ca71b5cdb9	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+6973718	397b5f78e817	needed	dictionary	a wrong word or a calque
+6992553	0ac5939d8558	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7002563	115e69582c52	unneeded	grammar	Косово may stay undeclined
+7066181	1236fc6c99da	unneeded	style	style
+7098412	d398e10ca603	needed	meaning	heard for felt
+7098413	74ae33afdc91	needed	meaning	heard for felt
+7098772	4ec7a0888d53	unneeded	meaning	tense only
+7105545	d50915e1add4	unneeded	style	style
+7133441	30cad647d724	needed	meaning	розплачуватися за + accusative
+7144403	3e7a52c443bd	unneeded	meaning	same meaning
+7147964	b10340f211d2	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7162135	0add1d6acdb9	needed	meaning	beef for ham
+7246314	ffea3c4e338d	unneeded	grammar	до with a container is accepted
+7272528	3c76f99e9445	unneeded	meaning	same meaning
+7281330	b5d09fdede37	needed	meaning	півтора кілограма
+7291000	f70aa982a0c2	unneeded	grammar	до with a container is accepted
+7291980	18cdd5410569	unneeded	meaning	tense only
+7318795	c975da9b56d0	unneeded	meaning	-сь or -ся
+7335677	e19a37078d3d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7349481	f57c968ba263	unneeded	meaning	в or у
+7422417	623a431b0eee	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7422796	ea67db02addb	needed	meaning	hawks for vultures
+7422799	1c5fe4ef9433	needed	meaning	hawks for vultures
+7429838	ec42301af84f	needed	meaning	New Year for Christmas
+7576376	66f7e32c0ad7	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7611081	41079a4a2487	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7670728	39b21a0b0e05	unneeded	style	crude but correct
+7682329	acd2f8636b07	unneeded	meaning	same meaning
+7682371	1c22a28886a8	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7703117	840e7d1b3124	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+7714119	bc5be684a0d1	unneeded	style	та = і
+7716339	bee179dbf4bc	unneeded	style	spelling of a name
+7807884	945461183278	unneeded	grammar	-сь and -ся are both correct
+7807954	6315cbbefd49	unneeded	grammar	ходив по вулиці is accepted
+7809682	a848d1c4c238	unneeded	grammar	-сь and -ся are both correct
+7809933	d11d1bce812a	unneeded	meaning	same meaning
+7812226	c8dff63e4530	needed	dictionary	a wrong word or a calque
+7813206	5c07cb861b2c	unneeded	meaning	фактично: practically
+7950094	0447c16a8df2	needed	dictionary	a wrong word, form or calque
+7974885	c5df1a5a9a93	needed	grammar	a wrong case, agreement or form
+7991569	0b36016bf73a	unneeded	meaning	та = і
+7999055	0f433f21e614	unneeded	meaning	настрої: close
+8013432	906ec80fff76	needed	dictionary	a wrong word or a calque
+8014095	4f52c8aaf61e	needed	dictionary	a wrong word, form or calque
+8022196	c4d58dd15147	needed	dictionary	a wrong word, form or calque
+8022197	2da7b58352cf	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8032600	03f3cb885776	unneeded	style	собака is right; пес is a synonym
+8032855	4c1d6ab39df3	needed	grammar	a wrong case, agreement or form
+8033322	7b10ac753b4d	needed	dictionary	a wrong word or a calque
+8040275	7fa38b5842ac	needed	dictionary	a wrong word or a calque
+8043832	59d118565e57	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8044322	fbcd9d9df0ef	unneeded	meaning	punctuation only
+8049543	b6fbba06f2b4	needed	dictionary	a wrong word or a calque
+8052065	3f5546efba49	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8068567	1a686b87cb23	unneeded	typography	hyphen for a dash only
+8073963	76d944162ca6	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8087982	080730959c69	needed	dictionary	a wrong word, form or calque
+8094009	1420770c8ab7	needed	grammar	a wrong case, agreement or form
+8097370	8148bb31a50f	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8098612	b8dc2cb9322c	needed	dictionary	a wrong word or a calque
+8098614	4e16c4c149ad	needed	dictionary	a wrong word or a calque
+8141590	b3b64f23f3f7	needed	grammar	a wrong case, agreement or form
+8252159	a941f2d26bc2	unneeded	meaning	close
+8282691	de9dd5eb062d	unneeded	meaning	як = коли
+8290926	af55504a376d	needed	dictionary	a wrong word or a calque
+8303978	bd4d76f54f67	unneeded	style	он ту: colloquial, correct
+8368815	51be93c7e381	needed	dictionary	a wrong word or a calque
+8597627	d3ede0b805de	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8597628	c82a7fea5410	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8616141	9738cbc22833	needed	dictionary	a wrong word or a calque
+8664913	586ba00b2cab	unneeded	dictionary	СУМ фразеологія: скидати з рахунку (з рахунків)
+8732453	76e72bac5afe	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8779154	1c49f9fcc1dd	unneeded	style	word order only
+8801116	fdcd961ae272	unneeded	dictionary	СУМ: одягати наручники
+8837068	4f783575a48b	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8837407	19d7a3274c59	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8851522	b346690e3d17	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8905019	f0eed3019d5d	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+8989160	c2e51b7c6536	unneeded	typography	hyphen for a dash only
+9010087	02acf0deec63	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9023776	c558a3dc7d98	needed	dictionary	a wrong word or a calque
+9047425	995746a6a1f3	unneeded	meaning	same meaning
+9081879	7c7fbae0fbf7	needed	dictionary	a wrong word or a calque
+9093895	fbed32e018f6	unneeded	style	word order only
+9093896	a7cbd189aded	unneeded	style	word order only
+9177748	878da1d05790	needed	meaning	Вівдя for Ovid
+9195509	b427f08761a0	needed	dictionary	a wrong word or a calque
+9230832	af74fce5b630	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9290950	1b445d6e8030	needed	meaning	we for you
+9314897	4d8b19e3ad23	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9314898	635f57b60bae	unneeded	style	ліки працюють: colloquial
+9360208	e714100ce048	needed	meaning	his for her
+9401050	e2ed7ca957cd	needed	dictionary	a wrong word or a calque
+9486957	664e4c9efd9b	unneeded	style	style
+9544630	762e501829e8	unneeded	style	style
+9565931	ce156c760904	unneeded	grammar	буде звільнено is standard
+9572017	50e2c70f6d9b	unneeded	grammar	собака is masculine: свого собаку
+9580792	54272f0ab322	needed	meaning	meaning for permeated
+9602058	8bb0fa2e4efa	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9672698	2a383c25b151	needed	meaning	I for they
+9712224	0f7c8cada776	unneeded	grammar	accusative after a negation is allowed
+9712225	1b4366c1b1df	unneeded	grammar	accusative after a negation is allowed
+9750385	4111512b3571	needed	grammar	a wrong case, agreement or form
+9750589	5ae199b5cece	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9771873	af3c04d06241	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+9771939	47befe95d474	needed	grammar	a wrong case, agreement or form
+9777470	24dd96dec0ff	unneeded	meaning	word order only
+9838858	0067d5e7b0df	needed	grammar	a wrong case, agreement or form
+9844674	98ccf405a581	needed	meaning	puppet theatre for Dogestan
+10116035	8e8595d687f9	unneeded	meaning	same meaning
+10122202	3abe8b06f05b	needed	dictionary	a wrong word or a calque
+10154834	ad3836f5f273	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+10156457	b78d7054415b	unneeded	meaning	same meaning
+10160052	ac332ddc1951	unneeded	meaning	style
+10168808	7da28760c55a	unneeded	meaning	речення for phrase: close
+10180328	321d599ee5a7	needed	dictionary	a wrong word or a calque
+10566397	eea7ef992505	unneeded	meaning	same meaning
+10566510	c1f88e9388ed	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+10574281	c3055aa7bf6e	unneeded	style	style
+10618575	b46f04c0597b	needed	grammar	a wrong case, agreement or form
+10627509	aa6b9c74c551	needed	dictionary	a wrong word or a calque
+10627511	9643dd9f6d1d	unneeded	dictionary	СУМ: лишити = залишити
+10647365	a704107da69a	unneeded	meaning	same meaning
+10781281	c7317c0601bd	unneeded	grammar	потрібний or потрібен: both correct
+10790866	c20db984df57	unneeded	style	lower-case росія is deliberate
+10793421	07093101caa9	unneeded	style	lower-case росія is deliberate; на шляху is fine
+10806117	14973fb17946	unneeded	dictionary	Атена: a variant the 2019 spelling rules allow
+10806288	ebf2bce336b4	unneeded	dictionary	СУМ: етер, заст., поет. = ефір
+10806312	8b06b967d183	unneeded	meaning	СУМ: етер; a rude word either way
+10806917	55988eb6391d	unneeded	meaning	дерев: fine
+10834130	04423a0584ca	needed	dictionary	a wrong word or a calque
+10841437	0850c149e6a0	unneeded	style	lower-case росія is deliberate
+10956948	6473051b2f9a	unneeded	style	style
+11063208	dc8501fa4ffc	needed	dictionary	a wrong word or a calque
+11067284	f6a7283f3ba9	unneeded	meaning	same meaning
+11073400	a87cdb2e3f6f	unneeded	style	word order only
+11263840	fa0c184ac9e2	needed	grammar	punctuation the spelling rules require
+11410025	215db785b99e	needed	meaning	optional for gratuitous
+11490101	f52d30621313	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+11499138	2b14699c89f4	unneeded	style	style; hyphen for a dash
+11505077	d5ed5f7613ce	unneeded	style	slang, correct
+11558072	a1ff5d338380	needed	meaning	пішки (on foot) for pawns
+11558085	444cf387e5b8	unneeded	style	style
+11558099	5abd0eade1af	needed	dictionary	a wrong word, form or calque
+11560850	a58c59983deb	needed	dictionary	a wrong word or a calque
+11565508	45a891804925	unneeded	dictionary	СУМ-11: від при ступенях порівняння = ніж
+11586665	a1941a23a093	unneeded	grammar	Тому is a dative of Том
+11595560	95bb2d8a049a	unneeded	meaning	hyphen for a dash only
+11620194	9c6d1065380d	unneeded	style	football slang, correct
+11651245	0c3b24823116	unneeded	meaning	omits "left"
+11653901	d91dc29fa723	needed	grammar	a wrong case, agreement or form
+11707542	d733846c0ef2	unneeded	dictionary	СУМ: знаходитися; the rest is style
+11736827	0f788f8a9d86	unneeded	dictionary	СУМ: виховувати
+11771247	2c9549388a4c	unneeded	meaning	style
+11902469	bf4363199837	needed	dictionary	a wrong word or a calque
+11988393	1d6f3363beaf	unneeded	dictionary	СУМ: випромінення
+11991928	523ae9820dd0	unneeded	style	надавати перевагу is widely used
+12033954	43ffe7ebb964	needed	dictionary	a wrong word or a calque
+12050580	a2c655cd55cb	unneeded	style	style; hyphen for a dash
+12123653	bb40efadeb02	needed	dictionary	a wrong word or a calque
+12123654	37a88f45a91e	needed	dictionary	a wrong word or a calque
+12126165	614ab7b66aae	needed	meaning	a different phrase
+12206535	429ed7b08d0d	unneeded	typography	hyphen for a dash only
+12207907	b7882efe979c	unneeded	meaning	same meaning
+12284072	5638fc349cee	needed	dictionary	a wrong word or a calque
+12308421	d9af8d833e51	needed	meaning	вона with a plural verb
+12758855	892a0108a2b8	unneeded	typography	hyphen for a dash only
+13014558	fc5b46b25a81	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+13036308	17ae3cecf9eb	needed	dictionary	a spelling mistake or a word that is no form (VESUM, Горох)
+13319107	8b4e7c1c19ba	unneeded	style	style
+13470883	1449db6215e9	unneeded	meaning	same meaning
+13693594	95566eee881b	unneeded	style	style
+13936285	1042dff52966	unneeded	meaning	accusative is fine
+13936291	6f8b99ad343c	needed	dictionary	a wrong word, form or calque
+13936588	a2692a6406e5	unneeded	meaning	style
+14097791	3b357da0be6a	unneeded	style	style; hyphen for a dash

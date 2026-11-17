@@ -83,25 +83,30 @@ test('search matches the Python reference', { skip }, async () => {
 test('words that are not standard Ukrainian point to Ukrainian ones', { skip }, async () => {
 	const db = openLocal('nebokrai.db');
 	const vesum = openLocal('vesum.db');
-	// VESUM's own suggestion, linked to the entry with its stress
+	// VESUM's own suggestion answers with that word's own entry, saying how it was reached
 	const [customs] = await search(db, 'таможня', { vesum });
-	assert.deepEqual([customs.word, customs.vesum_only, customs.kind], ['таможня', true, 'distorted']);
+	assert.deepEqual([customs.word, customs.match, customs.through], ['митниця', 'form', { word: 'таможня', kind: 'nonstandard' }]);
 	assert.deepEqual(customs.use, [{ word: 'ми́тниця', has_entry: true }]);
-	// Nebokrai's own list: криша has no VESUM suggestion, and still says дах, from a form too
+	assert.ok(customs.glosses.length > 0 && customs.id !== null);
+	// Several words to say instead: the first with an entry answers, the others ride along
+	const [verdict] = await search(db, 'приговор', { vesum });
+	assert.equal(verdict.use?.length, 3);
+	assert.equal(verdict.use?.[0].word.replace('́', ''), verdict.word);
+	// Nebokrai's own list: криша has no VESUM suggestion, and still gives дах, from a form too
 	for (const query of ['криша', 'криші']) {
 		const [roof] = await search(db, query, { vesum });
-		assert.deepEqual([roof.word, roof.kind, roof.use?.[0]?.word], ['криша', 'distorted', 'дах'], query);
+		assert.deepEqual([roof.word, roof.through?.word], ['дах', 'криша'], query);
 	}
 	// ... and without VESUM at all, for the spelling itself
 	const [alone] = await search(db, 'криша');
-	assert.deepEqual([alone.kind, alone.use?.[0]?.word], ['distorted', 'дах']);
+	assert.deepEqual([alone.word, alone.through?.kind], ['дах', 'nonstandard']);
 	// таракан is a surname too, but the Russian word comes first
 	const [cockroach] = await search(db, 'таракан', { vesum });
-	assert.equal(cockroach.kind, 'distorted');
+	assert.equal(cockroach.word, 'тарган');
 	// None of these got an entry from the translation tables
 	assert.deepEqual(await wordDetails(db, 'криша'), []);
 
-	// A database built before the lists existed: the word is found, as before, with no hint
+	// A database built before the lists existed: the word is a bare result, marked, with nothing to offer
 	const noTables = (base: typeof db, table: string) => ({
 		all: <T>(sql: string, params?: unknown[]) =>
 			sql.includes(table)
@@ -109,7 +114,7 @@ test('words that are not standard Ukrainian point to Ukrainian ones', { skip }, 
 				: base.all<T>(sql, params)
 	});
 	const [old] = await search(noTables(db, 'nonstandard'), 'таможня', { vesum: noTables(vesum, 'vesum_suggest') });
-	assert.deepEqual([old.word, old.kind, old.use], ['таможня', 'distorted', []]);
+	assert.deepEqual([old.word, old.vesum_only, old.kind, old.use], ['таможня', true, 'distorted', []]);
 });
 
 test('words named on another entry\'s head line', { skip }, async () => {

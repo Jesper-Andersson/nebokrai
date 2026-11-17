@@ -67,8 +67,8 @@ Response `200`:
 | `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
 | `vesum_only` | Present and `true` only on VESUM-only results, and on a word Nebokrai lists as not standard Ukrainian (see below). |
 | `kind` | On a VESUM-only result, what the word is, when VESUM says: `distorted` (not standard Ukrainian), `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
-| `use` | With `kind: "distorted"`: the Ukrainian words to say instead, at most three, each `{ "word", "has_entry" }`. May be empty. Absent otherwise. |
-| `through` | Present when the query led to this entry without being one of its forms: a reflexive verb with no entry (see "Reflexive verbs"), or a word the entry names on its head line (see "Words on a head line"). |
+| `use` | The Ukrainian words to say instead of a non-standard word, at most three, each `{ "word", "has_entry" }`: on the entry that answers it (`through.kind` is `nonstandard`), or on a result with `kind: "distorted"`, where it may be empty. Absent otherwise. See "Words that are not standard Ukrainian". |
+| `through` | Present when the query led to this entry without being one of its forms: a reflexive verb with no entry (see "Reflexive verbs"), a word the entry names on its head line (see "Words on a head line"), or a word that is not standard Ukrainian and this entry the word to say instead (`kind: "nonstandard"`). |
 | `old` | Present when every meaning that matched is tagged old: `dated`, `archaic` or `obsolete`, the mildest of those meanings' strongest tags. `swedish` → све́йський has `"old": "obsolete"`. Absent otherwise. |
 
 Results arrive already sorted; show them in the order given. A result with
@@ -149,24 +149,21 @@ before kinds were stored.
 
 ### Words that are not standard Ukrainian
 
-A Russian word, surzhyk or a misspelling with no entry (`таможня`, `криша`)
-comes back as a VESUM-only result with `"kind": "distorted"`, ahead of any
-other kind (таракан is a surname too), and a `use` list of the Ukrainian words
-to say instead:
+A Russian word, surzhyk or a misspelling with no entry (`таможня`, `криша`) is
+answered with the entry of the Ukrainian word to say instead: an ordinary
+result with `match: "form"`, an empty `matched_forms`, a `through` whose kind is
+`nonstandard`, and a `use` list of all the Ukrainian words offered, this one
+included (shortened):
 
 ```json
 {
-  "id": null,
-  "word": "приговор",
-  "headword": "приговор",
+  "id": 42320,
+  "word": "присуд",
+  "headword": "при́суд",
   "pos": "noun",
-  "tags": [],
-  "head_forms": [],
-  "glosses": [],
-  "freq_rank": null,
   "match": "form",
-  "vesum_only": true,
-  "kind": "distorted",
+  "matched_forms": [],
+  "through": { "word": "приговор", "kind": "nonstandard" },
   "use": [
     { "word": "при́суд", "has_entry": true },
     { "word": "вирок", "has_entry": true },
@@ -175,9 +172,21 @@ to say instead:
 }
 ```
 
+The answering entry is the first word in `use` that has an entry (its
+commonest entry, when the spelling has several). When none has, the word
+comes back as a VESUM-only result instead, with `"kind": "distorted"` (ahead
+of any other kind: таракан is a surname too) and whatever `use` there is,
+possibly empty:
+
+```json
+{ "id": null, "word": "всевідаючий", "headword": "всевідаючий", "pos": "adj", "match": "form",
+  "vesum_only": true, "kind": "distorted", "use": [] }
+```
+
 - `word` in `use` is the stressed headword where exactly one entry has the
   spelling, else the plain spelling (вирок has two entries). Link it with
-  `wordPath(word)` when `has_entry` is true; otherwise show it as text.
+  `wordPath(word)`, stress marks removed, when `has_entry` is true; otherwise
+  show it as text.
 - Nebokrai's own suggestions (`data/nonstandard.tsv`) come first, then
   VESUM's, those with an entry before those without; three at most. `use` can
   be empty: VESUM marks the word but suggests nothing that is one word.
@@ -186,7 +195,8 @@ to say instead:
 - A word in Nebokrai's list gets this result without `vesum.db` too, and then
   `pos` is `""` and only Nebokrai's own suggestions are given (`криша` → `дах`).
 - With a `vesum.db` or a database built before these lists existed, the word
-  comes back as before, with an empty `use` or no `kind`.
+  comes back as a VESUM-only result, as before, with an empty `use` or no
+  `kind`.
 
 ### Reflexive verbs
 
@@ -459,8 +469,8 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
 | `kind` | As in `/api/search`: what a VESUM-only word is, when VESUM says. |
-| `use` | As in `/api/search`: with `kind: "distorted"`, the Ukrainian words to say instead. |
-| `through` | As in `/api/search`: the word in the sentence, when the reading is the verb a reflexive verb is made from, or the entry whose head line names the word. |
+| `use` | As in `/api/search`: the Ukrainian words to say instead of a non-standard word. |
+| `through` | As in `/api/search`: the word in the sentence, when the reading is the verb a reflexive verb is made from, the entry whose head line names the word, or the Ukrainian word for a non-standard one (`kind: "nonstandard"`). |
 
 Only entries that are the word, one of its forms or a word on their head line are given: a word that
 starts with it (ласкаво for ласка) or mentions it in a meaning is not, nor

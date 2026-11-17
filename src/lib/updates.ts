@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-not-standard-ukrainian',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Search a Russian word, find the Ukrainian one', uk: 'Шукаєте російське слово — знайдете українське' },
+		body: {
+			en: 'Search for a Russian word or surzhyk, such as криша or таможня, and you get the Ukrainian word to use instead, with the word you typed struck through.',
+			uk: 'Шукайте російське слово чи суржик, як-от «криша» або «таможня», і побачите українське слово, яке варто вжити, а набране слово закреслене.'
+		}
+	},
+	{
 		id: '2026-11-17-translation-table-words',
 		date: '2026-11-17',
 		kind: 'new',

@@ -114,7 +114,10 @@
 					</p>
 				{/if}
 				{#if main.through}
-					<p><span lang="uk"><Stressed text={main.through.word} /></span> {m.card.through[main.through.kind]}</p>
+					<p>
+						{#if main.through.kind === 'nonstandard'}<s lang="uk">{main.through.word}</s>{:else}<span lang="uk"><Stressed text={main.through.word} /></span>{/if}
+						{m.card.through[main.through.kind]}
+					</p>
 				{/if}
 				{#if main.meaning}
 					<p class="ui-gloss-meaning">{main.meaning}</p>

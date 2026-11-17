@@ -432,6 +432,8 @@ const en = {
 		// "Listed as": Wiktionary names the word this way, and a word can be more
 		// (походити, "to come from", is also a verb of its own).
 		through: {
+			// After a Russian word or surzhyk, struck through, on the card of the Ukrainian word: ~~криша~~ on дах
+			nonstandard: 'is not standard Ukrainian.',
 			reflexive: 'is its reflexive (-ся) form.',
 			alternative: 'is another spelling of this word.',
 			adverb: 'is listed as its adverb.',
@@ -446,6 +448,10 @@ const en = {
 			superlative: 'is listed as its superlative.',
 			form: 'is listed as one of its forms.'
 		},
+		/** After "криша is not standard Ukrainian.", before the other Ukrainian words to say: осуд, суд */
+		alsoUse: 'Also:',
+		/** Quick search: the heading over the Ukrainian words offered for a non-standard one */
+		inUkrainian: 'In Ukrainian',
 		/** Before the form of the word that the search found: руки́ genitive singular */
 		formFound: 'Form found:',
 		moreForms: (n: number) => `+${n} more`,
@@ -1675,6 +1681,7 @@ const uk: Messages = {
 			abbreviation: 'Скорочення, якого ще немає в словнику.'
 		},
 		through: {
+			nonstandard: '— ненормативне слово.',
 			reflexive: '— зворотна форма (-ся) цього дієслова.',
 			alternative: '— інше написання цього слова.',
 			adverb: '— подано як прислівник від цього слова.',
@@ -1689,6 +1696,8 @@ const uk: Messages = {
 			superlative: '— подано як найвищий ступінь порівняння цього слова.',
 			form: '— подано як одна з форм цього слова.'
 		},
+		alsoUse: 'Також:',
+		inUkrainian: 'Українською',
 		formFound: 'Знайдена форма:',
 		moreForms: (n: number) => `ще ${n}`,
 		moreMeanings: (n: number) => `ще ${n}`,

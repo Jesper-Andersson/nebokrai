@@ -80,9 +80,10 @@ export type HeadKind = (typeof HEAD_KINDS)[number] | 'form';
 
 /** The word that led to an entry without being one of its forms. */
 export interface Through {
-	/** утворюватися, for the entry утворювати; істори́чно, for істори́чний */
+	/** утворюватися, for the entry утворювати; істори́чно, for істори́чний; криша, for дах */
 	word: string;
-	kind: 'reflexive' | HeadKind;
+	/** `nonstandard`: the word searched for is not standard Ukrainian, and this is what to say instead */
+	kind: 'reflexive' | 'nonstandard' | HeadKind;
 }
 
 export interface HeadForm {
@@ -130,8 +131,10 @@ export interface SearchResult {
 	/** On a VESUM-only result, what the word is, when VESUM says: a surname, an abbreviation. */
 	kind?: VesumKind;
 	/**
-	 * With `kind: 'distorted'`, the Ukrainian words to say instead, at most three,
-	 * Nebokrai's own first: дах for криша. May be empty.
+	 * The Ukrainian words to say instead of a non-standard word, at most three,
+	 * Nebokrai's own first. On the entry that answers it (`through.kind` is
+	 * `nonstandard`: дах for криша), this word included; on a VESUM-only result
+	 * with `kind: 'distorted'` when none has an entry. May be empty there.
 	 */
 	use?: UseInstead[];
 	/**
@@ -201,7 +204,9 @@ async function offered(db: Db, word: string): Promise<UseInstead> {
 /**
  * What to say instead of a non-standard word: Nebokrai's own suggestions in
  * their order, then VESUM's, those with an entry to link to before those
- * without; USE_MAX at most. криша -> дах, приговор -> присуд, вирок, суд.
+ * without; USE_MAX at most. криша -> дах, приговор -> присуд, вирок, осуд.
+ * VESUM's order is kept otherwise: it is chosen, and the commonest word is
+ * not always the right one (суд, "court", is commoner than вирок).
  */
 async function useInstead(db: Db, vesum: Db | undefined, lemma: string, ours: string[]): Promise<UseInstead[]> {
 	const theirs = vesum
@@ -218,6 +223,25 @@ async function useInstead(db: Db, vesum: Db | undefined, lemma: string, ours: st
 		found.push(o);
 	}
 	return found.slice(0, USE_MAX);
+}
+
+/**
+ * What to answer a word with no entry: the entry id and `use` when it is not
+ * standard Ukrainian and one of the words to say instead has an entry, so
+ * криша is answered with дах's own card (its most common entry, when the
+ * spelling has several); else the bare result.
+ */
+async function instead(
+	db: Db, vesum: Db | undefined, lemma: string, pos: string, ours: string[] | null
+): Promise<{ stub: SearchResult } | { id: number; use: UseInstead[] }> {
+	const stub = await stubFor(db, vesum, lemma, pos, ours);
+	const first = stub.use?.find((u) => u.has_entry);
+	if (!first) return { stub };
+	const [row] = await db.all<{ entry_id: number }>(
+		'SELECT k.entry_id FROM search_keys k JOIN entries e ON e.id = k.entry_id' +
+		" WHERE k.key=? AND k.kind='word' ORDER BY e.freq_rank IS NULL, e.freq_rank, e.id LIMIT 1",
+		[plain(first.word)]);
+	return { id: row.entry_id, use: stub.use! };
 }
 
 /**
@@ -279,6 +303,19 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	const stubs: SearchResult[] = []; // words only VESUM knows
 	// entry id -> the word that led to it; kind 'head' until the entry's head line says what it is
 	const through = new Map<number, { word: string; kind: Through['kind'] | 'head' }>();
+	// entry id -> the Ukrainian words offered, when it answers a non-standard word
+	const useOf = new Map<number, UseInstead[]>();
+	/** A word with no entry: the Ukrainian word's entry, or a bare result. */
+	const answer = async (lemma: string, pos: string, ours: string[] | null) => {
+		const found = await instead(db, options.vesum, lemma, pos, ours);
+		if ('stub' in found) {
+			stubs.push(found.stub);
+			return;
+		}
+		add([{ entry_id: found.id, kind: 'form' }]);
+		if (!through.has(found.id)) through.set(found.id, { word: lemma, kind: 'nonstandard' });
+		if (!useOf.has(found.id)) useOf.set(found.id, found.use);
+	};
 
 	const cyrillic = isCyrillic(q);
 	// The query as it is looked up, which also tells which form of a word it is.
@@ -324,14 +361,14 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 						continue;
 					}
 				}
-				stubs.push(await stubFor(db, options.vesum, lemma, pos, await nonstandard(db, lemma)));
+				await answer(lemma, pos, await nonstandard(db, lemma));
 			}
 		}
 		// криша without vesum.db, or бебісіттер, which VESUM does not know:
 		// Nebokrai's own list still says what to write instead.
 		if (hits.size === 0 && stubs.length === 0) {
 			const ours = await nonstandard(db, key);
-			if (ours !== null) stubs.push(await stubFor(db, options.vesum, key, '', ours));
+			if (ours !== null) await answer(key, '', ours);
 		}
 		if (hits.size < limit) add(await prefixed(db, 'word', key, key + '￿', limit, hits), RANK.prefix);
 	} else {
@@ -402,6 +439,8 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		const led = through.get(e.id);
 		if (led && rank === RANK.form) {
 			result.through = led.kind === 'head' ? headThrough(result.head_forms, led.word) : { word: led.word, kind: led.kind };
+			const use = useOf.get(e.id);
+			if (use) result.use = use;
 		}
 		if (rank === RANK.head) result.through = headThrough(result.head_forms, key);
 		// An old word goes after the modern ones. The commonness count is of

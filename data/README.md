@@ -511,10 +511,13 @@ back is one deploy.
 
 1. Put the new database's name and id in `wrangler.jsonc` (binding `DB`).
 2. Merge that change into `main`, which deploys it, or run `npm run deploy`.
-3. Purge the cache in the Cloudflare dashboard. Search answers are cached for
-   an hour and entry ids change with every rebuild, so until the purge a
-   cached answer can carry an id that now belongs to another word.
-4. When the site has been checked, delete the old database:
+3. Purge the cache in the Cloudflare dashboard: purge everything, or the
+   prefix `nebokrai.app/cache/`, where word pages keep their data (a purge of
+   a page's own URL misses it; see `src/lib/server/cache.ts`). Search answers
+   are cached for an hour and entry ids change with every rebuild, so until the
+   purge a cached answer can carry an id that now belongs to another word.
+4. When a word the rebuild changed shows the new build on its live page,
+   delete the old database:
    `npx wrangler d1 delete nebokrai-dict-<old date>`.
 
 `vesum.db` is published the same way, into its own database (binding

@@ -10,7 +10,14 @@
 //
 // After the dictionary is replaced (data/README.md, "Publishing to D1"),
 // answers can be up to an hour old, with the entry ids of the old build.
-// Purge the cache in the Cloudflare dashboard to switch at once.
+// A page's data is kept under an address of its own, not the page's:
+// /word/khokhol reads /cache/word/khokhol (cachedJson below), and the API
+// answers under their own URLs. So a purge of the page's URL never reaches
+// it; purge everything, or the prefix nebokrai.app/cache/, in the dashboard.
+// After the release of 17 November 2026 a dashboard purge still left хохол
+// and канєшно old in at least one data centre until their hour ran out:
+// check a word the release changed before calling it live, and keep the old
+// database, the way back, until that word shows the new build.
 //
 // This is the Cache API, called from here. Cloudflare's "Workers Cache",
 // which caches by response headers alone, is deliberately not switched on in

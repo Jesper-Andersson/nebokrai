@@ -49,7 +49,7 @@ export const UPDATES: Update[] = [
 		title: { en: 'Practise which case a verb asks for', uk: 'Вправляйтеся у відмінках після дієслів' },
 		body: {
 			en: 'Grammar practice has ten lessons of verb patterns such as дякувати + кому?, and a verb’s page says which case it takes.',
-			uk: 'У граматиці з’явилося десять уроків дієслівного керування, як-от дякувати + кому?, а сторінка дієслова каже, якого відмінка воно вимагає.'
+			uk: 'У граматиці з’явилося десять уроків дієслівного керування, як-от дякувати + кому?, а на сторінці дієслова видно, якого відмінка воно вимагає.'
 		},
 		href: '/practice'
 	},

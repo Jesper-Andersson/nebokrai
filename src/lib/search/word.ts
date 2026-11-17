@@ -100,7 +100,16 @@ async function knownWords(db: Db, spellings: string[]): Promise<Set<string>> {
  */
 export type TatoebaSentence = { uk: string; en: string; tatoeba_id: number; adapted: boolean; original: string | null };
 
-export type EntrySource = 'wiktionary' | 'nebokrai';
+/**
+ * Where an entry is from: a Wiktionary page of its own; Nebokrai's own entries
+ * (the abbreviations км, англ.); or the translation tables of English
+ * Wiktionary pages, for a word with no page of its own (шериф, under
+ * "sheriff"). The last are thin: no forms, no etymology, no frequency rank.
+ */
+export type EntrySource = 'wiktionary' | 'nebokrai' | 'wiktionary-translations';
+
+/** The `source` of an entry made from translation tables; FROM_TRANSLATIONS in import_wiktionary.py. */
+export const FROM_TRANSLATIONS = 'wiktionary-translations';
 
 /**
  * Runs `query(column)`, and again with `fallback` in its place when the

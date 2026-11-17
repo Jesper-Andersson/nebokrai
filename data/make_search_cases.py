@@ -43,6 +43,10 @@ QUERIES = [
     # a comparative and one of its cases, a superlative, a verbal noun, alternative forms, a female
     # equivalent, another participle; and the label that must not be searchable
     "соловейком", "нездійсненними", "більший", "більшого", "найкращий", "утворення", "окрім", "немає", "авторку", "створена", "comparative",
+    # entries made from English Wiktionary's translation tables: a noun, in Latin letters and by its
+    # English word, a set phrase, a form only VESUM knows; an English word that also reaches an entry
+    # of Wiktionary's own as a mention (комітет for "board"), and one only a translation table knows
+    "шериф", "sheryf", "sheriff", "про всяк випадок", "гімназії", "board", "shrike",
     # guesses: other spellings, sound-alikes, typos, wrong keyboard layout
     "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
     "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",

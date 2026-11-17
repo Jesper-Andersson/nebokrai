@@ -16,7 +16,8 @@ How a query is matched, best first:
     5. an inflected form in Latin letters           knyhy  -> книга
     6. Latin letters, loosely spelled               kalina -> калина
     7. English meaning that mentions the query      good   -> добро ("good deed")
-    8. prefix of a word (Cyrillic or Latin), for search-as-you-type
+    8. prefix of a word (Cyrillic or Latin), for search-as-you-type; entries
+       made from translation tables only when the others leave room
 
 Within each step, more common words come first.
 
@@ -124,6 +125,26 @@ def vesum_kind(vesum, lemma):
     return next((kind for kind in KINDS if kind in found), None)
 
 
+# The `source` of an entry made from translation tables (FROM_TRANSLATIONS in import_wiktionary.py).
+THIN = "wiktionary-translations"
+
+
+def prefixed(db, kind, low, high, limit, hits):
+    """The entries a word starting with the query may be, for search-as-you-type.
+
+    The window is the first limit * 3 keys in alphabetical order; the common
+    words among them are sorted first afterwards. The entries made from
+    translation tables would crowd it (кал has more than a hundred words),
+    and they sort last anyway, so the window is filled from the others, and
+    from those only while the results are still short: шер finds шериф."""
+    sql = ("SELECT k.entry_id, k.kind FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+           f" WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source {{}} ? ORDER BY k.key LIMIT ?")
+    rows = db.execute(sql.format("!="), (kind, low, high, THIN, limit * 3)).fetchall()
+    if len({eid for eid, _ in rows} | set(hits)) < limit:
+        rows += db.execute(sql.format("="), (kind, low, high, THIN, limit * 3)).fetchall()
+    return rows
+
+
 def search(db, query, limit=20, vesum=None):
     q = query.strip()
     if not q:
@@ -141,11 +162,11 @@ def search(db, query, limit=20, vesum=None):
     through = {}  # entry id -> the word that led to it, which is not one of its forms
     if cyrillic:
         key = plain(q)
-        add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
-        if not hits:
-            # A head-line word has a key only where no entry or form has the
-            # spelling, so this finds nothing the line above could.
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='head'", (key,)))
+        # A head-line word has a key only where no entry or form of Wiktionary's
+        # own has the spelling, so it adds to the others only beside an entry
+        # made from translation tables: походити is one, and ходити names it.
+        add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form','head')",
+                       (key,)))
         if not hits and vesum is not None:
             for lemma, pos in vesum.execute(
                     "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos", (key,)):
@@ -181,8 +202,7 @@ def search(db, query, limit=20, vesum=None):
                     stub["kind"] = kind
                 stubs.append(stub)
         if len(hits) < limit:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-                           (key, key + "￿", limit * 3)), RANK["prefix"])
+            add(prefixed(db, "word", key, key + "￿", limit, hits), RANK["prefix"])
     else:
         words = re.findall(r"[a-z]+(?:[-'][a-z]+)*", q.lower())
         key = loose_latin(q)
@@ -196,8 +216,7 @@ def search(db, query, limit=20, vesum=None):
         if sets:
             add(((eid, "english") for eid in set.intersection(*sets)))
         if len(hits) < limit and key and " " not in q and len(key) >= 3:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='latin' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-                           (key, key + "{", limit * 3)), RANK["prefix"])
+            add(prefixed(db, "latin", key, key + "{", limit, hits), RANK["prefix"])
 
     results = []
     for eid, rank in hits.items():

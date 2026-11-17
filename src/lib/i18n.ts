@@ -518,6 +518,10 @@ const en = {
 		wiktionary: 'Wiktionary',
 		// An entry written for this dictionary, not taken from Wiktionary: the abbreviations км, англ.
 		ownEntry: 'Nebokrai',
+		// An entry made from the translation tables of English pages: шериф, under "sheriff"
+		wiktionaryTables: 'Wiktionary translation tables',
+		fromTranslations:
+			'Wiktionary has no entry for this word yet. These meanings come from the translation tables of its English entries, so some may be missing.',
 		recording: 'Recording on Wikimedia Commons',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
@@ -1737,6 +1741,9 @@ const uk: Messages = {
 		from: 'Джерело:',
 		wiktionary: 'Вікісловник',
 		ownEntry: 'Небокрай',
+		wiktionaryTables: 'таблиці перекладів Вікісловника',
+		fromTranslations:
+			'У Вікісловнику ще немає статті про це слово. Ці значення взято з таблиць перекладів в англійських статтях, тож деяких може бракувати.',
 		recording: 'Запис на Вікісховищі',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',

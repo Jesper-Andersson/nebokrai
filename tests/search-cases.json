@@ -1214,6 +1214,12 @@
     "п'ять",
     "num",
     "word"
+   ],
+   [
+    41258,
+    "п’ять тисяч",
+    "num",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -1227,6 +1233,12 @@
     "п'ять",
     "num",
     "word"
+   ],
+   [
+    41258,
+    "п’ять тисяч",
+    "num",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -2192,6 +2204,18 @@
     "читати",
     "verb",
     "latin_loose"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "prefix"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -2260,6 +2284,18 @@
     "читати",
     "verb",
     "latin_loose"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "prefix"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -2426,15 +2462,15 @@
     "english_mention"
    ],
    [
-    15562,
-    "користуватися",
-    "verb",
+    9295,
+    "чесний",
+    "adj",
     "english_mention"
    ],
    [
-    5179,
-    "добридень",
-    "intj",
+    15562,
+    "користуватися",
+    "verb",
     "english_mention"
    ]
   ],
@@ -2567,15 +2603,15 @@
     "english_mention"
    ],
    [
-    15562,
-    "користуватися",
-    "verb",
+    9295,
+    "чесний",
+    "adj",
     "english_mention"
    ],
    [
-    5179,
-    "добридень",
-    "intj",
+    15562,
+    "користуватися",
+    "verb",
     "english_mention"
    ]
   ],
@@ -2624,6 +2660,12 @@
     "english_mention"
    ],
    [
+    2,
+    "собака",
+    "noun",
+    "english_mention"
+   ],
+   [
     267,
     "сука",
     "noun",
@@ -2710,12 +2752,6 @@
    [
     30481,
     "вівчарка",
-    "noun",
-    "english_mention"
-   ],
-   [
-    23539,
-    "собачатина",
     "noun",
     "english_mention"
    ]
@@ -2751,6 +2787,12 @@
     "english_mention"
    ],
    [
+    2,
+    "собака",
+    "noun",
+    "english_mention"
+   ],
+   [
     267,
     "сука",
     "noun",
@@ -2839,12 +2881,6 @@
     "вівчарка",
     "noun",
     "english_mention"
-   ],
-   [
-    23539,
-    "собачатина",
-    "noun",
-    "english_mention"
    ]
   ],
   "suggest": []
@@ -3132,6 +3168,12 @@
     "english"
    ],
    [
+    397,
+    "мама",
+    "noun",
+    "english_mention"
+   ],
+   [
     5969,
     "Сара",
     "name",
@@ -3159,6 +3201,12 @@
     31485,
     "бабуня",
     "noun",
+    "english_mention"
+   ],
+   [
+    18718,
+    "Богородиця",
+    "name",
     "english_mention"
    ],
    [
@@ -3210,21 +3258,9 @@
     "english_mention"
    ],
    [
-    28587,
-    "матеревбивство",
-    "noun",
-    "english_mention"
-   ],
-   [
-    28598,
-    "матеревбивця",
-    "noun",
-    "english_mention"
-   ],
-   [
-    8918,
-    "роділля",
-    "noun",
+    34487,
+    "Богомати",
+    "name",
     "english_mention"
    ]
   ],
@@ -3259,6 +3295,12 @@
     "english"
    ],
    [
+    397,
+    "мама",
+    "noun",
+    "english_mention"
+   ],
+   [
     5969,
     "Сара",
     "name",
@@ -3286,6 +3328,12 @@
     31485,
     "бабуня",
     "noun",
+    "english_mention"
+   ],
+   [
+    18718,
+    "Богородиця",
+    "name",
     "english_mention"
    ],
    [
@@ -3337,21 +3385,9 @@
     "english_mention"
    ],
    [
-    28587,
-    "матеревбивство",
-    "noun",
-    "english_mention"
-   ],
-   [
-    28598,
-    "матеревбивця",
-    "noun",
-    "english_mention"
-   ],
-   [
-    8918,
-    "роділля",
-    "noun",
+    34487,
+    "Богомати",
+    "name",
     "english_mention"
    ]
   ],
@@ -3444,6 +3480,18 @@
     "читабельний",
     "adj",
     "english_mention"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "english_mention"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
+    "english_mention"
    ]
   ],
   "suggest": []
@@ -3534,6 +3582,18 @@
     32507,
     "читабельний",
     "adj",
+    "english_mention"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "english_mention"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
     "english_mention"
    ]
   ],
@@ -3640,15 +3700,27 @@
     "english_mention"
    ],
    [
-    20246,
-    "крайнебо",
+    35059,
+    "видноколо",
     "noun",
     "english_mention"
    ],
    [
-    13200,
-    "перевалювати",
-    "verb",
+    35060,
+    "виднокрай",
+    "noun",
+    "english_mention"
+   ],
+   [
+    35061,
+    "виднокруг",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20246,
+    "крайнебо",
+    "noun",
     "english_mention"
    ]
   ],
@@ -3755,15 +3827,27 @@
     "english_mention"
    ],
    [
-    20246,
-    "крайнебо",
+    35059,
+    "видноколо",
     "noun",
     "english_mention"
    ],
    [
-    13200,
-    "перевалювати",
-    "verb",
+    35060,
+    "виднокрай",
+    "noun",
+    "english_mention"
+   ],
+   [
+    35061,
+    "виднокруг",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20246,
+    "крайнебо",
+    "noun",
     "english_mention"
    ]
   ],
@@ -3874,6 +3958,12 @@
     "english"
    ],
    [
+    35398,
+    "ві",
+    "prep",
+    "english"
+   ],
+   [
     28012,
     "громоклійський",
     "adj",
@@ -3916,6 +4006,12 @@
     "english"
    ],
    [
+    45109,
+    "ув",
+    "prep",
+    "english"
+   ],
+   [
     29340,
     "цєрез",
     "prep",
@@ -3930,18 +4026,6 @@
    [
     4449,
     "-ина",
-    "suffix",
-    "latin_form"
-   ],
-   [
-    4450,
-    "-ина",
-    "suffix",
-    "latin_form"
-   ],
-   [
-    32998,
-    "-ини",
     "suffix",
     "latin_form"
    ]
@@ -3972,30 +4056,6 @@
     [
      [
       "-́и́н",
-      [
-       "genitive",
-       "plural"
-      ]
-     ]
-    ]
-   ],
-   [
-    4450,
-    [
-     [
-      "-и́н",
-      [
-       "genitive",
-       "plural"
-      ]
-     ]
-    ]
-   ],
-   [
-    32998,
-    [
-     [
-      "-и́н",
       [
        "genitive",
        "plural"
@@ -4058,6 +4118,12 @@
     "english"
    ],
    [
+    35398,
+    "ві",
+    "prep",
+    "english"
+   ],
+   [
     28012,
     "громоклійський",
     "adj",
@@ -4100,6 +4166,12 @@
     "english"
    ],
    [
+    45109,
+    "ув",
+    "prep",
+    "english"
+   ],
+   [
     29340,
     "цєрез",
     "prep",
@@ -4114,18 +4186,6 @@
    [
     4449,
     "-ина",
-    "suffix",
-    "latin_form"
-   ],
-   [
-    4450,
-    "-ина",
-    "suffix",
-    "latin_form"
-   ],
-   [
-    32998,
-    "-ини",
     "suffix",
     "latin_form"
    ]
@@ -4156,30 +4216,6 @@
     [
      [
       "-́и́н",
-      [
-       "genitive",
-       "plural"
-      ]
-     ]
-    ]
-   ],
-   [
-    4450,
-    [
-     [
-      "-и́н",
-      [
-       "genitive",
-       "plural"
-      ]
-     ]
-    ]
-   ],
-   [
-    32998,
-    [
-     [
-      "-и́н",
       [
        "genitive",
        "plural"
@@ -4302,15 +4338,15 @@
     "english_mention"
    ],
    [
-    25137,
-    "рівнина",
+    10186,
+    "сеча",
     "noun",
     "english_mention"
    ],
    [
-    30148,
-    "кинутися",
-    "verb",
+    25137,
+    "рівнина",
+    "noun",
     "english_mention"
    ]
   ],
@@ -4429,15 +4465,15 @@
     "english_mention"
    ],
    [
-    25137,
-    "рівнина",
+    10186,
+    "сеча",
     "noun",
     "english_mention"
    ],
    [
-    30148,
-    "кинутися",
-    "verb",
+    25137,
+    "рівнина",
+    "noun",
     "english_mention"
    ]
   ],
@@ -4896,15 +4932,15 @@
     "english_mention"
    ],
    [
-    8023,
-    "промінь",
+    844,
+    "лампа",
     "noun",
     "english_mention"
    ],
    [
-    21153,
-    "відкритися",
-    "verb",
+    8023,
+    "промінь",
+    "noun",
     "english_mention"
    ]
   ],
@@ -5023,15 +5059,15 @@
     "english_mention"
    ],
    [
-    8023,
-    "промінь",
+    844,
+    "лампа",
     "noun",
     "english_mention"
    ],
    [
-    21153,
-    "відкритися",
-    "verb",
+    8023,
+    "промінь",
+    "noun",
     "english_mention"
    ]
   ],
@@ -5066,14 +5102,38 @@
     "english"
    ],
    [
+    43226,
+    "розвіддані",
+    "noun",
+    "english"
+   ],
+   [
+    43339,
+    "розсудок",
+    "noun",
+    "english"
+   ],
+   [
     2365,
     "агент",
     "noun",
     "english_mention"
    ],
    [
+    7792,
+    "розум",
+    "noun",
+    "english_mention"
+   ],
+   [
     6766,
     "дурень",
+    "noun",
+    "english_mention"
+   ],
+   [
+    11182,
+    "глузд",
     "noun",
     "english_mention"
    ],
@@ -5132,31 +5192,13 @@
     "english_mention"
    ],
    [
-    16352,
-    "чекіст",
+    43227,
+    "розвідник",
     "noun",
     "english_mention"
-   ],
-   [
-    9703,
-    "штучний інтелект",
-    "noun",
-    "english_mention"
-   ],
-   [
-    550,
-    "ум",
-    "noun",
-    "english"
    ]
   ],
-  "suggest": [],
-  "old": [
-   [
-    550,
-    "dated"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "intelligence",
@@ -5187,14 +5229,38 @@
     "english"
    ],
    [
+    43226,
+    "розвіддані",
+    "noun",
+    "english"
+   ],
+   [
+    43339,
+    "розсудок",
+    "noun",
+    "english"
+   ],
+   [
     2365,
     "агент",
     "noun",
     "english_mention"
    ],
    [
+    7792,
+    "розум",
+    "noun",
+    "english_mention"
+   ],
+   [
     6766,
     "дурень",
+    "noun",
+    "english_mention"
+   ],
+   [
+    11182,
+    "глузд",
     "noun",
     "english_mention"
    ],
@@ -5253,31 +5319,13 @@
     "english_mention"
    ],
    [
-    16352,
-    "чекіст",
+    43227,
+    "розвідник",
     "noun",
     "english_mention"
-   ],
-   [
-    9703,
-    "штучний інтелект",
-    "noun",
-    "english_mention"
-   ],
-   [
-    550,
-    "ум",
-    "noun",
-    "english"
    ]
   ],
-  "suggest": [],
-  "old": [
-   [
-    550,
-    "dated"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "crusader",
@@ -5942,6 +5990,18 @@
     "prefix"
    ],
    [
+    45915,
+    "Чита",
+    "name",
+    "prefix"
+   ],
+   [
+    45918,
+    "Читрал",
+    "name",
+    "prefix"
+   ],
+   [
     32507,
     "читабельний",
     "adj",
@@ -5963,6 +6023,18 @@
     3470,
     "читанка",
     "noun",
+    "prefix"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "prefix"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
     "prefix"
    ],
    [
@@ -6010,6 +6082,18 @@
     "prefix"
    ],
    [
+    45915,
+    "Чита",
+    "name",
+    "prefix"
+   ],
+   [
+    45918,
+    "Читрал",
+    "name",
+    "prefix"
+   ],
+   [
     32507,
     "читабельний",
     "adj",
@@ -6031,6 +6115,18 @@
     3470,
     "читанка",
     "noun",
+    "prefix"
+   ],
+   [
+    45916,
+    "читати між рядками",
+    "verb",
+    "prefix"
+   ],
+   [
+    45917,
+    "читати між рядків",
+    "verb",
     "prefix"
    ],
    [
@@ -6935,41 +7031,38 @@
   "query": "книжечку",
   "vesum": false,
   "expect": [],
-  "suggest": []
+  "suggest": [
+   [
+    38346,
+    "книжечка",
+    "noun",
+    "typo"
+   ]
+  ]
  },
  {
   "query": "книжечку",
   "vesum": true,
   "expect": [
    [
-    132,
-    "книга",
-    "noun",
-    "form"
-   ],
-   [
-    2215,
-    "книжка",
+    38346,
+    "книжечка",
     "noun",
     "form"
    ]
   ],
-  "suggest": [],
-  "notes": [
-   [
-    "книга",
-    "кни́жечка"
-   ],
-   [
-    "книжка",
-    "кни́жечка"
-   ]
-  ]
+  "suggest": []
  },
  {
   "query": "походити",
   "vesum": false,
   "expect": [
+   [
+    42223,
+    "походити",
+    "verb",
+    "word"
+   ],
    [
     1291,
     "ходити",
@@ -6989,6 +7082,12 @@
   "query": "походити",
   "vesum": true,
   "expect": [
+   [
+    42223,
+    "походити",
+    "verb",
+    "word"
+   ],
    [
     1291,
     "ходити",
@@ -7015,7 +7114,7 @@
   "vesum": true,
   "expect": [
    [
-    null,
+    36619,
     "дорівнювати",
     "verb",
     "form"
@@ -7040,22 +7139,35 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "notes": [
+   [
+    "осташко",
+    "surname"
+   ]
+  ]
  },
  {
   "query": "фрідріха",
   "vesum": false,
   "expect": [],
-  "suggest": []
+  "suggest": [
+   [
+    45476,
+    "Фрідріх",
+    "name",
+    "typo"
+   ]
+  ]
  },
  {
   "query": "фрідріха",
   "vesum": true,
   "expect": [
    [
-    null,
-    "фрідріх",
-    "noun",
+    45476,
+    "Фрідріх",
+    "name",
     "form"
    ]
   ],
@@ -7078,7 +7190,13 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "notes": [
+   [
+    "максимович",
+    "patronymic"
+   ]
+  ]
  },
  {
   "query": "сокирко",
@@ -7103,7 +7221,13 @@
     "form"
    ]
   ],
-  "suggest": []
+  "suggest": [],
+  "notes": [
+   [
+    "сокирко",
+    "surname"
+   ]
+  ]
  },
  {
   "query": "утворюватися",
@@ -7138,6 +7262,12 @@
    [
     26098,
     "месниця",
+    "noun",
+    "typo"
+   ],
+   [
+    39981,
+    "містичка",
     "noun",
     "typo"
    ]
@@ -7332,6 +7462,12 @@
   "vesum": false,
   "expect": [
    [
+    42223,
+    "походити",
+    "verb",
+    "word"
+   ],
+   [
     1291,
     "ходити",
     "verb",
@@ -7351,6 +7487,12 @@
   "vesum": true,
   "expect": [
    [
+    42223,
+    "походити",
+    "verb",
+    "word"
+   ],
+   [
     1291,
     "ходити",
     "verb",
@@ -7424,6 +7566,24 @@
     "дармоїд",
     "noun",
     "prefix"
+   ],
+   [
+    36176,
+    "дармовий",
+    "adj",
+    "prefix"
+   ],
+   [
+    36177,
+    "дармовис",
+    "noun",
+    "prefix"
+   ],
+   [
+    36178,
+    "дармовіс",
+    "noun",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -7459,6 +7619,24 @@
     "дармоїд",
     "noun",
     "prefix"
+   ],
+   [
+    36176,
+    "дармовий",
+    "adj",
+    "prefix"
+   ],
+   [
+    36177,
+    "дармовис",
+    "noun",
+    "prefix"
+   ],
+   [
+    36178,
+    "дармовіс",
+    "noun",
+    "prefix"
    ]
   ],
   "suggest": [],
@@ -7780,6 +7958,12 @@
     "КМУ",
     "name",
     "prefix"
+   ],
+   [
+    38341,
+    "кмин",
+    "noun",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -7811,6 +7995,12 @@
     "КМУ",
     "name",
     "prefix"
+   ],
+   [
+    38341,
+    "кмин",
+    "noun",
+    "prefix"
    ]
   ],
   "suggest": []
@@ -8128,9 +8318,21 @@
     "prefix"
    ],
    [
+    33896,
+    "англосакс",
+    "noun",
+    "prefix"
+   ],
+   [
     20873,
     "англосаксонський",
     "adj",
+    "prefix"
+   ],
+   [
+    33897,
+    "англоцентризм",
+    "noun",
     "prefix"
    ],
    [
@@ -8154,6 +8356,12 @@
    [
     22576,
     "англізувати",
+    "verb",
+    "prefix"
+   ],
+   [
+    33898,
+    "англізуватися",
     "verb",
     "prefix"
    ],
@@ -8237,9 +8445,21 @@
     "prefix"
    ],
    [
+    33896,
+    "англосакс",
+    "noun",
+    "prefix"
+   ],
+   [
     20873,
     "англосаксонський",
     "adj",
+    "prefix"
+   ],
+   [
+    33897,
+    "англоцентризм",
+    "noun",
     "prefix"
    ],
    [
@@ -8263,6 +8483,12 @@
    [
     22576,
     "англізувати",
+    "verb",
+    "prefix"
+   ],
+   [
+    33898,
+    "англізуватися",
     "verb",
     "prefix"
    ],
@@ -8586,9 +8812,21 @@
     "word"
    ],
    [
+    40421,
+    "немає входу",
+    "phrase",
+    "prefix"
+   ],
+   [
     29544,
     "немає лиха без добра",
     "phrase",
+    "prefix"
+   ],
+   [
+    40422,
+    "немає проблем",
+    "intj",
     "prefix"
    ]
   ],
@@ -8605,9 +8843,21 @@
     "word"
    ],
    [
+    40421,
+    "немає входу",
+    "phrase",
+    "prefix"
+   ],
+   [
     29544,
     "немає лиха без добра",
     "phrase",
+    "prefix"
+   ],
+   [
+    40422,
+    "немає проблем",
+    "intj",
     "prefix"
    ]
   ],
@@ -8965,6 +9215,416 @@
     "по-",
     "prefix",
     "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "шериф",
+  "vesum": false,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "шериф",
+  "vesum": true,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "sheryf",
+  "vesum": false,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "latin"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "sheryf",
+  "vesum": true,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "latin"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "sheriff",
+  "vesum": false,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "latin_loose"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "sheriff",
+  "vesum": true,
+  "expect": [
+   [
+    46073,
+    "шериф",
+    "noun",
+    "latin_loose"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "про всяк випадок",
+  "vesum": false,
+  "expect": [
+   [
+    42471,
+    "про всяк випадок",
+    "adv",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "про всяк випадок",
+  "vesum": true,
+  "expect": [
+   [
+    42471,
+    "про всяк випадок",
+    "adv",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "гімназії",
+  "vesum": false,
+  "expect": [],
+  "suggest": [
+   [
+    36091,
+    "гімназія",
+    "noun",
+    "typo"
+   ]
+  ]
+ },
+ {
+  "query": "гімназії",
+  "vesum": true,
+  "expect": [
+   [
+    36091,
+    "гімназія",
+    "noun",
+    "form"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "board",
+  "vesum": false,
+  "expect": [
+   [
+    8558,
+    "сідати",
+    "verb",
+    "english"
+   ],
+   [
+    8471,
+    "сісти",
+    "verb",
+    "english"
+   ],
+   [
+    1647,
+    "борт",
+    "noun",
+    "english"
+   ],
+   [
+    5694,
+    "управління",
+    "noun",
+    "english"
+   ],
+   [
+    7320,
+    "дошка",
+    "noun",
+    "english"
+   ],
+   [
+    17198,
+    "правління",
+    "noun",
+    "english"
+   ],
+   [
+    861,
+    "плата",
+    "noun",
+    "english"
+   ],
+   [
+    30464,
+    "колегія",
+    "noun",
+    "english"
+   ],
+   [
+    4069,
+    "рада",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22624,
+    "зловити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    944,
+    "ловити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    5741,
+    "комітет",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3285,
+    "забити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    28315,
+    "забивати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    5744,
+    "керівництво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5745,
+    "керівництво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20419,
+    "сходинка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16141,
+    "плінтус",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6081,
+    "днище",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6243,
+    "шашка",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "board",
+  "vesum": true,
+  "expect": [
+   [
+    8558,
+    "сідати",
+    "verb",
+    "english"
+   ],
+   [
+    8471,
+    "сісти",
+    "verb",
+    "english"
+   ],
+   [
+    1647,
+    "борт",
+    "noun",
+    "english"
+   ],
+   [
+    5694,
+    "управління",
+    "noun",
+    "english"
+   ],
+   [
+    7320,
+    "дошка",
+    "noun",
+    "english"
+   ],
+   [
+    17198,
+    "правління",
+    "noun",
+    "english"
+   ],
+   [
+    861,
+    "плата",
+    "noun",
+    "english"
+   ],
+   [
+    30464,
+    "колегія",
+    "noun",
+    "english"
+   ],
+   [
+    4069,
+    "рада",
+    "noun",
+    "english_mention"
+   ],
+   [
+    22624,
+    "зловити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    944,
+    "ловити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    5741,
+    "комітет",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3285,
+    "забити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    28315,
+    "забивати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    5744,
+    "керівництво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5745,
+    "керівництво",
+    "noun",
+    "english_mention"
+   ],
+   [
+    20419,
+    "сходинка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16141,
+    "плінтус",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6081,
+    "днище",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6243,
+    "шашка",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "shrike",
+  "vesum": false,
+  "expect": [
+   [
+    44062,
+    "сорокопуд",
+    "noun",
+    "english"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "shrike",
+  "vesum": true,
+  "expect": [
+   [
+    44062,
+    "сорокопуд",
+    "noun",
+    "english"
    ]
   ],
   "suggest": []
@@ -9503,6 +10163,12 @@
     "typo"
    ],
    [
+    41493,
+    "первень",
+    "noun",
+    "typo"
+   ],
+   [
     29896,
     "привіет",
     "intj",
@@ -9525,6 +10191,12 @@
     3345,
     "привіт",
     "intj",
+    "typo"
+   ],
+   [
+    41493,
+    "первень",
+    "noun",
     "typo"
    ],
    [
@@ -9563,6 +10235,12 @@
     "причт",
     "noun",
     "typo"
+   ],
+   [
+    42466,
+    "приют",
+    "noun",
+    "typo"
    ]
   ]
  },
@@ -9592,6 +10270,12 @@
    [
     8055,
     "причт",
+    "noun",
+    "typo"
+   ],
+   [
+    42466,
+    "приют",
     "noun",
     "typo"
    ]
@@ -11576,8 +12260,68 @@
   "vesum": false,
   "expect": [
    [
+    4939,
+    "будь ласка",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    36179,
+    "дарованому коневі в зуби не дивляться",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    39603,
+    "мені байдуже",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    39605,
+    "мені до пизди",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    39606,
+    "мені однаково",
+    "phrase",
+    "english_mention"
+   ],
+   [
     18518,
     "моя хата скраю, я нічого не знаю",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    40282,
+    "не зламано - не ладнай",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40283,
+    "не змінюйте переможну команду",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40287,
+    "не лізь поперед батька в пекло",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40299,
+    "не хвали день до вечора",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40300,
+    "не хвилюйся",
     "phrase",
     "english_mention"
    ],
@@ -11590,6 +12334,48 @@
    [
     989,
     "я не знаю",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46305,
+    "я не розмовляю англійською",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46306,
+    "я не розмовляю українською",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46307,
+    "я не розумію",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46308,
+    "я не хочу про це говорити",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46309,
+    "я не їм м'яса",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46310,
+    "я не їм свинину",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46311,
+    "я не їм яловичини",
     "phrase",
     "english_mention"
    ]
@@ -11601,8 +12387,68 @@
   "vesum": true,
   "expect": [
    [
+    4939,
+    "будь ласка",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    36179,
+    "дарованому коневі в зуби не дивляться",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    39603,
+    "мені байдуже",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    39605,
+    "мені до пизди",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    39606,
+    "мені однаково",
+    "phrase",
+    "english_mention"
+   ],
+   [
     18518,
     "моя хата скраю, я нічого не знаю",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    40282,
+    "не зламано - не ладнай",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40283,
+    "не змінюйте переможну команду",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40287,
+    "не лізь поперед батька в пекло",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40299,
+    "не хвали день до вечора",
+    "proverb",
+    "english_mention"
+   ],
+   [
+    40300,
+    "не хвилюйся",
     "phrase",
     "english_mention"
    ],
@@ -11615,6 +12461,48 @@
    [
     989,
     "я не знаю",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46305,
+    "я не розмовляю англійською",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46306,
+    "я не розмовляю українською",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46307,
+    "я не розумію",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46308,
+    "я не хочу про це говорити",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46309,
+    "я не їм м'яса",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46310,
+    "я не їм свинину",
+    "phrase",
+    "english_mention"
+   ],
+   [
+    46311,
+    "я не їм яловичини",
     "phrase",
     "english_mention"
    ]

@@ -10,7 +10,8 @@
 //   5. an inflected form in Latin letters         knyhy  -> книга
 //   6. Latin letters, loosely spelled             kalina -> калина
 //   7. English meaning that mentions the query    good   -> добро ("good deed")
-//   8. prefix of a word, for search-as-you-type
+//   8. prefix of a word, for search-as-you-type (entries made from translation
+//      tables only when the others leave room)
 // Within each step, more common words come first. An old word (every matched
 // meaning archaic, obsolete or dated) comes after the modern words of its step,
 // and an old exact English meaning after the English mentions; steps 1 to 3
@@ -155,6 +156,30 @@ async function vesumKind(vesum: Db, lemma: string): Promise<VesumKind | undefine
 }
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
+/** The `source` of an entry made from translation tables (FROM_TRANSLATIONS in word.ts). */
+const THIN = 'wiktionary-translations';
+
+/**
+ * The entries a word starting with the query may be, for search-as-you-type.
+ *
+ * The window is the first limit * 3 keys in alphabetical order; the common
+ * words among them are sorted first afterwards. The entries made from
+ * translation tables would crowd it (кал has more than a hundred words), and
+ * they sort last anyway, so the window is filled from the others, and from
+ * those only while the results are still short: шер finds шериф.
+ */
+async function prefixed(
+	db: Db, kind: 'word' | 'latin', low: string, high: string, limit: number, hits: Map<number, number>
+): Promise<KeyRow[]> {
+	const sql = (op: string) =>
+		'SELECT k.entry_id, k.kind FROM search_keys k JOIN entries e ON e.id = k.entry_id' +
+		` WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source ${op} ? ORDER BY k.key LIMIT ?`;
+	const rows = await db.all<KeyRow>(sql('!='), [kind, low, high, THIN, limit * 3]);
+	const found = new Set([...rows.map((row) => row.entry_id), ...hits.keys()]);
+	if (found.size < limit) rows.push(...await db.all<KeyRow>(sql('='), [kind, low, high, THIN, limit * 3]));
+	return rows;
+}
+
 export async function search(db: Db, query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
 	const limit = options.limit ?? 20;
 	const q = query.trim();
@@ -178,14 +203,11 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 	const key = cyrillic ? plain(q) : looseLatin(q);
 
 	if (cyrillic) {
+		// A head-line word has a key only where no entry or form of Wiktionary's
+		// own has the spelling, so it adds to the others only beside an entry
+		// made from translation tables: походити is one, and ходити names it.
 		add(await db.all<KeyRow>(
-			"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", [key]));
-		if (hits.size === 0) {
-			// A head-line word has a key only where no entry or form has the
-			// spelling, so this finds nothing the line above could.
-			add(await db.all<KeyRow>(
-				"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='head'", [key]));
-		}
+			"SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form','head')", [key]));
 		if (hits.size === 0 && options.vesum) {
 			const lemmas = await options.vesum.all<{ lemma: string; pos: string }>(
 				'SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos', [key]);
@@ -229,11 +251,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 				stubs.push(stub);
 			}
 		}
-		if (hits.size < limit) {
-			add(await db.all<KeyRow>(
-				"SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-				[key, key + '￿', limit * 3]), RANK.prefix);
-		}
+		if (hits.size < limit) add(await prefixed(db, 'word', key, key + '￿', limit, hits), RANK.prefix);
 	} else {
 		const words = q.toLowerCase().match(/[a-z]+(?:[-'][a-z]+)*/g) ?? [];
 		const oneWord = !q.includes(' ');
@@ -253,9 +271,7 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 		}
 		if (common) add(common.map((entry_id: number) => ({ entry_id, kind: 'english' as const })));
 		if (hits.size < limit && key && oneWord && key.length >= 3) {
-			add(await db.all<KeyRow>(
-				"SELECT entry_id, kind FROM search_keys WHERE kind='latin' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-				[key, key + '{', limit * 3]), RANK.prefix);
+			add(await prefixed(db, 'latin', key, key + '{', limit, hits), RANK.prefix);
 		}
 	}
 

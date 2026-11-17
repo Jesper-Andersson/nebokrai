@@ -107,7 +107,9 @@
 			{#if (data.entry && !data.ownEntry) || (kind === 'missing' && data.query)}
 				<p>{m.report.fixUpstream}</p>
 				<ul class="upstream">
-					{#if data.entry}
+					{#if data.entry && data.noPage}
+						<li><a href={wiktionary(data.entry.word)} rel="noopener">{m.report.addToWiktionary(data.entry.word)}</a></li>
+					{:else if data.entry}
 						<li><a href={wiktionary(data.entry.word)} rel="noopener">{m.report.onWiktionary(data.entry.word)}</a></li>
 					{:else}
 						<li><a href={wiktionary(data.query)} rel="noopener">{m.report.addToWiktionary(data.query)}</a></li>

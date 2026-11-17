@@ -28,7 +28,10 @@
 			licence. The authors of each entry are listed in its Wiktionary page history.
 			About fifty common abbreviations that Wiktionary has no page for (<span lang="uk">км</span>,
 			<span lang="uk">англ.</span>, <span lang="uk">ЗМІ</span>) were written for Nebokrai and are
-			under the same licence; their pages name Nebokrai as the source.
+			under the same licence; their pages name Nebokrai as the source. About 13,000 words that have
+			no entry there yet are shown with the meanings Wiktionary gives them in the translation tables
+			of English words (<span lang="uk">шериф</span> under “sheriff”); their pages say so and link to
+			a search that lists those English pages.
 		</dd>
 
 		<dt>Audio recordings</dt>

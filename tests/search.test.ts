@@ -11,7 +11,7 @@ import {
 } from '../src/lib/search/normalize.ts';
 import { search } from '../src/lib/search/search.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
-import { wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
+import { FROM_TRANSLATIONS, wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
 
 test('normalisation', () => {
@@ -103,7 +103,8 @@ test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	const [patronymic] = await search(db, 'максимовичу', { vesum });
 	assert.equal(patronymic.kind, 'patronymic');
 	// A plain word that only VESUM knows has no kind
-	const [verb] = await search(db, 'посідати', { vesum });
+	// (посідати was one, until the translation tables gave it an entry)
+	const [verb] = await search(db, 'походжати', { vesum });
 	assert.equal(verb.vesum_only, true);
 	assert.equal('kind' in verb, false);
 
@@ -248,6 +249,28 @@ test('entries written for Nebokrai', { skip }, async () => {
 	const [oldKm] = await wordDetails(old, 'км');
 	assert.equal(oldKm.source, 'wiktionary');
 	assert.ok(oldKm.senses.length > 0);
+});
+
+test('entries made from translation tables', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// шериф has no Wiktionary page; "sheriff" lists it in its translation table
+	const [sheriff] = await wordDetails(db, 'шериф');
+	assert.equal(sheriff.source, FROM_TRANSLATIONS);
+	assert.equal(sheriff.headword, 'шери́ф');
+	assert.deepEqual(sheriff.senses.map((s) => s.gloss), ['sheriff (all meanings)']);
+	assert.deepEqual(sheriff.tags, ['masculine']);
+	// Thin: no table of forms and no rank, which keeps it out of the common words
+	assert.deepEqual([sheriff.forms, sheriff.freq_rank], [[], null]);
+	// A word with a page of its own stays Wiktionary's
+	assert.ok((await wordDetails(db, 'комітет')).every((e) => e.source === 'wiktionary'));
+
+	// The head-line key of another entry still finds that entry beside the new one
+	const found = await search(db, 'походити');
+	assert.deepEqual(found.map((r) => [r.word, r.match]), [['походити', 'word'], ['ходити', 'head']]);
+	// Search-as-you-type fills its window from the other entries first: кал lists
+	// калина's neighbours, not a hundred rarer words from the tables
+	const typed = await search(db, 'кал');
+	assert.ok(typed.slice(0, 8).every((r) => r.freq_rank !== null));
 });
 
 test('a database built before related words were stored', { skip }, async () => {

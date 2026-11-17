@@ -1,0 +1,9 @@
+# Translations from English Wiktionary's translation tables that import_wiktionary.py --translations
+# turns down: Russian words, surzhyk and other mistakes a person has read and rejected.
+# check_russianisms.py lists candidates; only what someone has looked at goes here, written by hand.
+#
+# One row per word: the spelling (stress marks are ignored), a tab, and the part of speech as the
+# tables give it (noun, verb, adj, adv, ...). Leave the part of speech out to turn the spelling down
+# whatever it is.
+#
+# word	pos

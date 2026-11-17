@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-translation-table-words',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'About 13,000 more words have a meaning', uk: 'Ще близько 13 000 слів мають значення' },
+		body: {
+			en: 'Words with no Wiktionary entry of their own, such as шериф, now show the meanings given in the translation tables of English entries.',
+			uk: 'Слова без власної статті у Вікісловнику, як-от шериф, тепер показують значення з таблиць перекладів в англійських статтях.'
+		}
+	},
+	{
 		id: '2026-11-17-readlang-export',
 		date: '2026-11-17',
 		kind: 'new',

@@ -304,11 +304,11 @@ common first.
 
 | Field | Meaning |
 |---|---|
-| `source` | `wiktionary`, or `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`). Credit and link accordingly: such an entry has no Wiktionary page. |
+| `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`); or `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"). Credit and link accordingly: neither of the last two has a Wiktionary page. An entry from translation tables is thin: no `forms`, `etymology`, `ipa` or `freq_rank`, and each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`. |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
-| `ipa` | Pronunciation. `null` for about 2% of entries. |
-| `audio_url` | An mp3 on Wikimedia Commons. `null` for 45% of entries. |
-| `etymology` | Plain text, sometimes several lines. `null` for 20% of entries. |
+| `ipa` | Pronunciation. `null` for 30% of entries, nearly all of them entries from translation tables (2% of the others). |
+| `audio_url` | An mp3 on Wikimedia Commons. `null` for 61% of entries. |
+| `etymology` | Plain text, sometimes several lines. `null` for 43% of entries (20% of those with a Wiktionary page). |
 | `senses[].gloss` | The meaning in English. For a word Wiktionary describes through another word, the gloss says so: "comparative degree of вели́кий: bigger, larger, greater", "verbal noun of утвори́ти pf: formation", "female equivalent of а́втор (“author, authoress”)". The word it names is in `relations` as `related`, with `sense_n` set. |
 | `senses[].tags` | Labels for one meaning: `transitive`, `poetic`, `colloquial`, `uncountable`, … Such a meaning also carries `form-of` or `alt-of`. |
 | `senses[].examples` | Usage quotes from Wiktionary: `{ "text", "english" }`. Usually empty. |
@@ -511,7 +511,7 @@ The answers carry dictionary data, and each source keeps its own licence
 
 | What | Licence |
 |---|---|
-| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0; entries with `source: "nebokrai"` are Nebokrai's, same licence |
+| Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 (`source: "wiktionary-translations"` too); entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
 | Results with `vesum_only: true`, their `kind`, and `through` on a result with `match: "form"` | VESUM, CC BY-NC-SA 4.0: no commercial use |
 | `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |

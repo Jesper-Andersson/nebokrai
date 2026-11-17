@@ -3,11 +3,15 @@
 
 Usage:
     python3 import_wiktionary.py raw/uk.jsonl nebokrai.db [--freq FILE] [--tatoeba DIR]
+        [--abbreviations FILE] [--translations FILE]
 
-    --freq FILE     word frequency list, one "word count" per line
-                    (FrequencyWords uk_full.txt, built from film subtitles)
-    --tatoeba DIR   folder holding ukr_sentences.tsv.bz2, ukr-eng_links.tsv.bz2
-                    and eng_sentences.tsv.bz2 from downloads.tatoeba.org
+    --freq FILE           word frequency list, one "word count" per line
+                          (FrequencyWords uk_full.txt, built from film subtitles)
+    --tatoeba DIR         folder holding ukr_sentences.tsv.bz2, ukr-eng_links.tsv.bz2
+                          and eng_sentences.tsv.bz2 from downloads.tatoeba.org
+    --abbreviations FILE  abbreviations.tsv, Nebokrai's own entries
+    --translations FILE   the Ukrainian translations from English Wiktionary's
+                          translation tables, as extract_translations.py writes them
 
 Input:  kaikki.org-dictionary-Ukrainian.jsonl (English Wiktionary, CC BY-SA)
 Output: a SQLite database with seven tables:
@@ -91,6 +95,14 @@ CREATE TABLE search_keys (
     key       TEXT NOT NULL,
     entry_id  INTEGER NOT NULL REFERENCES entries(id),
     kind      TEXT NOT NULL         -- word | form | head | latin | latin_form | english | sound | sound_form | typo
+);
+-- Spellings that are not standard Ukrainian, from data/nonstandard.tsv, and what to say instead.
+-- Written for Nebokrai, so it may live here; VESUM's own suggestions stay in vesum.db.
+CREATE TABLE nonstandard (
+    word  TEXT NOT NULL,            -- plain spelling: криша
+    n     INTEGER NOT NULL,         -- order of the suggestion from 1; 0 = nothing to suggest
+    use   TEXT NOT NULL,            -- plain Ukrainian word: дах ('' when n = 0)
+    PRIMARY KEY (word, n)
 );
 """
 
@@ -353,6 +365,183 @@ def add_abbreviations(db, path):
     return links, added
 
 
+ENGLISH_WORD = re.compile(r"[a-z]+(?:[-'][a-z]+)*")
+# A translation written in the letters of the Ukrainian alphabet and nothing
+# else. The tables also hold whole questions ("як тебе́ зову́ть?"), notes,
+# mixed scripts, and now and then a word in Russian or Belarusian letters
+# (ы, э, ў), which the site's list of words by letter has no place for.
+UKRAINIAN_ONLY = re.compile("[а-щьюяєіїґА-ЩЬЮЯЄІЇҐ́'’ʼ -]+")
+# The `source` of an entry made from translation tables, not from a page of the
+# word's own. The word page says so above its meanings.
+FROM_TRANSLATIONS = "wiktionary-translations"
+# What a translation says about the word itself. Anything else among its tags
+# ("usually", "also") is left out. A gender is kept for a noun only and an
+# aspect for a verb only: the tables also put "masculine" on adjectives, which
+# have every gender.
+GRAMMAR_TAGS = {
+    "noun": {"masculine", "feminine", "neuter", "animate", "inanimate", "plural"},
+    "name": {"masculine", "feminine", "neuter", "animate", "inanimate", "plural"},
+    "verb": {"imperfective", "perfective"},
+}
+GENDERS = {"masculine", "feminine", "neuter"}
+# English verbs that take no "to": повинно is "should", not "to should"
+NO_TO = {"can", "could", "may", "might", "must", "ought", "shall", "should", "will", "would"}
+# A translation's remarks on usage, kept on the meaning as Wiktionary's own are.
+USAGE_TAGS = {"rare", "colloquial", "dated", "informal", "dialectal", "formal", "slang", "vulgar",
+              "poetic", "obsolete", "archaic", "historical", "regional", "neologism", "derogatory",
+              "nonstandard", "literary", "diminutive", "collective"}
+# Words a person has read and found not to be standard Ukrainian, most of them
+# Russian words or surzhyk (check_russianisms.py lists the candidates), with
+# the Ukrainian word to say instead where one is known. Written by hand.
+NONSTANDARD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonstandard.tsv")
+
+
+def nonstandard(path=NONSTANDARD):
+    """The rows of nonstandard.tsv: [(plain spelling, part of speech or None,
+    [Ukrainian words])]. A row with no part of speech holds for every one."""
+    rows = []
+    if not os.path.exists(path):
+        return rows
+    with open(path, encoding="utf-8") as lines:
+        for line in lines:
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            cells = [c.strip() for c in line.split("\t")] + ["", ""]
+            use = [w.strip() for w in cells[2].split("|") if w.strip()]
+            rows.append((plain(cells[0]), cells[1] or None, use))
+    return rows
+
+
+def add_nonstandard(db, rows):
+    """Store what search says instead of a non-standard word: криша -> дах.
+    One row per suggested word, in the file's order; a word with nothing to
+    suggest gets a row with n = 0 and no word, so search still knows it."""
+    seen, out = set(), []
+    for word, _, use in rows:
+        if word in seen:
+            continue
+        seen.add(word)
+        out += [(word, n, plain(u)) for n, u in enumerate(use, 1)] or [(word, 0, "")]
+    db.executemany("INSERT INTO nonstandard(word, n, use) VALUES (?,?,?)", out)
+    return len(seen)
+
+
+def add_translations(db, path, skip: "set | frozenset" = frozenset()):
+    """Use the Ukrainian translations listed on English Wiktionary's entries
+    (data/extract_translations.py writes the file).
+
+    Under "ashtray" the English Wiktionary gives попільни́чка, a word with no
+    entry of its own. Such a word gets an entry made of what the tables say:
+    its stress, its gender or aspect, and one meaning per English word,
+    "ashtray (receptacle for ashes)". Its `source` is FROM_TRANSLATIONS,
+    because it is thinner than a real entry: it has no table of forms, and it
+    shows the meanings somebody happened to translate, which need not include
+    the main one. Such an entry gets no frequency rank either (add_frequency).
+
+    For a word that has an entry, the tables only add English search keys:
+    комітет is listed under "board (managing committee)", so "board" finds it,
+    after the words whose own entry says "board". The part of speech must
+    agree, which keeps "voting" (verb) away from голосування (noun).
+
+    Left out: anything not written in Ukrainian letters alone, inflected forms
+    of words that have entries (зачинений is in the table of зачинити),
+    affixes, the words in `skip` (nonstandard.tsv), and nouns and names of several words, most
+    of which are ordinary word combinations (соціа́льна справедли́вість, "social
+    justice") rather than dictionary words. Set phrases of other kinds are
+    kept: про вся́к ви́падок, "just in case".
+    """
+    have = collections.defaultdict(list)   # plain spelling -> (id, pos) of its entries
+    for eid, word, pos in db.execute("SELECT id, word, pos FROM entries"):
+        have[plain(word)].append((eid, pos))
+    forms = {key for (key,) in db.execute("SELECT DISTINCT key FROM search_keys WHERE kind='form'")}
+    english = set(db.execute("SELECT entry_id, key FROM search_keys WHERE kind='english'"))
+
+    stats = collections.Counter(translations=0, translations_not_ukrainian=0, translations_left_out=0,
+                                translations_noun_phrases=0, translations_turned_down=0,
+                                translations_other_pos=0)
+    more_keys = []
+    new = collections.defaultdict(list)    # (plain spelling, pos) -> its translations
+    for line in open(path, encoding="utf-8"):
+        t = json.loads(line)
+        stats["translations"] += 1
+        uk = unicodedata.normalize("NFC", t["uk"].strip())
+        key, pos = plain(uk), t.get("pos") or ""
+        # Starting with a letter: "’наєш" (y'know) is in the tables too
+        if not UKRAINIAN_ONLY.fullmatch(uk) or not uk[0].isalpha():
+            stats["translations_not_ukrainian"] += 1
+            continue
+        if (key, None) in skip or (key, pos) in skip:
+            stats["translations_turned_down"] += 1
+            continue
+        if key in have:
+            agrees = [eid for eid, entry_pos in have[key] if entry_pos == pos]
+            if not agrees:
+                stats["translations_other_pos"] += 1
+            for eid in agrees:
+                for w in set(ENGLISH_WORD.findall(t["en"].lower())):
+                    if len(w) > 1 and (eid, w) not in english:
+                        english.add((eid, w))
+                        more_keys.append((w, eid, "english"))
+            continue
+        if key in forms or pos in NOT_VOCABULARY or key.startswith("-") or key.endswith("-"):
+            stats["translations_left_out"] += 1
+            continue
+        if pos in ("noun", "name") and " " in key.strip():
+            stats["translations_noun_phrases"] += 1
+            continue
+        # One Ukrainian word for an English phrase is most often an adverb:
+        # напа́м'ять for "by heart", гла́дко for "without a hitch"
+        if pos == "prep_phrase" and " " not in key:
+            pos = "adv"
+        new[(key, pos)].append((uk, t))
+    db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)", more_keys)
+    stats["english_keys_from_translations"] = len(more_keys)
+
+    stats["entries_from_translations"] = stats["senses_from_translations"] = 0
+    for (key, pos), rows in sorted(new.items()):
+        # The stressed spelling, and among those the one most tables use
+        spellings = collections.Counter(uk for uk, _ in rows)
+        headword = max(spellings, key=lambda s: (STRESS in s, spellings[s]))
+        word = strip_stress(headword)
+        roman = next((t["roman"] for uk, t in rows if uk == headword and t.get("roman")), None)
+        tags = {tag for _, t in rows for tag in t.get("tags") or [] if tag in GRAMMAR_TAGS.get(pos, ())}
+        # Two tables that disagree on the gender (відкрива́чка, feminine and
+        # masculine) say nothing sure about it. Both aspects together are a
+        # real answer: such a verb is both.
+        if len(tags & GENDERS) > 1:
+            tags -= GENDERS
+        tags = sorted(tags)
+        eid = db.execute(
+            "INSERT INTO entries(word, headword, pos, tags, head_forms, roman, source) VALUES (?,?,?,?,'[]',?,?)",
+            (word, headword, pos, json.dumps(tags, ensure_ascii=False), roman, FROM_TRANSLATIONS)).lastrowid
+        stats["entries_from_translations"] += 1
+
+        keys = word_keys(word, roman)
+        glosses = {}                       # gloss -> its remarks on usage, in the order of the file
+        for _, t in rows:
+            english_word = t["en"].strip()
+            # Wiktionary's verbs are "to read"; the tables list them under "read"
+            gloss = english_word
+            if pos == "verb" and not gloss.startswith("to ") and gloss not in NO_TO:
+                gloss = "to " + gloss
+            said = [p for p in (t.get("sense"), t.get("note")) if p and p != "Translations"
+                    and p.lower() != english_word.lower()]
+            if said:
+                gloss += f" ({'; '.join(said)})"
+            glosses.setdefault(gloss, set()).update(tag for tag in t.get("tags") or [] if tag in USAGE_TAGS)
+            # The English word alone: the words that explain which "board" is
+            # meant ("managing committee") are not meanings of the Ukrainian
+            keys.update((w, "english") for w in ENGLISH_WORD.findall(english_word.lower()) if len(w) > 1)
+        for n, (gloss, usage) in enumerate(glosses.items(), 1):
+            db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,?,?,?,'[]')",
+                       (eid, n, gloss, json.dumps(sorted(usage), ensure_ascii=False)))
+            stats["senses_from_translations"] += 1
+        db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
+                       [(k, eid, kind) for k, kind in keys if k])
+    return dict(stats)
+
+
 def link_kept_pages(db, kept):
     """Give the word a kept page points at a link back: великий lists більший
     among its related words. Only where the spelling has exactly one entry;
@@ -383,8 +572,13 @@ def add_head_keys(db):
     Each such spelling becomes a 'head' key pointing at the entry that names
     it. Only spellings no entry and no inflected form already has: those are
     found as themselves. Run after every entry is in, so a word that has an
-    entry further down the file is not keyed twice."""
-    known = {k for (k,) in db.execute("SELECT key FROM search_keys WHERE kind IN ('word','form')")}
+    entry further down the file is not keyed twice.
+
+    An entry made from translation tables does not count: it is too thin to
+    stand alone, so істори́чно finds both its own entry and істори́чний."""
+    known = {k for (k,) in db.execute(
+        "SELECT k.key FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+        " WHERE k.kind IN ('word','form') AND e.source != ?", (FROM_TRANSLATIONS,))}
     rows = set()
     for eid, head_forms in db.execute("SELECT id, head_forms FROM entries"):
         for f in json.loads(head_forms):
@@ -525,7 +719,7 @@ def ukrainian_counts(folder):
     return counts
 
 
-def add_frequency(db, index, path, reference=None, max_ratio=20, lemma_weight=4):
+def add_frequency(db, index, path, reference=None, max_ratio=20, lemma_weight=4, unranked: "set | frozenset" = frozenset()):
     """Rank entries by how often any of their forms occurs in the frequency list.
 
     The list counts spellings, not dictionary words, so each count is added to
@@ -539,6 +733,12 @@ def add_frequency(db, index, path, reference=None, max_ratio=20, lemma_weight=4)
     also a form of Ukrainian м'яти (to crumple). `reference` holds counts from
     a clean Ukrainian corpus; a spelling may count for at most `max_ratio`
     times its relative frequency there, which deflates the collisions.
+
+    The entries in `unranked` get no rank: those made from translation tables.
+    With no table of forms only their dictionary form could be counted, and
+    without one nothing tells a Ukrainian word from a Russian one spelled the
+    same: он ("yonder") came out as the 39th most common word, on the strength
+    of Russian "он" (he), and пока and меньше stood among the first 1,500.
     """
     lines = []
     for line in open(path, encoding="utf-8"):
@@ -554,7 +754,7 @@ def add_frequency(db, index, path, reference=None, max_ratio=20, lemma_weight=4)
     totals = collections.Counter()
     matched = capped = 0
     for key, count in lines:
-        owners = index.get(key)
+        owners = index.get(key, set()) - unranked
         if not owners:
             continue
         matched += count
@@ -1010,12 +1210,12 @@ def add_cloze(db, index, pairs, per_noun=5, ratings=None):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
                      "DROP TABLE IF EXISTS senses; DROP TABLE IF EXISTS examples;"
-                     "DROP TABLE IF EXISTS cloze;"
+                     "DROP TABLE IF EXISTS cloze; DROP TABLE IF EXISTS nonstandard;"
                      "DROP TABLE IF EXISTS meta; DROP TABLE IF EXISTS entries;")
     db.executescript(SCHEMA + CLOZE_SCHEMA)
     stats = dict(lines=0, skipped_form_of=0, kept_form_of=0, entries=0, senses=0, forms=0,
@@ -1160,6 +1360,13 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
         stats["entries"] += stats["abbreviations_added"]
         stats["senses"] += stats["abbreviations_added"]
         kept_links += links
+    turned_down = nonstandard()
+    stats["nonstandard_words"] = add_nonstandard(db, turned_down)
+    if translations:
+        found = add_translations(db, translations, {(word, pos) for word, pos, _ in turned_down})
+        stats.update(found)
+        stats["entries"] += found["entries_from_translations"]
+        stats["senses"] += found["senses_from_translations"]
     stats["kept_linked_back"] = link_kept_pages(db, kept_links)
     stats["head_keys"] = add_head_keys(db)
     stats.update(finish_relations(db))
@@ -1167,7 +1374,8 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None):
         index = form_index(db)
         if freq:
             reference = ukrainian_counts(tatoeba) if tatoeba else None
-            stats.update(add_frequency(db, index, freq, reference))
+            thin = {eid for (eid,) in db.execute("SELECT id FROM entries WHERE source=?", (FROM_TRANSLATIONS,))}
+            stats.update(add_frequency(db, index, freq, reference, unranked=thin))
         if tatoeba:
             pairs = tatoeba_pairs(tatoeba)
             ratings = load_ratings()
@@ -1198,6 +1406,10 @@ if __name__ == "__main__":
     ap.add_argument("--freq")
     ap.add_argument("--tatoeba")
     ap.add_argument("--abbreviations", help="data/abbreviations.tsv: Nebokrai's own entries for abbreviations")
+    ap.add_argument("--translations",
+                    help="data/raw/uk_translations.jsonl from extract_translations.py: entries for words "
+                         "with no Wiktionary page of their own")
     args = ap.parse_args()
-    for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations).items():
+    for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations,
+                      args.translations).items():
         print(f"{k:>16}: {v}")

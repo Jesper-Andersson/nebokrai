@@ -20,7 +20,10 @@ Nebokrai is built from open data made by volunteers. Thank you to all of them.
 Each word page links to its Wiktionary entry, where the authors are listed in
 the page history. About fifty common abbreviations that Wiktionary has no page
 for (км, англ., ЗМІ) were written for Nebokrai and are under the same licence;
-their pages name Nebokrai as the source.
+their pages name Nebokrai as the source. About 13,000 words that have no
+entry there yet are shown with the meanings Wiktionary gives them in the
+translation tables of English words (шериф under "sheriff"); their pages say so
+and link to a search that lists those English pages.
 
 **Audio recordings** are hosted by
 [Wikimedia Commons](https://commons.wikimedia.org/). Each recording has its own
@@ -59,6 +62,10 @@ By Andriy Rysin, Vasyl Starko and the BrUK team, with the data published at
 [brown-uk/dict_uk](https://github.com/brown-uk/dict_uk) under the
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022.
+The Ukrainian words offered instead of a Russian word or surzhyk (митниця for
+таможня) come from the same project's list of distorted words, as of November
+2026; the few Nebokrai adds itself (дах for криша) are under the dictionary's
+licence.
 
 ### Background photos
 
@@ -154,12 +161,14 @@ for everyone.
 | Source | Licence | What it asks of us | Where we do it |
 |---|---|---|---|
 | Wiktionary | CC BY-SA 4.0 | Credit, link to the licence, say if changed, share derived data under the same licence | Sources page; a "Wiktionary" link on each word page |
+| Entries from English Wiktionary's translation tables (marked `source = 'wiktionary-translations'`) | CC BY-SA 4.0 | As for Wiktionary | Sources page; a note above the meanings and a "Wiktionary translation tables" link on each such word page |
+| Nebokrai's list of non-standard words and what to say instead (`data/nonstandard.tsv`) | CC BY-SA 4.0 | Ours to license; written by hand, never copied from VESUM's list | Sources page |
 | Nebokrai's own entries (`data/abbreviations.tsv`, marked `source = 'nebokrai'`) | CC BY-SA 4.0 | Ours to license; kept under Wiktionary's licence so the dictionary stays one dataset | Sources page; "From Nebokrai" on each such word page |
 | Wikimedia Commons audio | per file, mostly CC BY-SA or public domain | Credit the author of each file | Link to the file's Commons page beside the play button |
 | The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence, say what was changed, share the changed files under the same licence | The line under the letters on `/alphabet` (author, licence, "cut down to the letter and cleaned of noise"); each letter's original on Commons beside its play button; Sources page. The files are `static/audio/letters/*.mp3`, made with their list (`src/lib/alphabet/recordings.ts`) by `data/letter_recordings.py`, and are CC BY-SA 4.0 themselves |
 | Tatoeba | CC BY 2.0 FR | Credit the author of each sentence; say if changed | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored); a sentence corrected by `data/tatoeba-corrections.tsv` is credited "Tatoeba #id, adapted" |
 | FrequencyWords | CC BY-SA 4.0 | Credit; share-alike | Sources page |
-| VESUM | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; kept in its own database |
+| VESUM, and dict_uk's `twisters.lst` (suggestions for non-standard words) | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; kept in its own database |
 | Background photo "field" (Igor Karimov, Unsplash) | Unsplash Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/field-*.webp` |
 | Background photo "hills" (neslihan, Pexels) | Pexels Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/hills-*.webp` |
 | Fund logos on the Support Ukraine page | None: each is its organisation's trademark | Use one only beside that fund's own link, unaltered; take it down if the fund asks | Support page ("About this list"); Sources page. Files: `static/funds/*.png`, each the icon the fund's site gives browsers |

@@ -16,7 +16,8 @@ How a query is matched, best first:
     5. an inflected form in Latin letters           knyhy  -> книга
     6. Latin letters, loosely spelled               kalina -> калина
     7. English meaning that mentions the query      good   -> добро ("good deed")
-    8. prefix of a word (Cyrillic or Latin), for search-as-you-type
+    8. prefix of a word (Cyrillic or Latin), for search-as-you-type; entries
+       made from translation tables only when the others leave room
 
 Within each step, more common words come first.
 
@@ -41,6 +42,11 @@ word. When Wiktionary has that word, its entry is returned; when it does not,
 a bare result is returned with `"vesum_only": True` and no meanings, so the
 site can at least say "this is a form of X". VESUM is only ever read from its
 own file (see import_vesum.py for the licence reason).
+
+A bare result whose word is not standard Ukrainian (таможня, криша) has
+`"kind": "distorted"` and `"use"`: the Ukrainian words to say instead, from
+Nebokrai's own data/nonstandard.tsv first and VESUM's suggestions after. A word
+in nonstandard.tsv gets such a result even without vesum.db.
 """
 import json
 import re
@@ -107,21 +113,112 @@ def matched_forms(db, eid, key, cyrillic):
 
 
 # What VESUM says a word is, the likeliest first: Іванович is a patronymic far
-# more often than the surname it also is.
-KINDS = ["given-name", "patronymic", "surname", "abbreviation"]
+# more often than the surname it also is, and таракан, typed in lower case, is
+# the Russian word for тарган before it is anybody's surname.
+KINDS = ["distorted", "given-name", "patronymic", "surname", "abbreviation"]
 REFLEXIVE = ("ся", "сь")
+USE_MAX = 3  # Ukrainian words offered instead of a non-standard one
+
+
+def rows_or_none(db, sql, args):
+    """The rows of a query on a table an older database may not have yet."""
+    try:
+        return db.execute(sql, args).fetchall()
+    except sqlite3.OperationalError as err:
+        if "no such table" not in str(err):
+            raise
+        return []
 
 
 def vesum_kind(vesum, lemma):
     """'surname' for шевченко, or None. A vesum.db built before kinds were
     stored has no such table, and then no word has a kind."""
-    try:
-        found = {kind for (kind,) in vesum.execute("SELECT kind FROM vesum_kinds WHERE lemma=?", (lemma,))}
-    except sqlite3.OperationalError as err:
-        if "no such table" not in str(err):
-            raise
-        return None
+    found = {kind for (kind,) in rows_or_none(vesum, "SELECT kind FROM vesum_kinds WHERE lemma=?", (lemma,))}
     return next((kind for kind in KINDS if kind in found), None)
+
+
+def nonstandard(db, word):
+    """Nebokrai's own note on a spelling that is not standard Ukrainian
+    (data/nonstandard.tsv): its suggestions in order, [] when it lists none,
+    or None when the spelling is not listed."""
+    rows = rows_or_none(db, "SELECT n, use FROM nonstandard WHERE word=? ORDER BY n", (word,))
+    return [use for n, use in rows if n > 0] if rows else None
+
+
+def offered(db, word):
+    """A Ukrainian word to offer, as {'word', 'has_entry'}: the stressed
+    headword where one entry has the spelling, else the plain spelling."""
+    heads = {h for (h,) in db.execute(
+        "SELECT e.headword FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+        " WHERE k.key=? AND k.kind='word'", (word,))}
+    return dict(word=next(iter(heads)) if len(heads) == 1 else word, has_entry=bool(heads))
+
+
+def use_instead(db, vesum, lemma, ours):
+    """What to say instead of a non-standard word: Nebokrai's own suggestions
+    in their order, then VESUM's, those with an entry to link to before those
+    without; USE_MAX at most. криша -> дах, приговор -> присуд, вирок, осуд.
+    VESUM's order is kept otherwise: it is chosen, and the commonest word is
+    not always the right one (суд, "court", is commoner than вирок)."""
+    theirs = [u for (u,) in rows_or_none(
+        vesum, "SELECT use FROM vesum_suggest WHERE lemma=? ORDER BY n", (lemma,))] if vesum is not None else []
+    mine = [offered(db, w) for w in ours]
+    others = [offered(db, w) for w in theirs if w not in ours]
+    others.sort(key=lambda o: not o["has_entry"])  # stable: VESUM's order within each half
+    found, seen = [], {lemma}
+    for o in mine + others:
+        if o["word"] not in seen:
+            seen.add(o["word"])
+            found.append(o)
+    return found[:USE_MAX]
+
+
+def instead(db, vesum, lemma, pos, ours):
+    """What to answer a word with no entry: (entry id, use) when it is not
+    standard Ukrainian and one of the words to say instead has an entry, so
+    криша is answered with дах's own card (its most common entry, when the
+    spelling has several); else (stub, None)."""
+    stub = stub_for(db, vesum, lemma, pos, ours)
+    first = next((u for u in stub.get("use", []) if u["has_entry"]), None)
+    if first is None:
+        return stub, None
+    row = db.execute(
+        "SELECT k.entry_id FROM search_keys k JOIN entries e ON e.id = k.entry_id WHERE k.key=? AND k.kind='word'"
+        " ORDER BY e.freq_rank IS NULL, e.freq_rank, e.id LIMIT 1", (plain(first["word"]),)).fetchone()
+    return row[0], stub["use"]
+
+
+def stub_for(db, vesum, lemma, pos, ours):
+    """A result for a word that has no entry: only VESUM knows it, or it is in
+    Nebokrai's list of non-standard words (`ours` is not None)."""
+    stub = dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[], head_forms=[], glosses=[],
+                freq_rank=None, match="form", vesum_only=True)
+    kind = "distorted" if ours is not None else vesum_kind(vesum, lemma) if vesum is not None else None
+    if kind:
+        stub["kind"] = kind
+    if kind == "distorted":
+        stub["use"] = use_instead(db, vesum, lemma, ours or [])
+    return stub
+
+
+# The `source` of an entry made from translation tables (FROM_TRANSLATIONS in import_wiktionary.py).
+THIN = "wiktionary-translations"
+
+
+def prefixed(db, kind, low, high, limit, hits):
+    """The entries a word starting with the query may be, for search-as-you-type.
+
+    The window is the first limit * 3 keys in alphabetical order; the common
+    words among them are sorted first afterwards. The entries made from
+    translation tables would crowd it (кал has more than a hundred words),
+    and they sort last anyway, so the window is filled from the others, and
+    from those only while the results are still short: шер finds шериф."""
+    sql = ("SELECT k.entry_id, k.kind FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+           f" WHERE k.kind=? AND k.key >= ? AND k.key < ? AND e.source {{}} ? ORDER BY k.key LIMIT ?")
+    rows = db.execute(sql.format("!="), (kind, low, high, THIN, limit * 3)).fetchall()
+    if len({eid for eid, _ in rows} | set(hits)) < limit:
+        rows += db.execute(sql.format("="), (kind, low, high, THIN, limit * 3)).fetchall()
+    return rows
 
 
 def search(db, query, limit=20, vesum=None):
@@ -139,13 +236,24 @@ def search(db, query, limit=20, vesum=None):
 
     stubs = []  # words only VESUM knows
     through = {}  # entry id -> the word that led to it, which is not one of its forms
+    use_of = {}  # entry id -> the Ukrainian words offered, when it answers a non-standard word
+
+    def answer(lemma, pos, ours):
+        """A word with no entry: the Ukrainian word's entry, or a bare result."""
+        found, use = instead(db, vesum, lemma, pos, ours)
+        if use is None:
+            stubs.append(found)
+            return
+        add([(found, "form")])
+        through.setdefault(found, dict(word=lemma, kind="nonstandard"))
+        use_of.setdefault(found, use)
     if cyrillic:
         key = plain(q)
-        add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form')", (key,)))
-        if not hits:
-            # A head-line word has a key only where no entry or form has the
-            # spelling, so this finds nothing the line above could.
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind='head'", (key,)))
+        # A head-line word has a key only where no entry or form of Wiktionary's
+        # own has the spelling, so it adds to the others only beside an entry
+        # made from translation tables: походити is one, and ходити names it.
+        add(db.execute("SELECT entry_id, kind FROM search_keys WHERE key=? AND kind IN ('word','form','head')",
+                       (key,)))
         if not hits and vesum is not None:
             for lemma, pos in vesum.execute(
                     "SELECT DISTINCT lemma, pos FROM vesum_forms WHERE form=? ORDER BY lemma, pos", (key,)):
@@ -173,16 +281,15 @@ def search(db, query, limit=20, vesum=None):
                         for eid, _ in found:
                             through.setdefault(eid, dict(word=lemma, kind="reflexive"))
                         continue
-                stub = dict(id=None, word=lemma, headword=lemma, pos=pos, tags=[],
-                            head_forms=[], glosses=[], freq_rank=None, match="form",
-                            vesum_only=True)
-                kind = vesum_kind(vesum, lemma)
-                if kind:
-                    stub["kind"] = kind
-                stubs.append(stub)
+                answer(lemma, pos, nonstandard(db, lemma))
+        # криша without vesum.db, or бебісіттер, which VESUM does not know:
+        # Nebokrai's own list still says what to write instead.
+        if not hits and not stubs:
+            ours = nonstandard(db, key)
+            if ours is not None:
+                answer(key, "", ours)
         if len(hits) < limit:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='word' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-                           (key, key + "￿", limit * 3)), RANK["prefix"])
+            add(prefixed(db, "word", key, key + "￿", limit, hits), RANK["prefix"])
     else:
         words = re.findall(r"[a-z]+(?:[-'][a-z]+)*", q.lower())
         key = loose_latin(q)
@@ -196,8 +303,7 @@ def search(db, query, limit=20, vesum=None):
         if sets:
             add(((eid, "english") for eid in set.intersection(*sets)))
         if len(hits) < limit and key and " " not in q and len(key) >= 3:
-            add(db.execute("SELECT entry_id, kind FROM search_keys WHERE kind='latin' AND key >= ? AND key < ? ORDER BY key LIMIT ?",
-                           (key, key + "{", limit * 3)), RANK["prefix"])
+            add(prefixed(db, "latin", key, key + "{", limit, hits), RANK["prefix"])
 
     results = []
     for eid, rank in hits.items():
@@ -240,6 +346,8 @@ def search(db, query, limit=20, vesum=None):
             result["through"] = through[eid]
             if through[eid]["kind"] == "head":
                 result["through"] = head_through(result["head_forms"], through[eid]["word"])
+            if eid in use_of:
+                result["use"] = use_of[eid]
         if rank == RANK["head"]:
             result["through"] = head_through(result["head_forms"], key)
         results.append((place, tie, result))
@@ -357,6 +465,10 @@ if __name__ == "__main__":
         print(f"did you mean {r['headword']}?  [{r['pos']}; {r['match']}]  {'; '.join(r['glosses'][:2])[:60]}")
     for r in answer["results"]:
         if r.get("vesum_only"):
+            if r.get("kind") == "distorted":
+                use = ", ".join(u["word"] + ("" if u["has_entry"] else " (no entry)") for u in r["use"])
+                print(f"{r['headword']}  [{r['pos']}]  not standard Ukrainian; in Ukrainian: {use or '-'}")
+                continue
             what = f"a {r['kind'].replace('-', ' ')}" if r.get("kind") else "known to VESUM only"
             print(f"{r['headword']}  [{r['pos']}]  {what}, no definition yet")
             continue
@@ -367,8 +479,13 @@ if __name__ == "__main__":
             print(f"    = {f['form']}  ({' '.join(f['tags'])})")
         if r.get("through"):
             kind = r["through"]["kind"]
-            what = "another spelling" if kind == "alternative" else f"its {kind}"
-            print(f"    = {r['through']['word']}  ({what})")
+            if kind == "nonstandard":
+                also = [u["word"] for u in r.get("use", []) if plain(u["word"]) != r["word"]]
+                print(f"    instead of {r['through']['word']}, not standard Ukrainian"
+                      + (f"; also {', '.join(also)}" if also else ""))
+            else:
+                what = "another spelling" if kind == "alternative" else f"its {kind}"
+                print(f"    = {r['through']['word']}  ({what})")
         for g in r["glosses"][:3]:
             print(f"    - {g}")
         for uk, en in db.execute("SELECT uk, en FROM examples WHERE entry_id=? LIMIT 1", (r["id"],)):

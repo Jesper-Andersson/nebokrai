@@ -98,11 +98,19 @@
 	const searches = searchReporter();
 	$effect(() => searches.shown(found));
 
-	function go(entry: Entry) {
+	function go(entry: Entry | { word: string }) {
 		searches.leaving();
 		quick.open = false;
 		void goto(wordPath(entry.word));
 	}
+
+	// The entry that answers a Russian word or surzhyk (дах for криша), and the
+	// other Ukrainian words offered beside it that have a page of their own
+	const answers = (entry: Entry) =>
+		'through' in entry && entry.through?.kind === 'nonstandard' ? entry.through : undefined;
+	const plainWord = (word: string) => word.replace(/\u0301/g, '');
+	const others = (entry: Entry) =>
+		'use' in entry && entry.use ? entry.use.filter((u) => u.has_entry && plainWord(u.word) !== entry.word) : [];
 </script>
 
 <svelte:window onkeydown={onWindowKeydown} />
@@ -114,6 +122,26 @@
 		<Grammar pos={entry.pos} inline />
 		<span class="ui-quick-gloss">{noPage ? ('kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry) : entry.glosses.slice(0, 2).join('; ')}</span>
 	</Command.Item>
+{/snippet}
+
+<!-- A Russian word or surzhyk (option C, user's pick, 2026-11-17): the word typed, greyed and not to be
+     picked, then the Ukrainian words under their heading; the first is highlighted, so Enter opens it -->
+{#snippet instead(entry: Entry, typed: { word: string })}
+	<Command.Item class="ui-quick-item" value={`typed-${typed.word}`} disabled>
+		<s class="ui-quick-typed" lang="uk">{typed.word}</s>
+		<span class="ui-quick-gloss">{m.card.kind.distorted}</span>
+	</Command.Item>
+	<Command.Group>
+		<Command.GroupHeading class="ui-quick-heading">{m.card.inUkrainian}</Command.GroupHeading>
+		<Command.GroupItems>
+			{@render row(entry)}
+			{#each others(entry) as u (u.word)}
+				<Command.Item class="ui-quick-item" value={`use-${u.word}`} onSelect={() => go({ word: plainWord(u.word) })}>
+					<Headword text={u.word} size="sm" />
+				</Command.Item>
+			{/each}
+		</Command.GroupItems>
+	</Command.Group>
 {/snippet}
 
 <Dialog.Root bind:open={quick.open}>
@@ -165,7 +193,8 @@
 					<Command.Viewport>
 						{#if found}
 							{#each found.results as entry (key(entry))}
-								{@render row(entry)}
+								{@const typed = answers(entry)}
+								{#if typed}{@render instead(entry, typed)}{:else}{@render row(entry)}{/if}
 							{/each}
 							{#if found.suggestions.length}
 								<Command.Group>
@@ -276,6 +305,15 @@
 	:global(.ui-quick-item[data-disabled]) {
 		opacity: 0.6;
 		cursor: default;
+	}
+
+	/* The Russian word or surzhyk typed, as the headword would stand, struck through */
+	:global(.ui-quick-typed) {
+		color: var(--muted);
+		font-family: var(--font-headword);
+		font-size: var(--headword-sm);
+		font-weight: 800;
+		line-height: 1.2;
 	}
 
 	:global(.ui-quick-gloss) {

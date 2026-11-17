@@ -3,7 +3,10 @@
 
 Usage:
     pip install pymorphy3 pymorphy3-dicts-uk
-    python3 import_vesum.py vesum.db
+    python3 import_vesum.py vesum.db [--twisters data/raw/twisters.lst]
+
+    --twisters FILE  dict_uk's list of distorted words with what to say instead
+                     (data/dict/twisters.lst in brown-uk/dict_uk): таможня #> митниця
 
 VESUM (Великий електронний словник української мови, the BrUK team) lists
 over 400,000 Ukrainian words with all their inflected forms. It has no
@@ -16,8 +19,11 @@ a SEPARATE database file and nothing from it is ever copied into nebokrai.db.
 Deleting vesum.db removes VESUM from the site completely.
 
 The data is read from the pymorphy3-dicts-uk package, which is VESUM compiled
-for the pymorphy3 library.
+for the pymorphy3 library. twisters.lst comes from VESUM's own source, dict_uk,
+under the same licence, so it goes into the same file.
 """
+import argparse
+import re
 import sqlite3
 import sys
 
@@ -34,9 +40,34 @@ POS = {"NOUN": "noun", "VERB": "verb", "INFN": "verb", "GRND": "verb", "ADJF": "
 # What a word is, where VESUM says so. Search uses it to say "a surname" about
 # a word that has no dictionary entry, which is most names: Шевченка, Олено.
 KINDS = {"Name": "given-name", "Surn": "surname", "Patr": "patronymic", "Abbr": "abbreviation"}
+# A word outside standard Ukrainian: a Russian word, surzhyk, a misspelling.
+# VESUM tags such forms Dist; a word counts only when every one of its forms
+# is, since VESUM also marks single wrong forms of ordinary words (a bad
+# genitive). Search then says "not standard Ukrainian" about криша, таможня.
+DISTORTED = "distorted"
 
 
-def build(dst):
+def twisters(path):
+    """{lemma: [Ukrainian word, ...]} from dict_uk's twisters.lst, whose lines
+    read `таможня noun:f:... #> митниця`. Only single words are kept, in the
+    file's order: "що помирає" is no word to link to, and "(рідко)" is a note.
+    """
+    found = {}
+    for line in open(path, encoding="utf-8"):
+        if not line.strip() or line.startswith("#") or line[0].isspace():
+            continue
+        lemma = plain(line.split()[0])
+        use = []
+        if "#>" in line:
+            for part in re.split(r"[|;,]", line.split("#>", 1)[1].split("#")[0]):
+                part = plain(re.sub(r"\(.*?\)", "", part).strip())
+                if part and " " not in part and part != lemma and part not in use:
+                    use.append(part)
+        found.setdefault(lemma, use)
+    return found
+
+
+def build(dst, twisters_path=None):
     morph = pymorphy3.MorphAnalyzer(lang="uk")
     db = sqlite3.connect(dst)
     db.executescript("""
@@ -51,38 +82,61 @@ def build(dst):
         DROP TABLE IF EXISTS vesum_kinds;
         CREATE TABLE vesum_kinds (
             lemma  TEXT NOT NULL,   -- dictionary word, as in vesum_forms: шевченко
-            kind   TEXT NOT NULL,   -- given-name | surname | patronymic | abbreviation
+            kind   TEXT NOT NULL,   -- given-name | surname | patronymic | abbreviation | distorted
             PRIMARY KEY (lemma, kind)
+        ) WITHOUT ROWID;
+        DROP TABLE IF EXISTS vesum_suggest;
+        CREATE TABLE vesum_suggest (
+            lemma  TEXT NOT NULL,   -- a distorted word, as in vesum_forms: таможня
+            n      INTEGER NOT NULL,-- order of the suggestion, from 1
+            use    TEXT NOT NULL,   -- a Ukrainian word to say instead, plain: митниця
+            PRIMARY KEY (lemma, n)
         ) WITHOUT ROWID;
         CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
     """)
     batch, kinds, parses = set(), set(), 0
+    forms_of = {}   # lemma -> [forms, distorted forms]
     for p in morph.iter_known_word_parses():
         parses += 1
         pos = POS.get(str(p.tag.POS), "other")
-        batch.add((plain(p.word), plain(p.normal_form), pos))
+        lemma = plain(p.normal_form)
+        batch.add((plain(p.word), lemma, pos))
         for grammeme, kind in KINDS.items():
             if grammeme in p.tag:
-                kinds.add((plain(p.normal_form), kind))
+                kinds.add((lemma, kind))
+        count = forms_of.setdefault(lemma, [0, 0])
+        count[0] += 1
+        count[1] += "Dist" in p.tag
         if len(batch) >= 500_000:
             db.executemany("INSERT OR IGNORE INTO vesum_forms VALUES (?,?,?)", batch)
             batch.clear()
     db.executemany("INSERT OR IGNORE INTO vesum_forms VALUES (?,?,?)", batch)
+    kinds |= {(lemma, DISTORTED) for lemma, (total, distorted) in forms_of.items() if distorted == total}
+    suggest = []
+    if twisters_path:
+        for lemma, use in twisters(twisters_path).items():
+            kinds.add((lemma, DISTORTED))
+            suggest += [(lemma, n, word) for n, word in enumerate(use, 1)]
     db.executemany("INSERT OR IGNORE INTO vesum_kinds VALUES (?,?)", kinds)
+    db.executemany("INSERT INTO vesum_suggest VALUES (?,?,?)", suggest)
     rows = db.execute("SELECT count(*) FROM vesum_forms").fetchone()[0]
     lemmas = db.execute("SELECT count(DISTINCT lemma) FROM vesum_forms").fetchone()[0]
     db.executemany("INSERT INTO meta VALUES (?,?)", [
-        ("source", "VESUM (brown-uk/dict_uk) via pymorphy3-dicts-uk"),
+        ("source", "VESUM (brown-uk/dict_uk) via pymorphy3-dicts-uk"
+                   + ("; twisters.lst from brown-uk/dict_uk" if twisters_path else "")),
         ("license", "CC BY-NC-SA 4.0 - non-commercial; keep separate from nebokrai.db"),
     ])
     db.commit()
     db.execute("VACUUM")
     db.close()
-    return dict(parses=parses, rows=rows, lemmas=lemmas, kinds=len(kinds))
+    return dict(parses=parses, rows=rows, lemmas=lemmas, kinds=len(kinds),
+                distorted=sum(1 for _, kind in kinds if kind == DISTORTED), suggestions=len(suggest))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit(__doc__)
-    for k, v in build(sys.argv[1]).items():
-        print(f"{k:>8}: {v}")
+    ap = argparse.ArgumentParser(description="Build vesum.db from VESUM.", usage=__doc__)
+    ap.add_argument("database")
+    ap.add_argument("--twisters")
+    args = ap.parse_args()
+    for k, v in build(args.database, args.twisters).items():
+        print(f"{k:>11}: {v}")

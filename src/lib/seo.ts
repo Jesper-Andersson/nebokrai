@@ -59,8 +59,9 @@ const xml = (text: string) => text.replaceAll('&', '&amp;').replaceAll('<', '&lt
 /**
  * sitemap.xml: every page's address, one per word page, most common words
  * first. Several words can share a page (а, А and -а are all /word/a); each
- * page is listed once. About 29,000 addresses, under the limit of 50,000 for
- * one sitemap file.
+ * page is listed once. About 44,400 addresses since the words from translation
+ * tables came in (November 2026), under the limit of 50,000 for one sitemap
+ * file; the next large addition needs a sitemap index.
  *
  * Before the words come the pages that list them (browse.ts): the ten of the
  * common words, and each letter's, as many as its words fill. A letter is a

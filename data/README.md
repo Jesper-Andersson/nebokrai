@@ -12,11 +12,18 @@ extract published by kaikki.org.
     curl -O https://downloads.tatoeba.org/exports/per_language/ukr/ukr-eng_links.tsv.bz2
     curl -O https://downloads.tatoeba.org/exports/per_language/eng/eng_sentences.tsv.bz2
     cd ../..
-    python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw --abbreviations data/abbreviations.tsv
+    curl -L https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
+        | python3 data/extract_translations.py > data/raw/uk_translations.jsonl
+    python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw \
+        --abbreviations data/abbreviations.tsv --translations data/raw/uk_translations.jsonl
     python3 data/search.py nebokrai.db good
 
-The build takes about 30 seconds. Only Python 3 is needed, no packages.
-`--freq` and `--tatoeba` are optional; without them you get the plain dictionary.
+The build takes about a minute. Only Python 3 is needed, no packages.
+`--freq`, `--tatoeba`, `--abbreviations` and `--translations` are optional;
+without them you get the plain dictionary. The English extract is a 534 MB
+download that is read as a stream and not stored; what is kept of it is 8 MB
+(53,511 translations in October 2026). Its file only changes when kaikki.org
+publishes a new extract, so a rebuild can reuse the one in `data/raw/`.
 
 kaikki.org marks the per-language file as deprecated. When it disappears, filter
 `raw-wiktextract-data.jsonl.gz` from https://kaikki.org/dictionary/rawdata.html
@@ -26,13 +33,14 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 33,592 |
-| `senses` | English meaning of an entry | 50,214 |
+| `entries` | dictionary word + part of speech | 46,607 |
+| `senses` | English meaning of an entry | 65,108 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 85,351 |
-| `examples` | Tatoeba sentence with English translation | 25,594 |
-| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 7,988 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,597,901 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 87,295 |
+| `examples` | Tatoeba sentence with English translation | 26,118 |
+| `cloze` | Tatoeba sentence with one noun to fill in after a preposition | 6,965 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,774,768 |
+| `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
 same forms are already in X's own table.
@@ -67,18 +75,96 @@ an entry is skipped (55 were added in November 2026). To add one, add a row and
 rebuild. An abbreviation written with a full stop is found without it too:
 `ст` finds `ст.`.
 
+## Translation tables
+
+An English Wiktionary entry lists translations of each of its meanings: under
+"sheriff" stands шери́ф, under "ashtray" попільни́чка. `extract_translations.py`
+pulls the Ukrainian ones out of the English extract, and `--translations` puts
+them to two uses.
+
+**Words with no entry of their own get one** (13,015 entries, 14,894 meanings in
+November 2026), with `entries.source` set to `wiktionary-translations`. The
+tables give the stress, often the gender or aspect, and one meaning per English
+word, written `sheriff (all meanings)`: the English word, then the table's note
+on which of its meanings is meant. A verb's meaning starts with "to", as
+Wiktionary's own do. The word page says above the meanings where they come
+from. These entries are thinner than the others:
+
+- They have no inflection table. A form such as `гімназії` is still found when
+  VESUM is there, which knows it belongs to гімназія.
+- They show the meanings somebody happened to translate, not necessarily the
+  main one: мужик stands under "mujik (Russian peasant)" only.
+- The part of speech is the English word's, which is nearly always right and
+  now and then wrong. Where two tables give a word different genders, it gets
+  none.
+- They have no frequency rank. Only the dictionary form could be counted, and
+  nothing would tell a Ukrainian word from a Russian one spelled the same in
+  the subtitle list: он ("yonder") came out as the 39th most common word. They
+  follow the ranked words in search results and stay out of the common words,
+  the review decks and the word of the day. 788 of them have an example
+  sentence.
+- Search-as-you-type fills its window from the other entries first, and
+  reaches these only when the others leave room: without that, `кал` lost
+  календа́р to a hundred rarer words.
+
+**Words that have an entry get more English search keys** (7,731 keys).
+комітет is listed under "board (managing committee)", so `board` finds it as a
+meaning that mentions the query, after the words whose own entry says "board".
+The part of speech must agree, which keeps "voting" (verb) away from
+голосування (noun); 792 translations were dropped for that.
+
+Left out:
+
+- anything not written in Ukrainian letters alone (505 translations: whole
+  questions, mixed scripts, Russian or Belarusian letters);
+- inflected forms of words with entries (зачинений is in the table of
+  зачинити), affixes and symbols (717);
+- nouns and names of several words (4,621), most of which are ordinary word
+  combinations (`соціальна справедливість`). Set phrases of other kinds are
+  kept: `про всяк випадок`, "just in case";
+- the words in `data/nonstandard.tsv` (174 translations of 156 words in
+  November 2026), a hand-written list of words that are not standard
+  Ukrainian, most of them Russian words or surzhyk.
+
+## Words that are not standard Ukrainian
+
+`data/nonstandard.tsv` is Nebokrai's own list, one word per row: the spelling,
+the part of speech (empty for every one) and, where known, the Ukrainian word
+or words to say instead, separated by `|`. Each row does two things:
+
+- `--translations` gives the word no entry, however many tables list it;
+- the importer stores the suggestions in the `nonstandard` table, and search
+  answers the word with "not standard Ukrainian" and links to them: `криша`
+  gives `дах`. VESUM's own suggestions follow (see "VESUM form lookup").
+
+Write a suggestion only where VESUM has none worth linking to, and write it
+yourself: VESUM's, dict_uk's and LanguageTool's lists are under other licences
+and must not be copied into this file, which goes into `nebokrai.db`.
+
+`check_russianisms.py` lists the candidates for the list; read its report and
+copy into `nonstandard.tsv` only what you have checked yourself. The
+report draws on VESUM, so it must not be committed or loaded anywhere, and
+`--out` refuses a folder git tracks. `--vesum` needs pymorphy3, like
+`import_vesum.py`:
+
+    python3 data/check_russianisms.py nebokrai.db --vesum --freq data/raw/uk_full.txt --tatoeba data/raw \
+        --out data/raw/russianisms.tsv
+
+A word in the head line of another entry keeps its `head` key beside an entry
+from the tables: `походити` finds both its own entry and ходити, which names it.
+
 ## Related words
 
 `relations` holds the other words Wiktionary lists on an entry or on one of
-its meanings (`sense_n`; empty for the entry as a whole). 18,942 entries name
-at least one.
+its meanings (`sense_n`; empty for the entry as a whole). 23,357 entries name
+at least one, counting the rows added both ways.
 
 | Kind | Rows | Entries | Rows whose word has an entry |
 |---|---|---|---|
-| `synonym` | 30,114 | 12,584 | 22,584 |
-| `antonym` | 1,497 | 1,093 | 1,277 |
-| `derived` (formed from the word) | 26,716 | 7,098 | 7,933 |
-| `related` (same root) | 21,038 | 6,910 | 12,688 |
+| `synonym` | 32,380 | 14,309 | 26,490 |
+| `antonym` | 1,637 | 1,218 | 1,478 |
+| `derived` (formed from the word) | 27,222 | 7,207 | 9,202 |
+| `related` (same root) | 26,073 | 10,657 | 18,502 |
 
 Three things are done to what Wiktionary gives:
 
@@ -86,11 +172,11 @@ Three things are done to what Wiktionary gives:
   Latin letters are cut off (`мольфар (molʹfar)`, `не́бо n`). A word is not
   listed under itself, nor twice under one meaning.
 - **Stress.** A word written without a stress mark takes the headword's when
-  exactly one headword has that spelling: `красивий` becomes `краси́вий` (887
+  exactly one headword has that spelling: `красивий` becomes `краси́вий` (1,070
   rows).
 - **Both ways.** A synonym or an antonym is also stored on the other word's
   side when that spelling has exactly one entry of the same part of speech:
-  великий names малий, so малий names великий (7,720 rows, with no meaning
+  великий names малий, so малий names великий (9,757 rows, with no meaning
   attached). With two candidates there is no telling which was meant, and
   nothing is added.
 
@@ -102,7 +188,8 @@ it draws a page, so the answer cannot go stale.
 
 ## Frequency ranking
 
-`entries.freq_rank` is 1 for the most common word. 19,928 entries are ranked.
+`entries.freq_rank` is 1 for the most common word. 21,095 entries are ranked;
+the entries from translation tables never are.
 
 The counts come from FrequencyWords, which counts spellings in film subtitles.
 Each count is credited to the entry the spelling belongs to (читаю counts for
@@ -120,7 +207,7 @@ remain where Wiktionary's own tables are wrong.
 
 ## Example sentences
 
-Up to three Tatoeba sentences per entry (10,863 entries), preferring sentences
+Up to three Tatoeba sentences per entry (11,463 entries), preferring sentences
 of about five words. `tatoeba_id` links back to the sentence for attribution.
 
 `tatoeba-corrections.tsv` corrects sentences that read badly, as a teacher
@@ -238,8 +325,8 @@ A sentence is kept only when nothing about the gap is in doubt:
   the name, which has no entry, not the noun `том`).
 
 At most five sentences are kept for one noun at one point, and a point with
-fewer than 20 sentences is dropped. November 2026: 7,988 sentences at 24
-points, from 26 (`серед` + genitive) to 1,148 (`у`/`в` + locative); five points fell short
+fewer than 20 sentences is dropped. November 2026: 6,965 sentences at 24
+points, from 23 (`серед` + genitive) to 1,015 (`у`/`в` + locative); five points fell short
 (`крім`, `крізь`, `навколо`, `при`, `замість`). `meta.cloze_points` holds the
 count for each point, so the site can draw a sentence by its number (`n`)
 without counting.
@@ -263,7 +350,8 @@ two lists differ.
 4. English meaning that is exactly the query: `good` finds `добрий`
 5. Latin letters, loosely spelled: `kalina`
 6. English meaning that mentions the query: `good` also finds `добро`
-7. Prefix match, for search-as-you-type
+7. Prefix match, for search-as-you-type; entries from translation tables only
+   when the others leave room
 
 Within each step, more common words come first.
 
@@ -296,8 +384,10 @@ An entry's head line names other words (`head_forms`): істори́чний it
 істори́чно, впе́рше another spelling упе́рше. Where such a word has no entry
 and no table row of its own, `add_head_keys()` gives it a `head` key pointing
 at the entry that names it: 9,649 rows. They are added after every entry is
-in, so a word with an entry further down the file is found as itself. Search
-looks them up only when the query is neither a word nor a form, and says how
+in, so a word with an entry further down the file is found as itself. An
+entry from translation tables does not count as such an entry: `походити` has
+one and keeps its key to ходити. Search looks them up together with words and
+forms, which they never share a spelling with otherwise, and says how
 the entry was reached (`through` in `docs/api.md`). They take no part in
 frequency counting or example sentences, which go by words and forms only.
 
@@ -309,10 +399,10 @@ lookups:
 
 | Kind | What it is | Rows |
 |---|---|---|
-| `latin_form` | an inflected form in Latin letters (`knyhy`) | 301,740 |
-| `sound` | the Latin key with sound-alike letters merged (е/и/і, щ/ш) | 31,089 |
-| `sound_form` | the same for inflected forms | 271,568 |
-| `typo` | every `sound` key with one letter removed | 256,503 |
+| `latin_form` | an inflected form in Latin letters (`knyhy`) | 322,545 |
+| `sound` | the Latin key with sound-alike letters merged (е/и/і, щ/ш) | 46,926 |
+| `sound_form` | the same for inflected forms | 290,752 |
+| `typo` | every `sound` key with one letter removed | 392,403 |
 
 A Cyrillic query is first written in Latin letters, so both scripts share the
 same keys. Guesses are tried in order: wrong keyboard layout (`ghbdsn`),
@@ -330,8 +420,14 @@ python3 data/export_wordlist.py nebokrai.db static/words.json
 ## VESUM form lookup (separate database)
 
     pip install pymorphy3 pymorphy3-dicts-uk
-    python3 data/import_vesum.py vesum.db                           # about 80 seconds, 211 MB
+    curl -o data/raw/twisters.lst \
+        https://raw.githubusercontent.com/brown-uk/dict_uk/1140395379c34dcc5992df5b6006ed1842355fc7/data/dict/twisters.lst
+    python3 data/import_vesum.py vesum.db --twisters data/raw/twisters.lst   # about 80 seconds, 212 MB
     python3 data/search.py nebokrai.db --vesum vesum.db книжечку
+
+`--twisters` is optional; without it there are no suggestions for non-standard
+words, only the mark. The link pins the dict_uk commit the site was built from
+(9 November 2026).
 
 VESUM lists 393,095 Ukrainian words with 3.7 million forms, but no meanings.
 Search uses it only as a fallback: when a Cyrillic query matches nothing in
@@ -340,12 +436,20 @@ Wiktionary has that word, its entry is shown (`нездійсненними` fin
 `нездійсненний`). If not, search returns a bare result marked `vesum_only`
 (`книжечку` finds `книжечка`, with no definition).
 
-Two things soften that bare result:
+Three things soften that bare result:
 
 - `vesum_kinds` holds what VESUM says a word is: given name (5,095 words),
   patronymic (1,026), surname (22,632) or abbreviation (1,988). A bare result
   for such a word carries it as `kind`, and the page says "a surname with no
   dictionary entry yet" (`осташка` finds `осташко`).
+- `vesum_kinds` also marks 13,172 words `distorted`: not standard Ukrainian.
+  A word counts when VESUM tags every one of its forms `Dist` (it also tags
+  single wrong forms of ordinary words) or when dict_uk's `twisters.lst` lists
+  it. `vesum_suggest` holds what to say instead, from `twisters.lst`, one
+  single word per row (13,321 rows for 6,509 words; phrases are left out). A
+  bare result for such a word has `kind: "distorted"` and `use`: таможня gives
+  ми́тниця, приговор при́суд, вирок and о́суд. `distorted` comes before every
+  other kind, so таракан is the Russian word before it is a surname.
 - A reflexive verb with no entry leads to the verb it is made from, when that
   one has an entry: `утворюються` finds `утворювати`, marked as reached
   `through` `утворюватися`. This happens while searching; no reflexive verb is
@@ -460,10 +564,12 @@ articles. It is a working list: never commit it, never load it into
 
 ## Known gaps
 
-- 1,030 nouns, verbs and adjectives have no inflection table.
-- 17,622 entries have audio.
-- Words missing from Wiktionary (for example `книжечка`, `походити`) are found
-  through VESUM but have no definition.
+- 1,161 nouns, verbs and adjectives from Wiktionary's own pages have no
+  inflection table, nor have any of the 13,015 entries from translation tables.
+- 18,410 entries have audio.
+- Words missing from both Wiktionary's pages and its translation tables (for
+  example `почитати`, `походжати`) are found through VESUM but have no
+  definition. `книжечка` and `походити` now have one, from the tables.
 
 ## Licence
 

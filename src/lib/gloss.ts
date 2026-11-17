@@ -13,7 +13,7 @@
 // No server imports, so tests/gloss.test.ts runs it on the local database.
 import { groupMatched, type MatchedForm } from '#lib/forms.ts';
 import type { Db } from '#lib/search/db.ts';
-import { search, type SearchResult, type Through, type VesumKind } from '#lib/search/search.ts';
+import { search, type SearchResult, type Through, type UseInstead, type VesumKind } from '#lib/search/search.ts';
 
 /** Longest word or neighbour asked about; the longest word in the dictionary is shorter. */
 export const MAX_GLOSS_WORD = 40;
@@ -34,8 +34,10 @@ export interface Gloss {
 	/** Its place among the most frequent words (вода is 286); null for a word too rare to be ranked. */
 	freq_rank: number | null;
 	vesum_only?: true;
-	/** What a VESUM-only word is, when VESUM says: a surname, an abbreviation. */
+	/** What a VESUM-only word is, when VESUM says: a surname, an abbreviation, not standard Ukrainian. */
 	kind?: VesumKind;
+	/** With `kind: 'distorted'`, the Ukrainian words to say instead: дах for криша. */
+	use?: UseInstead[];
 	/**
 	 * The word in the sentence, when the card is for another word: the verb a
 	 * reflexive verb is made from, or the entry whose head line names it.
@@ -81,6 +83,7 @@ function toGloss(r: SearchResult): Gloss {
 	};
 	if (r.vesum_only) gloss.vesum_only = true;
 	if (r.kind) gloss.kind = r.kind;
+	if (r.use) gloss.use = r.use;
 	if (r.through) gloss.through = r.through;
 	return gloss;
 }

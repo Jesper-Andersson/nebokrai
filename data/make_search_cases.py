@@ -47,6 +47,10 @@ QUERIES = [
     # English word, a set phrase, a form only VESUM knows; an English word that also reaches an entry
     # of Wiktionary's own as a mention (комітет for "board"), and one only a translation table knows
     "шериф", "sheryf", "sheriff", "про всяк випадок", "гімназії", "board", "shrike",
+    # translation-table spellings of words that have an entry, folded into it (блоґ for блог, указувати
+    # for вказувати), and one that only looks like one and keeps its own entry (уступати "to yield",
+    # not вступати "to enter")
+    "блоґ", "указувати", "уступати",
     # not standard Ukrainian: Russian words and surzhyk point to the Ukrainian ones. From VESUM's list
     # (таможня, приговор, шокуючий), from Nebokrai's own (криша, and бебісіттер, which VESUM lacks), a
     # form of one (криші), and таракан, which is also a surname

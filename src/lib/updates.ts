@@ -93,6 +93,16 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-17-other-spellings',
+		date: '2026-11-17',
+		kind: 'changed',
+		title: { en: 'Another spelling of a word leads to its entry', uk: 'Інше написання слова веде до його статті' },
+		body: {
+			en: 'Searching for блоґ or указувати now opens блог and вказувати, instead of a thin entry of its own.',
+			uk: 'Пошук «блоґ» чи «указувати» тепер відкриває «блог» і «вказувати», а не окрему куцу статтю.'
+		}
+	},
+	{
 		id: '2026-11-17-readlang-export',
 		date: '2026-11-17',
 		kind: 'new',

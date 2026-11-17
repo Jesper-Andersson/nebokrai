@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-17-everyday-coverage',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'See how much everyday Ukrainian you know', uk: 'Дізнайтеся, скільки повсякденної української ви знаєте' },
+		body: {
+			en: 'Under your word count on Learn, a line now says what share of everyday Ukrainian your known words cover, weighted by how often each word is used.',
+			uk: 'Під кількістю слів на сторінці «Навчання» тепер видно, яку частку повсякденної української охоплюють ваші засвоєні слова, з огляду на те, як часто вживають кожне.'
+		},
+		href: '/learn'
+	},
+	{
 		id: '2026-11-17-add-a-missing-word',
 		date: '2026-11-17',
 		kind: 'new',

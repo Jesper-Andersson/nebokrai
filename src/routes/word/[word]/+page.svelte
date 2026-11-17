@@ -128,7 +128,7 @@
 	const hasSide = (entry: WordEntry) => entry.forms.length > 0 || Boolean(entry.etymology);
 	let wide = $derived(data.entries.some(hasSide) || data.vesum.some((w) => w.forms.length > 0));
 	const VESUM_LICENCE = 'https://creativecommons.org/licenses/by-nc-sa/4.0/';
-	const VESUM_SITE = 'https://github.com/brown-uk/dict_uk';
+	const VESUM_SITE = 'https://vesum.nlp.net.ua/';
 	// A distorted word (таможня) gets no "Add a meaning": it should not get an entry.
 	const askable = (w: VesumWord) => w.kind !== 'distorted' && canAddWord(w.word);
 

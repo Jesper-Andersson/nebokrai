@@ -61,7 +61,7 @@
 			collected in the <a href="https://opus.nlpl.eu/">OPUS</a> corpus.
 		</dd>
 
-		<dt>Recognising word forms missing from Wiktionary, and words that are not standard Ukrainian</dt>
+		<dt>Recognising word forms missing from Wiktionary, words that are not standard Ukrainian, and the forms of words with no entry</dt>
 		<dd>
 			<!-- Worded as VESUM's README asks to be cited. It gives no version
 			     number: the package we read is a snapshot that does not name one. -->
@@ -76,7 +76,10 @@
 			Ukrainian words offered instead of a Russian word or surzhyk (<span lang="uk">митниця</span> for
 			<span lang="uk">таможня</span>) come from the same project’s list of distorted words, as of
 			November 2026; the few Nebokrai adds itself (<span lang="uk">дах</span> for
-			<span lang="uk">криша</span>) are under the dictionary’s licence.
+			<span lang="uk">криша</span>) are under the dictionary’s licence. A word VESUM knows and
+			the dictionary does not (<span lang="uk">книжечка</span>) has a page with VESUM’s table of its
+			forms and no meaning, and an entry written for Nebokrai with no forms of its own borrows
+			VESUM’s table; both pages say so under the table.
 		</dd>
 	</dl>
 

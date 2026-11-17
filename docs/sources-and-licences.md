@@ -55,7 +55,10 @@ Tatoeba's original text. The API returns `examples[].adapted` and
 [OpenSubtitles](https://www.opensubtitles.org/) collected in the
 [OPUS](https://opus.nlpl.eu/) corpus.
 
-**Recognising word forms** that are missing from Wiktionary:
+**Recognising word forms** that are missing from Wiktionary, and **the tables
+of forms** of words with no entry (a page for книжечка, read live from
+`vesum.db`; an entry of our own with no forms borrows VESUM's table, credited
+under it):
 Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM).
 2005–2022. Available at: <https://vesum.nlp.net.ua/>
 
@@ -185,7 +188,7 @@ nothing from VESUM is put in the form or stored with the suggestion.
 | The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence, say what was changed, share the changed files under the same licence | The line under the letters on `/alphabet` (author, licence, "cut down to the letter and cleaned of noise"); each letter's original on Commons beside its play button; Sources page. The files are `static/audio/letters/*.mp3`, made with their list (`src/lib/alphabet/recordings.ts`) by `data/letter_recordings.py`, and are CC BY-SA 4.0 themselves |
 | Tatoeba | CC BY 2.0 FR | Credit the author of each sentence; say if changed | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored); a sentence corrected by `data/tatoeba-corrections.tsv` is credited "Tatoeba #id, adapted" |
 | FrequencyWords | CC BY-SA 4.0 | Credit; share-alike | Sources page |
-| VESUM, and dict_uk's `twisters.lst` (suggestions for non-standard words) | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; kept in its own database |
+| VESUM, and dict_uk's `twisters.lst` (suggestions for non-standard words) | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; under every table of VESUM's forms on a word page; kept in its own database |
 | Background photo "field" (Igor Karimov, Unsplash) | Unsplash Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/field-*.webp` |
 | Background photo "hills" (neslihan, Pexels) | Pexels Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/hills-*.webp` |
 | Fund logos on the Support Ukraine page | None: each is its organisation's trademark | Use one only beside that fund's own link, unaltered; take it down if the fund asks | Support page ("About this list"); Sources page. Files: `static/funds/*.png`, each the icon the fund's site gives browsers |

@@ -136,8 +136,11 @@ entry for that word, the result looks like this:
 }
 ```
 
-There is no stress mark, no meaning and no Details page for it. The page can
-say that the word exists and that it has no entry yet.
+There is no stress mark and no meaning. The site has a page for it at the
+usual address (`/word/ostashko`, made with `wordPath`) with VESUM's table of
+its forms, but `/api/word` answers 404 for it: the API returns dictionary
+entries only. A page can say that the word exists and has no entry yet, and
+link to the site's page for its forms.
 
 `kind` is there for the 30,000 or so words VESUM marks as a given name, a
 patronymic, a surname or an abbreviation, so that the page can say "a surname

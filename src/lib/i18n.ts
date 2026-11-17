@@ -78,6 +78,9 @@ const en = {
 		/** Saved straight into the default lists, whose names follow as links: "Saved to Food, Lesson 3". */
 		savedTo: 'Saved to',
 		removed: 'Removed from saved',
+		/** The account refused the change, and it was undone. */
+		notSaved: 'Could not save. Try again later.',
+		notRemoved: 'Could not remove. Try again later.',
 		copied: 'Link copied',
 		notCopied: 'Could not copy the link',
 		undo: 'Undo',
@@ -1460,6 +1463,8 @@ const uk: Messages = {
 		saved: 'Збережено',
 		savedTo: 'Збережено до:',
 		removed: 'Прибрано зі збереженого',
+		notSaved: 'Не вдалося зберегти. Спробуйте пізніше.',
+		notRemoved: 'Не вдалося прибрати. Спробуйте пізніше.',
 		copied: 'Посилання скопійовано',
 		notCopied: 'Не вдалося скопіювати посилання',
 		undo: 'Скасувати',

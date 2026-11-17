@@ -113,6 +113,14 @@ export class SavedWords {
 	#userId: string | null;
 	/** The last change sent to the account; the next one waits for it. */
 	#queue: Promise<unknown> = Promise.resolve();
+	/**
+	 * Words saved or removed here whose request has not been answered yet: the
+	 * word as saved, or null when removed, in a box of its own so a later click
+	 * on the same word can be told apart. A list that arrives meanwhile (the
+	 * account's answer to load(), another tab's copy) was read before the
+	 * change, so the change is laid over it instead of being lost.
+	 */
+	#pending = new Map<string, { item: SavedWord | null }>();
 
 	constructor(userId: string | null) {
 		this.#userId = userId;
@@ -157,6 +165,24 @@ export class SavedWords {
 		store(LIST_KEY, JSON.stringify(items));
 	}
 
+	/** The list with this page's unanswered changes laid over it, newest first. */
+	#withPending(list: SavedWord[]): SavedWord[] {
+		if (this.#pending.size === 0) return list;
+		const kept = list.filter((i) => !this.#pending.has(i.word));
+		const saved = [...this.#pending.values()].flatMap(({ item }) => (item ? [item] : []));
+		return [...saved, ...kept].sort((a, b) => b.saved_at - a.saved_at);
+	}
+
+	/** Send one word's change, keeping it laid over any list that arrives until the account answers. */
+	async #sendWord(word: string, item: SavedWord | null, method: 'PUT' | 'DELETE', body?: unknown): Promise<boolean> {
+		const mark = { item };
+		this.#pending.set(word, mark);
+		const ok = await this.#send(method, `/api/saved/${encodeURIComponent(word)}`, body);
+		// A later click on the same word is still on its way: it stays laid over.
+		if (this.#pending.get(word) === mark) this.#pending.delete(word);
+		return ok;
+	}
+
 	#setLists(lists: WordList[]): void {
 		this.lists = lists;
 		store(LISTS_KEY, JSON.stringify(lists));
@@ -198,7 +224,7 @@ export class SavedWords {
 		// Another tab saved or removed a word, or changed a list. Without the
 		// lists here, this tab's next change would write its old copy over them.
 		addEventListener('storage', (event) => {
-			if (event.key === LIST_KEY) this.items = readList();
+			if (event.key === LIST_KEY) this.items = this.#withPending(readList());
 			if (event.key === LISTS_KEY) this.lists = readLists();
 			if (event.key === EXPORTED_KEY) this.#exported = readExported();
 			if (event.key === DEFAULT_KEY) this.defaultLists = readDefault();
@@ -264,7 +290,8 @@ export class SavedWords {
 					});
 			if (!res.ok) throw new Error(String(res.status));
 			const account: { words: SavedWord[]; exported?: ExportedMarks; lists?: unknown } = await res.json();
-			this.#set(account.words);
+			// A word saved or removed while the answer was on its way is not in it.
+			this.#set(this.#withPending(account.words));
 			this.#setExported(new Map(Object.entries(account.exported ?? {})));
 			// No lists in the answer: during a deploy this page can meet the
 			// server as it was before lists. This browser's lists are then kept,
@@ -284,35 +311,43 @@ export class SavedWords {
 		this.ready = true;
 	}
 
-	/** Save the word, or remove it if it is saved. */
-	toggle(word: string): Promise<void> {
+	/**
+	 * Save the word, or remove it if it is saved. The change shows at once; the
+	 * answer is false if the account refused it and it was undone.
+	 */
+	toggle(word: string): Promise<boolean> {
 		return this.has(word) ? this.remove(word) : this.save(word);
 	}
 
-	/** Save the word, and put it in these lists: what Undo gives back to a word that was removed. */
-	async save(word: string, listIds: string[] = []): Promise<void> {
-		if (this.has(word) || this.items.length >= MAX_SAVED) return;
-		this.#set([{ word, saved_at: Date.now() }, ...this.items]);
+	/**
+	 * Save the word, and put it in these lists: what Undo gives back to a word
+	 * that was removed. False if the account refused it and it was undone.
+	 */
+	async save(word: string, listIds: string[] = []): Promise<boolean> {
+		if (this.has(word) || this.items.length >= MAX_SAVED) return true;
+		const item = { word, saved_at: Date.now() };
+		this.#set([item, ...this.items]);
 		const ids = listIds.filter((id) => this.lists.some((l) => l.id === id));
 		if (ids.length) this.#setLists(ids.reduce((lists, id) => withWords(lists, id, [word]), this.lists));
-		const url = `/api/saved/${encodeURIComponent(word)}`;
-		if (await this.#send('PUT', url, ids.length ? { lists: ids } : undefined)) return;
+		if (await this.#sendWord(word, item, 'PUT', ids.length ? { lists: ids } : undefined)) return true;
 		// Undo only this word: other words may have changed in the meantime.
 		this.#set(this.items.filter((i) => i.word !== word));
 		this.#setLists(withoutWords(this.lists, null, [word]));
+		return false;
 	}
 
-	/** Remove the word, which also takes it out of its lists. */
-	async remove(word: string): Promise<void> {
+	/** Remove the word, which also takes it out of its lists. False if the account refused it and it was undone. */
+	async remove(word: string): Promise<boolean> {
 		const before = this.items.find((i) => i.word === word);
-		if (!before) return;
+		if (!before) return true;
 		const ids = this.listsOf(word).map((l) => l.id);
 		this.#set(this.items.filter((i) => i.word !== word));
 		this.#setLists(withoutWords(this.lists, null, [word]));
-		if (await this.#send('DELETE', `/api/saved/${encodeURIComponent(word)}`)) return;
+		if (await this.#sendWord(word, null, 'DELETE')) return true;
 		// Undo only this word, as above. A list deleted in the meantime stays deleted.
 		if (!this.has(word)) this.#set([...this.items, before].sort((a, b) => b.saved_at - a.saved_at));
 		this.#setLists(ids.reduce((lists, id) => withWords(lists, id, [word]), this.lists));
+		return false;
 	}
 
 	/**

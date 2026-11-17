@@ -35,21 +35,26 @@
 			// no such choice yet, it is saved first and the panel then asks: a
 			// click on the bookmark always saves, whatever happens to the panel.
 			const ask = !before && savedWords.lists.length > 0 && savedWords.defaultLists === null;
-			if (before) void savedWords.remove(word);
-			else void savedWords.save(word, savedWords.defaultLists ?? []);
+			const answer = before ? savedWords.remove(word) : savedWords.save(word, savedWords.defaultLists ?? []);
 			// A full list refuses the word: say nothing rather than "Saved".
 			if (savedWords.has(word) === before) return;
 			pickerOpen = ask;
 			// Saved without asking: the message is the only place that says where it went
 			// and each name there opens its list.
 			const into = before ? [] : savedWords.listsOf(word).map((list) => ({ name: list.name, href: listPath(list.id) }));
-			toaster.addToast({
+			const shown = toaster.addToast({
 				data: {
 					title: before ? m.toast.removed : into.length ? m.toast.savedTo : m.toast.saved,
 					lists: into,
 					headword,
 					undo: () => void (before ? savedWords.save(word, lists) : savedWords.remove(word))
 				}
+			});
+			// The account refused and the change was undone: take back "Saved".
+			void answer.then((ok) => {
+				if (ok) return;
+				toaster.removeToast(shown.id);
+				toaster.addToast({ data: { title: before ? m.toast.notRemoved : m.toast.notSaved, headword } });
 			});
 		}
 	});

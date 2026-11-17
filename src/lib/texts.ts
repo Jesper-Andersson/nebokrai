@@ -12,6 +12,8 @@ export const BANDS = [500, 1000, 2000, 5000] as const;
 export type Band = (typeof BANDS)[number];
 /** The share of a text's known words that its band's words must cover. */
 export const BAND_SHARE = 0.95;
+/** A word met this many times in one text is a topic word of it, when it lies outside the band. */
+export const TOPIC = 3;
 
 /** A slug is the title in Latin letters: duzhe-vysokyi-cholovik. */
 const SLUG = /^[a-z0-9-]{1,100}$/;
@@ -37,11 +39,13 @@ export interface TextSummary {
 	title_en: string;
 	/** The Storybooks level, 1 (easiest) to 5. */
 	level: number | null;
-	/** The smallest band whose words cover 95% of the known words, or null above 5000. */
+	/** The smallest band whose words cover 95% of the known words, topic words left out (`bandOf`); null above 5000. */
 	band: Band | null;
 	/** Words in the text, and how many of them the dictionary does not know. */
 	tokens: number;
 	unknown: number;
+	/** Known words left out of the band as topic words: for the band found, or for 5000 when there is none. */
+	topic: number;
 	pages: number;
 	/** The story on Storybooks, its licence, and who made it: to be shown with it. */
 	url: string;
@@ -94,6 +98,7 @@ interface TextRow {
 	band: number | null;
 	tokens: number;
 	unknown: number;
+	topic: number;
 	bare: number;
 	pages: number;
 	url: string;
@@ -105,7 +110,7 @@ interface TextRow {
 }
 
 const COLUMNS =
-	'id, slug, title, title_en, level, band, tokens, unknown, bare, pages, url, licence, licence_url, credits, origin, cover_url';
+	'id, slug, title, title_en, level, band, tokens, unknown, topic, bare, pages, url, licence, licence_url, credits, origin, cover_url';
 
 /** The words of a text counted by what they may be, most frequent first. */
 export function vocabOf(sentences: readonly (readonly (readonly string[])[])[]): Vocab {
@@ -143,16 +148,27 @@ export function knownShare(
 }
 
 /**
- * The smallest band whose words cover at least 95% of a text's known words,
- * or null when not even 5000 does. `ranks` holds, for each known word, the
- * best frequency rank among the entries it may be, or null when none is
- * ranked. The same rule is `band_of()` in data/import_stories.py.
+ * The band of a text: the smallest whose words cover at least 95% of its
+ * known words once its topic words are left out, or null when not even 5000
+ * does. `words` holds, for each item of the text's `vocab`, the best
+ * frequency rank among its lemmas (null when none is ranked) and its count.
+ *
+ * A topic word for a band is one the text has TOPIC times or more and that
+ * lies outside the band (віслюк in Дитина-віслюк): the story teaches it.
+ * Common words met as often (бути, і) are not left out, or the rarer words
+ * alone would decide. The same rule is `band_of()` in data/import_stories.py.
  */
-export function bandOf(ranks: readonly (number | null)[]): Band | null {
-	if (!ranks.length) return null;
+export function bandOf(words: readonly [rank: number | null, count: number][]): Band | null {
+	const within = (rank: number | null, band: number) => rank !== null && rank <= band;
 	for (const band of BANDS) {
-		const covered = ranks.filter((r) => r !== null && r <= band).length;
-		if (covered >= BAND_SHARE * ranks.length) return band;
+		let total = 0;
+		let covered = 0;
+		for (const [rank, count] of words) {
+			if (count >= TOPIC && !within(rank, band)) continue;
+			total += count;
+			if (within(rank, band)) covered += count;
+		}
+		if (total && covered >= BAND_SHARE * total) return band;
 	}
 	return null;
 }
@@ -166,6 +182,7 @@ function summary(row: TextRow, vocab: Vocab): TextSummary {
 		band: (BANDS as readonly number[]).includes(row.band ?? -1) ? (row.band as Band) : null,
 		tokens: row.tokens,
 		unknown: row.unknown,
+		topic: row.topic,
 		pages: row.pages,
 		url: row.url,
 		licence: row.licence,

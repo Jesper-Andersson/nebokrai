@@ -652,6 +652,7 @@ at `/read`.
       "band": null,
       "tokens": 74,
       "unknown": 4,
+      "topic": 0,
       "pages": 12,
       "url": "https://storybookscanada.ca/stories/uk/0001/",
       "licence": "CC BY 3.0",
@@ -675,7 +676,8 @@ at `/read`.
 | `slug` | The title in national transliteration; `-2` is added when two titles give the same one. The story is `/api/texts/<slug>`. |
 | `title` | With a stress mark on each word whose stress the dictionary knows for certain (see `uk` below). |
 | `level` | The story's level on Storybooks, 1 (easiest) to 5. |
-| `band` | `500`, `1000`, `2000` or `5000`: the smallest number of most frequent words (FrequencyWords) that covers at least 95% of the story's known words. `null` when not even 5000 does. `bandOf()` in `texts.ts`. |
+| `band` | `500`, `1000`, `2000` or `5000`: the smallest number of most frequent words (FrequencyWords) that covers at least 95% of the story's known words once its topic words are left out. A topic word is one the story has 3 or more times that lies outside the band (віслюк): the story teaches it. `null` when not even 5000 does. `bandOf()` in `texts.ts`. |
+| `topic` | Known words set aside as topic words for `band` (for 5000 when `band` is `null`). |
 | `tokens`, `unknown` | Words in the story, and how many of them the dictionary does not know (mostly names: Калай). |
 | `pages` | Pages, the title page included. |
 | `url`, `licence`, `licence_url`, `credits`, `origin` | Who made the story and under what licence: to be shown with it. `origin` is where Storybooks took it from, or `null`. Only CC BY stories are included. |

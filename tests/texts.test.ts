@@ -39,13 +39,29 @@ test('knownShare counts a word as known when one of its entries is known', () =>
 });
 
 test('bandOf picks the smallest band that covers 95% of the known words', () => {
+	// Each word once, so no topic words
+	const once = (ranks: (number | null)[]) => ranks.map((r): [number | null, number] => [r, 1]);
 	assert.equal(bandOf([]), null);
-	assert.equal(bandOf(Array(20).fill(10)), 500);
+	assert.equal(bandOf(once(Array(20).fill(10))), 500);
 	// 19 of 20 within 1000 is 95% exactly
-	assert.equal(bandOf([...Array(19).fill(900), 6000]), 1000);
-	assert.equal(bandOf([...Array(18).fill(100), 4000, 4000]), 5000);
-	assert.equal(bandOf([...Array(18).fill(100), null, null]), null);
+	assert.equal(bandOf(once([...Array(19).fill(900), 6000])), 1000);
+	assert.equal(bandOf(once([...Array(18).fill(100), 4000, 4000])), 5000);
+	assert.equal(bandOf(once([...Array(18).fill(100), null, null])), null);
 	assert.deepEqual([...BANDS], [500, 1000, 2000, 5000]);
+});
+
+test('bandOf leaves out topic words: rare words the story has three times or more', () => {
+	// 17 common words, and віслюк (rank 8000) six times: the story teaches it
+	const story: [number | null, number][] = [[50, 10], [300, 7], [8000, 6]];
+	assert.equal(bandOf(story), 500);
+	// Twice is not a topic: 2 of 19 outside every band
+	assert.equal(bandOf([[50, 10], [300, 7], [8000, 2]]), null);
+	// An unranked word repeated is a topic word too
+	assert.equal(bandOf([[50, 20], [null, 4]]), 500);
+	// A repeated word is set aside only for a band it lies outside: within 1000 it counts
+	assert.equal(bandOf([[900, 19], [3000, 1]]), 1000);
+	// Set aside for 500 (17 of 18), counted for 2000 (20 of 21)
+	assert.equal(bandOf([[100, 17], [1500, 3], [9000, 1]]), 2000);
 });
 
 const path = 'nebokrai.db';
@@ -80,13 +96,15 @@ test('each text is in the band its words give', { skip }, async () => {
 		)).map((r) => [r.word, r.rank])
 	);
 	for (const t of await listTexts(db)) {
-		const ranks: (number | null)[] = [];
-		for (const [lemmas, count] of t.vocab) {
+		const words = t.vocab.map(([lemmas, count]): [number | null, number] => {
 			const known = lemmas.map((w) => rank.get(w)).filter((r) => r !== undefined);
-			for (let i = 0; i < count; i++) ranks.push(known.length ? Math.min(...known) : null);
-		}
-		assert.equal(t.band, bandOf(ranks), t.slug);
-		assert.equal(ranks.length, t.tokens - t.unknown, t.slug);
+			return [known.length ? Math.min(...known) : null, count];
+		});
+		assert.equal(t.band, bandOf(words), t.slug);
+		assert.equal(words.reduce((n, [, count]) => n + count, 0), t.tokens - t.unknown, t.slug);
+		const edge = t.band ?? 5000;
+		const topic = words.filter(([r, count]) => count >= 3 && !(r !== null && r <= edge));
+		assert.equal(t.topic, topic.reduce((n, [, count]) => n + count, 0), t.slug);
 	}
 });
 

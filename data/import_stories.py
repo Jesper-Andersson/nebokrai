@@ -30,7 +30,10 @@ Four things are worked out per sentence and story:
   learner knows. vesum.db is never read: VESUM may not go into this file.
 - `band`: the smallest of 500, 1000, 2000 or 5000 such that at least 95% of the
   story's known words (those with lemmas) have a lemma ranked that high in
-  FrequencyWords; NULL when not even 5000 does.
+  FrequencyWords; NULL when not even 5000 does. Topic words, those whose
+  lemmas the story has 3 or more times and that lie outside the band
+  (віслюк, гіпопотам), are left out first, since the story itself teaches
+  them; `topic` counts them.
 - `tokens`, `unknown`: how many words, and how many the dictionary lacks.
 - `bare`: the share of words of two or more syllables left without a mark.
 
@@ -41,6 +44,7 @@ ranks, so run this script again after one.
 Only the Python standard library is used.
 """
 import argparse
+import collections
 import html
 import json
 import re
@@ -63,6 +67,8 @@ AUDIO = "/audio/texts/{slug}/{page:02d}.mp3"
 
 BANDS = (500, 1000, 2000, 5000)
 BAND_SHARE = 0.95
+# A set of lemmas met this many times in one story is a topic word of it.
+TOPIC = 3
 VOWELS = set("аеєиіїоуюяё")
 
 TEXTS_SCHEMA = """
@@ -76,6 +82,7 @@ CREATE TABLE texts (
     band         INTEGER,               -- 500 | 1000 | 2000 | 5000, NULL above 5000
     tokens       INTEGER NOT NULL,      -- words in the story
     unknown      INTEGER NOT NULL,      -- words the dictionary does not know
+    topic        INTEGER NOT NULL,      -- known words left out of the band as the story's topic (met 3+ times, outside the band)
     bare         REAL NOT NULL,         -- share of words of 2+ syllables left without a stress mark
     pages        INTEGER NOT NULL,
     url          TEXT NOT NULL,         -- the story on Storybooks, for attribution
@@ -292,18 +299,35 @@ def stress_text(words, text):
     return "".join(out), long_words, bare
 
 
-def band_of(ranks):
-    """The smallest band whose words cover 95% of the known words; None when none does.
+def band_of(words):
+    """The band of a text, and how many of its words were set aside as topic words.
 
-    `ranks` holds, for each known word of a text, the best rank of its lemmas
-    (None when none is ranked). The same rule is `bandOf()` in src/lib/texts.ts.
+    `words` holds one (rank, count) pair for each set of lemmas the text's
+    known words may be: the best rank among those lemmas (None when none is
+    ranked) and how many words of the text may be them.
+
+    A set met TOPIC times or more and ranked outside a band is a topic word
+    for that band (віслюк in Дитина-віслюк): the story itself teaches it, so
+    it is left out before the band's share is taken. A word that common is not
+    left out (бути, і), since leaving out every repeated word would leave the
+    rarer ones to decide. The band is the smallest whose words then cover 95%
+    of the words left; None when not even 5000 does. `topic` is how many words
+    were set aside for the band found, or for 5000 when none was. The same
+    rule is `bandOf()` in src/lib/texts.ts.
     """
-    if not ranks:
-        return None
+    def within(rank, band):
+        return rank is not None and rank <= band
+
     for band in BANDS:
-        if sum(r is not None and r <= band for r in ranks) >= BAND_SHARE * len(ranks):
-            return band
-    return None
+        kept = [(rank, count) for rank, count in words if count < TOPIC or within(rank, band)]
+        total = sum(count for _, count in kept)
+        if total and sum(count for rank, count in kept if within(rank, band)) >= BAND_SHARE * total:
+            break
+    else:
+        band = None
+    edge = band or BANDS[-1]
+    topic = sum(count for rank, count in words if count >= TOPIC and not within(rank, edge))
+    return band, topic
 
 
 def slug_of(title, taken):
@@ -345,7 +369,7 @@ def build(db, stories):
             skipped.append((story["source_id"], story["licence_url"] or "no licence"))
             continue
         slug = slug_of(story["title"], taken)
-        rows, ranks = [], []
+        rows, groups = [], collections.Counter()
         tokens = unknown = long_words = bare = 0
         for page in story["pages"]:
             for n, source in enumerate(sentences(page["uk"]), 1):
@@ -358,17 +382,21 @@ def build(db, stories):
                     lemmas.append(found)
                     tokens += 1
                     if found:
-                        best = [words.rank[w] for w in found if w in words.rank]
-                        ranks.append(min(best) if best else None)
+                        groups[tuple(found)] += 1
                     else:
                         unknown += 1
                 rows.append((page["page"], n, uk, source, json.dumps(lemmas, ensure_ascii=False)))
         title = stress_text(words, story["title"])[0]
+        ranked = []
+        for found, count in groups.items():
+            best = [words.rank[w] for w in found if w in words.rank]
+            ranked.append((min(best) if best else None, count))
+        band, topic = band_of(ranked)
         share = bare / long_words if long_words else 0.0
         cur = db.execute(
-            "INSERT INTO texts (slug, source_id, title, title_en, level, band, tokens, unknown, bare, pages,"
-            " url, licence, licence_url, credits, origin, cover_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (slug, story["source_id"], title, story["title_en"], story["level"], band_of(ranks), tokens, unknown,
+            "INSERT INTO texts (slug, source_id, title, title_en, level, band, tokens, unknown, topic, bare, pages,"
+            " url, licence, licence_url, credits, origin, cover_url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (slug, story["source_id"], title, story["title_en"], story["level"], band, tokens, unknown, topic,
              round(share, 3), len(story["pages"]), story["url"], licence, story["licence_url"],
              json.dumps(story["credits"], ensure_ascii=False),
              json.dumps(story["origin"], ensure_ascii=False) if story["origin"] else None, story["cover_url"]))
@@ -378,7 +406,7 @@ def build(db, stories):
                        (text_id, page["page"], page["en"], AUDIO.format(slug=slug, page=page["page"]),
                         page["audio_url"] or ""))
         db.executemany("INSERT INTO text_sentences VALUES (?,?,?,?,?,?)", [(text_id, *r) for r in rows])
-        kept.append((story["source_id"], slug, licence, story["level"], band_of(ranks), tokens, unknown, share))
+        kept.append((story["source_id"], slug, licence, story["level"], band, tokens, unknown, topic, share))
     db.commit()
     return kept, skipped
 
@@ -441,10 +469,10 @@ if __name__ == "__main__":
     if args.fetch:
         fetch(args.raw)
     kept, skipped = build(db, load(args.raw))
-    print(f"{'id':>4} {'slug':<40} {'licence':<10} lvl {'band':>5} {'words':>5} {'unkn':>4} bare")
-    for sid, slug, licence, level, band, tokens, unknown, share in kept:
+    print(f"{'id':>4} {'slug':<40} {'licence':<10} lvl {'band':>5} {'words':>5} {'unkn':>4} topic bare")
+    for sid, slug, licence, level, band, tokens, unknown, topic, share in kept:
         print(f"{sid:>4} {slug:<40} {licence:<10} {level or '-':>3} {band or '>5k':>5} {tokens:>5} {unknown:>4}"
-              f" {share:.0%}")
+              f" {topic / (tokens - unknown or 1):>5.0%} {share:.0%}")
     print(f"kept {len(kept)}, skipped {len(skipped)}:")
     for sid, url in skipped:
         print(f"  {sid} {url}")

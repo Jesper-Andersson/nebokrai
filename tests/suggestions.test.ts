@@ -4,11 +4,21 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { WordEntry } from '../src/lib/search/word.ts';
-import { findCurrent, formTagsKey, unchanged, type SuggestPlace } from '../src/lib/suggest.ts';
+import {
+	canAddEnglish,
+	canAddWord,
+	findCurrent,
+	formTagsKey,
+	stressMarks,
+	unchanged,
+	type SuggestPlace
+} from '../src/lib/suggest.ts';
 import {
 	addSuggestion,
 	correctionRow,
 	countSuggestions,
+	countWordAsks,
+	wiktionaryDraft,
 	listSuggestions,
 	reviewSuggestion,
 	type NewSuggestion
@@ -138,4 +148,75 @@ test('an accepted example fix becomes a line of tatoeba-corrections.tsv', async 
 	assert.equal(correctionRow(both), `2301\tВода холодна. Дуже.\tThe water's cold.\tNebokrai suggestion 2, ${day}`);
 	for (const row of [correctionRow(ukOnly), correctionRow(both)]) assert.ok(row && parses(row));
 	assert.equal(correctionRow(meaning), null);
+});
+
+test('a new word is offered only for a Ukrainian search', () => {
+	assert.equal(canAddWord('ґудзикоцвіт'), true);
+	assert.equal(canAddWord("п'ять"), true);
+	assert.equal(canAddWord('пів-яблука'), true);
+	assert.equal(canAddWord('вода́'), true);
+	assert.equal(canAddWord('dog'), false);
+	assert.equal(canAddWord('voda'), false);
+	assert.equal(canAddWord('вода 2'), false);
+	assert.equal(canAddWord('   '), false);
+	assert.equal(canAddWord('а'.repeat(61)), false);
+});
+
+test('an English search can ask for the Ukrainian word', () => {
+	assert.equal(canAddEnglish('dog'), true);
+	assert.equal(canAddEnglish('ice cream'), true);
+	assert.equal(canAddEnglish("mother-in-law's"), true);
+	assert.equal(canAddEnglish('вода'), false);
+	assert.equal(canAddEnglish('2 dogs'), false);
+	assert.equal(canAddEnglish('-dog'), false);
+	assert.equal(canAddEnglish(''), false);
+});
+
+test('a new word may add stress marks and nothing else', () => {
+	assert.equal(stressMarks('вода', 'вода'), true);
+	assert.equal(stressMarks('вода', 'вода́'), true);
+	// ї must survive: a mark after it is a stress, not a new letter
+	assert.equal(stressMarks('їжак', 'ї́жак'), true);
+	assert.equal(stressMarks('вода', 'Вода́'), false);
+	assert.equal(stressMarks('вода', 'вади́'), false);
+	assert.equal(stressMarks('вода', 'вд́оа'), false);
+	assert.equal(stressMarks('вода', '́вода'), false);
+	assert.equal(stressMarks('водограй', 'во́до́гра́й'), false);
+	// A grave accent is another mark, not a stress
+	assert.equal(stressMarks('водограй', 'во̀догра́й'), false);
+});
+
+test('readers asking for the same missing word are counted while it waits', async () => {
+	const db = openMemorySuggestions();
+	const ask = suggestion({
+		target: 'new-word', word: 'ґудзикоцвіт', pos: 'noun', headword: 'ґудзикоцві́т', tatoeba_id: null,
+		current: '', current_en: null, proposed: 'a flowering plant', proposed_en: null
+	});
+	assert.equal(await countWordAsks(db, 'ґудзикоцвіт'), 0);
+	const first = await addSuggestion(db, ask);
+	await addSuggestion(db, ask);
+	assert.equal(await countWordAsks(db, 'ґудзикоцвіт'), 2);
+	await reviewSuggestion(db, first, 'rejected', null);
+	assert.equal(await countWordAsks(db, 'ґудзикоцвіт'), 1);
+	assert.equal(await countWordAsks(db, 'вода'), 0);
+});
+
+test('an accepted new word becomes a draft Wiktionary entry', async () => {
+	const db = openMemorySuggestions();
+	await addSuggestion(db, suggestion({
+		target: 'new-word', word: 'ґудзикоцвіт', pos: 'noun', headword: 'ґудзикоцві́т', tatoeba_id: null,
+		current: '', current_en: null, proposed: 'a flowering\nplant', proposed_en: null, note: 'Heard it -- twice'
+	}));
+	await addSuggestion(db, suggestion({
+		target: 'new-word', word: 'шось', pos: 'unknown', headword: 'шось', tatoeba_id: null,
+		current: '', current_en: null, proposed: 'something', proposed_en: null, note: null
+	}));
+	const [unsure, noun] = await listSuggestions(db, 'new');
+	assert.equal(wiktionaryDraft(noun), [
+		'==Ukrainian==', '', '===Noun===', '{{head|uk|noun|head=ґудзикоцві́т}}', '', '# a flowering plant',
+		'<!-- Nebokrai suggestion 1: Heard it – twice -->'
+	].join('\n'));
+	assert.match(wiktionaryDraft(unsure) ?? '', /^===<!-- part of speech -->===$/m);
+	assert.equal(wiktionaryDraft((await listSuggestions(db, 'new', 1))[0]), wiktionaryDraft(unsure));
+	assert.equal(wiktionaryDraft({ ...noun, target: 'meaning' }), null);
 });

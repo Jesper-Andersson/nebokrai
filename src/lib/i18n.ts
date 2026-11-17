@@ -1346,7 +1346,8 @@ const en = {
 			meaning: (n: number) => `Meaning ${n}`,
 			quote: 'Quotation',
 			example: 'Example sentence',
-			form: (tags: string) => (tags ? `Form: ${tags}` : 'Form')
+			form: (tags: string) => (tags ? `Form: ${tags}` : 'Form'),
+			newWord: 'New word'
 		},
 		open: (part: string) => `Suggest an edit: ${part}`,
 		now: 'Now',
@@ -1367,6 +1368,40 @@ const en = {
 		tooMany: 'You’ve sent many suggestions in a short time. Please wait a few minutes and try again.',
 		thanks: 'Thank you! Your suggestion was sent.'
 	},
+	/** The form for a word the dictionary does not have (AddWord.svelte) */
+	addWord: {
+		/** Under "No matches", and after the guesses of a search */
+		add: (word: string) => `Add “${word}”`,
+		notMeant: 'Not what you meant?',
+		/** On the card of a word only VESUM knows */
+		addMeaning: 'Add a meaning',
+		stressHint: 'Tap a vowel to mark the stress.',
+		stressOn: (letter: string, n: number) => `Stress on ${letter}, letter ${n}`,
+		meaning: 'What it means in English',
+		meaningPlaceholder: 'In a few words',
+		posLegend: 'Part of speech',
+		pos: {
+			noun: 'noun',
+			verb: 'verb',
+			adjective: 'adjective',
+			adverb: 'adverb',
+			other: 'other',
+			unknown: 'not sure'
+		},
+		more: '+ An example, or your name for the credit',
+		note: 'An example, or where you saw it (optional)',
+		exists: 'This word is in the dictionary now. Reload the page to see it.',
+		/** After an English search (dog): the reader gives the Ukrainian word */
+		addEnglish: (english: string) => `Add a Ukrainian word for “${english}”`,
+		ukrainian: 'The word in Ukrainian',
+		ukrainianPlaceholder: 'For example: ґудзик',
+		known: (word: string) => `“${word}” is already in the dictionary.`,
+		open: 'Open its page',
+		thanks: (others: number) =>
+			others
+				? `Thank you! You’re not the first: ${others === 1 ? 'one reader' : `${others} readers`} asked for this word before you.`
+				: 'Thank you! We’ll check the word before it goes in.'
+	},
 	/** /suggestions: readers' suggested corrections, for the site's owner only. */
 	suggestReview: {
 		tabs: { new: 'New', accepted: 'Accepted', rejected: 'Rejected', applied: 'Applied' },
@@ -1382,6 +1417,11 @@ const en = {
 		reopen: 'Reopen',
 		markApplied: 'Mark as applied',
 		failed: 'That didn’t work. Try again.',
+		/** A new word: what stands under "Now", and the label of its note */
+		noEntry: 'No entry yet.',
+		seen: 'Example or where seen',
+		/** How many readers in this list asked for the same new word */
+		asks: (n: number) => (n === 1 ? 'asked once' : `asked ${n} times`),
 		/** The button on /stats that opens the list. */
 		link: (n: number) => (n ? `Suggestions to review (${n})` : 'Suggestions')
 	}
@@ -2572,7 +2612,8 @@ const uk: Messages = {
 			meaning: (n: number) => `Значення ${n}`,
 			quote: 'Цитата',
 			example: 'Приклад речення',
-			form: (tags: string) => (tags ? `Форма: ${tags}` : 'Форма')
+			form: (tags: string) => (tags ? `Форма: ${tags}` : 'Форма'),
+			newWord: 'Нове слово'
 		},
 		open: (part: string) => `Запропонувати виправлення: ${part}`,
 		now: 'Зараз',
@@ -2593,6 +2634,36 @@ const uk: Messages = {
 		tooMany: 'Ви надіслали багато пропозицій за короткий час. Зачекайте кілька хвилин і спробуйте ще раз.',
 		thanks: 'Дякуємо! Вашу пропозицію надіслано.'
 	},
+	addWord: {
+		add: (word: string) => `Додати «${word}»`,
+		notMeant: 'Не те, що шукали?',
+		addMeaning: 'Додати значення',
+		stressHint: 'Натисніть на голосну, щоб позначити наголос.',
+		stressOn: (letter: string, n: number) => `Наголос на ${letter}, літера ${n}`,
+		meaning: 'Що це означає англійською',
+		meaningPlaceholder: 'Кількома словами',
+		posLegend: 'Частина мови',
+		pos: {
+			noun: 'іменник',
+			verb: 'дієслово',
+			adjective: 'прикметник',
+			adverb: 'прислівник',
+			other: 'інше',
+			unknown: 'не знаю'
+		},
+		more: '+ Приклад або ім’я для подяки',
+		note: 'Приклад або де ви це бачили (необов’язково)',
+		exists: 'Це слово вже є в словнику. Оновіть сторінку, щоб його побачити.',
+		addEnglish: (english: string) => `Додати українське слово для «${english}»`,
+		ukrainian: 'Слово українською',
+		ukrainianPlaceholder: 'Наприклад: ґудзик',
+		known: (word: string) => `«${word}» вже є в словнику.`,
+		open: 'Відкрити його сторінку',
+		thanks: (others: number) =>
+			others
+				? `Дякуємо! Ви не перші: це слово вже просили додати (${others}).`
+				: 'Дякуємо! Ми перевіримо слово, перш ніж його додати.'
+	},
 	suggestReview: {
 		tabs: { new: 'Нові', accepted: 'Прийняті', rejected: 'Відхилені', applied: 'Внесені' },
 		none: 'Тут порожньо.',
@@ -2607,6 +2678,9 @@ const uk: Messages = {
 		reopen: 'Відкрити знову',
 		markApplied: 'Позначити внесеним',
 		failed: 'Не вдалося. Спробуйте ще раз.',
+		noEntry: 'Статті ще немає.',
+		seen: 'Приклад або де трапилося',
+		asks: (n: number) => `просили ${n} ${n % 10 === 1 && n % 100 !== 11 ? 'раз' : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'рази' : 'разів'}`,
 		link: (n: number) => (n ? `Пропозиції на розгляд (${n})` : 'Пропозиції')
 	}
 };

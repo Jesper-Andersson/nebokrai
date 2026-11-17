@@ -247,6 +247,13 @@ is pasted in by hand, so nothing reaches the data unread. Accepted suggestions
 about a headword, a meaning or a form are listed by the same command for
 fixing on Wiktionary: there is no file here that overrides those.
 
+Where a search finds nothing, readers can also ask for a missing word, with
+its stress, part of speech and English meaning. `npm run suggestions` prints
+each accepted one as a draft English Wiktionary entry, to check, finish and
+save there; the word reaches the dictionary with the next build that downloads
+Wiktionary. After that build, `npm run suggestions -- --check nebokrai.db`
+lists the accepted words that now have an entry, to mark as applied.
+
 Many spellings belong to more than one entry: `осі` is a form of `вісь`
 ("axis") and of `оса` ("wasp"), `мати` is the noun "mother" and the verb "to
 have". `sentence_readings` in `import_wiktionary.py` gives a sentence only to

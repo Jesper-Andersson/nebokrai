@@ -8,7 +8,13 @@
 //    next build of the data applies it;
 //  - the other accepted suggestions (headword, stress, meaning, quotation,
 //    form) as a list, for fixing on Wiktionary: there is no override file for
-//    those.
+//    those;
+//  - each accepted new word as a draft Wiktionary entry, to check and finish
+//    before saving it there.
+//
+//   npm run suggestions -- --check nebokrai.db
+// lists instead the accepted new words that now have an entry, after a
+// rebuild of the dictionary: those can be marked 'applied'.
 // Afterwards mark them 'applied' on /review.
 //
 // From production, save the accepted rows first (a read-only query):
@@ -20,7 +26,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import { stripControls } from '../src/lib/report.ts';
-import { correctionRow, type Suggestion } from '../src/lib/server/suggestions.ts';
+import { plain } from '../src/lib/search/normalize.ts';
+import { correctionRow, wiktionaryDraft, type Suggestion } from '../src/lib/server/suggestions.ts';
 
 function load(): Suggestion[] {
 	const from = process.argv.indexOf('--from');
@@ -56,8 +63,27 @@ if (!accepted.length) {
 	process.exit(0);
 }
 
+const check = process.argv.indexOf('--check');
+if (check !== -1) {
+	const path = process.argv[check + 1];
+	if (!path || !existsSync(path)) {
+		console.error('--check needs the dictionary database, for example nebokrai.db.');
+		process.exit(1);
+	}
+	const dictionary = new DatabaseSync(path, { readOnly: true });
+	const has = dictionary.prepare("SELECT 1 FROM search_keys WHERE key = ? AND kind = 'word' LIMIT 1");
+	const arrived = accepted.filter((s) => s.target === 'new-word' && has.get(plain(s.word)));
+	console.error(arrived.length
+		? `${arrived.length} accepted new word(s) now in the dictionary, to mark as applied:
+`
+		: 'No accepted new word is in the dictionary yet.');
+	for (const s of arrived) console.error(`#${s.id}  ${s.headword}`);
+	process.exit(0);
+}
+
 const sentences = accepted.filter((s) => s.target === 'example');
-const others = accepted.filter((s) => s.target !== 'example');
+const words = accepted.filter((s) => s.target === 'new-word');
+const others = accepted.filter((s) => s.target !== 'example' && s.target !== 'new-word');
 
 if (sentences.length) {
 	console.error(`${sentences.length} line(s) for data/tatoeba-corrections.tsv:\n`);
@@ -81,6 +107,17 @@ if (others.length) {
 		console.error(`    now:       ${s.current}${s.current_en ? `  /  ${s.current_en}` : ''}`);
 		console.error(`    suggested: ${s.proposed}${s.proposed_en ? `  /  ${s.proposed_en}` : ''}`);
 		if (s.note) console.error(`    why:       ${s.note.replace(/\n/g, '\n               ')}`);
+		console.error();
+	}
+}
+
+if (words.length) {
+	console.error(`${words.length} new word(s), as drafts for Wiktionary:
+`);
+	for (const s of words) {
+		console.error(`#${s.id}  ${s.headword}${s.name ? `  (from ${s.name})` : ''}
+`);
+		console.error(wiktionaryDraft(s));
 		console.error();
 	}
 }

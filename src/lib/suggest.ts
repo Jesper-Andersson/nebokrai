@@ -1,14 +1,15 @@
-// What a reader can suggest a correction to on a word's page, shared by the
-// page, the endpoint (/api/suggest) and the tests. The storage is in
-// src/lib/server/suggestions.ts.
+// What a reader can suggest a correction to on a word's page, or a word the
+// dictionary does not have yet, shared by the pages, the endpoint
+// (/api/suggest) and the tests. The storage is in src/lib/server/suggestions.ts.
 import type { WordEntry } from '#lib/search/word.ts';
 
 /**
  * The parts of an entry a suggestion can point at: the headword's spelling,
  * its stress (вода́), one meaning, a quotation under a meaning, a Tatoeba
- * example sentence, or one form in the tables.
+ * example sentence, or one form in the tables. `new-word` is a word with no
+ * entry at all: it has no "before", and its meaning is the proposal.
  */
-export const SUGGEST_TARGETS = ['headword', 'stress', 'meaning', 'quote', 'example', 'form'] as const;
+export const SUGGEST_TARGETS = ['headword', 'stress', 'meaning', 'quote', 'example', 'form', 'new-word'] as const;
 export type SuggestTarget = (typeof SUGGEST_TARGETS)[number];
 
 export const isSuggestTarget = (value: unknown): value is SuggestTarget =>
@@ -105,4 +106,55 @@ export function unchanged(now: Current, proposed: string, proposedEn: string | n
 	const text = same(now.current.trim(), proposed.trim());
 	if (now.current_en === null || proposedEn === null) return text;
 	return text && same(now.current_en.trim(), proposedEn.trim());
+}
+
+/**
+ * What a reader can say a new word is. `unknown` is "not sure": better a word
+ * without a part of speech than a guess the reviewer has to undo.
+ */
+export const NEW_WORD_POS = ['noun', 'verb', 'adjective', 'adverb', 'other', 'unknown'] as const;
+export type NewWordPos = (typeof NEW_WORD_POS)[number];
+
+export const isNewWordPos = (value: unknown): value is NewWordPos =>
+	typeof value === 'string' && (NEW_WORD_POS as readonly string[]).includes(value);
+
+const STRESS = '\u0301';
+const VOWELS = 'аеєиіїоуюяАЕЄИІЇОУЮЯ';
+// Ukrainian letters, the apostrophe in its usual spellings, a hyphen (пів-яблука)
+// and spaces (for a phrase). Stress marks are checked on their own.
+const UKRAINIAN = /^[а-щьюяґєіїА-ЩЬЮЯҐЄІЇ'‘’ʼ\- ]+$/;
+
+/**
+ * Whether a search can be offered as a new word: Ukrainian letters only, so
+ * an English search (dog) or a sentence pasted in does not get the button.
+ */
+export function canAddWord(query: string): boolean {
+	const text = query.normalize('NFC').replaceAll(STRESS, '').trim();
+	return text.length > 0 && text.length <= 60 && /[а-щьюяґєії]/i.test(text) && UKRAINIAN.test(text);
+}
+
+/**
+ * Whether `headword` is `word` with stress marks added and nothing else: the
+ * same letters, in the same case, once U+0301 is removed (вода́ for вода), each mark straight
+ * after a vowel, and at most two (a compound can have a second stress).
+ */
+export function stressMarks(word: string, headword: string): boolean {
+	const marked = headword.normalize('NFC');
+	if (marked.replaceAll(STRESS, '') !== word.normalize('NFC')) return false;
+	let marks = 0;
+	for (let i = 0; i < marked.length; i++) {
+		if (marked[i] !== STRESS) continue;
+		if (i === 0 || !VOWELS.includes(marked[i - 1])) return false;
+		marks++;
+	}
+	return marks <= 2;
+}
+
+/**
+ * Whether a search reads as English words (dog, ice cream, mother-in-law), so
+ * that the reader can be offered to give the Ukrainian word for it.
+ */
+export function canAddEnglish(query: string): boolean {
+	const text = query.trim();
+	return text.length > 0 && text.length <= 60 && /^[A-Za-z][A-Za-z' -]*$/.test(text);
 }

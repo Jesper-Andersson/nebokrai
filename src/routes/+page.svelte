@@ -12,7 +12,8 @@
 	import WordCard from '#lib/WordCard.svelte';
 	import PickUp from '#lib/PickUp.svelte';
 	import WordOfDay from '#lib/WordOfDay.svelte';
-	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
+	import AddWord from '#lib/AddWord.svelte';
+	import { canAddEnglish, canAddWord } from '#lib/suggest.ts';	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { searchReporter } from '#lib/hit.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { MAX_QUERY_LENGTH } from '#lib/limits.ts';
@@ -105,6 +106,21 @@
 
 	const key = (entry: { id: number | null; word: string; pos: string }) =>
 		`${entry.id ?? entry.word}-${entry.pos}`;
+
+	// Whether the search is a spelling the dictionary knows: the word itself
+	// (вода), one of its forms (води, found under вода) or a form named on a
+	// head line. Then nothing is missing to ask for at the end of the list. A
+	// word only VESUM knows is a `form` match too, and its card has its own button.
+	const KNOWN = new Set(['word', 'form', 'head']);
+	const hasWord = (answer: LookupResult) => answer.results.some((entry) => KNOWN.has(entry.match));
+	// Whether the cards answer an English search: words whose meaning is what was
+	// typed. Not a Ukrainian word in Latin letters (voda), though some meaning
+	// may mention it too.
+	const LATIN = new Set(['latin', 'latin_form']);
+	const isEnglish = (answer: LookupResult) =>
+		canAddEnglish(answer.query) &&
+		!answer.results.some((entry) => LATIN.has(entry.match)) &&
+		answer.results.some((entry) => entry.match === 'english' || entry.match === 'english_mention');
 
 	// One query each way of searching: Ukrainian, Latin letters, English.
 	const examples = ['небокрай', 'kava', 'horizon', 'дякую'];
@@ -254,10 +270,39 @@
 			{#each found.suggestions as entry (key(entry))}
 				<li><WordCard {entry} /></li>
 			{/each}
-		{:else if !found.results.length}
+		{/if}
+		{#if found.results.length || found.suggestions.length}
+			<!-- At the end of the list: a reader who has scrolled past every card
+			     without finding the word can still ask for it (the cards may only
+			     start with what was typed, or be guesses). Not when the search is a
+			     spelling the dictionary knows. After an English search (dog) the
+			     reader can give the Ukrainian word they were looking for. -->
+			{#if canAddWord(found.query) && !hasWord(found)}
+				<li class="note add">
+					{m.addWord.notMeant}
+					<AddWord word={found.query} label={m.addWord.add(found.query.trim())} />
+				</li>
+			{:else if isEnglish(found)}
+				<li class="note add">
+					{m.addWord.notMeant}
+					<AddWord english={found.query} label={m.addWord.addEnglish(found.query.trim())} />
+				</li>
+			{/if}
+		{:else}
 			<li class="note">
 				{m.home.noMatches(found.query)}
-				<a href="/report?kind=missing&q={encodeURIComponent(found.query)}">{m.home.reportMissing}</a>
+				{#if canAddWord(found.query)}
+					<!-- A word in Ukrainian letters: ask for it here. English words ask
+					     for the Ukrainian one; anything else (a sentence, digits) keeps
+					     the report form. -->
+					<span class="add"><AddWord word={found.query} label={m.addWord.add(found.query.trim())} /></span>
+				{:else if canAddEnglish(found.query)}
+					<span class="add">
+						<AddWord english={found.query} label={m.addWord.addEnglish(found.query.trim())} />
+					</span>
+				{:else}
+					<a href="/report?kind=missing&q={encodeURIComponent(found.query)}">{m.home.reportMissing}</a>
+				{/if}
 			</li>
 		{/if}
 	</ul>
@@ -394,6 +439,19 @@
 		padding: 0 1rem;
 		color: var(--on-page);
 		text-align: center;
+	}
+
+	/* "Add «…»" on a line of its own under what was said */
+	span.add {
+		display: block;
+		margin-top: 0.75rem;
+	}
+
+	li.note.add {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.6rem;
 	}
 
 	.note a {

@@ -4,6 +4,12 @@
 // Body (JSON): { target, word, pos, headword, sense_n?, tatoeba_id?, form_tags?,
 //   current?, proposed, proposed_en?, note?, native?, name?, website?, turnstile? }
 //
+// target `new-word` is a word the dictionary has no entry for (the search page
+// offers it when a search finds nothing). `word` is the spelling, `headword`
+// the same with the reader's stress marks, `pos` one of NEW_WORD_POS and
+// `proposed` the English meaning. A word that has an entry gets 409 `exists`.
+// The answer adds `others`: how many readers asked for it before.
+//
 // The place is looked up in the dictionary here, and what the dictionary holds
 // there is what gets stored as the "before": the browser's copy only helps to
 // find it. A place that is not there (the page was loaded before a rebuild)
@@ -17,17 +23,20 @@ import { botCheck, rateLimiter } from '#lib/server/bot-check.ts';
 import { getDatabases } from '#lib/server/db.ts';
 import { rateKey, readJson } from '#lib/server/request.ts';
 import { getSuggestionDb } from '#lib/server/suggestion-db.ts';
-import { addSuggestion } from '#lib/server/suggestions.ts';
+import { addSuggestion, countWordAsks } from '#lib/server/suggestions.ts';
 import { stripControls } from '#lib/report.ts';
 import { MAX_WORD_LENGTH } from '#lib/saved.ts';
 import { wordDetails } from '#lib/search/word.ts';
 import {
+	canAddWord,
 	findCurrent,
 	formTagsKey,
+	isNewWordPos,
 	isSuggestTarget,
 	MAX_SUGGEST_NAME,
 	MAX_SUGGEST_NOTE,
 	MAX_SUGGEST_TEXT,
+	stressMarks,
 	unchanged,
 	type SuggestPlace
 } from '#lib/suggest.ts';
@@ -87,6 +96,40 @@ export const POST: RequestHandler = async ({ request, locals, getClientAddress }
 	if (!proposed) return fail(400, 'missing_proposed');
 
 	const { db } = await getDatabases();
+
+	if (place.target === 'new-word') {
+		if (!canAddWord(word) || !isNewWordPos(pos) || !stressMarks(word, headword)) {
+			return fail(400, 'invalid_target');
+		}
+		if ((await wordDetails(db, word)).length) return fail(409, 'exists');
+		if (!locals.user) {
+			const refused = await botCheck(body.turnstile, getClientAddress());
+			if (refused) return refused;
+		}
+		if (tooMany(rateKey(getClientAddress()))) return fail(429, 'too_many');
+		const store = await getSuggestionDb();
+		const others = await countWordAsks(store, word);
+		const id = await addSuggestion(store, {
+			target: 'new-word',
+			word,
+			pos,
+			headword,
+			sense_n: null,
+			tatoeba_id: null,
+			form_tags: null,
+			current: '',
+			current_en: null,
+			proposed,
+			proposed_en: null,
+			note,
+			native: body.native === true,
+			name,
+			user_id: locals.user?.id ?? null,
+			lang: locals.settings.lang
+		});
+		return Response.json({ ok: true, id, others });
+	}
+
 	const now = findCurrent(await wordDetails(db, word), place);
 	if (!now) return fail(404, 'not_found');
 	// Only a sentence has an English side; anything sent for another part is dropped

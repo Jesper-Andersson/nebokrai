@@ -96,6 +96,14 @@ CREATE TABLE search_keys (
     entry_id  INTEGER NOT NULL REFERENCES entries(id),
     kind      TEXT NOT NULL         -- word | form | head | latin | latin_form | english | sound | sound_form | typo
 );
+-- Spellings that are not standard Ukrainian, from data/nonstandard.tsv, and what to say instead.
+-- Written for Nebokrai, so it may live here; VESUM's own suggestions stay in vesum.db.
+CREATE TABLE nonstandard (
+    word  TEXT NOT NULL,            -- plain spelling: криша
+    n     INTEGER NOT NULL,         -- order of the suggestion from 1; 0 = nothing to suggest
+    use   TEXT NOT NULL,            -- plain Ukrainian word: дах ('' when n = 0)
+    PRIMARY KEY (word, n)
+);
 """
 
 # Kept apart from SCHEMA so that add_cloze.py can make this one table again
@@ -382,25 +390,41 @@ NO_TO = {"can", "could", "may", "might", "must", "ought", "shall", "should", "wi
 USAGE_TAGS = {"rare", "colloquial", "dated", "informal", "dialectal", "formal", "slang", "vulgar",
               "poetic", "obsolete", "archaic", "historical", "regional", "neologism", "derogatory",
               "nonstandard", "literary", "diminutive", "collective"}
-# Translations a person has read and turned down, most of them Russian words or
-# surzhyk (check_russianisms.py lists the candidates). Written by hand.
-TRANSLATIONS_SKIP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations-skip.tsv")
+# Words a person has read and found not to be standard Ukrainian, most of them
+# Russian words or surzhyk (check_russianisms.py lists the candidates), with
+# the Ukrainian word to say instead where one is known. Written by hand.
+NONSTANDARD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nonstandard.tsv")
 
 
-def translations_skip(path=TRANSLATIONS_SKIP):
-    """The (plain spelling, part of speech) pairs in translations-skip.tsv. A
-    row with no part of speech turns the spelling down whatever it is."""
-    skip = set()
+def nonstandard(path=NONSTANDARD):
+    """The rows of nonstandard.tsv: [(plain spelling, part of speech or None,
+    [Ukrainian words])]. A row with no part of speech holds for every one."""
+    rows = []
     if not os.path.exists(path):
-        return skip
-    with open(path, encoding="utf-8") as rows:
-        for line in rows:
+        return rows
+    with open(path, encoding="utf-8") as lines:
+        for line in lines:
             line = line.rstrip("\n")
             if not line.strip() or line.startswith("#"):
                 continue
-            cells = [c.strip() for c in line.split("\t")]
-            skip.add((plain(cells[0]), cells[1] if len(cells) > 1 and cells[1] else None))
-    return skip
+            cells = [c.strip() for c in line.split("\t")] + ["", ""]
+            use = [w.strip() for w in cells[2].split("|") if w.strip()]
+            rows.append((plain(cells[0]), cells[1] or None, use))
+    return rows
+
+
+def add_nonstandard(db, rows):
+    """Store what search says instead of a non-standard word: криша -> дах.
+    One row per suggested word, in the file's order; a word with nothing to
+    suggest gets a row with n = 0 and no word, so search still knows it."""
+    seen, out = set(), []
+    for word, _, use in rows:
+        if word in seen:
+            continue
+        seen.add(word)
+        out += [(word, n, plain(u)) for n, u in enumerate(use, 1)] or [(word, 0, "")]
+    db.executemany("INSERT INTO nonstandard(word, n, use) VALUES (?,?,?)", out)
+    return len(seen)
 
 
 def add_translations(db, path, skip: "set | frozenset" = frozenset()):
@@ -422,7 +446,7 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
 
     Left out: anything not written in Ukrainian letters alone, inflected forms
     of words that have entries (зачинений is in the table of зачинити),
-    affixes, the pairs in `skip`, and nouns and names of several words, most
+    affixes, the words in `skip` (nonstandard.tsv), and nouns and names of several words, most
     of which are ordinary word combinations (соціа́льна справедли́вість, "social
     justice") rather than dictionary words. Set phrases of other kinds are
     kept: про вся́к ви́падок, "just in case".
@@ -1191,7 +1215,7 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
                      "DROP TABLE IF EXISTS senses; DROP TABLE IF EXISTS examples;"
-                     "DROP TABLE IF EXISTS cloze;"
+                     "DROP TABLE IF EXISTS cloze; DROP TABLE IF EXISTS nonstandard;"
                      "DROP TABLE IF EXISTS meta; DROP TABLE IF EXISTS entries;")
     db.executescript(SCHEMA + CLOZE_SCHEMA)
     stats = dict(lines=0, skipped_form_of=0, kept_form_of=0, entries=0, senses=0, forms=0,
@@ -1336,8 +1360,10 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         stats["entries"] += stats["abbreviations_added"]
         stats["senses"] += stats["abbreviations_added"]
         kept_links += links
+    turned_down = nonstandard()
+    stats["nonstandard_words"] = add_nonstandard(db, turned_down)
     if translations:
-        found = add_translations(db, translations, translations_skip())
+        found = add_translations(db, translations, {(word, pos) for word, pos, _ in turned_down})
         stats.update(found)
         stats["entries"] += found["entries_from_translations"]
         stats["senses"] += found["senses_from_translations"]

@@ -47,11 +47,25 @@ function oldLabel(senses: { tags: string[] }[]): OldLabel | undefined {
 	return OLD[Math.min(...strongest)];
 }
 
-/** What VESUM says a word with no entry is. */
-export type VesumKind = 'given-name' | 'patronymic' | 'surname' | 'abbreviation';
-// The likeliest first: Іванович is a patronymic far more often than the surname it also is.
-const KINDS: VesumKind[] = ['given-name', 'patronymic', 'surname', 'abbreviation'];
+/**
+ * What a word with no entry is, where VESUM says so; `distorted` (not standard
+ * Ukrainian: таможня, криша) also where Nebokrai's own list says so.
+ */
+export type VesumKind = 'distorted' | 'given-name' | 'patronymic' | 'surname' | 'abbreviation';
+// The likeliest first: Іванович is a patronymic far more often than the surname it also is,
+// and таракан, typed in lower case, is the Russian word for тарган before it is anybody's surname.
+const KINDS: VesumKind[] = ['distorted', 'given-name', 'patronymic', 'surname', 'abbreviation'];
 const REFLEXIVE = ['ся', 'сь'];
+/** Ukrainian words offered instead of a non-standard one, at most. */
+const USE_MAX = 3;
+
+/** A Ukrainian word offered instead of a non-standard one: при́суд for приговор. */
+export interface UseInstead {
+	/** The stressed headword where one entry has the spelling, else the plain spelling. */
+	word: string;
+	/** Whether it has an entry to link to (with `wordPath(word)`). */
+	has_entry: boolean;
+}
 
 /**
  * What a head-line word is to the entry that lists it, from Wiktionary's tags,
@@ -116,6 +130,11 @@ export interface SearchResult {
 	/** On a VESUM-only result, what the word is, when VESUM says: a surname, an abbreviation. */
 	kind?: VesumKind;
 	/**
+	 * With `kind: 'distorted'`, the Ukrainian words to say instead, at most three,
+	 * Nebokrai's own first: дах for криша. May be empty.
+	 */
+	use?: UseInstead[];
+	/**
 	 * Set when the query is a reflexive verb with no entry and this is the verb
 	 * it is made from: утворюватися leads to утворювати. `match` is `form` and
 	 * `matched_forms` is empty. Also set when the query is a word this entry
@@ -144,15 +163,78 @@ const UNRANKED = 1e9;
  * stored has no such table, and then no word has a kind.
  */
 async function vesumKind(vesum: Db, lemma: string): Promise<VesumKind | undefined> {
-	let rows: { kind: string }[];
-	try {
-		rows = await vesum.all<{ kind: string }>('SELECT kind FROM vesum_kinds WHERE lemma=?', [lemma]);
-	} catch (err) {
-		if (/no such table/i.test(String(err))) return undefined;
-		throw err;
-	}
+	const rows = await rowsOrNone<{ kind: string }>(vesum, 'SELECT kind FROM vesum_kinds WHERE lemma=?', [lemma]);
 	const found = new Set(rows.map((row) => row.kind));
 	return KINDS.find((kind) => found.has(kind));
+}
+
+/** The rows of a query on a table an older database may not have yet. */
+async function rowsOrNone<T>(db: Db, sql: string, params: unknown[]): Promise<T[]> {
+	try {
+		return await db.all<T>(sql, params);
+	} catch (err) {
+		if (/no such table/i.test(String(err))) return [];
+		throw err;
+	}
+}
+
+/**
+ * Nebokrai's own note on a spelling that is not standard Ukrainian
+ * (data/nonstandard.tsv): its suggestions in order, [] when it lists none, or
+ * null when the spelling is not listed.
+ */
+async function nonstandard(db: Db, word: string): Promise<string[] | null> {
+	const rows = await rowsOrNone<{ n: number; use: string }>(
+		db, 'SELECT n, use FROM nonstandard WHERE word=? ORDER BY n', [word]);
+	return rows.length ? rows.filter((r) => r.n > 0).map((r) => r.use) : null;
+}
+
+/** A Ukrainian word to offer: the stressed headword where one entry has the spelling. */
+async function offered(db: Db, word: string): Promise<UseInstead> {
+	const rows = await db.all<{ headword: string }>(
+		'SELECT e.headword FROM search_keys k JOIN entries e ON e.id = k.entry_id' +
+		" WHERE k.key=? AND k.kind='word'", [word]);
+	const heads = [...new Set(rows.map((r) => r.headword))];
+	return { word: heads.length === 1 ? heads[0] : word, has_entry: heads.length > 0 };
+}
+
+/**
+ * What to say instead of a non-standard word: Nebokrai's own suggestions in
+ * their order, then VESUM's, those with an entry to link to before those
+ * without; USE_MAX at most. криша -> дах, приговор -> присуд, вирок, суд.
+ */
+async function useInstead(db: Db, vesum: Db | undefined, lemma: string, ours: string[]): Promise<UseInstead[]> {
+	const theirs = vesum
+		? (await rowsOrNone<{ use: string }>(vesum, 'SELECT use FROM vesum_suggest WHERE lemma=? ORDER BY n', [lemma]))
+			.map((r) => r.use)
+		: [];
+	const mine = await Promise.all(ours.map((w) => offered(db, w)));
+	const others = await Promise.all(theirs.filter((w) => !ours.includes(w)).map((w) => offered(db, w)));
+	const found: UseInstead[] = [];
+	const seen = new Set([lemma]);
+	for (const o of [...mine, ...others.filter((o) => o.has_entry), ...others.filter((o) => !o.has_entry)]) {
+		if (seen.has(o.word)) continue;
+		seen.add(o.word);
+		found.push(o);
+	}
+	return found.slice(0, USE_MAX);
+}
+
+/**
+ * A result for a word that has no entry: only VESUM knows it, or it is in
+ * Nebokrai's list of non-standard words (`ours` is not null).
+ */
+async function stubFor(
+	db: Db, vesum: Db | undefined, lemma: string, pos: string, ours: string[] | null
+): Promise<SearchResult> {
+	const stub: SearchResult = {
+		id: null, word: lemma, headword: lemma, pos, tags: [], head_forms: [],
+		glosses: [], freq_rank: null, match: 'form', vesum_only: true
+	};
+	const kind = ours !== null ? 'distorted' : vesum ? await vesumKind(vesum, lemma) : undefined;
+	if (kind) stub.kind = kind;
+	if (kind === 'distorted') stub.use = await useInstead(db, vesum, lemma, ours ?? []);
+	return stub;
 }
 const ENGLISH_FILLER = new Set(['to', 'a', 'an', 'the']);
 
@@ -242,14 +324,14 @@ export async function search(db: Db, query: string, options: SearchOptions = {})
 						continue;
 					}
 				}
-				const stub: SearchResult = {
-					id: null, word: lemma, headword: lemma, pos, tags: [], head_forms: [],
-					glosses: [], freq_rank: null, match: 'form', vesum_only: true
-				};
-				const kind = await vesumKind(options.vesum, lemma);
-				if (kind) stub.kind = kind;
-				stubs.push(stub);
+				stubs.push(await stubFor(db, options.vesum, lemma, pos, await nonstandard(db, lemma)));
 			}
+		}
+		// криша without vesum.db, or бебісіттер, which VESUM does not know:
+		// Nebokrai's own list still says what to write instead.
+		if (hits.size === 0 && stubs.length === 0) {
+			const ours = await nonstandard(db, key);
+			if (ours !== null) stubs.push(await stubFor(db, options.vesum, key, '', ours));
 		}
 		if (hits.size < limit) add(await prefixed(db, 'word', key, key + '￿', limit, hits), RANK.prefix);
 	} else {

@@ -74,7 +74,42 @@ test('search matches the Python reference', { skip }, async () => {
 			...got.results.filter((r) => r.through).map((r) => [r.word, r.through!.word])
 		];
 		assert.deepEqual(notes, c.notes ?? [], `kinds and reflexives for ${label}`);
+		// What to say instead of a non-standard word; recorded only for the cases that have any
+		const use = got.results.filter((r) => r.use).map((r) => [r.word, r.use!.map((u) => [u.word, u.has_entry])]);
+		assert.deepEqual(use, c.use ?? [], `Ukrainian words instead for ${label}`);
 	}
+});
+
+test('words that are not standard Ukrainian point to Ukrainian ones', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	const vesum = openLocal('vesum.db');
+	// VESUM's own suggestion, linked to the entry with its stress
+	const [customs] = await search(db, 'таможня', { vesum });
+	assert.deepEqual([customs.word, customs.vesum_only, customs.kind], ['таможня', true, 'distorted']);
+	assert.deepEqual(customs.use, [{ word: 'ми́тниця', has_entry: true }]);
+	// Nebokrai's own list: криша has no VESUM suggestion, and still says дах, from a form too
+	for (const query of ['криша', 'криші']) {
+		const [roof] = await search(db, query, { vesum });
+		assert.deepEqual([roof.word, roof.kind, roof.use?.[0]?.word], ['криша', 'distorted', 'дах'], query);
+	}
+	// ... and without VESUM at all, for the spelling itself
+	const [alone] = await search(db, 'криша');
+	assert.deepEqual([alone.kind, alone.use?.[0]?.word], ['distorted', 'дах']);
+	// таракан is a surname too, but the Russian word comes first
+	const [cockroach] = await search(db, 'таракан', { vesum });
+	assert.equal(cockroach.kind, 'distorted');
+	// None of these got an entry from the translation tables
+	assert.deepEqual(await wordDetails(db, 'криша'), []);
+
+	// A database built before the lists existed: the word is found, as before, with no hint
+	const noTables = (base: typeof db, table: string) => ({
+		all: <T>(sql: string, params?: unknown[]) =>
+			sql.includes(table)
+				? Promise.reject(new Error(`D1_ERROR: no such table: ${table}: SQLITE_ERROR`))
+				: base.all<T>(sql, params)
+	});
+	const [old] = await search(noTables(db, 'nonstandard'), 'таможня', { vesum: noTables(vesum, 'vesum_suggest') });
+	assert.deepEqual([old.word, old.kind, old.use], ['таможня', 'distorted', []]);
 });
 
 test('words named on another entry\'s head line', { skip }, async () => {

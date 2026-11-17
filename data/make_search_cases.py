@@ -47,6 +47,10 @@ QUERIES = [
     # English word, a set phrase, a form only VESUM knows; an English word that also reaches an entry
     # of Wiktionary's own as a mention (комітет for "board"), and one only a translation table knows
     "шериф", "sheryf", "sheriff", "про всяк випадок", "гімназії", "board", "shrike",
+    # not standard Ukrainian: Russian words and surzhyk point to the Ukrainian ones. From VESUM's list
+    # (таможня, приговор, шокуючий), from Nebokrai's own (криша, and бебісіттер, which VESUM lacks), a
+    # form of one (криші), and таракан, which is also a surname
+    "таможня", "приговор", "шокуючий", "криша", "криші", "бебісіттер", "таракан",
     # guesses: other spellings, sound-alikes, typos, wrong keyboard layout
     "dobra nich", "bud laska", "будьласка", "shastya", "kiev", "привит", "превіт", "дякуйу",
     "ghbdsn", "книгы", "привфт", "пирвіт", "привт", "приввіт", "kalnya", "молако", "спосибі",
@@ -82,6 +86,11 @@ if __name__ == "__main__":
                      + [[r["word"], r["through"]["word"]] for r in got["results"] if r.get("through")])
             if notes:
                 case["notes"] = notes
+            # What to say instead of a non-standard word: [word, [[Ukrainian word, has an entry], ...]]
+            use = [[r["word"], [[u["word"], u["has_entry"]] for u in r["use"]]]
+                   for r in got["results"] if "use" in r]
+            if use:
+                case["use"] = use
             # How old a result is, for the ones with a label: [id, label]
             old = [[r["id"], r["old"]] for r in got["results"] if r.get("old")]
             if old:

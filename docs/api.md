@@ -65,8 +65,9 @@ Response `200`:
 | `freq_rank` | 1 = most common word. `null` = too rare to rank. |
 | `match` | Why this result matched, see the next table. |
 | `matched_forms` | Present when `match` is `form` or `latin_form`: which forms of the word the query spells, see "Which form was found". |
-| `vesum_only` | Present and `true` only on VESUM-only results. |
-| `kind` | On a VESUM-only result, what the word is, when VESUM says: `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
+| `vesum_only` | Present and `true` only on VESUM-only results, and on a word Nebokrai lists as not standard Ukrainian (see below). |
+| `kind` | On a VESUM-only result, what the word is, when VESUM says: `distorted` (not standard Ukrainian), `given-name`, `patronymic`, `surname` or `abbreviation`. Absent otherwise. |
+| `use` | With `kind: "distorted"`: the Ukrainian words to say instead, at most three, each `{ "word", "has_entry" }`. May be empty. Absent otherwise. |
 | `through` | Present when the query led to this entry without being one of its forms: a reflexive verb with no entry (see "Reflexive verbs"), or a word the entry names on its head line (see "Words on a head line"). |
 | `old` | Present when every meaning that matched is tagged old: `dated`, `archaic` or `obsolete`, the mildest of those meanings' strongest tags. `swedish` → све́йський has `"old": "obsolete"`. Absent otherwise. |
 
@@ -145,6 +146,47 @@ Where a word is more than one of these, the likeliest is given, in the order
 above: Максимович is a patronymic before it is a surname. A plain word
 (`книжечка`) has no `kind`, and neither has any word when `vesum.db` was built
 before kinds were stored.
+
+### Words that are not standard Ukrainian
+
+A Russian word, surzhyk or a misspelling with no entry (`таможня`, `криша`)
+comes back as a VESUM-only result with `"kind": "distorted"`, ahead of any
+other kind (таракан is a surname too), and a `use` list of the Ukrainian words
+to say instead:
+
+```json
+{
+  "id": null,
+  "word": "приговор",
+  "headword": "приговор",
+  "pos": "noun",
+  "tags": [],
+  "head_forms": [],
+  "glosses": [],
+  "freq_rank": null,
+  "match": "form",
+  "vesum_only": true,
+  "kind": "distorted",
+  "use": [
+    { "word": "при́суд", "has_entry": true },
+    { "word": "вирок", "has_entry": true },
+    { "word": "о́суд", "has_entry": true }
+  ]
+}
+```
+
+- `word` in `use` is the stressed headword where exactly one entry has the
+  spelling, else the plain spelling (вирок has two entries). Link it with
+  `wordPath(word)` when `has_entry` is true; otherwise show it as text.
+- Nebokrai's own suggestions (`data/nonstandard.tsv`) come first, then
+  VESUM's, those with an entry before those without; three at most. `use` can
+  be empty: VESUM marks the word but suggests nothing that is one word.
+- A word must be marked in every form, or listed by Nebokrai, to count:
+  VESUM also marks single wrong forms of ordinary words.
+- A word in Nebokrai's list gets this result without `vesum.db` too, and then
+  `pos` is `""` and only Nebokrai's own suggestions are given (`криша` → `дах`).
+- With a `vesum.db` or a database built before these lists existed, the word
+  comes back as before, with an empty `use` or no `kind`.
 
 ### Reflexive verbs
 
@@ -417,6 +459,7 @@ For `w=склянку` the one reading has the form that was found, grouped as
 | `freq_rank` | As in `/api/search`: the word's place among the most frequent, or `null` when it is too rare to be ranked. |
 | `vesum_only` | Present and `true` when there is no entry, only a known spelling (no link then). |
 | `kind` | As in `/api/search`: what a VESUM-only word is, when VESUM says. |
+| `use` | As in `/api/search`: with `kind: "distorted"`, the Ukrainian words to say instead. |
 | `through` | As in `/api/search`: the word in the sentence, when the reading is the verb a reflexive verb is made from, or the entry whose head line names the word. |
 
 Only entries that are the word, one of its forms or a word on their head line are given: a word that
@@ -513,7 +556,7 @@ The answers carry dictionary data, and each source keeps its own licence
 |---|---|
 | Entries: words, meanings, forms, pronunciation | Wiktionary, CC BY-SA 4.0 (`source: "wiktionary-translations"` too); entries with `source: "nebokrai"` are Nebokrai's, same licence |
 | `examples` and `example` | Tatoeba, CC BY 2.0 FR; credit with the link to the sentence |
-| Results with `vesum_only: true`, their `kind`, and `through` on a result with `match: "form"` | VESUM, CC BY-NC-SA 4.0: no commercial use |
+| Results with `vesum_only: true`, their `kind`, `use` past Nebokrai's own suggestions, and `through` on a result with `match: "form"` | VESUM and dict_uk, CC BY-NC-SA 4.0: no commercial use |
 | `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
 

@@ -18,8 +18,9 @@ Usage, from the repo root:
 
 The script only reads. It changes neither database: what to turn down is for a
 person to decide, and the report is the list to decide from. A word turned
-down after reading goes into translations-skip.tsv by hand (for an entry made
-from translation tables), and the next build leaves it out.
+down after reading goes into nonstandard.tsv by hand, with the Ukrainian word to
+say instead; the next build leaves its translation-table entry out, and search
+points from it to the Ukrainian word.
 
 There is no test that tells a Russianism from a Ukrainian word, only evidence
 of different weight. Each line of the report gives a verdict and what it rests
@@ -50,7 +51,7 @@ on:
                   page of its own (FROM_TRANSLATIONS in the "from" column).
 
 LICENCE: the VESUM columns of the report come from VESUM (CC BY-NC-SA 4.0). The
-report is a working file; do not commit or ship it. translations-skip.tsv is
+report is a working file; do not commit or ship it. nonstandard.tsv is
 written by a person who has read the words, not copied from the report.
 """
 import argparse

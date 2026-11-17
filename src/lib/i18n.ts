@@ -420,6 +420,8 @@ const en = {
 		noEntry: 'A Ukrainian word with no dictionary entry yet.',
 		// What a word without an entry is, where VESUM says so
 		kind: {
+			// A Russian word, surzhyk or a misspelling: таможня, криша
+			distorted: 'Not standard Ukrainian.',
 			'given-name': 'A given name with no dictionary entry yet.',
 			patronymic: 'A patronymic with no dictionary entry yet.',
 			surname: 'A surname with no dictionary entry yet.',
@@ -1666,6 +1668,7 @@ const uk: Messages = {
 		genitive: 'р. в.',
 		noEntry: 'Українське слово, якого ще немає в словнику.',
 		kind: {
+			distorted: 'Ненормативне слово.',
 			'given-name': 'Ім’я, якого ще немає в словнику.',
 			patronymic: 'По батькові, якого ще немає в словнику.',
 			surname: 'Прізвище, якого ще немає в словнику.',

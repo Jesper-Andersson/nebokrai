@@ -125,9 +125,10 @@ test('words named on another entry\'s head line', { skip }, async () => {
 	assert.deepEqual([first.word, first.match, first.through], ['вперше', 'head', { word: 'упе́рше', kind: 'alternative' }]);
 	const [adverb] = await search(db, 'історично');
 	assert.deepEqual([adverb.word, adverb.through?.kind], ['історичний', 'adverb']);
-	// A form of a head-line word, through VESUM: мінеральних is мінеральний, listed by мінера́л
-	const [mineral] = await search(db, 'мінеральних', { vesum });
-	assert.deepEqual([mineral.word, mineral.match, mineral.through], ['мінерал', 'form', { word: 'мінера́льний', kind: 'adjective' }]);
+	// A form of a head-line word, through VESUM: агітаційних is агітаційний, listed by агіта́ція.
+	// (мінеральних was the example until own-meanings.tsv gave мінеральний an entry.)
+	const [agitation] = await search(db, 'агітаційних', { vesum });
+	assert.deepEqual([agitation.word, agitation.match, agitation.through], ['агітація', 'form', { word: 'агітаці́йний', kind: 'adjective' }]);
 	// A head-line word is a sure match: no guesses
 	const answer = await lookup(db, 'уперше');
 	assert.deepEqual(answer.suggestions, []);

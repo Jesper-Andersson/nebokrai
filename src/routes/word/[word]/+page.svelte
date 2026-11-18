@@ -41,7 +41,7 @@
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
 	import type { Relation, Sense, WordEntry } from '#lib/search/word.ts';
-	import { FROM_TRANSLATIONS } from '#lib/search/word.ts';
+	import { FROM_TRANSLATIONS, FROM_UK_WIKTIONARY, isThin } from '#lib/search/word.ts';
 	import type { VesumWord } from '#lib/search/vesum-word.ts';
 	import { vesumDescription, vesumTitle, wordDescription, wordTitle } from '#lib/seo.ts';
 	import { canAddWord } from '#lib/suggest.ts';
@@ -81,6 +81,8 @@
 	// search lists the English pages whose tables name it.
 	const wiktionaryMentions = (word: string) =>
 		`https://en.wiktionary.org/w/index.php?search=${encodeURIComponent(`"${word}"`)}&fulltext=1&ns0=1`;
+	// An entry made from Ukrainian Wiktionary: its page there, which lists the authors
+	const ukWiktionary = (word: string) => `https://uk.wiktionary.org/wiki/${encodeURIComponent(word)}`;
 
 	// The radio (RadioPlayer.svelte) may be playing: it is turned down for as
 	// long as the word sounds, so the word can be heard over it.
@@ -212,7 +214,7 @@
 			<header>
 				<!-- How common the word is, first: it says how much the rest is worth learning now -->
 				<!-- An entry from translation tables is never counted, so "Rare" would be a guess -->
-				{#if entry.source !== FROM_TRANSLATIONS}
+				{#if !isThin(entry.source)}
 					<div class="rank">
 						<FrequencyMeter rank={entry.freq_rank} showTier />
 					</div>
@@ -282,7 +284,8 @@
 				<div class="main">
 					<section>
 						<h2 class="ui-label">{m.word.meanings}</h2>
-						{#if entry.source === FROM_TRANSLATIONS}<p class="thin">{m.word.fromTranslations}</p>{/if}
+						{#if entry.source === FROM_TRANSLATIONS}<p class="thin">{m.word.fromTranslations}</p>
+						{:else if entry.source === FROM_UK_WIKTIONARY}<p class="thin">{m.word.fromUkWiktionary}</p>{/if}
 						{#snippet senseItem(sense: Sense, big: boolean)}
 							{@const [gloss, note] = big ? splitGloss(sense.gloss) : [sense.gloss, null]}
 							{@const remarks = remarkTags(sense.tags, entry.offensive)}
@@ -445,6 +448,8 @@
 						{m.word.from} <a href="/sources">{m.word.ownEntry}</a>
 					{:else if entry.source === FROM_TRANSLATIONS}
 						{m.word.from} <a href={wiktionaryMentions(entry.word)}>{m.word.wiktionaryTables}</a>
+					{:else if entry.source === FROM_UK_WIKTIONARY}
+						{m.word.from} <a href={ukWiktionary(entry.word)}>{m.word.ukWiktionary}</a>
 					{:else}
 						{m.word.from} <a href={wiktionary(entry.word)}>{m.word.wiktionary}</a>
 					{/if}

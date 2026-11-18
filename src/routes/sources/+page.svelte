@@ -32,6 +32,11 @@
 			no entry there yet are shown with the meanings Wiktionary gives them in the translation tables
 			of English words (<span lang="uk">шериф</span> under “sheriff”); their pages say so and link to
 			a search that lists those English pages.
+			About 700 more, which neither has, take their meanings from the English in the translation
+			tables of <a href="https://uk.wiktionary.org/">Ukrainian Wiktionary</a>
+			(<span lang="uk">мурал</span>, “mural”), under the same licence; their pages say so and link
+			to the Ukrainian Wiktionary page, whose history lists its authors. Nothing else is taken from
+			those pages.
 		</dd>
 
 		<dt>Audio recordings</dt>

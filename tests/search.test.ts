@@ -9,9 +9,9 @@ import { test } from 'node:test';
 import {
 	deletes, editsApart, fromRussianLetters, fromWrongLayout, looseLatin, nationalTranslit, plain, soundKey
 } from '../src/lib/search/normalize.ts';
-import { search } from '../src/lib/search/search.ts';
+import { search, singulars } from '../src/lib/search/search.ts';
 import { lookup } from '../src/lib/search/suggest.ts';
-import { FROM_TRANSLATIONS, wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
+import { FROM_TRANSLATIONS, FROM_UK_WIKTIONARY, isThin, wordCards, wordDetails, wordSummaries } from '../src/lib/search/word.ts';
 import { openLocal } from './local-db.ts';
 
 test('normalisation', () => {
@@ -28,6 +28,19 @@ test('normalisation', () => {
 		assert.equal(looseLatin(spelling), 'kalina');
 	}
 	for (const spelling of ['khata', 'xata', 'hata']) assert.equal(looseLatin(spelling), 'hata');
+});
+
+test('English plurals', () => {
+	assert.deepEqual(singulars('siblings'), ['sibling']);
+	assert.deepEqual(singulars('boxes'), ['boxe', 'box']);
+	assert.deepEqual(singulars('cities'), ['citie', 'citi', 'city']);
+	assert.deepEqual(singulars('knives'), ['knive', 'kniv', 'knif', 'knife']);
+	assert.deepEqual(singulars('children'), ['child']);
+	assert.deepEqual(singulars("mother's"), ['mother']);
+	// No plural: too short, -ss/-us/-is, or a word of its own
+	for (const word of ['bus', 'dress', 'virus', 'analysis', 'news', 'species', 'dog']) {
+		assert.deepEqual(singulars(word), [], word);
+	}
 });
 
 test('lenient keys', () => {
@@ -325,6 +338,20 @@ test('entries made from translation tables', { skip }, async () => {
 	// калина's neighbours, not a hundred rarer words from the tables
 	const typed = await search(db, 'кал');
 	assert.ok(typed.slice(0, 8).every((r) => r.freq_rank !== null));
+});
+
+test('entries made from Ukrainian Wiktionary', { skip }, async () => {
+	const db = openLocal('nebokrai.db');
+	// мурал has no page on English Wiktionary and is in no English table; its
+	// Ukrainian Wiktionary page translates it, and {{склади}} gives the stress
+	const [mural] = await wordDetails(db, 'мурал');
+	assert.equal(mural.source, FROM_UK_WIKTIONARY);
+	assert.equal(mural.headword, 'мура́л');
+	assert.deepEqual(mural.senses.map((s) => s.gloss), ['mural']);
+	assert.deepEqual([mural.forms, mural.freq_rank], [[], null]);
+	assert.ok(isThin(mural.source) && isThin(FROM_TRANSLATIONS) && !isThin('wiktionary'));
+	// Its Ukrainian definitions are not taken, only the English of its translation table
+	assert.ok(mural.senses.every((s) => !/[а-щьюяєіїґ]/i.test(s.gloss)));
 });
 
 test('a database built before related words were stored', { skip }, async () => {

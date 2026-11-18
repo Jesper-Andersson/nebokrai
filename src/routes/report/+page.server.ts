@@ -6,7 +6,7 @@
 // no secret to check a token with (`npm run dev`, a copy of the site without
 // one): the form then shows no check and the endpoint asks for none.
 import { TURNSTILE_SECRET, TURNSTILE_SITE_KEY as OTHER_SITE_KEY } from '$app/env/private';
-import { FROM_TRANSLATIONS, entrySource } from '#lib/search/word.ts';
+import { entrySource, isThin } from '#lib/search/word.ts';
 import { getDatabases } from '#lib/server/db.ts';
 import { TURNSTILE_SITE_KEY, isReportKind, type ReportEntry } from '#lib/report.ts';
 import type { PageServerLoad } from './$types';
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		// An entry written for Nebokrai has no Wiktionary page to send the reporter to.
 		ownEntry = source === 'nebokrai';
 		// One made from translation tables has none either, but Wiktionary would take one.
-		noPage = source === FROM_TRANSLATIONS;
+		noPage = source !== null && isThin(source);
 	}
 
 	const kind = isReportKind(askedKind) ? askedKind : entry ? 'meaning' : query ? 'missing' : null;

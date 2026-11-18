@@ -43,6 +43,26 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-ukrainian-wiktionary-words',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'About 700 more words have a meaning', uk: 'Ще близько 700 слів мають значення' },
+		body: {
+			en: 'Words such as мурал and набакир now show the English given on their Ukrainian Wiktionary page, with a link to it.',
+			uk: 'Слова на кшталт «мурал» і «набакир» тепер показують англійські відповідники з їхньої сторінки в українському Вікісловнику та посилання на неї.'
+		}
+	},
+	{
+		id: '2026-11-18-english-plurals',
+		date: '2026-11-18',
+		kind: 'changed',
+		title: { en: 'Search in the English plural', uk: 'Пошук англійською в множині' },
+		body: {
+			en: 'Searching siblings, children or knives now finds the words whose meaning is sibling, child or knife.',
+			uk: 'Пошук siblings, children чи knives тепер знаходить слова зі значенням sibling, child чи knife.'
+		}
+	},
+	{
 		id: '2026-11-18-everyday-words',
 		date: '2026-11-18',
 		kind: 'new',

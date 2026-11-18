@@ -7,7 +7,7 @@ import { MAX_WORD_LENGTH } from '#lib/saved.ts';
 import type { Db } from '#lib/search/db.ts';
 import { wordSlug } from '#lib/search/slug.ts';
 import { vesumFormsFor, vesumWords, vesumWordsBySlug, type VesumWord } from '#lib/search/vesum-word.ts';
-import { FROM_TRANSLATIONS, wordDetails, wordDetailsBySlug, type WordEntry } from '#lib/search/word.ts';
+import { isThin, wordDetails, wordDetailsBySlug, type WordEntry } from '#lib/search/word.ts';
 import type { PageServerLoad } from './$types';
 
 // /word/shvetsiia is the address; /word/Швеція still works and redirects to
@@ -27,8 +27,9 @@ const turnstile = () => (TURNSTILE_SECRET ? (OTHER_SITE_KEY ?? TURNSTILE_SITE_KE
  * What the page shows: the dictionary's entries, or, when it has none at the
  * address, the words only VESUM knows there (книжечка), with their forms and
  * no meaning. `borrowed` lists the entries whose table is VESUM's, because
- * they had none of their own: an entry written for Nebokrai, or one made from
- * translation tables. Their footer credits VESUM for it.
+ * they had none of their own: an entry written for Nebokrai, or a thin one
+ * (made from translation tables or from Ukrainian Wiktionary). Their footer
+ * credits VESUM for it.
  */
 interface WordPage {
 	entries: WordEntry[];
@@ -43,7 +44,7 @@ async function withVesum(
 	if (!entries.length) return { entries, vesum: await others(db, vesum), borrowed: [] };
 	const borrowed: number[] = [];
 	await Promise.all(entries.map(async (entry) => {
-		if (entry.forms.length || (entry.source !== 'nebokrai' && entry.source !== FROM_TRANSLATIONS)) return;
+		if (entry.forms.length || (entry.source !== 'nebokrai' && !isThin(entry.source))) return;
 		entry.forms = await vesumFormsFor(vesum, entry.word, entry.pos);
 		if (entry.forms.length) borrowed.push(entry.id);
 	}));

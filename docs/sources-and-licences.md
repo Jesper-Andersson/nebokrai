@@ -24,6 +24,11 @@ their pages name Nebokrai as the source. About 13,000 words that have no
 entry there yet are shown with the meanings Wiktionary gives them in the
 translation tables of English words (шериф under "sheriff"); their pages say so
 and link to a search that lists those English pages.
+About 700 more, which neither has, take their meanings from the English in the
+translation tables of [Ukrainian Wiktionary](https://uk.wiktionary.org/)
+(мурал, "mural"), under the same licence; their pages say so and link to the
+Ukrainian Wiktionary page, whose history lists its authors. Nothing else is
+taken from those pages.
 
 **Audio recordings** are hosted by
 [Wikimedia Commons](https://commons.wikimedia.org/). Each recording has its own
@@ -185,6 +190,7 @@ nothing from VESUM is put in the form or stored with the suggestion.
 |---|---|---|---|
 | Wiktionary | CC BY-SA 4.0 | Credit, link to the licence, say if changed, share derived data under the same licence | Sources page; a "Wiktionary" link on each word page |
 | Entries from English Wiktionary's translation tables (marked `source = 'wiktionary-translations'`) | CC BY-SA 4.0 | As for Wiktionary | Sources page; a note above the meanings and a "Wiktionary translation tables" link on each such word page |
+| Entries from Ukrainian Wiktionary's translation tables (marked `source = 'ukwiktionary'`): the title, its stress and part of speech, and the English translations | CC BY-SA 4.0 | Credit, link to the licence, share-alike | Sources page; a note above the meanings and a "Ukrainian Wiktionary" link to the page on each such word page. Its Ukrainian definitions are not used: many follow the 11-volume academic dictionary (СУМ-11) word for word, and whether they may be copied under CC BY-SA is not clear |
 | Nebokrai's list of non-standard words and what to say instead (`data/nonstandard.tsv`) | CC BY-SA 4.0 | Ours to license; written by hand, never copied from VESUM's list | Sources page |
 | Nebokrai's own entries (`data/abbreviations.tsv`, marked `source = 'nebokrai'`) | CC BY-SA 4.0 | Ours to license; kept under Wiktionary's licence so the dictionary stays one dataset | Sources page; "From Nebokrai" on each such word page |
 | Wikimedia Commons audio | per file, mostly CC BY-SA or public domain | Credit the author of each file | Link to the file's Commons page beside the play button |

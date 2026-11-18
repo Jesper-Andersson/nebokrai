@@ -53,6 +53,16 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-18-forms-of-every-word',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'See the forms of words with no meaning yet', uk: 'Дивіться форми слів, які ще не мають значення' },
+		body: {
+			en: 'A word the dictionary lacks, such as віконечко, now opens a page with its full table of forms from VESUM, where you can also suggest a meaning.',
+			uk: 'Слово, якого бракує у словнику, як-от «віконечко», тепер відкриває сторінку з повною таблицею форм із ВЕСУМ, де можна й запропонувати значення.'
+		}
+	},
+	{
 		id: '2026-11-17-chrome-extension',
 		date: '2026-11-17',
 		kind: 'new',

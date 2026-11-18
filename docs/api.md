@@ -636,8 +636,8 @@ For the site's keeper only, from the page `/suggestions`: moves suggestion
 
 ## `GET /api/texts`
 
-Every story to read, easiest first: by `band` (none last), then `level`, then
-title. Made by `listTexts()` in `src/lib/texts.ts` from the `texts` and
+Every story to read, easiest first: by `level` (none last), then length
+(`tokens`), then title. Made by `listTexts()` in `src/lib/texts.ts` from the `texts` and
 `text_sentences` tables (`data/import_stories.py`). For the coming list page
 at `/read`.
 
@@ -649,10 +649,8 @@ at `/read`.
       "title": "Ду́же висо́кий чолові́к",
       "title_en": "A very tall man",
       "level": 2,
-      "band": null,
       "tokens": 74,
       "unknown": 4,
-      "topic": 0,
       "pages": 12,
       "url": "https://storybookscanada.ca/stories/uk/0001/",
       "licence": "CC BY 3.0",
@@ -675,9 +673,7 @@ at `/read`.
 |---|---|
 | `slug` | The title in national transliteration; `-2` is added when two titles give the same one. The story is `/api/texts/<slug>`. |
 | `title` | With a stress mark on each word whose stress the dictionary knows for certain (see `uk` below). |
-| `level` | The story's level on Storybooks, 1 (easiest) to 5. |
-| `band` | `500`, `1000`, `2000` or `5000`: the smallest number of most frequent words (FrequencyWords) that covers at least 95% of the story's known words once its topic words are left out. A topic word is one the story has 3 or more times that lies outside the band (віслюк): the story teaches it. `null` when not even 5000 does. `bandOf()` in `texts.ts`. |
-| `topic` | Known words set aside as topic words for `band` (for 5000 when `band` is `null`). |
+| `level` | The story's level on Storybooks, 1 (easiest) to 5. It follows length and sentences, not vocabulary: there is no frequency band, since the stories of every level needed the same one. How hard a story is for one reader is the share of its words they know, `knownShare(vocab, cards)` in `texts.ts`, summed in the browser. |
 | `tokens`, `unknown` | Words in the story, and how many of them the dictionary does not know (mostly names: Калай). |
 | `pages` | Pages, the title page included. |
 | `url`, `licence`, `licence_url`, `credits`, `origin` | Who made the story and under what licence: to be shown with it. `origin` is where Storybooks took it from, or `null`. Only CC BY stories are included. |
@@ -738,7 +734,7 @@ The answers carry dictionary data, and each source keeps its own licence
 | Results with `vesum_only: true`, their `kind`, `use` past Nebokrai's own suggestions, and `through` on a result with `match: "form"` | VESUM and dict_uk, CC BY-NC-SA 4.0: no commercial use |
 | `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
-| `/api/texts…`: a story's text, English, pictures and recordings | The story's own `licence` (CC BY 3.0 or 4.0): credit `credits` and link `url` and `licence_url`; say that stress marks were added and the pages split into sentences. `lemmas`, `vocab` and `band` are worked out from the dictionary, CC BY-SA 4.0 |
+| `/api/texts…`: a story's text, English, pictures and recordings | The story's own `licence` (CC BY 3.0 or 4.0): credit `credits` and link `url` and `licence_url`; say that stress marks were added and the pages split into sentences. `lemmas` and `vocab` are worked out from the dictionary, CC BY-SA 4.0 |
 
 A result with `match: "form"` and an empty `matched_forms` was found with
 VESUM's help, but everything in it apart from `through` is the Wiktionary entry.

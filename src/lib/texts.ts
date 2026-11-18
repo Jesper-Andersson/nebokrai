@@ -3,17 +3,15 @@
 // data/import_stories.py from the CC BY stories of Global Storybooks; each
 // keeps its own licence, link and credits. Runs on D1 and on a local SQLite
 // file alike (search/db.ts), so `npm test` checks it against the real rows.
+//
+// A text's difficulty is its Storybooks level, and what the reader is told
+// is the share of its words they know (knownShare), from their own cards.
+// There is no frequency band: the stories of every level needed the same one
+// (children's stories, measured against film subtitles), so a band said
+// nothing a learner could choose by.
 import { stateOf } from './practice/round.ts';
 import type { ReviewCard } from './review/fsrs.ts';
 import type { Db } from './search/db.ts';
-
-/** The frequency bands a text is placed in: "First 500 words" and so on. */
-export const BANDS = [500, 1000, 2000, 5000] as const;
-export type Band = (typeof BANDS)[number];
-/** The share of a text's known words that its band's words must cover. */
-export const BAND_SHARE = 0.95;
-/** A word met this many times in one text is a topic word of it, when it lies outside the band. */
-export const TOPIC = 3;
 
 /** A slug is the title in Latin letters: duzhe-vysokyi-cholovik. */
 const SLUG = /^[a-z0-9-]{1,100}$/;
@@ -37,15 +35,11 @@ export interface TextSummary {
 	/** With stress marks where the dictionary gives one spelling only. */
 	title: string;
 	title_en: string;
-	/** The Storybooks level, 1 (easiest) to 5. */
+	/** The Storybooks level, 1 (easiest) to 5: it follows length and sentences, not vocabulary. */
 	level: number | null;
-	/** The smallest band whose words cover 95% of the known words, topic words left out (`bandOf`); null above 5000. */
-	band: Band | null;
 	/** Words in the text, and how many of them the dictionary does not know. */
 	tokens: number;
 	unknown: number;
-	/** Known words left out of the band as topic words: for the band found, or for 5000 when there is none. */
-	topic: number;
 	pages: number;
 	/** The story on Storybooks, its licence, and who made it: to be shown with it. */
 	url: string;
@@ -95,10 +89,8 @@ interface TextRow {
 	title: string;
 	title_en: string;
 	level: number | null;
-	band: number | null;
 	tokens: number;
 	unknown: number;
-	topic: number;
 	bare: number;
 	pages: number;
 	url: string;
@@ -110,7 +102,7 @@ interface TextRow {
 }
 
 const COLUMNS =
-	'id, slug, title, title_en, level, band, tokens, unknown, topic, bare, pages, url, licence, licence_url, credits, origin, cover_url';
+	'id, slug, title, title_en, level, tokens, unknown, bare, pages, url, licence, licence_url, credits, origin, cover_url';
 
 /** The words of a text counted by what they may be, most frequent first. */
 export function vocabOf(sentences: readonly (readonly (readonly string[])[])[]): Vocab {
@@ -147,42 +139,14 @@ export function knownShare(
 	return all ? known / all : 0;
 }
 
-/**
- * The band of a text: the smallest whose words cover at least 95% of its
- * known words once its topic words are left out, or null when not even 5000
- * does. `words` holds, for each item of the text's `vocab`, the best
- * frequency rank among its lemmas (null when none is ranked) and its count.
- *
- * A topic word for a band is one the text has TOPIC times or more and that
- * lies outside the band (віслюк in Дитина-віслюк): the story teaches it.
- * Common words met as often (бути, і) are not left out, or the rarer words
- * alone would decide. The same rule is `band_of()` in data/import_stories.py.
- */
-export function bandOf(words: readonly [rank: number | null, count: number][]): Band | null {
-	const within = (rank: number | null, band: number) => rank !== null && rank <= band;
-	for (const band of BANDS) {
-		let total = 0;
-		let covered = 0;
-		for (const [rank, count] of words) {
-			if (count >= TOPIC && !within(rank, band)) continue;
-			total += count;
-			if (within(rank, band)) covered += count;
-		}
-		if (total && covered >= BAND_SHARE * total) return band;
-	}
-	return null;
-}
-
 function summary(row: TextRow, vocab: Vocab): TextSummary {
 	return {
 		slug: row.slug,
 		title: row.title,
 		title_en: row.title_en,
 		level: row.level,
-		band: (BANDS as readonly number[]).includes(row.band ?? -1) ? (row.band as Band) : null,
 		tokens: row.tokens,
 		unknown: row.unknown,
-		topic: row.topic,
 		pages: row.pages,
 		url: row.url,
 		licence: row.licence,
@@ -193,7 +157,7 @@ function summary(row: TextRow, vocab: Vocab): TextSummary {
 	};
 }
 
-/** Every text, easiest first: by band (unbanded last), then level, then title. */
+/** Every text, easiest first: by level (none last), then length, then title. */
 export async function listTexts(db: Db): Promise<TextSummary[]> {
 	const rows = await db.all<TextRow>(`SELECT ${COLUMNS} FROM texts`);
 	const lemmas = await db.all<{ text_id: number; lemmas: string }>(
@@ -209,8 +173,8 @@ export async function listTexts(db: Db): Promise<TextSummary[]> {
 		.map((row) => summary(row, vocabOf(byText.get(row.id) ?? [])))
 		.sort(
 			(a, b) =>
-				(a.band ?? Infinity) - (b.band ?? Infinity) ||
 				(a.level ?? Infinity) - (b.level ?? Infinity) ||
+				a.tokens - b.tokens ||
 				a.title.localeCompare(b.title, 'uk')
 		);
 }

@@ -569,8 +569,7 @@ credits.
     python3 data/import_stories.py nebokrai.db --check
 
 The script makes the three tables again on every run and prints, per story,
-its level, band, word count, unknown words, the share of known words set aside
-as topic words, and the share left without a stress mark. `--check` stops with an error if a lemma has no entry, a stress mark is
+its level, word count, unknown words, and the share left without a stress mark. `--check` stops with an error if a lemma has no entry, a stress mark is
 not the dictionary's only stressed spelling, a sentence differs from the
 original by more than stress, or a page has no recording.
 
@@ -585,15 +584,13 @@ original by more than stress, or a page has no recording.
 - **Lemmas:** for each word, the `word` of every entry it is or is a form of
   (`form_index()`), most frequent first; what review cards are keyed by.
   vesum.db is never read.
-- **Band:** the smallest of 500, 1000, 2000 and 5000 such that at least 95% of
-  the story's known words have a lemma ranked that high, once its topic words
-  are left out; `NULL` above 5000. A topic word is one the story has 3 or more
-  times that lies outside the band being tried (віслюк, гіпопотам, шерсть):
-  the story teaches it. A common word met as often (бути, і) is not left out,
-  or the rarer words alone would decide. `texts.topic` counts the words set
-  aside for the band found (for 5000 when none was): 0 to 15% of a story's
-  known words. November 2026: one story in 2000, eight in 5000, 20 above
-  (without leaving out topic words: 1, 2 and 26).
+- **Level, not band:** a story's difficulty is its Storybooks `level`. A
+  frequency band (the fewest commonest words that cover 95% of a story's
+  known words) was tried and dropped in November 2026: 20 of the 29 stories
+  needed more than 5,000, and at 90%, 92% or 95%, with or without leaving out
+  a story's repeated topic words, the median band was the same at every level.
+  FrequencyWords is film subtitles, where корова and гіпопотам are rare. The
+  reader is shown the share of a story's words they know instead.
 - **Totals (November 2026):** 7,266 words, 454 of them unknown to the
   dictionary (mostly names), in 915 sentences on 368 pages.
 

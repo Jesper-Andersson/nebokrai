@@ -202,6 +202,8 @@ const en = {
 	},
 	settings: {
 		open: 'Settings',
+		/** The menu's three tabs: how the site looks, what a word's page shows, typing and sound. */
+		tabs: { look: 'Look', reading: 'Reading', typing: 'Typing' },
 		appearance: 'Appearance',
 		system: 'System',
 		light: 'Light',
@@ -297,12 +299,9 @@ const en = {
 			cardsGo: 'Review',
 			rulesDue: (n: number) => (n === 1 ? '1 rule to practise' : `${n} rules to practise`),
 			rulesNone: 'No rules to practise today',
-			/** In place of a count, on the door of a kind that has not been begun. */
-			notStarted: 'Not started yet',
 			rulesGo: 'Practise',
 			/** The stories' door: how many there are, then its button. */
-			stories: (n: number) => `${n} stories, read aloud`,
-			storiesGo: 'Read'
+			stories: (n: number) => `${n} stories, read aloud`
 		},
 		activity: 'Activity',
 		/** Beside "Activity": the reviews of the fourteen days its bars show. */
@@ -310,8 +309,7 @@ const en = {
 		/** The headings of the page's three parts, under the doors. */
 		vocabulary: 'Vocabulary',
 		grammar: 'Grammar',
-		reference: 'Reference',
-		manageDecks: 'Manage decks',
+		reference: 'Look things up',
 		/** After the large figure of words known: "9 of 3,051 words known". */
 		wordsKnown: (total: string) => `of ${total} words known`,
 		learning: (n: number) => `${n} learning`,
@@ -326,19 +324,12 @@ const en = {
 			'Each word counts as often as it is used in film and TV subtitles (FrequencyWords). ' +
 			'Only dictionary words count, without names or grammar, so this is a rough guide, ' +
 			'not the share of a text you will understand.',
-		/** A deck's chip: the figure on it, and a deck not among those reviewed. */
-		due: (n: number) => (n === 1 ? '1 due today' : `${n} due today`),
-		off: 'no new words from it',
 		/** Over the list of lessons: what they are about. */
 		cases: 'Cases',
 		/** Over the second list of lessons: which case a verb asks for (дякувати + кому?). */
 		verbPatterns: 'Verb patterns',
 		/** Each lesson in a word or two, in the list beside the open one. */
 		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
-		/** Starts a round of the open lesson; and, on a row, of that rule alone. */
-		practiseThis: 'Practise this',
-		lessonsBack: 'Earlier lessons',
-		lessonsMore: 'More lessons',
 		practise: 'Practise',
 		/** The columns of the open lesson's table. */
 		column: { after: 'After', verb: 'Verb', takes: 'The noun takes', means: 'Means', example: 'Example', state: 'State' },
@@ -351,34 +342,54 @@ const en = {
 			commonNote: (n: string) => `${n} words`,
 			grammar: 'Grammar syllabus',
 			grammarNote: 'Gender, cases, verbs…',
-			points: 'Grammar points',
-			pointsNote: (n: number) => `${n} points, a page each`
+			stories: 'Stories'
 		},
+		/** The path card's button for a learner who reads Cyrillic already. */
+		first: { letters: { skip: 'I can read them already' } },
 		/**
 		 * What a newcomer sees in place of the dashboard, until the first
-		 * flashcard or grammar round: three steps in the order to take them.
+		 * flashcard, grammar round or placement test: one question, and three
+		 * answers to it, each leading to where that learner should begin.
 		 */
-		first: {
-			title: 'Start here',
-			lead: 'Three steps to begin, in this order.',
-			letters: {
-				name: 'Learn to read the letters',
-				text: (n: number) => `${n} Cyrillic letters, with a short drill to read them.`,
-				go: 'Learn the letters',
-				skip: 'I can read them already',
-				done: 'You can read the letters.',
-				undo: 'Undo'
+		start: {
+			title: 'Learn Ukrainian',
+			lead: 'Where are you starting from? Pick the line that fits you; you can change course at any time.',
+			fresh: {
+				name: 'I’m new to Ukrainian',
+				text: (n: number) => `Learn to read the ${n} letters first, then meet your first words.`
 			},
-			words: {
-				name: 'Meet your first words',
-				text: 'Ten new flashcards a day from the 500 commonest words.',
-				go: 'Start the first words'
-			},
-			grammar: {
-				name: 'Try a round of grammar',
-				text: 'Ten real sentences, each with a gap to fill.',
-				go: 'Start the first lesson'
-			}
+			reads: { name: 'I can read Cyrillic', text: 'Skip the letters and start on the 500 commonest words.' },
+			knows: { name: 'I already know some Ukrainian', text: 'A short placement test finds where you should begin.' },
+			/** "Just looking around? Try flashcards, a grammar round or a story read aloud." */
+			browse: 'Just looking around? Try',
+			flashcards: 'flashcards',
+			round: 'a grammar round',
+			story: 'a story read aloud',
+			or: 'or'
+		},
+		/** The line that offers the levelled path, and the link that puts it away again. */
+		plan: {
+			ask: 'Want a plan to follow?',
+			follow: 'Follow the path',
+			about: 'six stages from the letters to reading.',
+			hide: 'Hide the path'
+		},
+		/** The Vocabulary card: the cards due on top, the words known under them. */
+		vocab: {
+			chooseDecks: 'Choose decks',
+			reviewNow: 'Review now',
+			/** Under the count: the first words due, and how many more. */
+			dueWords: (words: string, more: number) => (more ? `${words} and ${more} more` : words),
+			learnNew: (n: number) => (n === 1 ? 'Learn 1 new word' : `Learn ${n} new words`),
+			browse: 'Browse common words'
+		},
+		/** The grammar points on /learn, with the lesson to practise next above them. */
+		points: {
+			title: 'Grammar points',
+			next: 'Next to practise',
+			allLessons: (n: number) => `All ${n} lessons`,
+			allPoints: (n: number) => `All ${n} points`,
+			more: (n: number) => (n === 1 ? '1 more point' : `${n} more points`)
 		}
 	},
 	/** The pages for browsing: /common-words and /words (browse.ts). */
@@ -1831,6 +1842,7 @@ const uk: Messages = {
 	},
 	settings: {
 		open: 'Налаштування',
+		tabs: { look: 'Вигляд', reading: 'Читання', typing: 'Набір' },
 		appearance: 'Вигляд',
 		system: 'Як у системі',
 		light: 'Світлий',
@@ -1912,17 +1924,14 @@ const uk: Messages = {
 			cardsGo: 'Повторювати',
 			rulesDue: (n) => `${counted(n, 'правило', 'правила', 'правил')} на повторення`,
 			rulesNone: 'Сьогодні правил на повторення немає',
-			notStarted: 'Ще не розпочато',
 			rulesGo: 'Тренувати',
-			stories: (n) => `${counted(n, 'оповідання', 'оповідання', 'оповідань')} з озвученням`,
-			storiesGo: 'Читати'
+			stories: (n) => `${counted(n, 'оповідання', 'оповідання', 'оповідань')} з озвученням`
 		},
 		activity: 'Активність',
 		inDays: (n) => `${n} за 14 днів`,
 		vocabulary: 'Лексика',
 		grammar: 'Граматика',
 		reference: 'Довідка',
-		manageDecks: 'Керувати колодами',
 		wordsKnown: (total) => `з ${total} слів засвоєно`,
 		learning: (n) => `вивчається: ${n}`,
 		coverage: (percent) => `Ваші засвоєні слова охоплюють ~${percent}% повсякденної української`,
@@ -1931,15 +1940,10 @@ const uk: Messages = {
 			'Кожне слово враховується стільки разів, скільки його вживають у субтитрах фільмів і серіалів (FrequencyWords). ' +
 			'Рахуються лише слова словника, без імен і граматики, тож це приблизна оцінка, а не частка тексту, ' +
 			'яку ви зрозумієте.',
-		due: (n) => `на сьогодні: ${n}`,
-		off: 'нові слова звідси не беруться',
 		cases: 'Відмінки',
 		verbPatterns: 'Дієслівне керування',
 		// "з" takes the genitive: з 1 правила, з 3 правил
 		rulesKnown: (n, total) => `засвоєно ${n} з ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'правила' : 'правил'}`,
-		practiseThis: 'Тренувати це',
-		lessonsBack: 'Попередні уроки',
-		lessonsMore: 'Наступні уроки',
 		practise: 'Тренувати',
 		column: { after: 'Після', verb: 'Дієслово', takes: 'Відмінок', means: 'Значення', example: 'Приклад', state: 'Стан' },
 		state: { new: 'Не розпочато', weak: 'Потребує практики', learning: 'Вивчається', known: 'Засвоєно' },
@@ -1950,30 +1954,43 @@ const uk: Messages = {
 			commonNote: (n) => `${n} слів`,
 			grammar: 'Граматичні терміни',
 			grammarNote: 'Рід, відмінки, дієслова…',
-			points: 'Граматичні теми',
-			pointsNote: (n) => `${n} тем, кожна на сторінці`
+			stories: 'Оповідання'
 		},
-		first: {
-			title: 'Почніть тут',
-			lead: 'Три кроки для початку, саме в такому порядку.',
-			letters: {
-				name: 'Навчіться читати літери',
-				text: (n) => `${counted(n, 'літера', 'літери', 'літер')} кирилиці й коротка вправа, щоб навчитися їх читати.`,
-				go: 'Вивчити літери',
-				skip: 'Я вже вмію їх читати',
-				done: 'Ви вмієте читати літери.',
-				undo: 'Скасувати'
+		first: { letters: { skip: 'Я вже вмію їх читати' } },
+		start: {
+			title: 'Вивчайте українську',
+			lead: 'З чого ви починаєте? Оберіть те, що про вас; змінити напрям можна будь-коли.',
+			fresh: {
+				name: 'Я тільки починаю вчити українську',
+				text: (n) => `Спершу навчіться читати ${counted(n, 'літеру', 'літери', 'літер')}, а тоді знайомтеся з першими словами.`
 			},
-			words: {
-				name: 'Познайомтеся з першими словами',
-				text: 'Щодня десять нових карток із 500 найуживаніших слів.',
-				go: 'Почати з перших слів'
-			},
-			grammar: {
-				name: 'Спробуйте раунд граматики',
-				text: 'Десять справжніх речень, у кожному пропуск.',
-				go: 'Почати перший урок'
-			}
+			reads: { name: 'Я вмію читати кирилицю', text: 'Пропустіть літери й почніть із 500 найуживаніших слів.' },
+			knows: { name: 'Я вже трохи знаю українську', text: 'Короткий тест на рівень підкаже, з чого вам почати.' },
+			browse: 'Просто роззираєтеся? Спробуйте',
+			flashcards: 'картки',
+			round: 'вправу з граматики',
+			story: 'оповідання з озвученням',
+			or: 'або'
+		},
+		plan: {
+			ask: 'Хочете вчитися за планом?',
+			follow: 'Пройти шлях',
+			about: 'шість етапів від літер до читання.',
+			hide: 'Сховати шлях'
+		},
+		vocab: {
+			chooseDecks: 'Вибрати колоди',
+			reviewNow: 'Повторити зараз',
+			dueWords: (words, more) => (more ? `${words} і ще ${more}` : words),
+			learnNew: (n) => `Вивчити ${counted(n, 'нове слово', 'нові слова', 'нових слів')}`,
+			browse: 'Переглянути найуживаніші слова'
+		},
+		points: {
+			title: 'Граматичні теми',
+			next: 'Тренувати далі',
+			allLessons: (n) => `Усі уроки (${n})`,
+			allPoints: (n) => `Усі теми (${n})`,
+			more: (n) => `Ще ${counted(n, 'тема', 'теми', 'тем')}`
 		}
 	},
 	browse: {

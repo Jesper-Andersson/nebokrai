@@ -1,15 +1,19 @@
-<!-- The learner's dashboard, as the user signed it off in Figma on
-     2026-11-14 ("C9"). A narrow rail for what is about the learner: the
-     streak and the last fortnight's reviews. A wide column for what to do:
-     the two doors (flashcards and grammar), then Vocabulary (the words known,
-     and a chip per deck), Grammar (the lessons beside the open one) and
-     Reference (the pages for reading). Each part is its own component in
-     src/lib/learn/.
+<!-- /learn, as the user picked it in Figma on 2026-11-18 ("B" for a
+     newcomer, "B4a merged" for the dashboard).
 
-     A newcomer, who has reviewed nothing, sees three steps instead: a
-     dashboard of noughts says nothing.
+     A newcomer, who has reviewed nothing and taken no placement test, is
+     asked where they start from: three answers, each a whole row that leads
+     where that learner should begin (the letters, the first words, the
+     placement test).
 
-     Nothing new is stored for any of it: words and rules are flashcards
+     The dashboard: a narrow rail for what is about the learner (the week
+     and the last fortnight's reviews), and a wide column for what to do.
+     Vocabulary opens with the cards due; Grammar points open with the lesson
+     to practise next, then the points themselves, each a link to its page.
+     The levelled path is there only for a learner who asks for it (a choice
+     kept in this browser): some learn in their own order.
+
+     Nothing new is stored but that choice: words and rules are flashcards
      (review.svelte.ts), the letters are the alphabet drill's boxes
      (alphabet.svelte.ts), and all of it is in the browser, so the server
      renders the frame and the figures arrive when the page has loaded. -->
@@ -23,14 +27,11 @@
 	import { APOSTROPHE, LETTERS } from '#lib/alphabet/letters.ts';
 	import { messagesFor } from '#lib/i18n.ts';
 	import ActivityCard from '#lib/learn/ActivityCard.svelte';
-	import Doors from '#lib/learn/Doors.svelte';
 	import GoalCard from '#lib/learn/GoalCard.svelte';
-	import GrammarCard from '#lib/learn/GrammarCard.svelte';
+	import GrammarPoints from '#lib/learn/GrammarPoints.svelte';
 	import PathCard from '#lib/learn/PathCard.svelte';
 	import ReferenceTiles from '#lib/learn/ReferenceTiles.svelte';
 	import VocabularyCard from '#lib/learn/VocabularyCard.svelte';
-	import { introPath } from '#lib/practice/intros.ts';
-	import { LESSONS } from '#lib/practice/lessons.ts';
 	import { POINTS, cardKey, isPointKey } from '#lib/practice/points.ts';
 	import { plan } from '#lib/review/cards.ts';
 	import { COMMON_DECKS, newWords, reviewWords } from '#lib/review/decks.ts';
@@ -49,14 +50,33 @@
 
 	let now = $state(Date.now());
 
+	/** Whether the learner asked for the levelled path: kept in this browser alone. */
+	const FOLLOW_KEY = 'path-follow';
+	let following = $state(false);
+
 	onMount(() => {
 		void review.load();
-		// All three, switched on or not: the chips show each, and the words known count them all
+		// All three, switched on or not: the words known count them all
 		review.fetchDecks(COMMON_DECKS.map((deck) => deck.id));
 		alphabet.load();
+		try {
+			following = localStorage.getItem(FOLLOW_KEY) === 'on';
+		} catch {
+			// Storage blocked: the path stays away, and can be shown for this visit
+		}
 		const tick = setInterval(() => (now = Date.now()), 60_000);
 		return () => clearInterval(tick);
 	});
+
+	function follow(on: boolean) {
+		following = on;
+		try {
+			if (on) localStorage.setItem(FOLLOW_KEY, 'on');
+			else localStorage.removeItem(FOLLOW_KEY);
+		} catch {
+			// Kept for this visit only
+		}
+	}
 
 	// Until then every figure would be a nought that is not true
 	let ready = $derived(review.ready && saved.ready && alphabet.ready);
@@ -68,16 +88,13 @@
 	let cardsToday = $derived(plan(
 		review.cards, reviewWords(review.settings, savedWords, saved.lists, review.common), review.settings.new_per_day, now,
 		newWords(review.settings, savedWords, saved.lists, review.common, review.start)));
-	let cardsDue = $derived(cardsToday.learning.length + cardsToday.due.length);
 	let wordsBegun = $derived([...review.cards.keys()].some((key) => !isPointKey(key)));
 
 	// --- Grammar: the rules ---
 
 	// A rule with no sentences is never asked (/practice leaves it out too)
 	let offered = $derived(POINTS.filter((point) => data.sentences[point.id]).map((point) => point.id));
-	let ruleKeys = $derived(offered.map(cardKey));
-	let rulesBegun = $derived(ruleKeys.some((key) => review.cards.has(key)));
-	let rulesDue = $derived(ruleKeys.filter((key) => (review.cards.get(key)?.due ?? Infinity) <= now).length);
+	let rulesBegun = $derived(offered.map(cardKey).some((key) => review.cards.has(key)));
 
 	// --- The letters ---
 
@@ -90,11 +107,13 @@
 		for (const { letter } of ALPHABET) counts[letterState(alphabet.progress[letter])] += 1;
 		return counts;
 	});
-	let lettersDone = $derived(alphabet.skipped || letters.known === ALPHABET.length);
 
-	// A newcomer has reviewed nothing: no card, no rule, no day. The letters
-	// do not count, being the first of the newcomer's three steps.
-	let started = $derived(wordsBegun || rulesBegun || Object.keys(review.days).length > 0);
+	// A newcomer has reviewed nothing: no card, no rule, no day, no placement
+	// test. The test counts (2026-11-18): the third answer below leads to it,
+	// and a learner it has placed has somewhere to start. The letters do not
+	// count, being where a newcomer starts.
+	let placed = $derived((review.progress.placement?.results.length ?? 0) > 0);
+	let started = $derived(wordsBegun || rulesBegun || placed || Object.keys(review.days).length > 0);
 
 	const FIRST_DECK = COMMON_DECKS[0].id;
 
@@ -114,7 +133,11 @@
 		});
 	}
 
-	const share = (n: number, total: number) => (total ? (n / total) * 100 : 0);
+	/** The second answer: the letters are read already, so straight to the first words. */
+	function readsCyrillic() {
+		alphabet.skip(true);
+		firstWords();
+	}
 </script>
 
 <PageMeta title="{m.pageTitle.learn} · Nebokrai" description={m.meta.learn} />
@@ -135,92 +158,49 @@
 	{/if}
 {/snippet}
 
-<div class="ui-page page" class:waiting={!ready} class:newcomer={!started}>
-	<!-- No heading on show: the lit tab says where this is, and the doors are
-	     the page's first line. Kept for those who move about by headings. -->
-	<h1 class="ui-sr-only">{m.pageTitle.learn}</h1>
+<!-- One answer to "where are you starting from?": the whole row is the link -->
+{#snippet choice(href: string, name: string, text: string, mark: 'letters' | 'cards' | 'list', onclick?: () => void)}
+	<li>
+		<a class="choice" {href} {onclick}>
+			<span class="mark" data-mark={mark} aria-hidden="true">
+				{#if mark === 'letters'}<span class="letters" lang="uk">АБВ</span>{:else}<Icon name={mark} size={22} />{/if}
+			</span>
+			<span class="choice-text">
+				<b>{name}</b>
+				<span>{text}</span>
+			</span>
+			<Icon name="arrow-right" size={22} />
+		</a>
+	</li>
+{/snippet}
 
+<div class={['ui-page page', { waiting: !ready, newcomer: !started }]}>
 	{#if !started}
-		<div class="main">
+		<div class="main start">
+			<div>
+				<h1 class="title">{m.learn.start.title}</h1>
+				<p class="lead">{m.learn.start.lead}</p>
+			</div>
+			<ul class="choices">
+				{@render choice('/alphabet', m.learn.start.fresh.name, m.learn.start.fresh.text(ALPHABET.length), 'letters')}
+				{@render choice('/review?start', m.learn.start.reads.name, m.learn.start.reads.text, 'cards', readsCyrillic)}
+				{@render choice('/placement', m.learn.start.knows.name, m.learn.start.knows.text, 'list')}
+			</ul>
+			<p class="browse">
+				{m.learn.start.browse}
+				<!-- "flashcards, a grammar round or a story", or with no stories "flashcards or a grammar round" -->
+				<a href="/review">{m.learn.start.flashcards}</a>{data.stories ? ', ' : ` ${m.learn.start.or} `}<a
+					href="/practice">{m.learn.start.round}</a>{data.stories ? ` ${m.learn.start.or} ` : ''}{#if data.stories}<a
+						href="/read">{m.learn.start.story}</a>{/if}.
+			</p>
+			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} stories={data.stories} {ready} />
 			{@render keptHere()}
-			<!-- A newcomer: three steps in the order to take them. The step to
-			     take now is the one with the filled button. -->
-			<section class="ui-card first" aria-labelledby="learn-first">
-				<div>
-					<h2 id="learn-first">{m.learn.first.title}</h2>
-					<p class="first-lead">{m.learn.first.lead}</p>
-					<!-- For a learner who is not starting from nothing: the placement test moves where they start -->
-					<p class="placement">{m.path.newcomerAsk} <a href="/placement">{m.path.takeTest}</a></p>
-				</div>
-				<ol class="path">
-					<li data-kind="alphabet" class:done={lettersDone}>
-						<span class="mark" aria-hidden="true">
-							{#if lettersDone}<Icon name="check" size={20} />{:else}<span class="letters" lang="uk">АБВ</span>{/if}
-						</span>
-						<div class="path-text">
-							<h3>{m.learn.first.letters.name}</h3>
-							{#if lettersDone}
-								<p>
-									{m.learn.first.letters.done}
-									{#if alphabet.skipped}
-										<button type="button" class="skip" onclick={() => alphabet.skip(false)}>
-											{m.learn.first.letters.undo}
-										</button>
-									{/if}
-								</p>
-							{:else}
-								<p>{m.learn.first.letters.text(ALPHABET.length)}</p>
-								{#if letters.known + letters.learning > 0}
-									<p class="count">{m.learn.tile.letters(letters.known, ALPHABET.length)}</p>
-									<span class="bar" aria-hidden="true">
-										<i data-state="known" style:width="{share(letters.known, ALPHABET.length)}%"></i>
-										<i data-state="learning" style:width="{share(letters.learning, ALPHABET.length)}%"></i>
-									</span>
-								{/if}
-							{/if}
-						</div>
-						{#if !lettersDone}
-							<div class="path-go">
-								<a class="ui-btn ui-btn-primary" href="/alphabet">
-									{m.learn.first.letters.go} <Icon name="arrow-right" size={16} />
-								</a>
-								<button type="button" class="skip" onclick={() => alphabet.skip(true)}>
-									{m.learn.first.letters.skip}
-								</button>
-							</div>
-						{/if}
-					</li>
-					<li data-kind="cards">
-						<span class="mark" aria-hidden="true"><Icon name="cards" size={22} /></span>
-						<div class="path-text">
-							<h3>{m.learn.first.words.name}</h3>
-							<p>{m.learn.first.words.text}</p>
-						</div>
-						<div class="path-go">
-							<a class="ui-btn" class:ui-btn-primary={lettersDone} href="/review?start" onclick={firstWords}>
-								{m.learn.first.words.go} <Icon name="arrow-right" size={16} />
-							</a>
-						</div>
-					</li>
-					<li data-kind="grammar">
-						<span class="mark" aria-hidden="true"><Icon name="book" size={22} /></span>
-						<div class="path-text">
-							<h3>{m.learn.first.grammar.name}</h3>
-							<p>{m.learn.first.grammar.text}</p>
-						</div>
-						<div class="path-go">
-							<!-- A newcomer has begun no lesson: the first one's page, which leads into its round -->
-							<a class="ui-btn" href={introPath(LESSONS[0].id)}>{m.learn.first.grammar.go} <Icon name="arrow-right" size={16} /></a>
-						</div>
-					</li>
-				</ol>
-			</section>
-			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} {ready} />
 		</div>
 	{:else}
+		<!-- No heading on show: the lit tab says where this is. Kept for those
+		     who move about by headings. -->
+		<h1 class="ui-sr-only">{m.pageTitle.learn}</h1>
 		<aside class="rail">
-			<!-- Each in a place of its own, so that a phone can set the goal
-			     right under the doors and leave the activity at the foot -->
 			<!-- Where all this is kept, for someone who has no account to keep it
 			     in: first in the rail, and first on a phone (user, 2026-11-16) -->
 			{@render keptHere()}
@@ -229,17 +209,23 @@
 		</aside>
 
 		<div class="main">
-			<!-- The levelled path, above the rest (user, Figma "Card A", 2026-11-17) -->
-			<div class="path-slot">
-				<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }}
-					onskipletters={() => alphabet.skip(true)} />
+			{#if following}
+				<div class="path-slot">
+					<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }}
+						onskipletters={() => alphabet.skip(true)} onhide={() => follow(false)} />
+				</div>
+			{:else}
+				<p class="plan path-slot">
+					{m.learn.plan.ask}
+					<button type="button" class="link" onclick={() => follow(true)}>{m.learn.plan.follow}</button>:
+					{m.learn.plan.about}
+				</p>
+			{/if}
+			<div class="vocab-slot"><VocabularyCard {now} {ready} today={cardsToday} onlearnnew={firstWords} /></div>
+			<div class="grammar-slot"><GrammarPoints {offered} {now} {ready} /></div>
+			<div class="reference-slot">
+				<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} stories={data.stories} {ready} />
 			</div>
-			<div class="doors-slot">
-				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} stories={data.stories} onfirstwords={firstWords} />
-			</div>
-			<VocabularyCard {now} {ready} />
-			<GrammarCard {offered} {now} {ready} />
-			<ReferenceTiles lettersKnown={letters.known} letters={ALPHABET.length} {ready} />
 		</div>
 	{/if}
 </div>
@@ -250,13 +236,15 @@
 		display: grid;
 		grid-template-columns: 16rem minmax(0, 1fr);
 		align-items: start;
-		gap: 1.5rem;
+		gap: 1.5rem 2.25rem;
 		max-width: var(--frame-width);
 		padding-block: 1rem 2rem;
 	}
 
+	/* A newcomer's page is one column, at a width for reading */
 	.newcomer {
-		grid-template-columns: minmax(0, 1fr);
+		grid-template-columns: minmax(0, 48rem);
+		justify-content: center;
 	}
 
 	.main,
@@ -264,18 +252,18 @@
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		align-content: start;
-		gap: 1.25rem;
+		gap: 1.75rem;
 	}
 
 	.rail {
 		gap: 1rem;
 	}
 
-	/* Which of the two faces to show, the newcomer's steps or the dashboard,
-	   is known only when the browser's progress has been read: until then
-	   neither is shown, so that a learner of months does not see "Start here"
-	   flash by. Shown after two seconds whatever happens, for a browser
-	   where the script never runs. */
+	/* Which of the two faces to show, the newcomer's question or the
+	   dashboard, is known only when the browser's progress has been read:
+	   until then neither is shown, so that a learner of months does not see
+	   the question flash by. Shown after two seconds whatever happens, for a
+	   browser where the script never runs. */
 	.waiting > :not(h1) {
 		opacity: 0;
 		animation: appear 0s 2s forwards;
@@ -297,7 +285,6 @@
 		padding-inline: 0.25rem;
 	}
 
-	/* As small as the newcomer's step buttons on a phone */
 	.kept :global(.ui-btn) {
 		padding-block: 0.3rem;
 		font-size: var(--text-sm);
@@ -311,59 +298,36 @@
 		line-height: 1.45;
 	}
 
-	/* --- The newcomer's three steps --- */
+	/* --- A newcomer: where are you starting from? --- */
 
-	/* Each step in its own colour, and its mark on a tint of it. The letters
-	   are a quiet ink grey: the amber they had was disliked (2026-11-14). */
-	[data-kind='cards'] {
-		--kind: var(--accent);
-		--kind-soft: var(--accent-soft);
+	.start {
+		gap: 1.5rem;
 	}
 
-	[data-kind='grammar'] {
-		--kind: var(--pill-1-line);
-		--kind-soft: color-mix(in srgb, var(--pill-1-line) 14%, var(--surface));
+	/* The newcomer's note goes to the foot, under a rule */
+	.start .kept {
+		padding-top: 1rem;
+		border-top: 1px solid var(--border);
 	}
 
-	[data-kind='alphabet'] {
-		--kind: var(--ink-2);
-		--kind-soft: color-mix(in srgb, var(--ink-2) 12%, var(--surface));
-	}
-
-	.first {
-		display: grid;
-		gap: 1rem;
-		padding: 1.2rem 1.25rem 1.25rem;
-	}
-
-	.first h2 {
+	.title {
 		margin: 0;
+		color: var(--ink);
 		font-family: var(--font-heading);
 		font-size: var(--title);
 		font-weight: 700;
-		line-height: 1.25;
+		line-height: 1.2;
 	}
 
-	.placement {
-		margin: 0.5rem 0 0;
-		color: var(--muted);
-		font-size: var(--text-sm);
-	}
-
-	.placement a {
-		color: var(--accent);
-		font-weight: 600;
-	}
-
-	.first-lead {
+	.lead {
 		max-width: 38rem;
-		margin: 0.35rem 0 0;
-		color: var(--ink-2);
+		margin: 0.5rem 0 0;
+		color: var(--on-page);
 		font-size: var(--text-lg);
-		line-height: 1.45;
+		line-height: 1.5;
 	}
 
-	.path {
+	.choices {
 		display: grid;
 		gap: 0.75rem;
 		margin: 0;
@@ -371,29 +335,75 @@
 		list-style: none;
 	}
 
-	/* A mark in the kind's colour, what the step is, and its button */
-	.path > li {
+	/* A whole row to press: what the answer leads to, and an arrow */
+	.choice {
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr) auto;
 		align-items: center;
-		gap: 0.6rem 1rem;
-		padding: 0.9rem 1rem;
+		gap: 1rem;
+		min-height: 4.5rem;
+		padding: 1rem 1.25rem;
 		border: 1px solid var(--border);
-		border-left: 5px solid var(--kind);
-		border-radius: var(--radius-md);
-		background: var(--surface-2);
+		border-radius: var(--radius-lg);
+		background: var(--surface);
+		color: var(--ink);
+		text-decoration: none;
+		transition: border-color var(--duration);
 	}
 
-	/* What the step is about, drawn as the Reference tiles draw theirs: the
-	   letters АБВ, the flashcards, the book of grammar */
+	/* The first answer is the commonest: drawn out a little */
+	.choices li:first-child .choice {
+		border-color: var(--accent);
+		box-shadow: inset 0 0 0 1px var(--accent);
+	}
+
+	@media (hover: hover) {
+		.choice:hover {
+			border-color: var(--accent);
+		}
+
+		.choice:hover b {
+			color: var(--accent);
+		}
+	}
+
+	.choice:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+
+	.choice > :global(svg:last-child) {
+		color: var(--muted);
+	}
+
+	.choice-text {
+		display: grid;
+		gap: 0.15rem;
+	}
+
+	.choice-text b {
+		font-size: var(--text-lg);
+		line-height: 1.3;
+	}
+
+	.choice-text span {
+		color: var(--ink-2);
+		line-height: 1.45;
+	}
+
 	.mark {
 		display: grid;
 		place-items: center;
-		width: 2.5rem;
-		height: 2.5rem;
+		width: 2.75rem;
+		height: 2.75rem;
 		border-radius: var(--radius-md);
-		background: var(--kind-soft);
-		color: var(--kind);
+		background: var(--accent-soft);
+		color: var(--accent);
+	}
+
+	.mark[data-mark='list'] {
+		background: var(--surface-2);
+		color: var(--ink-2);
 	}
 
 	.letters {
@@ -403,79 +413,28 @@
 		letter-spacing: 0.02em;
 	}
 
-	.path-text {
-		display: grid;
-		gap: 0.25rem;
-	}
-
-	.path h3 {
+	.browse,
+	.plan {
 		margin: 0;
-		font-family: var(--font-heading);
-		font-size: 1.25rem;
-		font-weight: 700;
-		line-height: 1.3;
+		color: var(--on-page);
+		line-height: 1.5;
 	}
 
-	.path p {
-		margin: 0;
-		color: var(--ink-2);
-		line-height: 1.45;
-	}
-
-	.path .count {
-		font-size: var(--text-xs);
-	}
-
-	/* How far the letters have got: known in the alphabet's colour, being learnt a tint of it */
-	.bar {
-		display: flex;
-		height: 0.45rem;
-		overflow: hidden;
-		border-radius: var(--radius-pill);
-		background: var(--surface);
-		box-shadow: inset 0 0 0 1px var(--border);
-	}
-
-	.bar [data-state='known'] {
-		background: var(--kind);
-	}
-
-	.bar [data-state='learning'] {
-		background: color-mix(in srgb, var(--kind) 42%, var(--surface-2));
-	}
-
-	.path-go {
-		display: grid;
-		justify-items: center;
-		gap: 0.4rem;
-	}
-
-	/* Done: put back, its number a tick */
-	.path > .done {
-		background: none;
-	}
-
-	.path > .done h3 {
-		color: var(--muted);
-	}
-
-	.skip {
-		position: relative;
-		padding: 0.1rem 0;
-		border: 0;
-		background: none;
-		color: var(--muted);
-		font: inherit;
-		font-size: var(--text-sm);
+	.browse a,
+	.link {
+		color: var(--accent);
+		font-weight: 600;
 		text-decoration: underline;
 		text-underline-offset: 0.2em;
-		cursor: pointer;
 	}
 
-	@media (hover: hover) {
-		.skip:hover {
-			color: var(--ink);
-		}
+	/* "Follow the path": a button, as it changes the page and goes nowhere */
+	.link {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		cursor: pointer;
 	}
 
 	/* Too narrow for the rail beside the column: it goes under it, its two
@@ -494,24 +453,25 @@
 	/* A phone: everything one under another */
 	@media (max-width: 640px) {
 		.page {
-			gap: 1rem;
+			gap: 1.25rem;
 			padding-top: 0.9rem;
 		}
 
-		/* The rail's two cards part company: the week against the goal comes
-		   right after the doors, as on /review it follows Today, and the
-		   activity stays at the foot. The note on where it all is kept, with
-		   Log in, goes first (2026-11-16).
-		   Until 2026-11-16 the whole rail was last, four cards down. The two
-		   boxes dissolve, so that their cards are ordered as one column. */
+		/* The two boxes dissolve, so that their cards are ordered as one
+		   column: the note first, then what to do, the week, the activity,
+		   and the pages for reading at the foot */
 		.rail,
-		.main {
+		.main:not(.start) {
 			display: contents;
 		}
 
-		/* The path first, then the doors: the same order, kept in the page's */
+		.kept {
+			order: -3;
+		}
+
 		.path-slot,
-		.doors-slot {
+		.vocab-slot,
+		.grammar-slot {
 			order: -2;
 		}
 
@@ -523,58 +483,21 @@
 			order: 1;
 		}
 
-		/* The note and Log in come first, above the doors */
-		.kept {
-			order: -3;
+		.reference-slot {
+			order: 2;
 		}
 
-		/* The three steps on one screen of a phone, under the header */
-		.first {
+		.start .kept {
+			order: 0;
+		}
+
+		.choice {
 			gap: 0.75rem;
-			padding: 0.9rem 0.8rem;
+			padding: 0.85rem 0.9rem;
 		}
 
-		.first h2 {
-			font-size: 1.7rem;
-		}
-
-		.first-lead {
-			margin-top: 0.15rem;
-			font-size: var(--text-sm);
-		}
-
-		.path {
-			gap: 0.5rem;
-		}
-
-		/* The button under what it is for, the skip beside it where it fits */
-		.path > li {
-			grid-template-columns: auto minmax(0, 1fr);
-			align-items: start;
-			gap: 0.35rem 0.7rem;
-			padding: 0.7rem 0.75rem;
-		}
-
-		.path h3 {
-			font-size: 1.1rem;
-		}
-
-		.path p {
-			font-size: var(--text-sm);
-			line-height: 1.35;
-		}
-
-		.path-go {
-			display: flex;
-			flex-wrap: wrap;
-			grid-column: 2;
-			align-items: center;
-			gap: 0.4rem 0.9rem;
-		}
-
-		.path-go .ui-btn {
-			padding-block: 0.35rem;
-			font-size: var(--text-sm);
+		.lead {
+			font-size: var(--text-md);
 		}
 	}
 </style>

@@ -28,7 +28,8 @@
 		ready,
 		offered,
 		letters,
-		onskipletters
+		onskipletters,
+		onhide
 	}: {
 		now: number;
 		ready: boolean;
@@ -37,6 +38,8 @@
 		letters: PathInput['letters'];
 		/** The learner reads the letters already (Alphabet.skip). */
 		onskipletters?: () => void;
+		/** Puts the path away: on /learn it is shown only to a learner who asked for it (2026-11-18). */
+		onhide?: () => void;
 	} = $props();
 
 	const settings = useSettings();
@@ -94,10 +97,13 @@
 <section class="part" aria-labelledby="learn-path">
 	<div class="head">
 		<h2 id="learn-path">{m.path.title}</h2>
-		<button type="button" class="more" aria-expanded={open} aria-controls="learn-stages" onclick={() => (open = !open)}>
-			{open ? m.path.hideStages : m.path.allStages}
-			<Icon name={open ? 'x' : 'arrow-right'} size={16} />
-		</button>
+		<span class="links">
+			<button type="button" class="more" aria-expanded={open} aria-controls="learn-stages" onclick={() => (open = !open)}>
+				{open ? m.path.hideStages : m.path.allStages}
+				<Icon name={open ? 'x' : 'arrow-right'} size={16} />
+			</button>
+			{#if onhide}<button type="button" class="more" onclick={onhide}>{m.learn.plan.hide}</button>{/if}
+		</span>
 	</div>
 	<div class="ui-card card" aria-busy={!ready}>
 		<div class="name">
@@ -178,6 +184,13 @@
 		font-size: 1.5rem;
 		font-weight: 700;
 		line-height: 1.15;
+	}
+
+	.links {
+		display: inline-flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.4rem 1.1rem;
 	}
 
 	.more {

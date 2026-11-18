@@ -1,22 +1,25 @@
-<!-- The pages for reading, at the foot of /learn: the alphabet, the common
-     words, the grammar points (a page each, for reading in any order) and
-     the grammar words, each a tile with its mark, its name and
-     what it holds. The alphabet's mark is three letters, not a drawing. -->
+<!-- The pages for looking things up, at the foot of /learn: the alphabet,
+     the common words, the grammar words and the stories, each a row with its
+     mark, its name and what it holds, two to a line (user's pick in Figma,
+     2026-11-18). The grammar points have a part of the page of their own
+     above, so they are not here. The alphabet's mark is three letters. -->
 <script lang="ts">
 	import Icon from '#lib/Icon.svelte';
 	import { COMMON_WORDS } from '#lib/browse.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { INTROS, POINTS_PATH } from '#lib/practice/intros.ts';
 	import { useSettings } from '#lib/settings.ts';
 
 	let {
 		lettersKnown,
 		letters,
+		stories,
 		ready
 	}: {
 		/** Letters the alphabet drill counts as known, out of `letters`. */
 		lettersKnown: number;
 		letters: number;
+		/** How many stories /read has: none, and its row is left out. */
+		stories: number;
 		ready: boolean;
 	} = $props();
 
@@ -31,7 +34,7 @@
 	<h2 id="learn-reference">{m.learn.reference}</h2>
 	<ul class="tiles">
 		<li>
-			<a class="ui-card tile" data-kind="alphabet" href="/alphabet">
+			<a class="tile" data-kind="alphabet" href="/alphabet">
 				<span class="mark letters" lang="uk" aria-hidden="true">АБВ</span>
 				<span class="text">
 					<b>{m.learn.tile.alphabet}</b>
@@ -41,7 +44,7 @@
 			</a>
 		</li>
 		<li>
-			<a class="ui-card tile" data-kind="cards" href="/common-words">
+			<a class="tile" data-kind="cards" href="/common-words">
 				<span class="mark"><Icon name="message" size={22} /></span>
 				<span class="text">
 					<b>{m.learn.tile.common}</b>
@@ -51,17 +54,7 @@
 			</a>
 		</li>
 		<li>
-			<a class="ui-card tile" data-kind="points" href={POINTS_PATH}>
-				<span class="mark"><Icon name="list" size={22} /></span>
-				<span class="text">
-					<b>{m.learn.tile.points}</b>
-					<span class="note">{m.learn.tile.pointsNote(INTROS.length)}</span>
-				</span>
-				<Icon name="arrow-right" size={16} />
-			</a>
-		</li>
-		<li>
-			<a class="ui-card tile" data-kind="grammar" href="/grammar">
+			<a class="tile" data-kind="grammar" href="/grammar">
 				<span class="mark"><Icon name="table" size={22} /></span>
 				<span class="text">
 					<b>{m.learn.tile.grammar}</b>
@@ -70,6 +63,18 @@
 				<Icon name="arrow-right" size={16} />
 			</a>
 		</li>
+		{#if stories}
+			<li>
+				<a class="tile" data-kind="stories" href="/read">
+					<span class="mark"><Icon name="play" size={20} /></span>
+					<span class="text">
+						<b>{m.learn.tile.stories}</b>
+						<span class="note">{m.learn.action.stories(stories)}</span>
+					</span>
+					<Icon name="arrow-right" size={16} />
+				</a>
+			</li>
+		{/if}
 	</ul>
 </section>
 
@@ -88,10 +93,11 @@
 		line-height: 1.15;
 	}
 
+	/* Two to a line, each a row on a rule: links to read, not cards to press */
 	.tiles {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-		gap: 1rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0 2rem;
 		margin: 0;
 		padding: 0;
 		list-style: none;
@@ -99,15 +105,27 @@
 
 	.tiles li {
 		display: grid;
+		border-bottom: 1px solid var(--border);
 	}
 
 	.tile {
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
-		padding: 0.9rem 1rem;
+		gap: 0.85rem;
+		min-height: 3.75rem;
+		padding: 0.7rem 0;
 		color: var(--ink);
 		text-decoration: none;
+	}
+
+	.tile > :global(svg:last-child) {
+		color: var(--on-page);
+	}
+
+	.tile:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+		border-radius: var(--radius-sm);
 	}
 
 	/* Each tile in the colour of its kind, the same three as the newcomer's
@@ -119,13 +137,17 @@
 		--kind-soft: color-mix(in srgb, var(--ink-2) 12%, var(--surface));
 	}
 
+	[data-kind='stories'] {
+		--kind: var(--ink-2);
+		--kind-soft: var(--surface-2);
+	}
+
 	[data-kind='cards'] {
 		--kind: var(--accent);
 		--kind-soft: var(--accent-soft);
 	}
 
-	[data-kind='grammar'],
-	[data-kind='points'] {
+	[data-kind='grammar'] {
 		--kind: var(--pill-1-line);
 		--kind-soft: color-mix(in srgb, var(--pill-1-line) 14%, var(--surface));
 	}
@@ -160,28 +182,23 @@
 		line-height: 1.3;
 	}
 
+	/* On the page, not on a card: full ink over a background photo */
 	.note {
-		color: var(--muted);
+		color: var(--on-page);
 		font-size: var(--text-sm);
 	}
 
 	@media (hover: hover) {
-		.tile:hover {
-			border-color: var(--accent);
-		}
-	}
-
-	/* Four in a row only where each has room for its note */
-	@media (max-width: 1000px) {
-		.tiles {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
+		.tile:hover b {
+			color: var(--accent);
+			text-decoration: underline;
+			text-underline-offset: 0.2em;
 		}
 	}
 
 	@media (max-width: 640px) {
 		.tiles {
 			grid-template-columns: minmax(0, 1fr);
-			gap: 0.6rem;
 		}
 	}
 </style>

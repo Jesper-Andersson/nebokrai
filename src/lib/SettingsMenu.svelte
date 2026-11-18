@@ -1,9 +1,13 @@
 <!-- The settings under the header's sliders button: a Bits UI Popover (it
      handles Escape, clicks outside and focus) holding one RadioGroup per
-     setting, and a Switch for the one that is only on or off. The settings
-     themselves work as before (src/lib/settings.ts). -->
+     setting, and a Switch for each that is only on or off. Since 2026-11-18
+     they are in three tabs, so that the menu no longer scrolls (user's pick
+     in Figma, "A"): Look (theme, background, font), Reading (the language and
+     what a word's page shows), Typing (the keyboard, and the radio). It opens
+     on Look each time. The settings themselves work as before
+     (src/lib/settings.ts). -->
 <script lang="ts">
-	import { Popover, RadioGroup, Switch } from 'bits-ui';
+	import { Popover, RadioGroup, Switch, Tabs } from 'bits-ui';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import DeleteAccount from '#lib/DeleteAccount.svelte';
@@ -89,168 +93,183 @@
 						<LoginButton primary />
 					</section>
 				{/if}
-				<section class:divided={user || providers.length}>
-					<h2 id="ui-set-theme">{m.settings.appearance}</h2>
-					<RadioGroup.Root
-						class="ui-tiles"
-						orientation="horizontal"
-						aria-labelledby="ui-set-theme"
-						value={settings.theme}
-						onValueChange={(value) => set('theme', value)}
-					>
-						{#each themes as [theme, icon] (theme)}
-							<RadioGroup.Item class="ui-tile" value={theme}>
-								<Icon name={icon} size={20} />
-								{m.settings[theme]}
-							</RadioGroup.Item>
-						{/each}
-					</RadioGroup.Root>
-				</section>
-				<section>
-					<h2 id="ui-set-bg">{m.settings.background}</h2>
-					<RadioGroup.Root
-						class="ui-swatches"
-						orientation="horizontal"
-						aria-labelledby="ui-set-bg"
-						value={settings.background}
-						onValueChange={(value) => set('background', value)}
-					>
-						{#each BACKGROUNDS as background (background)}
-							<RadioGroup.Item class="ui-swatch" value={background}>
-								<span class="picture">
-									{#if previews[background]}
-										<img src={previews[background]} alt="" width="132" height="82" />
-									{:else}
-										<span class="mini-page"></span>
-									{/if}
-									<span class="tick"><Icon name="check" size={12} /></span>
-								</span>
-								{m.settings.backgrounds[background]}
-							</RadioGroup.Item>
-						{/each}
-					</RadioGroup.Root>
-				</section>
-				<!-- Each choice shows its letters in its own face -->
-				<section>
-					<h2 id="ui-set-font">{m.settings.font}</h2>
-					<RadioGroup.Root
-						class="ui-segmented"
-						orientation="horizontal"
-						aria-labelledby="ui-set-font"
-						aria-describedby="ui-set-font-hint"
-						value={settings.font}
-						onValueChange={(value) => set('font', value)}
-					>
-						{#each FONTS as font (font)}
-							<RadioGroup.Item class="ui-segment" value={font}>
-								<span class="mark {font}" aria-hidden="true">Аа</span>
-								{m.settings.fonts[font]}
-							</RadioGroup.Item>
-						{/each}
-					</RadioGroup.Root>
-					<p class="hint" id="ui-set-font-hint">{m.settings.fontHint}</p>
-				</section>
-				<section class="divided">
-					<h2 id="ui-set-lang">{m.settings.language}</h2>
-					<RadioGroup.Root
-						class="ui-segmented"
-						orientation="horizontal"
-						aria-labelledby="ui-set-lang"
-						value={settings.lang}
-						onValueChange={(value) => set('lang', value)}
-					>
-						{#each languages as [code, name, mark] (code)}
-							<RadioGroup.Item class="ui-segment" value={code} lang={code}>
-								<span class="mark" aria-hidden="true">{mark}</span>
-								{name}
-							</RadioGroup.Item>
-						{/each}
-					</RadioGroup.Root>
-				</section>
-				<section>
-					<h2 id="ui-set-layout">{m.settings.layout}</h2>
-					<RadioGroup.Root
-						class="ui-segmented"
-						orientation="horizontal"
-						aria-labelledby="ui-set-layout"
-						value={settings.layout}
-						onValueChange={(value) => set('layout', value)}
-					>
-						{#each layouts as layout (layout)}
-							<RadioGroup.Item class="ui-segment" value={layout}>{m.settings[layout]}</RadioGroup.Item>
-						{/each}
-					</RadioGroup.Root>
-					<!-- The same two keys in both languages: the Latin key, then the
-					     letter it types -->
-					<p class="hint">
-						<span class="keys"><kbd class="ui-kbd">P</kbd> → <span lang="uk">п</span></span>
-						<span class="keys"><kbd class="ui-kbd">H</kbd> → <span lang="uk">г</span></span>
-						<span class="sentence">{m.settings.layoutHint}</span>
-					</p>
-				</section>
-				<!-- The radio's button (RadioPlayer.svelte) is on the page only
-				     while this is on; switching it off also stops the sound -->
-				<section class="divided">
-					<div class="switch-row">
-						<h2 id="ui-set-radio">{m.settings.radio}</h2>
-						<Switch.Root
-							class="ui-switch"
-							aria-labelledby="ui-set-radio"
-							aria-describedby="ui-set-radio-hint"
-							checked={settings.radio === 'on'}
-							onCheckedChange={(on) => set('radio', on ? 'on' : 'off')}
-						>
-							<Switch.Thumb class="ui-switch-thumb" />
-						</Switch.Root>
-					</div>
-					<p class="hint" id="ui-set-radio-hint">{m.settings.radioHint}</p>
-				</section>
-				<!-- What a word's page shows under the headword (word/[word]/+page.svelte) -->
-				<section class="divided">
-					<div class="switch-row">
-						<h2 id="ui-set-roman">{m.settings.roman}</h2>
-						<Switch.Root
-							class="ui-switch"
-							aria-labelledby="ui-set-roman"
-							aria-describedby="ui-set-roman-hint"
-							checked={settings.roman === 'on'}
-							onCheckedChange={(on) => set('roman', on ? 'on' : 'off')}
-						>
-							<Switch.Thumb class="ui-switch-thumb" />
-						</Switch.Root>
-					</div>
-					<p class="hint" id="ui-set-roman-hint">{m.settings.romanHint}</p>
-				</section>
-				<section>
-					<div class="switch-row">
-						<h2 id="ui-set-ipa">{m.settings.ipa}</h2>
-						<Switch.Root
-							class="ui-switch"
-							aria-labelledby="ui-set-ipa"
-							aria-describedby="ui-set-ipa-hint"
-							checked={settings.ipa === 'on'}
-							onCheckedChange={(on) => set('ipa', on ? 'on' : 'off')}
-						>
-							<Switch.Thumb class="ui-switch-thumb" />
-						</Switch.Root>
-					</div>
-					<p class="hint" id="ui-set-ipa-hint">{m.settings.ipaHint}</p>
-				</section>
-				<section>
-					<div class="switch-row">
-						<h2 id="ui-set-blur">{m.settings.blur}</h2>
-						<Switch.Root
-							class="ui-switch"
-							aria-labelledby="ui-set-blur"
-							aria-describedby="ui-set-blur-hint"
-							checked={settings.blur === 'on'}
-							onCheckedChange={(on) => set('blur', on ? 'on' : 'off')}
-						>
-							<Switch.Thumb class="ui-switch-thumb" />
-						</Switch.Root>
-					</div>
-					<p class="hint" id="ui-set-blur-hint">{m.settings.blurHint}</p>
-				</section>
+				<Tabs.Root value="look" class="ui-settings-tabs">
+					<Tabs.List class="ui-segmented ui-tab-list">
+						<Tabs.Trigger class="ui-segment" value="look">{m.settings.tabs.look}</Tabs.Trigger>
+						<Tabs.Trigger class="ui-segment" value="reading">{m.settings.tabs.reading}</Tabs.Trigger>
+						<Tabs.Trigger class="ui-segment" value="typing">{m.settings.tabs.typing}</Tabs.Trigger>
+					</Tabs.List>
+					<Tabs.Content value="look" class="ui-tab">
+						<section>
+							<h2 id="ui-set-theme">{m.settings.appearance}</h2>
+							<RadioGroup.Root
+								class="ui-tiles"
+								orientation="horizontal"
+								aria-labelledby="ui-set-theme"
+								value={settings.theme}
+								onValueChange={(value) => set('theme', value)}
+							>
+								{#each themes as [theme, icon] (theme)}
+									<RadioGroup.Item class="ui-tile" value={theme}>
+										<Icon name={icon} size={20} />
+										{m.settings[theme]}
+									</RadioGroup.Item>
+								{/each}
+							</RadioGroup.Root>
+						</section>
+						<section>
+							<h2 id="ui-set-bg">{m.settings.background}</h2>
+							<RadioGroup.Root
+								class="ui-swatches"
+								orientation="horizontal"
+								aria-labelledby="ui-set-bg"
+								value={settings.background}
+								onValueChange={(value) => set('background', value)}
+							>
+								{#each BACKGROUNDS as background (background)}
+									<RadioGroup.Item class="ui-swatch" value={background}>
+										<span class="picture">
+											{#if previews[background]}
+												<img src={previews[background]} alt="" width="132" height="82" />
+											{:else}
+												<span class="mini-page"></span>
+											{/if}
+											<span class="tick"><Icon name="check" size={12} /></span>
+										</span>
+										{m.settings.backgrounds[background]}
+									</RadioGroup.Item>
+								{/each}
+							</RadioGroup.Root>
+						</section>
+						<!-- Each choice shows its letters in its own face -->
+						<section>
+							<h2 id="ui-set-font">{m.settings.font}</h2>
+							<RadioGroup.Root
+								class="ui-segmented"
+								orientation="horizontal"
+								aria-labelledby="ui-set-font"
+								aria-describedby="ui-set-font-hint"
+								value={settings.font}
+								onValueChange={(value) => set('font', value)}
+							>
+								{#each FONTS as font (font)}
+									<RadioGroup.Item class="ui-segment" value={font}>
+										<span class="mark {font}" aria-hidden="true">Аа</span>
+										{m.settings.fonts[font]}
+									</RadioGroup.Item>
+								{/each}
+							</RadioGroup.Root>
+							<!-- The chosen face at work, on a line of Ukrainian -->
+							<p class="sample" lang="uk">Добрий день! Як справи?</p>
+							<p class="hint" id="ui-set-font-hint">{m.settings.fontHint}</p>
+						</section>
+					</Tabs.Content>
+					<Tabs.Content value="reading" class="ui-tab">
+						<section>
+							<h2 id="ui-set-lang">{m.settings.language}</h2>
+							<RadioGroup.Root
+								class="ui-segmented"
+								orientation="horizontal"
+								aria-labelledby="ui-set-lang"
+								value={settings.lang}
+								onValueChange={(value) => set('lang', value)}
+							>
+								{#each languages as [code, name, mark] (code)}
+									<RadioGroup.Item class="ui-segment" value={code} lang={code}>
+										<span class="mark" aria-hidden="true">{mark}</span>
+										{name}
+									</RadioGroup.Item>
+								{/each}
+							</RadioGroup.Root>
+						</section>
+						<!-- What a word's page shows under the headword (word/[word]/+page.svelte) -->
+						<section class="divided">
+							<div class="switch-row">
+								<h2 id="ui-set-roman">{m.settings.roman}</h2>
+								<Switch.Root
+									class="ui-switch"
+									aria-labelledby="ui-set-roman"
+									aria-describedby="ui-set-roman-hint"
+									checked={settings.roman === 'on'}
+									onCheckedChange={(on) => set('roman', on ? 'on' : 'off')}
+								>
+									<Switch.Thumb class="ui-switch-thumb" />
+								</Switch.Root>
+							</div>
+							<p class="hint" id="ui-set-roman-hint">{m.settings.romanHint}</p>
+						</section>
+						<section>
+							<div class="switch-row">
+								<h2 id="ui-set-ipa">{m.settings.ipa}</h2>
+								<Switch.Root
+									class="ui-switch"
+									aria-labelledby="ui-set-ipa"
+									aria-describedby="ui-set-ipa-hint"
+									checked={settings.ipa === 'on'}
+									onCheckedChange={(on) => set('ipa', on ? 'on' : 'off')}
+								>
+									<Switch.Thumb class="ui-switch-thumb" />
+								</Switch.Root>
+							</div>
+							<p class="hint" id="ui-set-ipa-hint">{m.settings.ipaHint}</p>
+						</section>
+						<section>
+							<div class="switch-row">
+								<h2 id="ui-set-blur">{m.settings.blur}</h2>
+								<Switch.Root
+									class="ui-switch"
+									aria-labelledby="ui-set-blur"
+									aria-describedby="ui-set-blur-hint"
+									checked={settings.blur === 'on'}
+									onCheckedChange={(on) => set('blur', on ? 'on' : 'off')}
+								>
+									<Switch.Thumb class="ui-switch-thumb" />
+								</Switch.Root>
+							</div>
+							<p class="hint" id="ui-set-blur-hint">{m.settings.blurHint}</p>
+						</section>
+					</Tabs.Content>
+					<Tabs.Content value="typing" class="ui-tab">
+						<section>
+							<h2 id="ui-set-layout">{m.settings.layout}</h2>
+							<RadioGroup.Root
+								class="ui-segmented"
+								orientation="horizontal"
+								aria-labelledby="ui-set-layout"
+								value={settings.layout}
+								onValueChange={(value) => set('layout', value)}
+							>
+								{#each layouts as layout (layout)}
+									<RadioGroup.Item class="ui-segment" value={layout}>{m.settings[layout]}</RadioGroup.Item>
+								{/each}
+							</RadioGroup.Root>
+							<!-- The same two keys in both languages: the Latin key, then the
+							     letter it types -->
+							<p class="hint">
+								<span class="keys"><kbd class="ui-kbd">P</kbd> → <span lang="uk">п</span></span>
+								<span class="keys"><kbd class="ui-kbd">H</kbd> → <span lang="uk">г</span></span>
+								<span class="sentence">{m.settings.layoutHint}</span>
+							</p>
+						</section>
+						<!-- The radio's button (RadioPlayer.svelte) is on the page only
+						     while this is on; switching it off also stops the sound -->
+						<section class="divided">
+							<div class="switch-row">
+								<h2 id="ui-set-radio">{m.settings.radio}</h2>
+								<Switch.Root
+									class="ui-switch"
+									aria-labelledby="ui-set-radio"
+									aria-describedby="ui-set-radio-hint"
+									checked={settings.radio === 'on'}
+									onCheckedChange={(on) => set('radio', on ? 'on' : 'off')}
+								>
+									<Switch.Thumb class="ui-switch-thumb" />
+								</Switch.Root>
+							</div>
+							<p class="hint" id="ui-set-radio-hint">{m.settings.radioHint}</p>
+						</section>
+					</Tabs.Content>
+				</Tabs.Root>
 				<!-- Deleting the account stays at the foot, away from Log out (user, 2026-11-16) -->
 				{#if user}
 					<section class="divided">
@@ -474,17 +493,9 @@
 		line-height: 1.4;
 	}
 
-	/* On a phone the menu is taller than the screen: 1,149px in 780 at
-	   390×844, with nothing to say there is more below. Without the lines
-	   that explain a setting it is 856px, and all but the account's last
-	   line fits. The lines are still there for a screen reader, which reads
-	   them as each control's description (aria-describedby reaches a hidden
-	   element). */
-	@media (max-width: 600px) {
-		.hint {
-			display: none;
-		}
-	}
+	/* Until 2026-11-18 a phone hid the lines that explain each setting: the
+	   one long menu was 1,149px in 780. In three tabs the tallest is about
+	   500px with them, so they stay. */
 
 	.keys {
 		color: var(--ink-2);
@@ -569,5 +580,41 @@
 	.divided {
 		padding-top: 0.9rem;
 		border-top: 1px solid var(--border);
+	}
+	/* The three tabs: a row of segments at the top, and the open tab's settings under it */
+	:global(.ui-settings-tabs),
+	:global(.ui-tab) {
+		display: grid;
+		gap: 1rem;
+	}
+
+	/* A closed tab is hidden by Bits UI's own attribute, which a display above would undo */
+	:global(.ui-tab[hidden]) {
+		display: none;
+	}
+
+	:global(.account-row + .ui-settings-tabs) {
+		padding-top: 0.9rem;
+		border-top: 1px solid var(--border);
+	}
+
+	:global(.ui-tab-list .ui-segment[data-state='active']) {
+		background: var(--raised);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+		color: var(--ink);
+	}
+
+	:global(.ui-tab:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 4px;
+		border-radius: var(--radius-sm);
+	}
+
+	/* A line of Ukrainian in the face chosen: the reading face follows the setting */
+	.sample {
+		margin: 0;
+		color: var(--ink);
+		font-family: var(--font-reading);
+		font-size: var(--text-lg);
 	}
 </style>

@@ -7,7 +7,7 @@
 // it against the real sentences.
 import type { Db } from '../search/db.ts';
 import { plain } from '../search/normalize.ts';
-import { withAdapted } from '../search/word.ts';
+import { withAdapted, withColumn } from '../search/word.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, numberGap, type NumberDraw } from './numbers.ts';
 import type { PointCase } from './points.ts';
 import type { Gap, Random } from './round.ts';
@@ -18,7 +18,32 @@ import { WHERE, WHERE_MARK, isWherePoint, partnerOf } from './where.ts';
 export const MAX_GAPS = 20;
 const CHOICES = 4;
 
-const CASE_OF: Record<string, PointCase> = { gen: 'genitive', acc: 'accusative', ins: 'instrumental', loc: 'locative' };
+const CASE_OF: Record<string, PointCase> = {
+	gen: 'genitive', dat: 'dative', acc: 'accusative', ins: 'instrumental', loc: 'locative'
+};
+
+/**
+ * The wrong cases most worth offering, the likeliest first: what a learner
+ * puts instead. After a verb that asks for the dative, the accusative is the
+ * usual slip (дякую маму), then the genitive and the dictionary form; after
+ * на or у with the accusative, the locative (на столі for на стіл). A case not
+ * named comes after these, in no order.
+ */
+const LIKELY: Record<string, readonly PointCase[]> = {
+	dative: ['accusative', 'genitive', 'nominative'],
+	genitive: ['accusative', 'nominative'],
+	instrumental: ['nominative', 'accusative'],
+	'na-accusative': ['locative'],
+	'u-accusative': ['locative'],
+	'z-instrumental': ['genitive']
+};
+
+/** The likely wrong cases of a point, by its id: на + accusative is na-acc, чекати на + кого? chekaty-na-acc. */
+function likelyOf(point: string, wanted: PointCase): readonly PointCase[] {
+	const parts = point.split('-');
+	const prep = parts.length > 1 ? parts[parts.length - 2] : '';
+	return LIKELY[`${prep}-${wanted}`] ?? LIKELY[wanted] ?? [];
+}
 
 /**
  * How many sentences each grammar point has. A database built before the
@@ -56,9 +81,18 @@ interface ClozeRow {
 	number: 'singular' | 'plural';
 	tatoeba_id: number;
 	adapted: number;
+	cue_start: number | null;
+	cue_length: number | null;
 	word: string;
 	headword: string;
 }
+
+/**
+ * With `cloze.cue_start` and `cue_length`, where the verb of a government
+ * point stands; a table made before they were added (November 2026) has none.
+ */
+const withCue = <T>(query: (columns: string) => Promise<T>) =>
+	withColumn('c.cue_start, c.cue_length', 'NULL AS cue_start, NULL AS cue_length', query);
 
 interface FormRow {
 	entry_id: number;
@@ -154,14 +188,14 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 
 	const sentences = drawn.filter((draw) => Array.isArray(draw));
 	const rows = sentences.length
-		? await withAdapted('c', (column) => db.all<ClozeRow>(
+		? await withAdapted('c', (column) => withCue((cue) => db.all<ClozeRow>(
 				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id, ${column},
-				        e.word, e.headword
+				        ${cue}, e.word, e.headword
 				 FROM json_each(?) j
 				 CROSS JOIN cloze c ON c.point = json_extract(j.value, '$[0]') AND c.n = json_extract(j.value, '$[1]')
 				 JOIN entries e ON e.id = c.entry_id`,
 				[JSON.stringify(sentences)]
-			))
+			)))
 		: [];
 	const found = new Map(rows.map((row) => [`${row.point} ${row.n}`, row]));
 
@@ -171,15 +205,15 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
 	// would make it one, at the next rebuild of the dictionary.
 	const wheres = drawn.filter((draw): draw is WhereDraw => 'where' in draw);
 	const whereRows = wheres.length
-		? await withAdapted('c', (column) => db.all<ClozeRow>(
+		? await withAdapted('c', (column) => withCue((cue) => db.all<ClozeRow>(
 				`SELECT c.point, c.n, c.entry_id, c.uk, c.en, c.start, c.length, c.form, c.number, c.tatoeba_id, ${column},
-				        e.word, e.headword
+				        ${cue}, e.word, e.headword
 				 FROM json_each(?) j
 				 CROSS JOIN cloze c
 				   ON c.point = json_extract(j.value, '$[0]') AND c.tatoeba_id = json_extract(j.value, '$[1]')
 				 JOIN entries e ON e.id = c.entry_id`,
 				[JSON.stringify(wheres.map((draw) => [draw.where, draw.id]))]
-			))
+			)))
 		: [];
 	const foundWhere = new Map(whereRows.map((row) => [`${row.point} ${row.tatoeba_id}`, row]));
 	rows.push(...whereRows);
@@ -254,13 +288,20 @@ export async function drawGaps(db: Db, points: readonly string[], random: Random
  * practised is the case, and a singular beside three plurals would give
  * itself away. A second spelling of the case wanted (стіл has both столі
  * and столу for the locative) is never offered as wrong, and is taken as
- * right when typed.
+ * right when typed. Of the wrong ones, the likeliest slips come first
+ * (likelyOf): ма́му and ма́ми beside ма́мі.
+ *
+ * A personal pronoun's page holds the table of every pronoun (мені is under
+ * ти too), so only the row of the one in the sentence is used: тобі is
+ * offered beside тебе and тобою, never beside мені.
  */
 function gapOf(row: ClozeRow, forms: FormRow[], random: Random): Gap {
 	const wanted = CASE_OF[row.point.slice(row.point.lastIndexOf('-') + 1)];
 	const own = plain(row.form);
+	forms = ownRow(forms, own, wanted);
+	const likely = likelyOf(row.point, wanted);
 
-	const spellings = new Map<string, { form: string; right: boolean; near: boolean }>();
+	const spellings = new Map<string, { form: string; right: boolean; near: boolean; rank: number }>();
 	for (const form of forms) {
 		const tags: string[] = JSON.parse(form.tags);
 		const sameNumber = tags.includes(row.number);
@@ -268,17 +309,22 @@ function gapOf(row: ClozeRow, forms: FormRow[], random: Random): Gap {
 		// A spelling that is only the vocative (краватко) stands back with the
 		// other number's forms: it follows no preposition, so it is no temptation.
 		const near = sameNumber && !tags.includes('vocative');
+		const at = likely.findIndex((kase) => tags.includes(kase));
+		const rank = at < 0 ? likely.length : at;
 		const had = spellings.get(form.plain);
 		spellings.set(form.plain, {
 			form: had?.form ?? form.form,
 			right: right || (had?.right ?? false),
-			near: near || (had?.near ?? false)
+			near: near || (had?.near ?? false),
+			rank: Math.min(rank, had?.rank ?? rank)
 		});
 	}
 
 	const wrong = [...spellings.values()].filter((s) => !s.right);
-	const near = shuffled(wrong.filter((s) => s.near), random);
-	const far = shuffled(wrong.filter((s) => !s.near), random);
+	// Shuffled first, so that the sort, which keeps ties in place, leaves them in no order
+	const byRank = (list: typeof wrong) => shuffled(list, random).sort((a, b) => a.rank - b.rank);
+	const near = byRank(wrong.filter((s) => s.near));
+	const far = byRank(wrong.filter((s) => !s.near));
 	const offered = [...near, ...far].slice(0, CHOICES - 1).map((s) => s.form);
 
 	return {
@@ -295,6 +341,24 @@ function gapOf(row: ClozeRow, forms: FormRow[], random: Random): Gap {
 		choices: shuffled([row.form, ...offered], random),
 		forms: [...spellings.keys()],
 		tatoeba_id: row.tatoeba_id,
-		adapted: Boolean(row.adapted)
+		adapted: Boolean(row.adapted),
+		...(row.cue_start !== null && row.cue_length !== null ? { cue_start: row.cue_start, cue_length: row.cue_length } : {})
 	};
+}
+
+/** The case names among a form's tags, taken away to leave which pronoun's row it is in. */
+const CASE_TAGS = new Set(['nominative', 'genitive', 'dative', 'accusative', 'instrumental', 'locative', 'vocative']);
+
+/**
+ * A personal pronoun's forms in the row of the one asked (ти: ти, тебе, тобі,
+ * тобою), found by the tags the answer has besides its case; any other
+ * word's forms as they are.
+ */
+function ownRow(forms: FormRow[], own: string, wanted: PointCase): FormRow[] {
+	const parsed = forms.map((form) => ({ form, tags: JSON.parse(form.tags) as string[] }));
+	const answer = parsed.find(({ form, tags }) => form.plain === own && tags.includes(wanted));
+	if (!answer || !answer.tags.includes('personal')) return forms;
+	const row = (tags: string[]) => tags.filter((tag) => !CASE_TAGS.has(tag)).sort().join(' ');
+	const wantedRow = row(answer.tags);
+	return parsed.filter(({ tags }) => row(tags) === wantedRow).map(({ form }) => form);
 }

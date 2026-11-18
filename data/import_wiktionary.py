@@ -35,6 +35,7 @@ import collections
 import hashlib
 import json
 import os
+import random
 import re
 import sqlite3
 import sys
@@ -126,8 +127,11 @@ CREATE TABLE cloze (
     length      INTEGER NOT NULL,
     form        TEXT NOT NULL,      -- the noun as it stands there, with stress: цу́кру
     number      TEXT NOT NULL,      -- singular | plural
-    tatoeba_id  INTEGER NOT NULL,   -- https://tatoeba.org/sentences/show/<id>, for attribution
-    adapted     INTEGER NOT NULL DEFAULT 0  -- 1 when data/tatoeba-corrections.tsv changed the sentence
+    tatoeba_id  INTEGER NOT NULL,   -- https://tatoeba.org/sentences/show/<id>, for attribution; 0 for a
+                                    -- sentence made from a frame (Я дякую мамі.), which has no author
+    adapted     INTEGER NOT NULL DEFAULT 0,  -- 1 when data/tatoeba-corrections.tsv changed the sentence
+    cue_start   INTEGER,            -- where the verb that asks for the case begins (дякую), for a
+    cue_length  INTEGER             -- government point (add_government); NULL for a preposition's
 );
 CREATE UNIQUE INDEX cloze_point ON cloze(point, n);
 """
@@ -1143,8 +1147,9 @@ PREPOSITIONS = {
     "між": ("mizh", ["instrumental"], ["genitive"]),
     "по": ("po", ["locative"], ["accusative"]),
     "при": ("pry", ["locative"], []),
+    "завдяки": ("zavdiaky", ["dative"], []),
 }
-CASE_SHORT = {"genitive": "gen", "accusative": "acc", "instrumental": "ins", "locative": "loc"}
+CASE_SHORT = {"genitive": "gen", "dative": "dat", "accusative": "acc", "instrumental": "ins", "locative": "loc"}
 CASES = {"nominative", "genitive", "dative", "accusative", "instrumental", "locative", "vocative"}
 # A point with fewer sentences than this is not offered: the same few would come round too soon.
 CLOZE_MIN = 20
@@ -1174,10 +1179,38 @@ def tatoeba_corrections(path=CORRECTIONS):
     return corrections
 
 
-def tatoeba_pairs(folder, corrections=None):
+EXCLUDED = os.path.join(os.path.dirname(os.path.abspath(__file__)), "excluded-sentences.tsv")
+
+
+def excluded_sentences(path=EXCLUDED):
+    """The Tatoeba ids the site never shows, decided by hand: id -> group.
+
+    No native speaker reads the sentences before they are shown, so a sentence
+    that is political in a way a dictionary should not be (Путін у новорічну
+    ніч подякував росіянам...) is listed here by id, with its group and why.
+    `rate_sentences.py screen` lists the candidates by keyword; nothing is left
+    out by keyword alone, so a neutral or critical sentence stays.
+    """
+    excluded = {}
+    with open(path, encoding="utf-8") as f:
+        for n, line in enumerate(f, 1):
+            line = line.rstrip("\n")
+            if not line.strip() or line.startswith("#"):
+                continue
+            cols = line.split("\t")
+            if len(cols) != 3 or not cols[0].isdigit() or not cols[1] or not cols[2]:
+                raise ValueError(f"{path}:{n}: want id, group and reason, tab-separated")
+            if int(cols[0]) in excluded:
+                raise ValueError(f"{path}:{n}: {cols[0]} is listed twice")
+            excluded[int(cols[0])] = cols[1]
+    return excluded
+
+
+def tatoeba_pairs(folder, corrections=None, excluded=None):
     """Tatoeba's Ukrainian sentences that have an English translation, with the
-    corrections applied: id -> (Ukrainian, English, adapted, original), where
-    `original` is Tatoeba's Ukrainian when the correction changed it, else None."""
+    corrections applied and the excluded sentences left out: id -> (Ukrainian,
+    English, adapted, original), where `original` is Tatoeba's Ukrainian when
+    the correction changed it, else None."""
     def rows(name):
         with bz2.open(os.path.join(folder, name), "rt", encoding="utf-8") as f:
             for line in f:
@@ -1202,6 +1235,10 @@ def tatoeba_pairs(folder, corrections=None):
             text, english, _, _ = pairs[sid]
             pairs[sid] = (new_uk, new_en or english, new_uk != text or bool(new_en and new_en != english),
                           text if new_uk != text else None)
+    # Here rather than in add_tatoeba and add_cloze, so that neither can show
+    # an excluded sentence and rate_sentences.py does not spend on rating one.
+    for sid in excluded_sentences() if excluded is None else excluded:
+        pairs.pop(sid, None)
     return pairs
 
 
@@ -1443,6 +1480,414 @@ def add_cloze(db, index, pairs, per_noun=5, ratings=None):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
+# --- Case government: the case a verb asks for --------------------------------
+#
+# дякувати asks for the dative (дякую мамі), користуватися for the
+# instrumental (користуюся телефоном), чекати на for the accusative (чекаю на
+# автобус). The patterns are listed by hand in src/lib/practice/government.ts,
+# which the practice page reads too; here each gets sentences in `cloze`, under
+# its id, as a preposition's point does: first Tatoeba's, then sentences made
+# from a frame (subject, verb, preposition, noun: Ми дякуємо сусідові.) up to
+# CLOZE_MIN. A frame's nouns are named in the same file.
+
+GOVERNMENT_TS = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "..", "src", "lib", "practice", "government.ts")
+GOV_CASES = {"gen": "genitive", "dat": "dative", "acc": "accusative", "ins": "instrumental", "loc": "locative"}
+# Prepositions after which the noun could stand in either of two cases, so the case can be practised
+GOV_TWO_CASES = {"на", "у", "з", "за", "під"}
+# Every spelling of a preposition
+GOV_SPELLINGS = {"у": {"у", "в"}, "з": {"з", "із", "зі"}}
+# Words that end the stretch after a verb: what follows them belongs to another phrase
+GOV_CONJUNCTIONS = {"і", "й", "та", "а", "але", "що", "щоб", "як", "бо", "чи", "або", "ні", "коли", "якщо",
+                    "поки", "ніж", "аби", "хоч", "хоча", "де", "куди", "звідки", "тому", "тоді"}
+# Words that may stand between a verb and its noun without changing anything: мені це подобається
+GOV_FILLERS = {"не", "ні", "це", "дуже", "теж", "також", "ще", "вже", "так", "ж", "же", "б", "би", "лише",
+               "тільки", "справді", "завжди", "ніколи", "часто", "зараз", "сьогодні", "тут", "там"}
+# Pronouns that are modifiers and not the noun: мій брат, цей потяг
+GOV_MODIFIER_PRONOUNS = {"мій", "твій", "свій", "наш", "ваш", "їхній", "його", "її", "їх", "цей", "той",
+                         "весь", "увесь", "кожен", "кожний", "якийсь", "інший", "сам", "самий", "такий"}
+GOV_SUBJECTS = {  # the subject of a frame: its forms' tags, and its English
+    "я": ({"first-person", "singular"}, "I"), "ти": ({"second-person", "singular"}, "you"),
+    "він": ({"third-person", "singular"}, "he"), "ми": ({"first-person", "plural"}, "we"),
+    "ви": ({"second-person", "plural"}, "you"), "вони": ({"third-person", "plural"}, "they"),
+}
+GOV_WINDOW = 3  # words looked at past the verb
+# Nouns of time, passed over as the noun of a pattern: у неділю, на хвилину, за годину say when, not what
+GOV_TIME = {"понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота", "неділя", "січень", "лютий",
+            "березень", "квітень", "травень", "червень", "липень", "серпень", "вересень", "жовтень",
+            "листопад", "грудень", "ранок", "вечір", "ніч", "день", "тиждень", "місяць", "рік", "година",
+            "хвилина", "секунда", "час", "момент", "мить", "раз", "вихідні", "хвилинка", "годинка"}
+
+
+def government_patterns(path=GOVERNMENT_TS):
+    """The patterns of government.ts and its noun sets: ([pattern dict], {set name: [(word, English)]}).
+
+    Read from the TypeScript source, as hand_picked_cloze reads where.ts, so the
+    list is written once. Ids are made as government.ts makes them."""
+    if not os.path.exists(path):
+        return [], {}
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+
+    def block(name):
+        start = text.index(f"export const {name} = `") + len(f"export const {name} = `")
+        return text[start:text.index("`", start)]
+
+    patterns, lesson = [], ""
+    for line in block("GOVERNMENT_LIST").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("["):
+            lesson = line[1:-1]
+            continue
+        cols = [c.strip() for c in line.split("|")]
+        lemmas, prep, case, asks, en, nouns, example = cols[:7]
+        flags = cols[7].split() if len(cols) > 7 else []
+        prep = "" if prep == "-" else prep
+        words = lemmas.split()
+        patterns.append(dict(
+            id="-".join([national_translit(words[0])] + ([national_translit(prep)] if prep else []) + [case]),
+            lemmas=words, prep=prep, case=case, asks=asks, en=en,
+            nouns=[] if nouns == "-" else [n[1:] for n in nouns.split()],
+            example=example, before="before" in flags, single="single" in flags, listed="listed" in flags,
+            lesson="" if lesson == "page" else lesson))
+
+    sets, name = {}, None
+    for line in block("NOUN_SETS").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith("@"):
+            name, line = line[1:].split(" = ", 1)
+            sets[name] = []
+        for item in line.split(","):
+            if item.strip():
+                word, english = item.split(":", 1)
+                sets[name].append((word.strip(), english.strip()))
+    return patterns, sets
+
+
+def euphonic(before, prep, after):
+    """у or в, з, із or зі as the sounds around it ask; the same rule as euphonic() in government.ts."""
+    vowels = "аеєиіїоуюя"
+    end = before.lower()[-1:] if before else ""
+    first, second = (after.lower() + "  ")[:2]
+    second = second.strip()
+    if prep in ("у", "в"):
+        if first in "вф" or second == "в":
+            return "у"
+        if end not in vowels and first not in vowels:
+            return "у"
+        return "в"
+    if prep in ("з", "із", "зі"):
+        hiss = "зсцчшжщ"
+        if first in hiss and second and second not in vowels:
+            return "зі"
+        if first in hiss or (end not in vowels and first not in vowels):
+            return "із"
+        return "з"
+    return prep
+
+
+def english_verb(en, subject):
+    """The English of a pattern said by `subject`: be grateful -> we are grateful; work -> he works."""
+    head, _, rest = en.partition(" ")
+    if head == "be":
+        head = {"I": "am", "he": "is"}.get(subject, "are")
+    elif subject == "he":
+        head = head + ("es" if head.endswith(("s", "sh", "ch", "x", "o")) else "s")
+    return f"{head} {rest}".strip()
+
+
+def add_government(db, index, pairs, per_noun=5, ratings=None):
+    """Fill `cloze` with the sentences of each case-government pattern (government.ts).
+
+    A Tatoeba sentence is kept for a pattern when:
+
+    - one of its words is a form of the pattern's verb or adjective that no other
+      word has (дати is also the plural of дата, so its forms are passed over);
+    - within the next three words, with nothing between them but words that
+      describe the noun (мою, цю, дуже), comes the pattern's preposition, if it
+      has one, and then a noun or a personal pronoun; a comma, a conjunction
+      or another preposition ends the search (дякую за допомогу is not дякувати
+      + кому?);
+    - that noun's case is certain among the cases that could stand there, and
+      is the one the pattern asks for (мамі after дякую: the locative needs a
+      preposition, so only the dative is left).
+
+    For a pattern whose noun comes first (Мені подобається), the three words
+    before the verb are looked at instead.
+
+    Then made-up sentences fill each pattern up to CLOZE_MIN, from the nouns
+    government.ts names for it. Returns per pattern how many were found and
+    how many made, and `government_points`, the sentence counts.
+    """
+    patterns, sets = government_patterns()
+    practised = [p for p in patterns if p["lesson"] and (not p["prep"] or p["prep"] in GOV_TWO_CASES)]
+    if not practised:
+        return dict(government_points={}, government_found={}, government_made={})
+
+    pos = {}
+    for eid, p in db.execute("SELECT id, pos FROM entries"):
+        pos[eid] = p
+    words = collections.defaultdict(list)  # dictionary word -> entry ids (verbs and adjectives)
+    for eid, word in db.execute("SELECT id, word FROM entries WHERE pos IN ('verb', 'adj')"):
+        words[word].append(eid)
+    noun_ids = collections.defaultdict(list)  # word -> noun entry ids, the most frequent first
+    capital = {}
+    word_of = {}
+    for eid, word in db.execute("SELECT id, word FROM entries WHERE pos IN ('noun', 'name') ORDER BY freq DESC, id"):
+        noun_ids[word].append(eid)
+        capital[eid] = word[:1].isupper()
+        word_of[eid] = word
+    # The nouns a pattern marked `listed` may take: грати у is a game only among its own nouns (у неділю is a day)
+    listed = {p["id"]: {w for name in p["nouns"] for w, _ in sets.get(name, [])} for p in practised if p["listed"]}
+
+    # The spellings of every noun: entry -> spelling -> [(case, number, form)], as add_cloze has them
+    nouns = collections.defaultdict(dict)
+    for eid, form, key, tags in db.execute(
+            "SELECT e.id, f.form, f.plain, f.tags FROM forms f JOIN entries e ON e.id = f.entry_id"
+            " WHERE e.pos IN ('noun', 'name')"):
+        tags = json.loads(tags)
+        number = "plural" if "plural" in tags else "singular" if "singular" in tags else None
+        for case in CASES.intersection(tags):
+            if number:
+                nouns[eid].setdefault(key, []).append((case, number, form))
+
+    # The personal pronouns. Each one's page holds the table of all of them (мені is
+    # under ти as well), so a form is given to the pronoun whose row it is in: the
+    # one with the same person, number and gender. spelling -> [(case, number, form, entry)]
+    pronouns = collections.defaultdict(list)
+    pron_ids = {word: eid for eid, word in db.execute("SELECT id, word FROM entries WHERE pos = 'pron'")}
+    rows = collections.defaultdict(list)  # (pronoun entry, row) -> [(case, number, form, spelling)]
+    for eid, form, key, tags in db.execute(
+            "SELECT e.id, f.form, f.plain, f.tags FROM forms f JOIN entries e ON e.id = f.entry_id"
+            " WHERE e.pos = 'pron' AND f.tags LIKE '%\"personal\"%'"):
+        tags = set(json.loads(tags))
+        case = CASES & tags
+        if len(case) != 1:
+            continue
+        row = frozenset(tags - CASES)
+        rows[eid, row].append((next(iter(case)), "plural" if "plural" in row else "singular", form, key))
+    seen = set()
+    for (eid, row), forms in rows.items():
+        nominative = [key for case, _, _, key in forms if case == "nominative"]
+        owner = pron_ids.get(nominative[0]) if nominative else None
+        if owner is None or (owner, row) in seen:
+            continue
+        seen.add((owner, row))
+        for case, number, form, key in forms:
+            if (case, number, form, owner) not in pronouns[key]:
+                pronouns[key].append((case, number, form, owner))
+
+    def readings(key, eid):
+        """The (case, number, form) a spelling can be, as a noun or as a personal pronoun."""
+        if eid is None:
+            return [(c, n, f) for c, n, f, _ in pronouns[key]]
+        return nouns[eid].get(key, [])
+
+    def noun_at(token):
+        """(entry, spelling) of a noun or personal pronoun, None for a word that describes a noun, False otherwise."""
+        key = plain(token)
+        if key in GOV_FILLERS or key in GOV_MODIFIER_PRONOUNS:
+            return None
+        if key in pronouns:
+            owners = {o for _, _, _, o in pronouns[key]}
+            if len(owners) == 1:
+                return next(iter(owners)), key, True
+            return False
+        owners = index.get(key, set())
+        if len(owners) == 1:
+            (eid,) = owners
+            if pos.get(eid) in ("noun", "name") and len(nouns.get(eid, {})) > 1:
+                if token[:1].isupper() != capital.get(eid, False):
+                    return False  # Томом is the name, not том
+                return eid, key, False
+        if owners and all(pos.get(o) in ("adj", "det", "adv", "particle", "num") for o in owners):
+            return None
+        return False
+
+    prepositions = set(PREPOSITIONS) | {w for (w,) in db.execute("SELECT word FROM entries WHERE pos = 'prep'")}
+    verb_tokens = {}  # pattern id -> spellings of its verb
+    for p in practised:
+        own = {eid for lemma in p["lemmas"] for eid in words.get(lemma, [])}
+        others = {eid for p2 in practised for lemma in p2["lemmas"] if lemma in p["lemmas"]
+                  for eid in words.get(lemma, [])}
+        keys = set()
+        for eid in own:
+            for key, tags in db.execute("SELECT plain, tags FROM forms WHERE entry_id = ?", (eid,)):
+                if " " in key or "passive" in json.loads(tags):
+                    continue
+                if index.get(key, set()) <= (own | others):
+                    keys.add(key)
+        verb_tokens[p["id"]] = keys
+    by_token = collections.defaultdict(list)
+    for p in practised:
+        for key in verb_tokens[p["id"]]:
+            by_token[key].append(p)
+
+    kept = collections.defaultdict(list)
+    per = collections.Counter()
+    for sid, text, english, rating, adapted, original in short_first(pairs, ratings):
+        if rating and rating[0] < 4:
+            continue
+        if any(ord(ch) > 0xFFFF for ch in text):
+            continue
+        found = list(TOKEN.finditer(text))
+        done = set()
+        for i, verb in enumerate(found):
+            for p in by_token.get(plain(verb.group()), ()):
+                if p["id"] in done:
+                    continue
+                spellings = GOV_SPELLINGS.get(p["prep"], {p["prep"]}) if p["prep"] else set()
+                wanted = GOV_CASES[p["case"]]
+                # What could stand there: after a preposition the cases it takes; else any case
+                # a noun has without one, the nominative only before the verb (Мама подобається)
+                if p["prep"]:
+                    taken, also = PREPOSITIONS[p["prep"]][1], PREPOSITIONS[p["prep"]][2]
+                    possible = set(taken) | set(also)
+                else:
+                    possible = {"genitive", "dative", "accusative", "instrumental"} | (
+                        {"nominative"} if p["before"] else set())
+                step = -1 if p["before"] else 1
+                at, seen_prep, hit = i, False, None
+                for _ in range(GOV_WINDOW):
+                    nxt = at + step
+                    if nxt < 0 or nxt >= len(found):
+                        break
+                    a, b = (found[nxt], found[at]) if step < 0 else (found[at], found[nxt])
+                    if text[a.end():b.start()] != " ":
+                        break  # a comma, a dash or a full stop between
+                    at = nxt
+                    token = found[at].group()
+                    key = plain(token)
+                    if step > 0 and key in spellings and not seen_prep:
+                        seen_prep = True
+                        continue
+                    if key in prepositions or key in GOV_CONJUNCTIONS:
+                        break
+                    noun = noun_at(token)
+                    if noun is None:
+                        continue
+                    if noun is not False:
+                        eid, nkey, is_pronoun = noun
+                        if token[:1].isupper() and is_pronoun and not starts_sentence(text, found[at].start()):
+                            break
+                        hit = (found[at], eid if not is_pronoun else None, nkey, eid)
+                    break
+                if not hit or bool(spellings) != seen_prep:
+                    continue
+                word, lookup, nkey, eid = hit
+                if lookup is not None and (word_of.get(eid) in GOV_TIME
+                                           or (p["id"] in listed and word_of.get(eid) not in listed[p["id"]])):
+                    continue
+                here = [(c, n, f) for c, n, f in readings(nkey, lookup) if c in possible]
+                if {c for c, _, _ in here} != {wanted} or len({n for _, n, _ in here}) != 1:
+                    continue
+                if per[p["id"], eid] >= per_noun:
+                    continue
+                per[p["id"], eid] += 1
+                done.add(p["id"])
+                case, number, form = here[0]
+                kept[p["id"]].append((eid, text, english, word.start(), len(word.group()), form, number, sid,
+                                      adapted, verb.start(), len(verb.group())))
+
+    found_counts = {p["id"]: len(kept[p["id"]]) for p in practised}
+    made = {p["id"]: 0 for p in practised}
+    for p in practised:
+        need = CLOZE_MIN - len(kept[p["id"]])
+        if need <= 0:
+            continue
+        frames = government_frames(db, p, sets, noun_ids, per, per_noun)
+        random.Random(p["id"]).shuffle(frames)
+        for row in frames[:need]:
+            kept[p["id"]].append(row)
+            made[p["id"]] += 1
+
+    points = {pid: len(rows) for pid, rows in sorted(kept.items()) if len(rows) >= CLOZE_MIN}
+    db.executemany(
+        "INSERT INTO cloze(point, n, entry_id, uk, en, start, length, form, number, tatoeba_id, adapted,"
+        " cue_start, cue_length) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(pid, n, *row) for pid in points for n, row in enumerate(kept[pid])])
+    return dict(government_points=points, government_found=found_counts, government_made=made)
+
+
+def government_frames(db, p, sets, noun_ids, per, per_noun):
+    """The sentences a pattern's frame makes, one per subject and noun, each a cloze row.
+
+    Я дякую мамі. Ми чекаємо на автобус. Ми вдячні сусідові. Це подобається мамі.
+    The verb is in the present tense of the imperfective; an adjective is in the
+    plural, after ми, ви or вони. A noun already in `per_noun` found sentences is
+    left out, so that no noun takes over a pattern."""
+    lemma = p["lemmas"][0]
+    head = db.execute("SELECT id, pos FROM entries WHERE word = ? AND pos IN ('verb', 'adj') ORDER BY freq DESC, id",
+                      (lemma,)).fetchone()
+    if not head:
+        return []
+    eid, kind = head
+    forms = [(f, k, set(json.loads(t))) for f, k, t in db.execute(
+        "SELECT form, plain, tags FROM forms WHERE entry_id = ?", (eid,))]
+
+    def form_with(*tags):
+        """The longest spelling with all `tags` (користуюся over користуюсь, дякуємо over дякуєм)."""
+        found = [k for _, k, t in forms if set(tags) <= t and " " not in k]
+        return max(found, key=len) if found else None
+
+    case = GOV_CASES[p["case"]]
+    subjects = ["я", "ти", "він"] if p["single"] else ["ми", "ви", "вони"] if kind == "adj" else ["я", "ми", "ви", "вони"]
+    rows = []
+    for word, english in (w for name in p["nouns"] for w in sets.get(name, [])):
+        noun = None
+        # A noun named in the plural (карти, шахи) is looked up by that form
+        ids = noun_ids.get(word) or [nid for (nid,) in db.execute(
+            "SELECT DISTINCT f.entry_id FROM forms f JOIN entries e ON e.id = f.entry_id"
+            " WHERE f.plain = ? AND e.pos = 'noun' AND f.tags LIKE '%\"nominative\"%' AND f.tags LIKE '%\"plural\"%'",
+            (word,))]
+        numbers = ("plural",) if word not in noun_ids else ("singular", "plural")
+        for nid in ids:
+            noun_forms = [(f, k, set(json.loads(t))) for f, k, t in db.execute(
+                "SELECT form, plain, tags FROM forms WHERE entry_id = ?", (nid,))]
+            for number in numbers:
+                hit = [(f, k) for f, k, t in noun_forms if {case, number} <= t and "vocative" not in t]
+                # A locative that is not also the dative where there is one: поясненні, not поясненню
+                other = {k for _, k, t in noun_forms if "dative" in t} if case == "locative" else set()
+                hit.sort(key=lambda h: h[1] in other)
+                if hit:
+                    noun = (nid, hit[0][0], hit[0][1], number)
+                    break
+            if noun:
+                break
+        if not noun or per[p["id"], noun[0]] >= per_noun:
+            continue
+        nid, form, key, number = noun
+        shown = key
+        if p["before"]:
+            verb = form_with("present", "third-person", "singular")
+            for neg, en in (("", "likes it"), ("не ", "doesn't like it")):
+                uk = f"Це {neg}{verb} {shown}."
+                start = uk.index(shown, len("Це "))
+                rows.append((nid, uk, f"{english[:1].upper()}{english[1:]} {en}.", start, len(shown), form, number,
+                             0, 0, len(f"Це {neg}"), len(verb)))
+            continue
+        for subject in subjects:
+            tags, en_subject = GOV_SUBJECTS[subject]
+            if kind == "adj":
+                verb = form_with("nominative", "plural")
+            else:
+                verb = form_with("present", *tags)
+            if not verb:
+                continue
+            head_uk = f"{subject[:1].upper()}{subject[1:]} {verb}"
+            prep = euphonic(verb, p["prep"], key) if p["prep"] else ""
+            uk = f"{head_uk} {prep + ' ' if prep else ''}{shown}."
+            start = len(uk) - 1 - len(shown)
+            en_said = english_verb(p["en"], en_subject).replace("{}", english)
+            rows.append((nid, uk, f"{en_subject[:1].upper()}{en_subject[1:]} {en_said}.", start, len(shown), form,
+                         number, 0, 0, len(subject) + 1, len(verb)))
+    return rows
+
+
 def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
@@ -1624,6 +2069,8 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
             stats["rated_sentences"] = len(ratings)
             stats.update(add_tatoeba(db, index, pairs, ratings=ratings, fixes=load_fixes()))
             stats.update(add_cloze(db, index, pairs, ratings=ratings))
+            stats.update(add_government(db, index, pairs, ratings=ratings))
+            stats["cloze_points"].update(stats["government_points"])
     db.execute("CREATE TABLE meta(key TEXT PRIMARY KEY, value TEXT)")
     db.executemany("INSERT INTO meta VALUES (?,?)", [
         ("source", "English Wiktionary via kaikki.org (wiktextract)"),

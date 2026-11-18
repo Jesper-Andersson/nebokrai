@@ -54,9 +54,10 @@
 	import UkrainianKeyboard from '#lib/UkrainianKeyboard.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { isNumber, type Point } from '#lib/practice/points.ts';
+	import { isNumber, meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import {
-		checkAnswer, climb, cut, endingOf, hintStep, noteKey, split, struckEnding, type Gap, type Outcome, type Step
+		asInGap, checkAnswer, climb, cueParts, cut, endingOf, hintStep, noteKey, split, struckEnding, type Gap, type Outcome,
+		type Step
 	} from '#lib/practice/round.ts';
 	import type { Typed } from '#lib/review/recall.ts';
 	import { plain } from '#lib/search/normalize.ts';
@@ -88,6 +89,10 @@
 	let m = $derived(messagesFor(settings.lang));
 
 	let parts = $derived(split(gap));
+	/** The stretches before and after the gap, each cut where a verb's pattern has its verb, shown in bold. */
+	let head = $derived(cueParts(gap, 0, gap.start));
+	let tail = $derived(cueParts(gap, gap.start + gap.length, gap.uk.length));
+	let meaning = $derived(meaningOfPoint(m.practice.meaning, point, settings.lang));
 	let right = $derived(plain(gap.answer));
 
 	/** The answer as stem and ending: цу́кр + у. */
@@ -233,14 +238,23 @@
      Genitive answers кого? чого? -->
 {#snippet rule()}
 	<div class="rule">
+		{#if point.ask}
+			<!-- A verb's pattern: дякувати + кому?, its case named under it -->
+			<p class="takes">
+				<b lang="uk">{ruleOf(point)}</b>
+				{#if meaning}<span class="meaning">({meaning})</span>{/if}
+			</p>
+			<p class="question"><Term id={point.case} /></p>
+		{:else}
 		<p class="takes">
 			<b lang="uk">{point.cue}</b>
-			{#if m.practice.meaning[point.id]}<span class="meaning">({m.practice.meaning[point.id]})</span>{/if}
+			{#if meaning}<span class="meaning">({meaning})</span>{/if}
 			<Icon name="arrow-right" size={14} />
 			<Term id={point.case} />
 			{#if point.number}{m.practice.ofNumber[point.number]}{/if}
 		</p>
-		{#if HINTS[point.case]}
+		{/if}
+		{#if HINTS[point.case] && !point.ask}
 			<p class="question">
 				{m.grammar.terms[point.case].name}
 				{m.practice.answers}
@@ -249,6 +263,13 @@
 		{/if}
 	</div>
 {/snippet}
+
+<!-- A stretch of the sentence, its words open to a click once answered (Sentence.svelte); a verb's
+     pattern has its verb in bold: *дякую* мамі -->
+{#snippet text(words: string)}{#if result}<Sentence text={words} />{:else}{words}{/if}{/snippet}
+{#snippet stretch([before, cue, after]: [string, string, string])}{@render text(before)}{#if cue}<b
+			>{@render text(cue)}</b
+		>{@render text(after)}{/if}{/snippet}
 
 <!-- ✓ Right   екзамен → екзамені; missed, the ending marked: цу́кор → цу́кр[у] -->
 {#snippet verdict(result: { outcome: Outcome; given: string })}
@@ -304,7 +325,7 @@
 
 		<div class="shown">
 			<p class="sentence" lang="uk">
-				{#if result}<Sentence text={parts.before} />{:else}{parts.before}{/if}{#if result}<b class="filled" data-outcome={result.outcome}
+				{@render stretch(head)}{#if result}<b class="filled" data-outcome={result.outcome}
 						>{#if result.outcome === 'missed' && ending.ending}{@const word = cut(parts.word, ending.letters)}{word.stem}<span
 								class="end">{word.ending}</span
 							>{:else}{parts.word}{/if}</b
@@ -324,7 +345,7 @@
 						maxlength="60"
 						inputmode={keyboardOpen ? 'none' : undefined}
 						{@attach (!touch || keyboardOpen) && focus}
-					/>{/if}{#if result}<Sentence text={parts.after} />{:else}{parts.after}{/if}
+					/>{/if}{@render stretch(tail)}
 			</p>
 			<div class="english" lang="en"><Translation text={gap.en} /></div>
 			<p class="cue">
@@ -395,7 +416,7 @@
 						onclick={() => choose(option)}
 					>
 						<kbd class="ui-kbd">{i + 1}</kbd>
-						<span><Stressed text={option} /></span>
+						<span><Stressed text={asInGap(gap, option)} /></span>
 					</button>
 				{/each}
 			</div>

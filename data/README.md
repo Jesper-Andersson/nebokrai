@@ -686,17 +686,25 @@ python3 data/export_wordlist.py nebokrai.db static/words.json
 
 ## VESUM form lookup (separate database)
 
-    pip install pymorphy3 pymorphy3-dicts-uk
+    curl -L -o data/raw/dict_corp_vis.txt.bz2 \
+        https://github.com/brown-uk/dict_uk/releases/download/v6.8.6/dict_corp_vis.txt.bz2
     curl -o data/raw/twisters.lst \
         https://raw.githubusercontent.com/brown-uk/dict_uk/1140395379c34dcc5992df5b6006ed1842355fc7/data/dict/twisters.lst
-    python3 data/import_vesum.py vesum.db --twisters data/raw/twisters.lst   # about 7 minutes, 485 MB
+    python3 data/import_vesum.py vesum.db data/raw/dict_corp_vis.txt.bz2 \
+        --twisters data/raw/twisters.lst                                   # about 2.5 minutes
     python3 data/search.py nebokrai.db --vesum vesum.db книжечку
 
-`--twisters` is optional; without it there are no suggestions for non-standard
-words, only the mark. The link pins the dict_uk commit the site was built from
-(9 November 2026).
+`dict_corp_vis.txt.bz2` (18 MB, SHA-256 `e3380378…af24be9`) is VESUM as
+dict_uk publishes it with each release: every word on a line of its own with
+its tags, its forms indented under it. The script reads the compressed file as
+it is. When a newer release comes out, change the link here and
+`DICT_UK_VERSION` in `import_vesum.py`, which the Sources page cites.
 
-VESUM lists 393,095 Ukrainian words with 3.7 million forms, but no meanings.
+`--twisters` is optional; without it there are no suggestions for non-standard
+words, only the mark. Its link pins a dict_uk commit (9 November 2026) that is
+newer than release 6.8.6 and lists 80 more lines.
+
+VESUM lists 418,248 Ukrainian words with 3.9 million forms, but no meanings.
 Search uses it only as a fallback: when a Cyrillic query matches nothing in
 Wiktionary, VESUM tells us which dictionary word the form belongs to. If
 Wiktionary has that word, its entry is shown (`нездійсненними` finds
@@ -705,12 +713,12 @@ Wiktionary has that word, its entry is shown (`нездійсненними` fin
 
 Three things soften that bare result:
 
-- `vesum_kinds` holds what VESUM says a word is: given name (5,095 words),
-  patronymic (1,026), surname (22,632) or abbreviation (1,988). A bare result
+- `vesum_kinds` holds what VESUM says a word is: given name (5,575 words),
+  patronymic (1,041), surname (23,429) or abbreviation (2,287). A bare result
   for such a word carries it as `kind`, and the page says "a surname with no
   dictionary entry yet" (`осташка` finds `осташко`).
-- `vesum_kinds` also marks 13,172 words `distorted`: not standard Ukrainian.
-  A word counts when VESUM tags every one of its forms `Dist` (it also tags
+- `vesum_kinds` also marks 13,801 words `distorted`: not standard Ukrainian.
+  A word counts when VESUM tags every one of its forms `bad` (it also tags
   single wrong forms of ordinary words) or when dict_uk's `twisters.lst` lists
   it. `vesum_suggest` holds what to say instead, from `twisters.lst`, one
   single word per row (13,321 rows for 6,509 words; phrases are left out). A
@@ -726,16 +734,16 @@ Every VESUM word also has a page (`/word/knyzhechka`), with no meaning but
 its grammar line and its full table of forms, read from three more tables
 (`src/lib/search/vesum-word.ts`):
 
-- `vesum_words`: one row per paradigm, 415,878 of them for the 393,095 words
+- `vesum_words`: one row per paradigm, 442,458 of them for the 418,248 words
   (швидкий is an adjective and a noun; осташко a surname of each gender).
   `latin` is the loose romanisation, as `search_keys` kind `latin` in the
   dictionary, so a page address finds its words the way it finds entries.
   `tags` are the word's own, in Wiktionary's words: `["feminine","inanimate"]`.
   It is indexed on `latin` and on `(lemma, pos)`, so neither an address nor a
   borrowed table reads the whole table.
-- `vesum_paradigms`: every form of every paradigm, 6.5 million rows, in
+- `vesum_paradigms`: every form of every paradigm, 7.0 million rows, in
   VESUM's order (nominative first), each with a `tagset`.
-- `vesum_tagsets`: the 71 different lists of form tags, stored once:
+- `vesum_tagsets`: the 230 different lists of form tags, stored once:
   `["instrumental","singular"]`. They are Wiktionary's tags, so
   `src/lib/forms.ts` draws VESUM's forms in the same tables. A form VESUM
   marks as not standard keeps its place and gets `nonstandard`.
@@ -753,7 +761,11 @@ into one dataset. Nothing from `vesum.db` is copied into `nebokrai.db`, and
 deleting `vesum.db` removes VESUM from the site completely. While it is in
 use, the site has to stay non-commercial.
 
-The data comes from the `pymorphy3-dicts-uk` package, a 2022 snapshot of VESUM.
+Until November 2026 the data came from the `pymorphy3-dicts-uk` package, a
+2022 snapshot of VESUM. Release 6.8.6 adds about 30,800 words and 263,000
+forms; about 5,000 short superlative adverbs (найзвучніш) are now forms of
+their adverb rather than words of their own, and some words were re-analysed
+(молода, a bride, is now a noun of its own rather than a form of молодий).
 
 ## Publishing to D1
 
@@ -761,7 +773,7 @@ The live site reads the dictionary from Cloudflare D1, which loads SQL text,
 not a `.db` file. `export_sql.py` writes that text:
 
     python3 data/export_sql.py nebokrai.db data/raw/nebokrai.sql   # 125 MB, 2.1 million rows
-    python3 data/export_sql.py vesum.db data/raw/vesum.sql         # 224 MB, 3.7 million rows
+    python3 data/export_sql.py vesum.db data/raw/vesum.sql         # 555 MB, 11.5 million rows
 
 A rebuilt dictionary goes into a **new** database, and the site is then
 pointed at it. The old one stays until the new one is seen to work, so going
@@ -786,8 +798,8 @@ back is one deploy.
 needs publishing again when `import_vesum.py` has been run again.
 
 Loading counts as rows written, index entries included: about 4.8 million for
-the dictionary and about 11 million for VESUM (3.7 million forms for search,
-6.5 million for the tables, and the 415,878 words with their index). The Workers Paid plan includes 50
+the dictionary and about 12 million for VESUM (4.0 million forms for search,
+7.0 million for the tables, and the 442,458 words with their index). The Workers Paid plan includes 50
 million a month; the free plan's 100,000 a day cannot load either.
 
 To try a dump without touching the account, use `--local` in place of

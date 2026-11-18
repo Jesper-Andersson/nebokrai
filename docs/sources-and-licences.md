@@ -66,12 +66,12 @@ of forms** of words with no entry (a page for книжечка, read live from
 `vesum.db`; an entry of our own with no forms borrows VESUM's table, credited
 under it):
 Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM).
-2005–2022. Available at: <https://vesum.nlp.net.ua/>
+Version 6.8.6. 2005–2026. Available at: <https://vesum.nlp.net.ua/>
 
 By Andriy Rysin, Vasyl Starko and the BrUK team, with the data published at
 [brown-uk/dict_uk](https://github.com/brown-uk/dict_uk) under the
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 licence](https://creativecommons.org/licenses/by-nc-sa/4.0/).
-Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022.
+Nebokrai reads the word list published with release 6.8.6 (`dict_corp_vis.txt`).
 The Ukrainian words offered instead of a Russian word or surzhyk (митниця for
 таможня) come from the same project's list of distorted words, as of November
 2026; the few Nebokrai adds itself (дах for криша) are under the dictionary's
@@ -243,8 +243,10 @@ How the licences fit together:
   worked out from it: the file name is the second-to-last part of the address
   (it ends in `.ogg` or `.wav`), and the page is
   `https://commons.wikimedia.org/wiki/File:<name>`.
-- **VESUM version.** VESUM is read through the `pymorphy3-dicts-uk` package,
-  which is a 2022 snapshot (2.4.1.1.1663094765, built on 13 September 2022).
-  It does not say which VESUM version it holds, so the citation on the Sources
-  page gives the years, 2005–2022, where VESUM's README asks for a version.
+- **VESUM version.** The citation names the dict_uk release `vesum.db` is
+  built from (`DICT_UK_VERSION` in `data/import_vesum.py`); change both
+  together. Until November 2026 VESUM was read through the
+  `pymorphy3-dicts-uk` package, a 2022 snapshot that named no version.
+  Andriy Rysin confirmed on 18 November 2026 that this use and credit are
+  fine.
 - This is a careful reading of the licences, not legal advice.

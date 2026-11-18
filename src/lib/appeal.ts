@@ -19,7 +19,9 @@ export interface Appeal {
 export const APPEAL: Appeal = {
 	id: 'volt4victory',
 	url: 'https://auroraaid.eu/volt4victory/',
-	until: '2027-01-31'
+	// Ended early on 2026-11-18 (it was to run to 2027-01-31); the banner stays
+	// in the code for the next campaign.
+	until: '2026-11-17'
 };
 
 /** True while the appeal should be shown: not past its last day, and not closed in this browser. */

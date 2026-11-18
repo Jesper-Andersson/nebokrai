@@ -14,14 +14,26 @@
 
 	let {
 		text,
-		own = new Set()
+		own = new Set(),
+		unknown
 	}: {
 		text: string;
 		/** The word of the page and its forms, as `plain()` writes them. Empty where no word is the page's own. */
 		own?: Set<string>;
+		/**
+		 * For a story (/read/<story>): one flag per word of the sentence, in
+		 * order, true for a word the reader has not learnt yet, which is
+		 * underlined. Left out, no word is.
+		 */
+		unknown?: boolean[];
 	} = $props();
 
 	let parts = $derived(tokens(text));
+	/** The place of each word among the sentence's words, for `unknown`. */
+	let wordAt = $derived.by(() => {
+		let n = 0;
+		return parts.map((token) => (token.word ? n++ : -1));
+	});
 
 	/** The word `step` tokens away from token `i` (−2 or 2), when a space alone stands between. */
 	function neighbour(i: number, step: -2 | 2): string | undefined {
@@ -33,7 +45,7 @@
 
 <span lang="uk"
 	>{#each parts as token, i (i)}{#if !token.word}{token.text}{:else if own.has(plain(token.text))}<b>{token.text}</b
-			>{:else}<GlossWord text={token.text} before={neighbour(i, -2)} after={neighbour(i, 2)} />{/if}{/each}</span
+			>{:else}<GlossWord text={token.text} before={neighbour(i, -2)} after={neighbour(i, 2)} marked={unknown?.[wordAt[i]] ?? false} />{/if}{/each}</span
 >
 
 <style>

@@ -6,9 +6,20 @@ import type { PageServerLoad } from './$types';
 // Which grammar points have sentences: a rule with none is never asked, so
 // the dashboard must not count it as one still to be met. The same value,
 // under the same name in the cache, as /practice reads.
+//
+// `stories` is how many stories /read has, for its door: 0 when the database
+// has no stories' tables yet (data/import_stories.py not run on it).
 export const load: PageServerLoad = async ({ url }) => ({
 	sentences: await cachedJson(`${url.origin}/cache/practice`, async () => {
 		const { db } = await getDatabases();
 		return pointCounts(db);
+	}),
+	stories: await cachedJson(`${url.origin}/cache/read-count`, async () => {
+		try {
+			const [row] = await (await getDatabases()).db.all<{ n: number }>('SELECT count(*) AS n FROM texts');
+			return row?.n ?? 0;
+		} catch {
+			return 0;
+		}
 	})
 });

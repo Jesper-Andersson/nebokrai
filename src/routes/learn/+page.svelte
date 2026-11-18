@@ -231,7 +231,7 @@
 				<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }} />
 			</div>
 			<div class="doors-slot">
-				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} onfirstwords={firstWords} />
+				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} stories={data.stories} onfirstwords={firstWords} />
 			</div>
 			<VocabularyCard {now} {ready} />
 			<GrammarCard {offered} {now} {ready} />

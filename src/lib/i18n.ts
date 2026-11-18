@@ -288,7 +288,7 @@ const en = {
 		 * The three things learnt here, kept apart everywhere on the page by
 		 * name and by colour: words as flashcards, grammar rules, the letters.
 		 */
-		kind: { cards: 'Flashcards', grammar: 'Grammar' },
+		kind: { cards: 'Flashcards', grammar: 'Grammar', stories: 'Stories' },
 		/** The two doors at the head of the page: what each has waiting, and its button. */
 		action: {
 			cardsDue: (n: number) => (n === 1 ? '1 card to review' : `${n} cards to review`),
@@ -298,7 +298,10 @@ const en = {
 			rulesNone: 'No rules to practise today',
 			/** In place of a count, on the door of a kind that has not been begun. */
 			notStarted: 'Not started yet',
-			rulesGo: 'Practise'
+			rulesGo: 'Practise',
+			/** The stories' door: how many there are, then its button. */
+			stories: (n: number) => `${n} stories, read aloud`,
+			storiesGo: 'Read'
 		},
 		activity: 'Activity',
 		/** Beside "Activity": the reviews of the fourteen days its bars show. */
@@ -1332,7 +1335,7 @@ const en = {
 	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
-		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
+		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian', read: 'Stories',
 		privacy: 'Privacy', stats: 'Usage', suggestions: 'Suggestions', import: 'Import words', updates: 'Updates',
 		extension: 'Nebokrai in your browser', placement: 'Placement test'
 	},
@@ -1341,10 +1344,63 @@ const en = {
 	 * a description of about 150 characters (PageMeta.svelte, seo.ts). Search
 	 * engines send no cookies, so they read the English ones.
 	 */
+	/** /read, the stories, and /read/<story>, one of them (src/lib/texts.ts). */
+	read: {
+		title: 'Stories',
+		lead: 'Short illustrated stories, read aloud. Tap a word for its meaning.',
+		/** The tabs over the list: all stories, or one level. */
+		levels: 'Levels',
+		all: 'All',
+		level: (n: number) => `Level ${n}`,
+		/** A tab on a phone, where "Level 2" does not fit: the number alone, after this word for screen readers. */
+		levelShort: 'Level',
+		/** Under a story on the list, once the visitor has cards: the share of its words they know. */
+		known: (percent: number) => `you know ${percent}%`,
+		words: (n: number) => (n === 1 ? '1 word' : `${n} words`),
+		pages: (n: number) => (n === 1 ? '1 page' : `${n} pages`),
+		none: 'No stories to read yet.',
+		back: 'Stories',
+		english: 'English',
+		/** The player: one button for the whole story, page by page. */
+		play: 'Play',
+		pause: 'Pause',
+		playPage: (n: number) => `Play page ${n}`,
+		stopPage: (n: number) => `Stop page ${n}`,
+		pageOf: (n: number, total: number) => `Page ${n} of ${total}`,
+		readBy: (name: string) => `Read by ${name}`,
+		speed: 'Reading speed',
+		/** Under the player. The first once the visitor has 20 cards, when the underlines begin. */
+		key: 'Underlined words are ones you have not learnt yet. Tap any word for its meaning.',
+		keyNew: 'Tap any word for its meaning.',
+		addWords: (n: number, title: string) =>
+			n === 1 ? `Add the new word to “${title}”` : `Add the ${n} new words to “${title}”`,
+		added: (n: number, title: string) =>
+			n === 1 ? `1 word saved to the list “${title}”` : `${n} words saved to the list “${title}”`,
+		addFailed: 'The words could not be saved. Try again in a moment.',
+		/** In place of the button, when there is nothing new left to save. */
+		allSaved: 'Every word of this story is known or saved.',
+		/** The credits, as the story's own colophon names each part. */
+		role: {
+			'Written by': 'written by',
+			'Illustrated by': 'illustrated by',
+			'Translated by': 'translated by',
+			'Read by': 'read by'
+		} as Record<string, string>,
+		colophon: 'About this story',
+		/** Storybooks Canada, CC BY 3.0 */
+		from: 'From',
+		/** Followed by the site's name, a link: First published as “A very tall man” by African Storybook. */
+		origin: (title: string) => `First published as “${title}” by`,
+		changes: 'Nebokrai added the stress marks and split the pages into sentences.'
+	},
 	meta: {
 		homeTitle: 'Nebokrai: Ukrainian–English dictionary with stress and declension',
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
+		read: 'Short illustrated Ukrainian stories for learners, read aloud by Ukrainian speakers, with every word explained in English and the share of words you already know.',
+		/** One story's page: its title, English title and level. */
+		readStory: (title: string, english: string, level: number | null) =>
+			`${title} (${english}): an illustrated Ukrainian story for learners${level ? ` at level ${level} of 5` : ''}, read aloud, with every word explained in English.`,
 		learn: 'Start learning Ukrainian: the alphabet with a drill on its 33 letters, the 1,000 most common words, the grammar words explained, and grammar practice.',
 		placement: 'Already know some Ukrainian? A 5–7 minute test of 80 words and a few grammar questions says where your flashcards and grammar lessons should start.',
 		extension: 'A free browser extension for Chrome, Firefox and Edge: double-click a Ukrainian word on any page to see its meaning, stress and form, and save it to your lists.',
@@ -1798,7 +1854,7 @@ const uk: Messages = {
 		fixes: 'Дрібні виправлення'
 	},
 	learn: {
-		kind: { cards: 'Картки', grammar: 'Граматика' },
+		kind: { cards: 'Картки', grammar: 'Граматика', stories: 'Історії' },
 		action: {
 			cardsDue: (n) => `${counted(n, 'картка', 'картки', 'карток')} на повторення`,
 			cardsNone: 'Сьогодні карток на повторення немає',
@@ -1806,7 +1862,9 @@ const uk: Messages = {
 			rulesDue: (n) => `${counted(n, 'правило', 'правила', 'правил')} на повторення`,
 			rulesNone: 'Сьогодні правил на повторення немає',
 			notStarted: 'Ще не розпочато',
-			rulesGo: 'Тренувати'
+			rulesGo: 'Тренувати',
+			stories: (n) => `${counted(n, 'історія', 'історії', 'історій')} з озвученням`,
+			storiesGo: 'Читати'
 		},
 		activity: 'Активність',
 		inDays: (n) => `${n} за 14 днів`,
@@ -2727,14 +2785,55 @@ const uk: Messages = {
 	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
-		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
+		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську', read: 'Історії',
 		privacy: 'Приватність', stats: 'Відвідуваність', suggestions: 'Пропозиції', import: 'Імпорт слів', updates: 'Оновлення',
 		extension: 'Nebokrai у вашому браузері', placement: 'Тест на рівень'
+	},
+	read: {
+		title: 'Історії',
+		lead: 'Короткі історії з малюнками, прочитані вголос. Натисніть на слово, щоб побачити його значення.',
+		levels: 'Рівні',
+		all: 'Усі',
+		level: (n) => `Рівень ${n}`,
+		levelShort: 'Рівень',
+		known: (percent) => `ви знаєте ${percent}%`,
+		words: (n) => counted(n, 'слово', 'слова', 'слів'),
+		pages: (n) => counted(n, 'сторінка', 'сторінки', 'сторінок'),
+		none: 'Історій поки немає.',
+		back: 'Історії',
+		english: 'Англійською',
+		play: 'Слухати',
+		pause: 'Пауза',
+		playPage: (n) => `Слухати сторінку ${n}`,
+		stopPage: (n) => `Зупинити сторінку ${n}`,
+		pageOf: (n, total) => `Сторінка ${n} з ${total}`,
+		readBy: (name) => `Читає ${name}`,
+		speed: 'Швидкість читання',
+		key: 'Підкреслені слова ви ще не вивчили. Натисніть на будь-яке слово, щоб побачити його значення.',
+		keyNew: 'Натисніть на будь-яке слово, щоб побачити його значення.',
+		addWords: (n, title) =>
+			n === 1 ? `Додати нове слово до списку «${title}»` : `Додати ${counted(n, 'нове слово', 'нові слова', 'нових слів')} до списку «${title}»`,
+		added: (n, title) => `${counted(n, 'слово збережено', 'слова збережено', 'слів збережено')} до списку «${title}»`,
+		addFailed: 'Не вдалося зберегти слова. Спробуйте ще раз за хвилину.',
+		allSaved: 'Усі слова цієї історії ви вже знаєте або зберегли.',
+		role: {
+			'Written by': 'текст:',
+			'Illustrated by': 'малюнки:',
+			'Translated by': 'переклад:',
+			'Read by': 'читає'
+		},
+		colophon: 'Про цю історію',
+		from: 'Джерело',
+		origin: (title) => `Уперше опубліковано як «${title}» на сайті`,
+		changes: 'Наголоси додав Небокрай, і він же поділив сторінки на речення.'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
+		read: 'Короткі українські історії з малюнками для тих, хто вивчає мову: їх читають уголос україномовні читачі, кожне слово пояснено англійською, а поруч видно, яку частку слів ви вже знаєте.',
+		readStory: (title, english, level) =>
+			`${title} (${english}): українська історія з малюнками для тих, хто вивчає мову${level ? `, рівень ${level} з 5` : ''}; її читають уголос, а кожне слово пояснено англійською.`,
 		learn: 'Почніть вивчати українську: абетка з вправами на всі 33 літери, 1000 найуживаніших слів, граматичні терміни з поясненнями та вправи з граматики.',
 		placement: 'Уже трохи знаєте українську? Тест на 5–7 хвилин із 80 слів і кількох запитань з граматики покаже, звідки почати картки й уроки граматики.',
 		extension: 'Безплатне розширення для Chrome, Firefox та Edge: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму та зберегти до своїх списків.',

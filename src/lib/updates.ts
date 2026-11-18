@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-more-everyday-words',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Look up 1,500 more words', uk: 'Шукайте ще 1500 слів' },
+		body: {
+			en: 'Another 1,542 words that had no meaning here, such as похолодати and задаром, now have English meanings written for this dictionary, with the stress checked against the academic dictionary.',
+			uk: 'Ще 1542 слова, яких тут бракувало, як-от «похолодати» і «задаром», тепер мають англійські значення, написані для цього словника, з наголосом, звіреним з академічним словником.'
+		}
+	},
+	{
 		id: '2026-11-18-levelled-path',
 		date: '2026-11-18',
 		kind: 'new',

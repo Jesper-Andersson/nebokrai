@@ -46,7 +46,7 @@ export const UPDATES: Update[] = [
 		id: '2026-11-18-everyday-words',
 		date: '2026-11-18',
 		kind: 'new',
-		title: { en: 'Look up 2,000 more everyday words', uk: 'Шукайте ще 2000 повсякденних слів' },
+		title: { en: 'Look up 2,500 more everyday words', uk: 'Шукайте ще 2500 повсякденних слів' },
 		body: {
 			en: 'Common words that had no meaning here, such as облишити and класний, now have English meanings written for this dictionary, with the stress marked.',
 			uk: 'Поширені слова, яких тут бракувало, як-от «облишити» і «класний», тепер мають англійські значення, написані для цього словника, з наголосом.'

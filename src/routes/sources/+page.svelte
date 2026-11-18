@@ -78,16 +78,17 @@
 
 		<dt>Recognising word forms missing from Wiktionary, words that are not standard Ukrainian, and the forms of words with no entry</dt>
 		<dd>
-			<!-- Worded as VESUM's README asks to be cited. It gives no version
-			     number: the package we read is a snapshot that does not name one. -->
-			Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM). 2005–2022. Available
+			<!-- Worded as VESUM's README asks to be cited. The version is the dict_uk
+			     release vesum.db is built from: DICT_UK_VERSION in data/import_vesum.py. -->
+			Rysin, A., Starko, V. Large Electronic Dictionary of Ukrainian (VESUM). Version 6.8.6.
+			2005–2026. Available
 			at: <a href="https://vesum.nlp.net.ua/">https://vesum.nlp.net.ua/</a>
 		</dd>
 		<dd>
 			By Andriy Rysin, Vasyl Starko and the BrUK team, with the data published at
 			<a href="https://github.com/brown-uk/dict_uk">brown-uk/dict_uk</a> under the
 			<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0</a>
-			licence. Nebokrai reads it from the pymorphy3-dicts-uk package, a snapshot from 2022. The
+			licence. Nebokrai reads the word list published with release 6.8.6. The
 			Ukrainian words offered instead of a Russian word or surzhyk (<span lang="uk">митниця</span> for
 			<span lang="uk">таможня</span>) come from the same project’s list of distorted words, as of
 			November 2026; the few Nebokrai adds itself (<span lang="uk">дах</span> for

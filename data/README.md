@@ -37,8 +37,8 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `senses` | English meaning of an entry | 68,177 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,783 |
-| `examples` | Tatoeba sentence with English translation | 26,683 |
-| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,548 |
+| `examples` | Tatoeba sentence with English translation | 26,800 |
+| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,549 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,810,005 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 

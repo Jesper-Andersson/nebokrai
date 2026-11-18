@@ -70,12 +70,24 @@ export function reviewWords(
 		.flatMap((deck) => wordsOfDeck(deck, saved, lists, common));
 }
 
-/** The words new cards come from, in the order they are met: the decks ticked and not paused. */
+/**
+ * The words new cards come from, in the order they are met: the decks ticked
+ * and not paused. `start` is where the common words begin, from the placement
+ * test (review/progress.ts startOf): with 1,001 the first two decks give no
+ * new words, and the third starts at its first word. Saved words are never
+ * skipped, and nor is a review: a card begun before the test keeps coming
+ * (reviewWords).
+ */
 export function newWords(
-	settings: DeckSettings, saved: string[], lists: Pick<WordList, 'id' | 'words'>[], common: ReadonlyMap<string, string[]>
+	settings: DeckSettings, saved: string[], lists: Pick<WordList, 'id' | 'words'>[], common: ReadonlyMap<string, string[]>,
+	start = 1
 ): string[] {
 	return settings.decks.filter((deck) => !settings.paused.includes(pausedWith(deck)))
-		.flatMap((deck) => wordsOfDeck(deck, saved, lists, common));
+		.flatMap((deck) => {
+			const words = wordsOfDeck(deck, saved, lists, common);
+			const range = COMMON_DECKS.find((d) => d.id === deck);
+			return range && start > range.from ? words.slice(start - range.from) : words;
+		});
 }
 
 /**

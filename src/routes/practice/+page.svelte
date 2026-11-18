@@ -23,7 +23,9 @@
 	import PageMeta from '#lib/PageMeta.svelte';
 	import PracticeRound from '#lib/PracticeRound.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { LESSONS, lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
+	import {
+		LESSONS, lessonRows, newPicks, openLesson, readOpenLesson, rememberOpenLesson
+	} from '#lib/practice/lessons.ts';
 	import { POINTS, cardKey, meaningOfPoint, pointOf, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
@@ -39,6 +41,8 @@
 	/** Ids of the rules that have sentences, in the order they are best met. */
 	let offered = $derived(POINTS.filter((point) => data.sentences[point.id]).map((point) => point.id));
 	let met = $derived(offered.filter((id) => review.cards.has(cardKey(id))).length);
+	/** What a round may start as new: not the rules of lessons the placement test placed out, unless asked for by name. */
+	let picks = $derived(newPicks(offered, review.placedLessons, (id) => review.cards.has(cardKey(id))));
 	/** When the lessons were last drawn: how well a rule is held depends on the day. */
 	let now = $state(Date.now());
 
@@ -72,7 +76,7 @@
 
 	// --- The lessons ---
 
-	let lessons = $derived(lessonRows(offered, held));
+	let lessons = $derived(lessonRows(offered, held, review.placedLessons));
 	let open = $derived(openLesson(lessons, chosen));
 	/** The two lists, each under its heading: the cases after prepositions, and the verbs' patterns (дякувати + кому?). */
 	let groups = $derived(
@@ -128,7 +132,7 @@
 	{#if !offered.length}
 		<p class="note">{m.practice.none}</p>
 	{:else if round}
-		<PracticeRound {offered} {...round} choice={byChoice} onstop={stop} />
+		<PracticeRound offered={round.only ? offered : picks} {...round} choice={byChoice} onstop={stop} />
 	{:else}
 		<section class="ui-card toolbar" aria-busy={!review.ready}>
 			<div class="answer">
@@ -186,6 +190,7 @@
 							<span class="names">
 								<b>{name}</b>
 								<small lang="uk">{lesson.cues.join(' · ')}</small>
+								{#if lesson.placed}<small class="placed">{m.path.knownFromTest}</small>{/if}
 							</span>
 							<span class="segments" aria-hidden="true">
 								{#each lesson.points as { point, state } (point.id)}<i data-state={state}></i>{/each}
@@ -470,6 +475,12 @@
 		font-size: var(--text-sm);
 		white-space: nowrap;
 		text-overflow: ellipsis;
+	}
+
+	/* A lesson the placement test placed out (lessons.ts, placed) */
+	.names small.placed {
+		flex: none;
+		color: var(--right);
 	}
 
 	.segments {

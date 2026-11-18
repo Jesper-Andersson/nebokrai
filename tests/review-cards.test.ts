@@ -178,6 +178,26 @@ test('reviews come from every deck not paused, new words only from the decks tic
 	assert.deepEqual(newWords(paused, saved, lists, common), []);
 });
 
+test('the placement start skips common words before it, never saved words or reviews', () => {
+	const saved = ['кіт'];
+	const w = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => `w${from + i}`);
+	const common = new Map([['common-500', w(1, 500)], ['common-1000', w(501, 1000)], ['common-2000', w(1001, 2000)]]);
+	const settings = { decks: ['saved', 'common-500', 'common-1000', 'common-2000'], paused: [] as string[] };
+	const all = newWords(settings, saved, [], common);
+	assert.equal(all.length, 2001);
+	assert.deepEqual(newWords(settings, saved, [], common, 1), all);
+	// Placed at 1,001: the first two decks give nothing new, the third starts at its first word
+	const placed = newWords(settings, saved, [], common, 1001);
+	assert.deepEqual(placed.slice(0, 3), ['кіт', 'w1001', 'w1002']);
+	assert.equal(placed.length, 1001);
+	// Half way into a deck
+	assert.deepEqual(newWords({ decks: ['common-1000'], paused: [] }, saved, [], common, 751).slice(0, 2), ['w751', 'w752']);
+	// Past the end of the decks: only the saved words
+	assert.deepEqual(newWords(settings, saved, [], common, 2001), ['кіт']);
+	// Reviews are not touched
+	assert.equal(reviewWords(settings, saved, [], common).length, 2001);
+});
+
 test('parseSettings', () => {
 	assert.deepEqual(parseSettings(DEFAULT_SETTINGS), DEFAULT_SETTINGS);
 	assert.deepEqual(

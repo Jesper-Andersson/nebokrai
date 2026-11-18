@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-levelled-path',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Follow a path in six stages, or test your level', uk: 'Ідіть шляхом у шість етапів або пройдіть тест' },
+		body: {
+			en: 'Learn shows your path from the letters to reading, and a 5–7 minute placement test says where your flashcards and grammar lessons should start.',
+			uk: 'У розділі навчання видно ваш шлях від літер до читання, а тест на рівень за 5–7 хвилин покаже, звідки почати картки й уроки граматики.'
+		},
+		href: '/learn'
+	},
+	{
 		id: '2026-11-18-ukrainian-wiktionary-words',
 		date: '2026-11-18',
 		kind: 'new',

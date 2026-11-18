@@ -1897,6 +1897,76 @@ def government_frames(db, p, sets, noun_ids, per, per_noun):
     return rows
 
 
+# Made-up words for the placement test (src/lib/placement.ts): a common noun,
+# verb or adjective with one letter inside it changed for another of its kind,
+# so the word still looks Ukrainian and can be said: книжка is not, but кнашка
+# might be. Saying "I know it" to one is a false alarm, which corrects the
+# score. Kept as a meta row; GET /api/placement draws 20 of them and drops any
+# that VESUM knows, at the time it serves the test, so nothing from VESUM is
+# ever written here.
+PSEUDO_COUNT = 300
+PSEUDO_SEED = 20261117
+PSEUDO_RANKS = (500, 5000)
+PSEUDO_LENGTH = (5, 9)
+PSEUDO_POS = ("noun", "verb", "adj")
+PSEUDO_VOWELS = "аеиіоу"
+PSEUDO_CONSONANTS = "бвгдзклмнпрстх"
+VOWELS = "аеєиіїоуюя"
+# Letters never swapped for each other: the pair sounds alike to a learner, or
+# one is the other's spelling elsewhere (и/і, е/є, г/ґ)
+PSEUDO_NEVER = {frozenset("иі"), frozenset("еє"), frozenset("гґ")}
+PSEUDO_ENDING = re.compile("(ти|ть)(ся|сь)?$|(ий|ій|ою|ня|ка|ок|ець|ина|ння|ство)$")
+
+
+def pseudo_candidates(db, count=PSEUDO_COUNT, seed=PSEUDO_SEED):
+    """`count` made-up words, the same ones for the same database and seed.
+
+    The word's first letter and its ending are kept (a verb's -тися, a noun's
+    -ння, or else the last two letters), and one letter between them is
+    changed for another vowel or consonant. Anything found among the
+    dictionary's forms or search keys is a real word, or a typo of one, and
+    is dropped.
+    """
+    rng = random.Random(seed)
+    low, high = PSEUDO_RANKS
+    shortest, longest = PSEUDO_LENGTH
+    words = sorted({word for (word,) in db.execute(
+        f"SELECT word FROM entries WHERE freq_rank BETWEEN ? AND ? AND pos IN ({','.join('?' * len(PSEUDO_POS))})",
+        (low, high, *PSEUDO_POS))
+        if shortest <= len(word) <= longest and re.fullmatch("[а-щьюяєіїґ]+", word)})
+    rng.shuffle(words)
+
+    def real(word):
+        return (db.execute("SELECT 1 FROM forms WHERE plain = ? LIMIT 1", (word,)).fetchone()
+                or db.execute("SELECT 1 FROM search_keys WHERE key = ? LIMIT 1", (word,)).fetchone())
+
+    made = []
+    seen = set(words)
+    for word in words:
+        if len(made) >= count:
+            break
+        match = PSEUDO_ENDING.search(word)
+        end = len(word) - (len(match.group(0)) if match else 2)
+        places = list(range(1, end))
+        rng.shuffle(places)
+        for i in places:
+            letter = word[i]
+            # A consonant only between two vowels, so no cluster nobody could say (кбієнт)
+            between_vowels = word[i - 1] in VOWELS and word[i + 1] in VOWELS
+            kind = (PSEUDO_VOWELS if letter in PSEUDO_VOWELS
+                    else PSEUDO_CONSONANTS if letter in PSEUDO_CONSONANTS and between_vowels else "")
+            options = [other for other in kind if other != letter and frozenset((letter, other)) not in PSEUDO_NEVER]
+            if not options:
+                continue
+            candidate = word[:i] + rng.choice(options) + word[i + 1:]
+            if candidate in seen or real(candidate):
+                continue
+            seen.add(candidate)
+            made.append(candidate)
+            break
+    return sorted(made)
+
+
 def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None,
           ukwiktionary=None):
     db = sqlite3.connect(dst)
@@ -2098,6 +2168,8 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         ("examples_source", "Tatoeba, CC BY 2.0 FR" if tatoeba else ""),
         # How many sentences each grammar point has: /api/practice draws among them at random.
         ("cloze_points", json.dumps(stats.get("cloze_points", {}))),
+        # Made-up words for the placement test; they need the frequency ranks
+        ("placement_pseudo", json.dumps(pseudo_candidates(db), ensure_ascii=False) if freq else "[]"),
         ("stats", json.dumps(stats)),
     ])
     db.commit()

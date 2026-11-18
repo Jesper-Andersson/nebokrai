@@ -7,10 +7,11 @@ import { MAX_REVIEW } from '../src/lib/review/cards.ts';
 import { AGAIN, GOOD, answer, newCard } from '../src/lib/review/fsrs.ts';
 import { MAX_LISTS, MAX_SAVED } from '../src/lib/saved.ts';
 import {
-	SESSION_MS, accountStats, addToLists, createSession, deleteList, deleteSession, deleteUser, findOrCreateUser, getReviewSettings,
+	SESSION_MS, accountStats, addToLists, createSession, deleteList, deleteSession, deleteUser, findOrCreateUser, getProgress,
+	getReviewSettings,
 	hasList, listExported, listLists, listReviewCards, listReviewDays, listSaved, markExported, mergeLists, mergeSaved,
 	parseExportedMarks, parseExportedWords, parseSavedWords, parseWords, putList, removeFromList, removeWord,
-	saveReviewCards, saveReviewDays, saveReviewSettings, saveWord, validateSession
+	saveProgress, saveReviewCards, saveReviewDays, saveReviewSettings, saveWord, validateSession
 } from '../src/lib/server/users.ts';
 import { openMemoryUsers } from './local-db.ts';
 
@@ -100,12 +101,14 @@ test('deleting an account removes everything', async () => {
 		await saveReviewSettings(db, who, { new_per_day: 5, decks: ['saved'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 		await putList(db, who, 'list-read', 'Читання');
 		await addToLists(db, who, [['list-read', 'книга']]);
+		await saveProgress(db, who, { reading: { texts: { 'kit-i-mysha': { band: 500, at: T0 } }, updated_at: T0 } }, T0);
 	}
 
 	await deleteUser(db, user);
 	assert.equal(await validateSession(db, token), null);
 	const tables = [
-		'users', 'identities', 'saved_words', 'exported_words', 'review_cards', 'review_settings', 'lists', 'list_words'
+		'users', 'identities', 'saved_words', 'exported_words', 'review_cards', 'review_settings', 'lists', 'list_words',
+		'user_progress'
 	];
 	for (const table of tables) {
 		assert.equal((await db.all(`SELECT 1 FROM ${table}`)).length, 1, table); // only Тарас is left
@@ -182,6 +185,42 @@ test('review settings: the later change is kept', async () => {
 	await saveReviewSettings(db, user, later);
 	await saveReviewSettings(db, user, { new_per_day: 5, decks: ['saved'], paused: [], goal_days: 0, plan: '', updated_at: T0 });
 	assert.deepEqual(await getReviewSettings(db, user), later);
+});
+
+test('progress records: joined with the account’s copy, never replaced, and kept apart per account', async () => {
+	const db = openMemoryUsers();
+	const user = await findOrCreateUser(db, 'github', '42', 'Олена');
+	const other = await findOrCreateUser(db, 'github', '43', 'Тарас');
+	assert.deepEqual(await getProgress(db, user), {});
+
+	const placement = {
+		results: [{ at: T0, size: 1000, start: 1001, reliable: true, placed: ['where', 'where-to'] }], updated_at: T0
+	};
+	const phone = { letters: { ж: { box: 3, seen: 8, right: 7 } }, skipped: false, cleared_at: 0, updated_at: T0 };
+	// Saved, and given back as they now stand
+	assert.deepEqual(await saveProgress(db, user, { placement, alphabet: phone }, T0), { placement, alphabet: phone });
+
+	// A second browser sends its letters and an older placement: the letters join, the later placement stays
+	const laptop = { letters: { ш: { box: 1, seen: 2, right: 1 } }, skipped: false, cleared_at: 0, updated_at: T0 + 5 };
+	const stale = { results: [], updated_at: T0 - 1 };
+	const merged = await saveProgress(db, user, { placement: stale, alphabet: laptop }, T0 + 5);
+	assert.deepEqual(merged.placement, placement);
+	assert.deepEqual(merged.alphabet?.letters, { ж: { box: 3, seen: 8, right: 7 }, ш: { box: 1, seen: 2, right: 1 } });
+	assert.deepEqual(await getProgress(db, user), merged);
+	// Nothing sent: the account's records come back unchanged
+	assert.deepEqual(await saveProgress(db, user, {}), merged);
+
+	// An undo, changed later, wins
+	const undone = { results: [], updated_at: T0 + 9 };
+	assert.deepEqual((await saveProgress(db, user, { placement: undone }, T0 + 9)).placement, undone);
+
+	assert.deepEqual(await getProgress(db, other), {});
+	// A row that is not JSON is as good as none
+	await db.run(`INSERT INTO user_progress (user_id, kind, value, updated_at) VALUES (?, 'reading', 'not json', ?)`, [other, T0]);
+	assert.deepEqual(await getProgress(db, other), {});
+
+	await deleteUser(db, user);
+	assert.deepEqual(await db.all('SELECT kind FROM user_progress WHERE user_id = ?', [user]), []);
 });
 
 test('review settings kept before goals existed load with no goal', async () => {

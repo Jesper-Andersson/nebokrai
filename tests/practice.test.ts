@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { messagesFor } from '../src/lib/i18n.ts';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
-import { LESSONS, lessonRows, openLesson } from '../src/lib/practice/lessons.ts';
+import { LESSONS, lessonRows, newPicks, openLesson } from '../src/lib/practice/lessons.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
 import { plan } from '../src/lib/review/cards.ts';
@@ -83,6 +83,21 @@ test('a lesson is shown by its words, and the one open is chosen, else the first
 	assert.equal(openLesson(rows, 'gone')?.id, 'where-to');
 	// A rule without sentences is left out, and a lesson left with none
 	assert.equal(lessonRows(['u-loc'], () => 'new').length, 1);
+});
+
+test('a lesson placed out by the placement test is marked, skipped when opening, and not started unasked', () => {
+	const all = LESSONS.flatMap((lesson) => lesson.points);
+	const rows = lessonRows(all, () => 'new', new Set(['where', 'where-to']));
+	assert.deepEqual(rows.filter((row) => row.placed).map((row) => row.id), ['where', 'where-to']);
+	assert.equal(openLesson(rows, null)?.id, 'who-whom');
+	assert.equal(openLesson(rows, 'where')?.id, 'where'); // chosen still opens
+	assert.ok(lessonRows(all, () => 'new').every((row) => !row.placed));
+
+	// Placed rules without a card are left out of new picks; one with a card stays for its reviews
+	const picks = newPicks(all, new Set(['where']), (id) => id === 'na-loc');
+	assert.ok(!picks.includes('u-loc'));
+	assert.ok(picks.includes('na-loc') && picks.includes('u-acc'));
+	assert.deepEqual(newPicks(all, new Set(), () => false), all);
 });
 
 test('each group numbers its lessons from 1, and a lesson keeps its number when one before it is hidden', () => {

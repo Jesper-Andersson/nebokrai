@@ -53,6 +53,6 @@ export const WAYS: Way[] = [
 		mono: true,
 		en: 'Once or monthly, takes no cut',
 		uk: 'Разово чи щомісяця, без комісії',
-		ready: false
+		ready: true
 	}
 ];

@@ -137,8 +137,10 @@ drawn for it.
 
 The dictionary data shown on this site, apart from VESUM, is available under
 CC BY-SA 4.0. You may copy and adapt it if you give credit and share your
-version under the same licence. VESUM data stays under its own non-commercial
-licence.
+version under the same licence. VESUM data stays under its own licence,
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): you may
+copy and adapt it too, with the same credit and share-alike, but not for
+commercial use.
 
 Nebokrai is a non-commercial project.
 

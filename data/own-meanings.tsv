@@ -1,0 +1,2525 @@
+# English meanings for common Ukrainian words that Wiktionary has no page for, written for Nebokrai.
+# This is Nebokrai's own writing, under CC BY-SA 4.0 with the rest of nebokrai.db.
+# Nothing of VESUM's (its forms, tags or word lists) is copied into it: VESUM is CC BY-NC-SA 4.0 and stays in
+# vesum.db. It only helped choose which words to write up, by how often they are met in film subtitles.
+# Each headword's stress was compared with the academic dictionary (СУМ) and follows it; none of its text is here.
+# import_wiktionary.py --own-meanings reads this file; a row whose spelling already has an entry is skipped.
+# Columns, tab-separated:
+#   word      the plain spelling: облишити
+#   headword  the same with the stress mark (U+0301) after the stressed vowel: обли́шити
+#   pos       part of speech, named as in nebokrai.db: noun, verb, adj, adv, ...
+#   glosses   the English meanings, "; " between two meanings: to leave (alone), to stop; to give up
+#   note      for the reader of this file; a verb's aspect (perfective, imperfective) or a noun's gender
+#             written here becomes the entry's tags, and nothing else of it is stored
+же	же	particle	(emphatic) after all, really, do (ти ж знаєш “you do know”); (identity) the same, very (той же “the same one”); (contrastive) but, and, whereas	
+лиш	лиш	particle	only, just; as soon as (лиш... як)	
+супер	су́пер	adv	(colloquial) super, great	
+жахливо	жахли́во	adv	terribly, awfully, horribly; (predicative) it is terrible	
+класний	кла́сний	adj	(colloquial) cool, great, awesome; class, form (of a school class: класний керівник “form teacher”)	
+облишити	обли́шити	verb	to leave (alone), to stop, to give up (облиш! “stop it!”)	perfective
+спрацювати	спрацюва́ти	verb	to work, to function, to go off (of a plan, a device, an alarm); to wear out (with use)	perfective
+застрелити	застре́лити	verb	to shoot dead	perfective
+заждати	зажда́ти	verb	to wait (a while): зажди! “wait!”	perfective
+пропасти	пропа́сти	verb	to disappear, to vanish, to go missing; to be lost, to perish	perfective
+класно	кла́сно	adv	(colloquial) great, cool; (predicative) it is great	
+договоритися	договори́тися	verb	to agree, to come to an agreement, to arrange	perfective
+подалі	пода́лі	adv	further away, farther off (тримайся подалі “stay away”)	
+реально	реа́льно	adv	realistically, in reality; (colloquial) really, seriously	
+дитинка	дити́нка	noun	(diminutive) little child, baby	
+порвати	порва́ти	verb	to tear (up), to rip; to break off, to break up (with someone)	perfective
+лишень	лише́нь	particle	only, just; as soon as	
+псих	псих	noun	(colloquial) psycho, nutcase	
+присягатися	присяга́тися	verb	to swear, to vow	imperfective
+напарник	напа́рник	noun	partner (at work, on patrol)	
+покінчити	покінчи́ти	verb	to finish (with), to put an end (to), to be done (with): покінчити з цим “to be done with it”	perfective
+маршал	ма́ршал	noun	marshal	
+переспати	переспа́ти	verb	to spend the night, to sleep (somewhere); (colloquial) to sleep with (someone)	perfective
+браво	бра́во	intj	bravo!; dashingly, smartly (adverb of бравий)	
+підкинути	підки́нути	verb	to toss up, to throw up; (colloquial) to give a lift (to); to plant, to slip (something to someone)	perfective
+неначе	нена́че	conj	as if, as though, like	
+парочка	па́рочка	noun	(diminutive) couple, pair; (colloquial) a couple (of), a few	
+мамочка	ма́мочка	noun	(affectionate) mummy, mommy	
+прогулятися	прогуля́тися	verb	to take a walk, to go for a stroll	perfective
+отак	ота́к	adv	like this, like that, this way; so	
+мсьє	мсьє	noun	monsieur	
+попрацювати	попрацюва́ти	verb	to work (for a while), to do some work	perfective
+пристрелити	пристре́лити	verb	to shoot (dead); to put down (an animal)	perfective
+накоїти	нако́їти	verb	to do (something bad), to make a mess: що ти накоїв? “what have you done?”	perfective
+угу	угу́	intj	uh-huh, mm-hmm (yes)	
+немов	немо́в	conj	as if, as though, like	
+дружище	дружи́ще	noun	(colloquial) buddy, pal, mate	
+штучка	шту́чка	noun	(diminutive) little thing, gadget, thingy; (colloquial) trick	
+побути	побу́ти	verb	to stay (for a while), to spend some time	perfective
+перекусити	перекуси́ти	verb	to have a snack, to grab a bite; to bite through	perfective
+схотіти	схоті́ти	verb	to want, to feel like	perfective
+повеселитися	повесели́тися	verb	to have fun, to have a good time	perfective
+живо	жи́во	adv	lively, vividly; (colloquial) quickly, look sharp	
+крихітка	кри́хітка	noun	little one, tiny thing; (term of endearment) baby, sweetie	
+проїхати	прої́хати	verb	to pass, to drive past, to go by; to travel, to cover (a distance); to miss (one's stop)	perfective
+почитати	почита́ти	verb	to read (for a while), to do some reading	perfective
+поквапитися	поква́питися	verb	to hurry, to hurry up	perfective
+чудесно	чуде́сно	adv	wonderfully, splendidly; (predicative) it is wonderful	
+застряти	застря́ти	verb	to get stuck	perfective
+темно	те́мно	adv	darkly; (predicative) it is dark	
+випускний	випускни́й	adj	graduation, graduating, final-year (випускний клас “final-year class”); (as a noun) prom, graduation party; (technical) outlet, exhaust (випускний клапан “exhaust valve”)	
+заговорити	заговори́ти	verb	to begin to speak, to start talking; to speak (to someone)	perfective
+зватися	зва́тися	verb	to be called, to be named	imperfective
+побалакати	побала́кати	verb	to have a chat, to talk (for a while)	perfective
+мілорд	міло́рд	noun	my lord, milord	
+довіритися	дові́ритися	verb	to trust, to confide (in)	perfective
+дивовижно	дивови́жно	adv	amazingly, wonderfully; (predicative) it is amazing	
+пограти	погра́ти	verb	to play (for a while)	perfective
+забратися	забра́тися	verb	to get out, to clear off; to climb (into, onto), to get into	perfective
+ідеально	ідеа́льно	adv	ideally, perfectly	
+подітися	поді́тися	verb	to go, to get to: куди він подівся? “where has he got to?”; to get away (from)	perfective
+незважаючи	незважа́ючи	prep	despite, in spite of (незважаючи на)	
+друзяка	друзя́ка	noun	(colloquial) buddy, pal	
+підвезти	підвезти́	verb	to give a lift (to), to drive (someone somewhere)	perfective
+заїхати	заї́хати	verb	to drop by, to call in (by vehicle); to drive in (to); (colloquial) to hit	perfective
+солоденький	солоде́нький	adj	(diminutive) sweet, nice and sweet	
+поживати	пожива́ти	verb	to be getting on, to be doing: як поживаєш? “how are you doing?”	imperfective
+замужем	за́мужем	adv	married (of a woman)	
+попастися	попа́стися	verb	to get caught; to come across, to turn up; to graze (for a while)	perfective
+прояснити	проясни́ти	verb	to clarify, to clear up	perfective
+отут	оту́т	adv	right here	
+золотце	зо́лотце	noun	(term of endearment) sweetheart, darling; (diminutive) gold	
+недоумок	недо́умок	noun	(derogatory) idiot, halfwit	
+клинок	клино́к	noun	blade (of a sword or a knife); (diminutive) small wedge	
+непросто	непро́сто	adv	(predicative) it is not easy, it is not simple	
+смачно	сма́чно	adv	tastily, deliciously; (predicative) it is tasty	
+наполовину	наполови́ну	adv	half, by half, halfway	
+раунд	ра́унд	noun	round (in boxing, in talks, in a game)	
+пригнутися	пригну́тися	verb	to duck, to bend down	perfective
+залізти	залі́зти	verb	to climb (into, onto, up), to get into	perfective
+дамочка	да́мочка	noun	(colloquial, often ironic) lady	
+сеньйор	сеньйо́р	noun	señor, sir	
+разок	разо́к	noun	(colloquial) once, one time (ще разок “once more”); string (of beads)	
+стенути	стену́ти	verb	to shrug (стенути плечима)	perfective
+міледі	міле́ді	noun	milady, my lady	
+пожити	пожи́ти	verb	to live (for a while), to stay	perfective
+потанцювати	потанцюва́ти	verb	to dance (for a while), to have a dance	perfective
+підстрелити	підстре́лити	verb	to shoot and wound, to wing	perfective
+тупо	ту́по	adv	dully, bluntly; (colloquial) stupidly, mindlessly	
+хорошенько	хороше́нько	adv	properly, thoroughly, well (подумай хорошенько “think it over carefully”)	
+підкріплення	підкрі́плення	noun	reinforcements; support, backing	
+пограбування	пограбува́ння	noun	robbery	
+ненормальний	ненорма́льний	adj	abnormal; (colloquial) crazy, mad; (as a noun) madman, lunatic	
+запізно	запі́зно	adv	too late	
+направду	напра́вду	adv	really, truly, in truth	
+незручно	незру́чно	adv	uncomfortably, awkwardly; (predicative) it is awkward, it is embarrassing	
+координата	координа́та	noun	coordinate; (plural, colloquial) contact details	
+залазити	зала́зити	verb	to climb (into, onto, up), to get into	imperfective
+капрал	капра́л	noun	corporal	
+владнати	владна́ти	verb	to settle, to sort out (a matter, a dispute)	perfective
+романтично	романти́чно	adv	romantically; (predicative) it is romantic	
+жучок	жучо́к	noun	(diminutive) little beetle, bug; (colloquial) bug, listening device	
+федерал	федера́л	noun	(colloquial) federal agent, fed	
+відвалити	відвали́ти	verb	to push away, to roll away (a stone); (slang) to clear off: відвали! “get lost!”	perfective
+полюбляти	полюбля́ти	verb	to like, to be fond of, to enjoy	imperfective
+ранчо	ра́нчо	noun	ranch	
+мутант	мута́нт	noun	mutant	
+заховати	захова́ти	verb	to hide; to bury	perfective
+набратися	набра́тися	verb	to gather, to build up; to pick up, to acquire (набратися сміливості “to pluck up courage”); (colloquial) to get drunk	perfective
+нечесно	нече́сно	adv	dishonestly, unfairly; (predicative) it is unfair	
+кумедно	куме́дно	adv	funnily, amusingly; (predicative) it is funny	
+запуск	за́пуск	noun	launch, start, starting (of an engine, a rocket, a program)	
+мерщій	мерщі́й	adv	quickly, hurry, as fast as possible	
+розважитися	розва́житися	verb	to have fun, to enjoy oneself	perfective
+потурбуватися	потурбува́тися	verb	to take care (of), to see (to); to trouble oneself, to bother	perfective
+перерізати	перері́зати	verb	to cut (through), to cut in two	perfective
+молодчина	молодчи́на	noun	(colloquial) well done, good for you; great guy, good girl	
+гарненько	гарне́нько	adv	nicely, properly, well	
+подерти	поде́рти	verb	to tear (up), to rip	perfective
+приходитися	прихо́дитися	verb	to be (a relation): він мені приходиться дядьком “he is my uncle”; to fall (on a date); to have to	imperfective
+паршивий	парши́вий	adj	(colloquial) lousy, rotten, nasty; mangy, scabby	
+відколи	відко́ли	adv	since when; (as a conjunction) since, ever since	
+бургер	бу́ргер	noun	burger	
+злізти	злі́зти	verb	to climb down, to get down	perfective
+тварюка	тварю́ка	noun	(derogatory) beast, brute, creature	
+догнати	догна́ти	verb	to catch up (with); (colloquial) to understand, to get	perfective
+бридж	бридж	noun	bridge (card game)	
+поручник	пору́чник	noun	lieutenant (in older and some foreign armies)	
+сигналізація	сигналіза́ція	noun	alarm (system); signalling	
+прорватися	прорва́тися	verb	to break through; to burst	perfective
+постривати	пострива́ти	verb	to wait (a moment): постривай! “wait!”, “hold on!”	perfective
+наставник	наста́вник	noun	mentor, tutor; (school) class teacher	
+прикольно	прико́льно	adv	(colloquial) cool, funny; (predicative) it is cool	
+діятися	ді́ятися	verb	to happen, to go on: що тут діється? “what is going on here?”	imperfective
+редакція	реда́кція	noun	editorial office, the editors; editing; version, wording	
+господній	Госпо́дній	adj	the Lord's, of the Lord	
+порізати	порі́зати	verb	to cut (up), to slice; to cut, to injure (oneself)	perfective
+мадмуазель	мадмуазе́ль	noun	mademoiselle	
+нереально	нереа́льно	adv	unrealistically; (colloquial) incredibly, unbelievably	
+жорстоко	жорсто́ко	adv	cruelly, brutally	
+немало	нема́ло	adv	a lot, quite a lot, not a little	
+нерозумно	нерозу́мно	adv	unwisely, foolishly; (predicative) it is unwise	
+вимітатися	виміта́тися	verb	(colloquial) to clear off, to get out: вимітайся! “get out!”	imperfective
+бойфренд	бойфре́нд	noun	boyfriend	
+розумник	розу́мник	noun	clever person, smart one; (ironic) smart alec	
+задзвонити	задзвони́ти	verb	to ring, to start ringing	perfective
+спинити	спини́ти	verb	to stop	perfective
+картель	карте́ль	noun	cartel	
+отакий	отаки́й	pron	such, like this, this kind of	
+посміти	посмі́ти	verb	to dare	perfective
+протриматися	протри́матися	verb	to hold out, to last	perfective
+втямити	втя́мити	verb	to understand, to grasp, to get	perfective
+пропадати	пропада́ти	verb	to disappear, to vanish, to go missing; to be lost, to go to waste	imperfective
+природно	приро́дно	adv	naturally; of course	
+щораз	щора́з	adv	every time, each time; (with a comparative) more and more: щораз більше	
+приголомшливо	приголо́мшливо	adv	stunningly, amazingly	
+світлість	сві́тлість	noun	(title) Grace, Highness: ваша світлість “your Grace”; brightness	
+змилуватися	зми́луватися	verb	to have mercy (on), to take pity (on)	perfective
+натура	нату́ра	noun	nature, character, disposition; (art) life, model: з натури “from life”	
+потонути	потону́ти	verb	to drown; to sink	perfective
+провернути	проверну́ти	verb	to turn, to rotate; (colloquial) to pull off, to carry out (a deal, a plan)	perfective
+ризикнути	ризикну́ти	verb	to risk, to take a chance	perfective
+патякати	патя́кати	verb	(colloquial) to blather, to babble, to talk nonsense	imperfective
+повбивати	повбива́ти	verb	to kill (many, all of them)	perfective
+завезти	завезти́	verb	to take, to drive, to deliver (somewhere); to bring in, to import	perfective
+недобрий	недо́брий	adj	unkind, bad, evil; ominous	
+незаконно	незако́нно	adv	illegally, unlawfully	
+стимуляція	стимуля́ція	noun	stimulation	
+судитися	суди́тися	verb	to go to court, to sue, to be in a lawsuit	imperfective
+платівка	платі́вка	noun	record (gramophone record)	
+мінятися	міня́тися	verb	to change; to swap, to exchange	imperfective
+пробратися	пробра́тися	verb	to make one's way (through), to sneak (in)	perfective
+пришити	приши́ти	verb	to sew on; (slang) to bump off, to kill; (colloquial) to pin (a crime) on	perfective
+дружок	дружо́к	noun	(diminutive) friend, buddy, pal	
+прикол	прико́л	noun	(colloquial) joke, gag, prank	
+пусто	пу́сто	adv	(predicative) it is empty	
+помовчати	помо́вчати	verb	to be silent (for a while), to keep quiet	perfective
+розчавити	розчави́ти	verb	to crush, to squash	perfective
+знатися	зна́тися	verb	to know each other, to be acquainted; to know about, to be good at (знатися на чомусь)	imperfective
+запросто	за́просто	adv	easily, simply; without ceremony	
+смертельно	смерте́льно	adv	mortally, fatally; deadly, terribly (смертельно втомлений “dead tired”)	
+патрульний	патру́льний	adj	patrol; (as a noun) patrol officer, patrolman	
+постукати	посту́кати	verb	to knock, to tap	perfective
+чарівно	чарі́вно	adv	charmingly, enchantingly; (predicative) it is lovely	
+одиноко	одино́ко	adv	lonely, alone; (predicative) it is lonely	
+смішити	сміши́ти	verb	to make (someone) laugh, to amuse	imperfective
+афера	афе́ра	noun	scam, swindle, shady deal	
+кубик	ку́бик	noun	small cube; (toy) block; die (in a game); (colloquial) cubic centimetre, cc	
+кадет	каде́т	noun	cadet	
+пролетіти	пролеті́ти	verb	to fly (past, by, over); to fly by (of time)	perfective
+перебратися	перебра́тися	verb	to move (to a new place); to get across (a river)	perfective
+присягнутися	присягну́тися	verb	to swear, to vow	perfective
+провідати	прові́дати	verb	to visit, to go and see (someone)	perfective
+санітар	саніта́р	noun	orderly, hospital attendant; medic	
+пенні	пе́нні	noun	penny	
+гарчання	гарча́ння	noun	growling, snarling	
+зарано	зара́но	adv	too early	
+соло	со́ло	noun	solo	
+купка	ку́пка	noun	small heap, small pile; small group	
+мамуся	маму́ся	noun	(affectionate) mummy, mommy	
+орендувати	орендува́ти	verb	to rent, to lease	imperfective and perfective
+оформити	офо́рмити	verb	to design, to arrange (a room, a book); to process, to put in order (documents), to register	perfective
+загнати	загна́ти	verb	to drive (in), to herd; to corner; to work (a horse) to exhaustion	perfective
+зніматися	зніма́тися	verb	to be filmed, to act (in a film); to rise, to take off (of birds)	imperfective
+монетка	моне́тка	noun	(diminutive) coin	
+наговорити	наговори́ти	verb	to say a lot, to talk too much; to slander (наговорити на когось)	perfective
+друкарський	друка́рський	adj	printing, printer's	
+драконячий	драко́нячий	adj	dragon's, dragon	
+сеньйора	сеньйо́ра	noun	señora, madam	
+заживо	за́живо	adv	alive (заживо поховати “to bury alive”)	
+стеження	сте́ження	noun	surveillance, tracking, following	
+любовник	любо́вник	noun	lover	
+потурбувати	потурбува́ти	verb	to disturb, to trouble, to bother	perfective
+пробути	пробу́ти	verb	to stay, to spend (time), to remain	perfective
+славно	сла́вно	adv	nicely, splendidly; (predicative) it is great	
+моторошно	мо́торошно	adv	eerily, creepily; (predicative) it is creepy, it is scary	
+салют	салю́т	noun	fireworks; salute	
+рахуватися	рахува́тися	verb	to take into account, to reckon (with): рахуватися з кимось; to be considered; to settle accounts (with)	imperfective
+нечема	нече́ма	noun	boor, rude person	
+притримати	притри́мати	verb	to hold (back), to hold on (to); to keep (for a while)	perfective
+ненормально	ненорма́льно	adv	abnormally; (predicative) it is not normal	
+строго	стро́го	adv	strictly, sternly	
+підмога	підмо́га	noun	help, assistance; reinforcements	
+проїжджати	проїжджа́ти	verb	to pass, to drive past, to go by	imperfective
+легально	лега́льно	adv	legally	
+фізично	фізи́чно	adv	physically	
+нестерпно	несте́рпно	adv	unbearably; (predicative) it is unbearable	
+слабо	сла́бо	adv	weakly, feebly; (colloquial) not up to it?, scared? (слабо?)	
+вліво	влі́во	adv	to the left, left	
+мирно	ми́рно	adv	peacefully	
+геніально	геніа́льно	adv	brilliantly; (predicative) it is brilliant	
+погратися	погра́тися	verb	to play (for a while)	perfective
+спокусити	спокуси́ти	verb	to tempt; to seduce	perfective
+лікуватися	лікува́тися	verb	to be treated, to undergo treatment	imperfective
+посунутися	посу́нутися	verb	to move over, to shift	perfective
+пригощатися	пригоща́тися	verb	to help oneself (to food): пригощайтеся! “help yourselves!”	imperfective
+переговорити	переговори́ти	verb	to talk (something) over, to have a word (with)	perfective
+розвернутися	розверну́тися	verb	to turn round, to make a U-turn; to unfold	perfective
+тусуватися	тусува́тися	verb	(slang) to hang out	imperfective
+поодинці	пооди́нці	adv	one by one, singly; alone	
+фрау	фра́у	noun	Frau, Mrs	
+збоку	збо́ку	adv	from the side, at the side; from outside, looking on	
+законно	зако́нно	adv	legally, lawfully	
+відчуватися	відчува́тися	verb	to be felt, to be noticeable	imperfective
+сенсей	сенсе́й	noun	sensei	
+стукач	стука́ч	noun	(colloquial) snitch, informer; knocker (on a door)	
+влипнути	вли́пнути	verb	(colloquial) to get into trouble; to get stuck (in)	perfective
+презентувати	презентува́ти	verb	to present	imperfective and perfective
+загадати	загада́ти	verb	to make (a wish): загадати бажання; to set (a riddle); to tell, to order (to do)	perfective
+закладатися	заклада́тися	verb	to bet, to make a bet	imperfective
+обидвоє	обидво́є	num	(dialectal) both (of them)	
+вдаритися	вда́ритися	verb	to hit (oneself), to bump (into)	perfective
+шубка	шу́бка	noun	(diminutive) fur coat	
+слідопит	слідопи́т	noun	tracker, pathfinder	
+кепка	ке́пка	noun	cap, peaked cap	
+армійський	армі́йський	adj	army	
+увірватися	увірва́тися	verb	to burst in, to break in	perfective
+паскудний	паску́дний	adj	nasty, vile, rotten	
+опікуватися	опікува́тися	verb	to look after, to take care (of)	imperfective
+зависати	зависа́ти	verb	to hover, to hang (in the air); (of a computer) to freeze, to hang; (slang) to hang out	imperfective
+приставити	приста́вити	verb	to put (against), to lean (against); to assign (someone to)	perfective
+шикарно	шика́рно	adv	luxuriously, splendidly; (predicative) it is gorgeous	
+малятко	маля́тко	noun	(affectionate) baby, little one	
+червоточина	червото́чина	noun	wormhole (in physics); worm-hole (in wood or fruit)	
+координатор	координа́тор	noun	coordinator	
+животик	живо́тик	noun	(diminutive) tummy	
+попити	попи́ти	verb	to have a drink (of)	perfective
+джип	джип	noun	jeep, SUV	
+констебль	консте́бль	noun	constable	
+витворяти	витворя́ти	verb	to get up to, to do (silly things)	imperfective
+приснитися	присни́тися	verb	to appear in a dream: мені приснилося “I dreamt”	perfective
+роба	ро́ба	noun	overalls, work clothes; (prison) uniform	
+божевільно	божеві́льно	adv	madly, insanely; (predicative) it is crazy	
+фантастично	фантасти́чно	adv	fantastically	
+здалеку	зда́леку	adv	from afar, from a distance	
+паршиво	парши́во	adv	(colloquial) lousily: мені паршиво “I feel lousy”	
+технічно	техні́чно	adv	technically	
+спецслужба	спецслу́жба	noun	secret service, intelligence agency	
+префект	префе́кт	noun	prefect	
+засадити	засади́ти	verb	to plant (with); (colloquial) to put away, to jail	perfective
+приставати	пристава́ти	verb	to pester, to harass (приставати до когось); to stick (to); to put in (of a boat)	imperfective
+посміятися	посмія́тися	verb	to laugh (for a while); to laugh (at), to make fun (of)	perfective
+прикольний	прико́льний	adj	(colloquial) cool, funny	
+зашити	заши́ти	verb	to sew up, to stitch up	perfective
+недобре	недо́бре	adv	badly, wrongly; (predicative) it is not good	
+писк	писк	noun	squeak, peep	
+фельдшер	фе́льдшер	noun	paramedic, physician assistant	
+сканування	сканува́ння	noun	scanning, scan	
+вгамуватися	вгамува́тися	verb	to calm down, to settle down	perfective
+платня	платня́	noun	pay, wages, salary	
+гінея	гіне́я	noun	guinea (coin)	
+командний	кома́ндний	adj	team (командна гра “team game”); command (командний пункт “command post”)	
+прострелити	простре́лити	verb	to shoot through	perfective
+передаватися	передава́тися	verb	to be passed on, to be transmitted	imperfective
+метамфетамін	метамфетамі́н	noun	methamphetamine	
+заграти	загра́ти	verb	to start playing, to strike up	perfective
+розумітися	розумі́тися	verb	to know about, to be good at (розумітися на чомусь); to be understood (само собою розуміється “it goes without saying”)	imperfective
+змарнувати	змарнува́ти	verb	to waste, to squander	perfective
+видатися	ви́датися	verb	to seem, to appear; to turn out (день видався теплий “the day turned out warm”)	perfective
+покохати	покоха́ти	verb	to fall in love (with)	perfective
+погубити	погуби́ти	verb	to ruin, to destroy; to lose (many things)	perfective
+ладнати	ладна́ти	verb	to get on, to get along (with); to fix, to repair	imperfective
+кусатися	куса́тися	verb	to bite (habitually: собака кусається “the dog bites”)	imperfective
+поправити	попра́вити	verb	to correct; to adjust, to straighten	perfective
+обмаль	о́бмаль	adv	too little, not enough, very few	
+довіку	дові́ку	adv	forever, for life	
+батончик	бато́нчик	noun	bar (of chocolate, cereal)	
+прикинути	прики́нути	verb	to estimate, to work out roughly; to add (a little more)	perfective
+побитися	поби́тися	verb	to fight, to have a fight; to break (of dishes); to bet (побитися об заклад)	perfective
+обробка	обро́бка	noun	processing, treatment, working (of a material)	
+обікрасти	обікра́сти	verb	to rob	perfective
+провчити	провчи́ти	verb	to teach (someone) a lesson	perfective
+здихатися	зди́хатися	verb	to get rid (of)	perfective
+гоблін	го́блін	noun	goblin	
+ганятися	ганя́тися	verb	to chase (after), to run (after)	imperfective
+зачитати	зачита́ти	verb	to read out	perfective
+розділитися	розділи́тися	verb	to split up, to separate, to divide	perfective
+скрутити	скрути́ти	verb	to twist, to roll (a cigarette); to tie up, to overpower	perfective
+податися	пода́тися	verb	to set off, to head (for); to give way, to yield	perfective
+дубль	дубль	noun	take (in filming); double, duplicate	
+пристойно	присто́йно	adv	decently, properly	
+по-дурному	по-дурно́му	adv	stupidly, foolishly	
+танго	та́нго	noun	tango	
+дробовик	дробови́к	noun	shotgun	
+танцівниця	танцівни́ця	noun	dancer (woman)	
+мавпочка	ма́впочка	noun	(diminutive) little monkey	
+коронер	ко́ронер	noun	coroner	
+куратор	кура́тор	noun	curator; supervisor, (school) tutor	
+проїхатися	прої́хатися	verb	to take a ride, to go for a drive	perfective
+затишно	за́тишно	adv	cosily; (predicative) it is cosy	
+втрьох	втрьох	adv	three together, the three of (us, them)	
+падре	па́дре	noun	padre, father (priest)	
+пречудово	пречудо́во	adv	wonderfully; (predicative) it is wonderful	
+тиф	тиф	noun	typhus	
+тхнути	тхну́ти	verb	to smell, to stink (of); to smack (of); to breathe, to waft (of air, wind)	imperfective
+хрестик	хре́стик	noun	(diminutive) small cross; cross, X (a mark)	
+серійний	сері́йний	adj	serial (серійний вбивця “serial killer”); mass-produced, series	
+оперативник	операти́вник	noun	operative, field officer (in the police or intelligence)	
+розписатися	розписа́тися	verb	to sign (one's name); (colloquial) to register a marriage	perfective
+пересуватися	пересува́тися	verb	to move (around), to get around	imperfective
+прихопити	прихопи́ти	verb	to take along, to grab; to nip (of frost)	perfective
+нічогісінько	нічогі́сінько	pron	nothing at all, absolutely nothing	
+кепсько	ке́псько	adv	badly, poorly; (predicative) it is bad	
+сміливо	сміли́во	adv	bravely, boldly	
+прилягти	прилягти́	verb	to lie down (for a while)	perfective
+завестися	завести́ся	verb	to start (of an engine); (colloquial) to get worked up; to appear, to get (of pests)	perfective
+просидіти	проси́діти	verb	to sit (for a time), to spend (time) sitting; to stay (somewhere) for a time	perfective
+залетіти	залеті́ти	verb	to fly in(to), to fly (as far as); (colloquial) to drop in; (colloquial) to get pregnant (by accident)	perfective
+втопитися	втопи́тися	verb	to drown; to drown oneself	perfective
+заховатися	захова́тися	verb	to hide (oneself), to take cover	perfective
+зганьбити	зганьби́ти	verb	to disgrace, to bring shame on	perfective
+побічний	побі́чний	adj	side, secondary, incidental (побічні ефекти “side effects”)	
+довезти	довезти́	verb	to take (as far as), to drive (someone) to, to deliver	perfective
+полежати	поле́жати	verb	to lie (down) for a while	perfective
+розвертатися	розверта́тися	verb	to turn (a)round, to turn back (розвертайся! “turn around!”)	imperfective
+коронувати	коронува́ти	verb	to crown	imperfective and perfective
+накачати	накача́ти	verb	to pump (up), to inflate; (colloquial) to pump full (of drugs, drink), to drug; (colloquial) to build up (muscles)	perfective
+порадитися	пора́дитися	verb	to consult, to ask (someone's) advice, to talk over (with)	perfective
+вислизнути	ви́слизнути	verb	to slip out, to slip away, to give (someone) the slip	perfective
+списати	списа́ти	verb	to copy (from someone), to crib; to write off	perfective
+закластися	закла́стися	verb	to bet, to make a bet (закладемося? “want to bet?”)	perfective
+породити	породи́ти	verb	to give birth to, to beget; to give rise to, to breed	perfective
+зашивати	зашива́ти	verb	to sew up, to stitch up	imperfective
+буріння	бурі́ння	noun	drilling, boring (of wells)	
+залізати	заліза́ти	verb	to climb in(to), to get in (залізай! “get in!”); to climb up	imperfective
+здоровань	здорова́нь	noun	(colloquial) big strong man, hulk	
+комуна	кому́на	noun	commune	
+тітонька	ті́тонька	noun	(affectionate) auntie	
+воєводський	воєво́дський	adj	voivode's; voivodeship, provincial (in Poland)	
+зігрітися	зігрі́тися	verb	to get warm, to warm up	perfective
+відрубати	відруба́ти	verb	to chop off, to cut off	perfective
+зненавидіти	знена́видіти	verb	to come to hate, to grow to hate	perfective
+підслуховувати	підслухо́вувати	verb	to eavesdrop, to listen in (on)	imperfective
+покурити	покури́ти	verb	to have a smoke	perfective
+заборгувати	заборгува́ти	verb	to owe, to get into debt	perfective
+взаємовідношення	взаємовідно́шення	noun	relationship, mutual relations	
+куш	куш	noun	(colloquial) jackpot, big haul (зірвати куш “to hit the jackpot”)	
+заводитися	заво́дитися	verb	to start (of an engine); (colloquial) to get worked up; to appear, to breed (of pests, mice)	imperfective
+помацати	пома́цати	verb	(colloquial) to feel, to touch, to finger	perfective
+роздобути	роздобу́ти	verb	to get hold of, to obtain, to come by	perfective
+минутися	мину́тися	verb	to pass, to be over (усе минеться “it will all pass”)	perfective
+сигналити	сигна́лити	verb	(colloquial) to honk, to hoot; to signal	imperfective
+поручитися	поручи́тися	verb	to vouch (for), to answer (for)	perfective
+хижина	хи́жина	noun	hut, shack, cabin	
+дотримати	дотри́мати	verb	to keep (one's word, a promise)	perfective
+загасити	загаси́ти	verb	to put out, to extinguish	perfective
+здерти	зде́рти	verb	to tear off, to strip off; (colloquial) to fleece, to overcharge	perfective
+надавити	надави́ти	verb	to press, to push (on)	perfective
+позер	позе́р	noun	poser, show-off	
+помитися	поми́тися	verb	to wash (oneself), to have a wash	perfective
+луснути	лу́снути	verb	to burst, to crack, to snap; (colloquial) to whack, to hit	perfective
+перекинутися	переки́нутися	verb	to overturn, to capsize; to exchange (a few words: перекинутися словом); to turn (into)	perfective
+відшити	відши́ти	verb	(colloquial) to brush off, to send packing	perfective
+перевернутися	переверну́тися	verb	to turn over, to roll over, to overturn	perfective
+задаватися	задава́тися	verb	(colloquial) to show off, to put on airs	imperfective
+затягнутися	затягну́тися	verb	to drag on (of time); to take a drag (on a cigarette); to tighten	perfective
+оглухнути	оглу́хнути	verb	to go deaf	perfective
+ладний	ла́дний	adj	(predicative) ready, willing (ладен на все “ready for anything”); (colloquial) good, decent	
+кунг-фу	кунг-фу́	noun	kung fu	
+нелегально	нелега́льно	adv	illegally	
+вигідно	ви́гідно	adv	profitably, advantageously; (predicative) it pays, it is worth it	
+помилково	помилко́во	adv	by mistake, mistakenly, wrongly	
+проблемка	пробле́мка	noun	(diminutive) little problem, snag	
+насуватися	насува́тися	verb	to approach, to loom, to be coming (насувається буря “a storm is coming”)	imperfective
+пуск	пуск	noun	launch, start(-up)	
+замести	замести́	verb	to sweep (up); to cover (of snow); (colloquial) to nab, to pick up (замели “they got nabbed”)	perfective
+даватися	дава́тися	verb	to come easily (to someone) (мови йому даються легко “languages come easily to him”); (не даватися) to not let oneself (be caught, fooled)	imperfective
+святилище	святи́лище	noun	sanctuary, shrine	
+фраєр	фра́єр	noun	(slang) sucker, mug; show-off, dandy	
+полегшати	поле́гшати	verb	to ease, to get easier; to feel better (мені полегшало “I feel better”)	perfective
+експропріатор	експропріа́тор	noun	expropriator	
+товстун	товсту́н	noun	fat man, fatty	
+застрелитися	застре́литися	verb	to shoot oneself	perfective
+робітничий	робітни́чий	adj	workers', working-class	
+провалити	провали́ти	verb	to fail (an exam, a test), to botch, to ruin; to break through	perfective
+збутися	збу́тися	verb	to come true; (збутися когось, чогось) to get rid of	perfective
+навідатися	наві́датися	verb	to visit, to drop in (on), to call on	perfective
+прокрастися	прокра́стися	verb	to sneak (in, through), to steal (in)	perfective
+поміститися	помісти́тися	verb	to fit (in), to go in	perfective
+утворитися	утвори́тися	verb	to form, to be formed, to arise	perfective
+контактувати	контактува́ти	verb	to be in contact, to communicate (with)	imperfective
+корпоративний	корпорати́вний	adj	corporate	
+попоїсти	попої́сти	verb	to have a bite to eat, to have something to eat	perfective
+включно	вклю́чно	adv	inclusive, inclusively (до п'ятниці включно “up to and including Friday”)	
+незвично	незви́чно	adv	unusually; (predicative) it is strange, it is unfamiliar	
+по-вашому	по-ва́шому	adv	in your opinion; your way, as you like	
+принизливо	прини́зливо	adv	humiliatingly; (predicative) it is humiliating	
+емоційно	емоці́йно	adv	emotionally	
+аспірант	аспіра́нт	noun	postgraduate student, PhD student	
+джеб	джеб	noun	jab (in boxing)	
+передбачатися	передбача́тися	verb	to be expected, to be foreseen, to be planned	imperfective
+люкс	люкс	noun	luxury suite; (as an adjective) deluxe, luxury	
+парамедик	параме́дик	noun	paramedic	
+хіміотерапія	хіміотерапі́я	noun	chemotherapy	
+забракнути	забра́кнути	verb	to run short, to be lacking (забракло часу “there wasn't enough time”)	perfective
+вшанувати	вшанува́ти	verb	to honour, to pay tribute to	perfective
+комодор	комодо́р	noun	commodore	
+побавитися	поба́витися	verb	to play (for a while), to have some fun	perfective
+перегородка	перегоро́дка	noun	partition, divider	
+зарплатня	зарплатня́	noun	pay, wages, salary	
+полити	поли́ти	verb	to water; to pour (over)	perfective
+мах	мах	noun	swing, stroke, flap (одним махом “in one go”; дати маху “to slip up”)	
+датися	да́тися	verb	to come (easily) (це далося легко “it came easily”); (не датися) to not let oneself (be caught, fooled)	perfective
+потопити	потопи́ти	verb	to sink (a ship); to drown	perfective
+пересунути	пересу́нути	verb	to move, to shift, to push (aside)	perfective
+подужати	поду́жати	verb	to overcome, to manage, to cope with	perfective
+прикласти	прикла́сти	verb	to put (to), to hold (to), to apply (прикласти зусиль “to make an effort”); to attach, to enclose	perfective
+зголоситися	зголоси́тися	verb	to volunteer, to agree (to do something)	perfective
+відсидіти	відси́діти	verb	to serve (a sentence), to do time; to sit out; to get (a leg) numb from sitting	perfective
+загорнути	загорну́ти	verb	to wrap (up); to turn (a corner)	perfective
+дочитати	дочита́ти	verb	to finish reading, to read to the end	perfective
+розтлумачити	розтлума́чити	verb	to explain, to interpret	perfective
+розлютити	розлюти́ти	verb	to enrage, to infuriate	perfective
+схилитися	схили́тися	verb	to bend (down), to lean over; to bow	perfective
+проскочити	проско́чити	verb	to slip through, to dash past; to skip	perfective
+чутися	чу́тися	verb	to feel (як ти чуєшся? “how are you feeling?”)	imperfective
+попіклуватися	попіклува́тися	verb	to take care (of), to look after	perfective
+поселитися	посели́тися	verb	to settle, to move in	perfective
+банально	бана́льно	adv	tritely, banally; (predicative) it is trite	
+надійно	наді́йно	adv	reliably, securely	
+по-французьки	по-францу́зьки	adv	(in) French; the French way	
+виття	виття́	noun	howling, howl	
+паче	па́че	adv	(dated) more (тим паче “all the more so”)	
+брудно	бру́дно	adv	dirtily; (predicative) it is dirty	
+решка	ре́шка	noun	tails (of a coin) (орел чи решка? “heads or tails?”)	
+гумус	гу́мус	noun	humus	
+литися	ли́тися	verb	to flow, to pour, to stream	imperfective
+поталанити	поталани́ти	verb	to be lucky (мені поталанило “I was lucky”)	perfective
+сарацин	сараци́н	noun	Saracen	
+зарадити	зара́дити	verb	to help, to remedy (нічим не зарадиш “nothing can be done”)	perfective
+встояти	всто́яти	verb	to hold out, to stand firm, to resist	perfective
+згрішити	згріши́ти	verb	to sin	perfective
+морфій	мо́рфій	noun	morphine	
+припертися	припе́ртися	verb	(colloquial) to turn up, to show up (uninvited), to barge in	perfective
+фігурка	фігу́рка	noun	figurine, statuette; (diminutive) figure	
+місцина	місци́на	noun	place, spot, area	
+підводитися	підво́дитися	verb	to get up, to rise	imperfective
+порозумітися	порозумі́тися	verb	to come to an understanding, to understand each other	perfective
+нелегкий	нелегки́й	adj	not easy, difficult, hard	
+здичавілий	здича́вілий	adj	gone wild, feral	
+гармошка	гармо́шка	noun	(colloquial) accordion; (губна гармошка) harmonica	
+подумувати	поду́мувати	verb	to think about, to consider (doing something)	imperfective
+проливати	пролива́ти	verb	to spill, to shed (blood, tears)	imperfective
+вистрибнути	ви́стрибнути	verb	to jump out, to leap out	perfective
+замутити	замути́ти	verb	(colloquial) to start, to set up, to stir up (something); to muddy	perfective
+зглянутися	згля́нутися	verb	to take pity (on), to have mercy (on)	perfective
+вписати	вписа́ти	verb	to write in, to enter; to fit in	perfective
+жирок	жиро́к	noun	(diminutive) a bit of fat, flab	
+пінта	пі́нта	noun	pint	
+копальня	копа́льня	noun	mine, pit	
+підозріло	підозрі́ло	adv	suspiciously; (predicative) it is suspicious	
+сміховинно	сміхови́нно	adv	ridiculously, laughably	
+гідно	гі́дно	adv	with dignity, worthily, properly	
+захопливо	захо́пливо	adv	excitingly, fascinatingly; (predicative) it is exciting	
+драматично	драмати́чно	adv	dramatically	
+маскування	маскува́ння	noun	camouflage, disguise	
+шалено	шале́но	adv	madly, wildly, terribly (шалено закоханий “madly in love”)	
+пшеничка	пшени́чка	noun	(diminutive) wheat	
+подуріти	подурі́ти	verb	to go crazy, to lose one's mind (ви що, подуріли? “have you lost your minds?”)	perfective
+бозон	бозо́н	noun	boson	
+конденсат	конденса́т	noun	condensate, condensation	
+підібратися	підібра́тися	verb	to creep up (to), to get close (to); to pick up (of a team, a company)	perfective
+окраса	окра́са	noun	adornment, ornament; pride (of)	
+гун	гун	noun	Hun	
+негатив	негати́в	noun	negative (of a photograph); negativity	
+записник	записни́к	noun	notebook	
+дурненький	дурне́нький	adj	(affectionate) silly, foolish	
+писатися	писа́тися	verb	to be spelt, to be written (як це пишеться? “how is it spelt?”)	imperfective
+утворюватися	утво́рюватися	verb	to form, to be formed, to arise	imperfective
+аферист	афери́ст	noun	swindler, con man, fraudster	
+панночка	па́нночка	noun	young lady, miss	
+утнути	утну́ти	verb	(colloquial) to pull (a stunt), to come out with (something), to do (something unexpected)	perfective
+сингулярність	сингуля́рність	noun	singularity	
+кастинг	ка́стинг	noun	casting, audition	
+таверна	таве́рна	noun	tavern	
+стічний	стічни́й	adj	waste, sewage (стічні води “sewage, waste water”)	
+дорожити	дорожи́ти	verb	to value, to cherish, to hold dear	imperfective
+ротик	ро́тик	noun	(diminutive) little mouth	
+переключитися	переключи́тися	verb	to switch (over)	perfective
+тріснути	трі́снути	verb	to crack, to burst; (colloquial) to whack	perfective
+розплакатися	розпла́катися	verb	to burst into tears	perfective
+пресвятий	пресвяти́й	adj	most holy (Пресвята Богородиця “the Most Holy Mother of God”)	
+прожектор	проже́ктор	noun	searchlight, spotlight, floodlight	
+висовуватися	висо́вуватися	verb	to lean out, to stick out; (colloquial) to stick one's neck out (не висовуйся “keep your head down”)	imperfective
+знатний	зна́тний	adj	noble, aristocratic; distinguished	
+хапатися	хапа́тися	verb	to grab (at), to clutch (at)	imperfective
+закрутитися	закрути́тися	verb	to start spinning, to whirl; (colloquial) to get caught up (in things), to be run off one's feet	perfective
+пхатися	пха́тися	verb	(colloquial) to push, to shove one's way; to poke one's nose in	imperfective
+молоковоз	молоково́з	noun	milk tanker	
+поручити	поручи́ти	verb	to entrust (with), to charge (with)	perfective
+запрацювати	запрацюва́ти	verb	to start working, to start up; to earn	perfective
+поплакати	попла́кати	verb	to cry (for a while), to have a cry	perfective
+стриптизерка	стриптизе́рка	noun	stripper	
+розкусити	розкуси́ти	verb	to bite through; (colloquial) to see through (someone), to figure out	perfective
+підігнати	підігна́ти	verb	to bring (a car) round; to adjust, to fit; to hurry (someone) up	perfective
+станцювати	станцюва́ти	verb	to dance	perfective
+переслати	пересла́ти	verb	to send (on), to forward	perfective
+конячка	коня́чка	noun	(diminutive) little horse, nag	
+транквілізатор	транквіліза́тор	noun	tranquilliser	
+відлупцювати	відлупцюва́ти	verb	to thrash, to beat up	perfective
+бейсбольний	бейсбо́льний	adj	baseball	
+дописати	дописа́ти	verb	to finish writing; to add (in writing)	perfective
+приспати	приспа́ти	verb	to lull to sleep; to put to sleep (an animal); to lull (suspicion)	perfective
+неважко	нева́жко	adv	(predicative) it is not hard, it is easy; easily	
+нездара	незда́ра	noun	good-for-nothing, incompetent, bungler	
+негарно	нега́рно	adv	(predicative) it is not nice, it is wrong (негарно так казати “it's not nice to say that”); badly, poorly	
+достойно	досто́йно	adv	worthily, with dignity	
+ефективно	ефекти́вно	adv	effectively, efficiently	
+пантелик	пантели́к	noun	(збити з пантелику “to confuse, to throw off”)	
+жалюгідно	жалюгі́дно	adv	pitifully, pathetically; (predicative) it is pathetic	
+хоробро	хоро́бро	adv	bravely, courageously	
+легенько	леге́нько	adv	gently, lightly, softly	
+бунгало	бунга́ло	noun	bungalow	
+противно	проти́вно	adv	(colloquial) disgustingly; (predicative) it is disgusting, it is gross	
+торнадо	торна́до	noun	tornado	
+автостоп	автосто́п	noun	hitchhiking (автостопом “by hitchhiking”)	
+зала	за́ла	noun	hall	
+облом	обло́м	noun	(slang) bummer, letdown	
+розумниця	розу́мниця	noun	clever girl, clever person	
+меліса	мелі́са	noun	lemon balm	
+автозавод	автозаво́д	noun	car factory, car plant	
+притиснутися	притисну́тися	verb	to press oneself (against), to snuggle up (to)	perfective
+здичілий	здичі́лий	adj	gone wild, feral	
+творитися	твори́тися	verb	to happen, to go on (що тут твориться? “what's going on here?”)	imperfective
+підступ	пі́дступ	noun	trick, ruse; approach	
+завинити	завини́ти	verb	to be guilty, to do wrong (to), to be to blame	perfective
+деньок	деньо́к	noun	(diminutive) day	
+посів	посі́в	noun	sowing; crops	
+лінкор	лінко́р	noun	battleship	
+заскакувати	заска́кувати	verb	to jump in; (colloquial) to drop in (заскакуй! “drop in!”)	imperfective
+ресторанчик	рестора́нчик	noun	(diminutive) little restaurant	
+збитися	зби́тися	verb	to lose one's way, to go astray; to lose (count) (збитися з рахунку “to lose count”); to huddle together	perfective
+підрізати	підрі́зати	verb	to trim, to cut; to cut off, to cut in on (in traffic)	perfective
+сквайр	сквайр	noun	squire	
+магнітола	магніто́ла	noun	radio cassette player; car stereo	
+кермувати	кермува́ти	verb	to steer, to drive	imperfective
+промах	про́мах	noun	miss; blunder, slip	
+шарити	ша́рити	verb	(slang) to understand, to know one's stuff (шариш? “do you get it?”); to rummage, to grope about	imperfective
+невидимка	невиди́мка	noun	invisible person, invisible man; hairpin, bobby pin	
+перелякатися	переляка́тися	verb	to get scared, to take fright	perfective
+навалитися	навали́тися	verb	to fall upon, to pile on; to lean (on)	perfective
+служанка	служа́нка	noun	maid, servant	
+нелегал	нелега́л	noun	illegal immigrant; undercover agent	
+вирячитися	ви́рячитися	verb	(colloquial) to stare, to goggle (at)	perfective
+паранормальний	паранорма́льний	adj	paranormal	
+ліжечко	лі́жечко	noun	(diminutive) little bed; cot	
+полісмен	полісме́н	noun	policeman	
+докопатися	докопа́тися	verb	(colloquial) to pick on, to find fault (with); to dig down (to); to get to the bottom (of)	perfective
+віддатися	відда́тися	verb	to give oneself up (to), to surrender; to devote oneself (to)	perfective
+пролізти	пролі́зти	verb	to climb through, to squeeze through, to crawl through	perfective
+мацати	ма́цати	verb	to feel, to touch, to grope	imperfective
+осісти	осі́сти	verb	to settle; to subside	perfective
+порубати	поруба́ти	verb	to chop (up), to cut down	perfective
+запроторити	запрото́рити	verb	to put away, to lock up, to send (somewhere) (запроторити за ґрати “to put behind bars”)	perfective
+хустинка	хусти́нка	noun	handkerchief; (diminutive) headscarf	
+затанцювати	затанцюва́ти	verb	to start dancing	perfective
+замкнутися	замкну́тися	verb	to lock oneself in; to withdraw into oneself; to shut (up)	perfective
+субатомний	суба́томний	adj	subatomic	
+пентхаус	пентха́ус	noun	penthouse	
+репер	ре́пер	noun	rapper	
+кооператив	кооперати́в	noun	cooperative	
+прослуховувати	прослухо́вувати	verb	to listen to; to tap, to bug (a phone); to audition	imperfective
+справний	спра́вний	adj	in working order; efficient, capable	
+сповідатися	сповіда́тися	verb	to confess, to go to confession; to unburden oneself	imperfective
+подряпати	подря́пати	verb	to scratch	perfective
+накритися	накри́тися	verb	to cover oneself; (colloquial) to fall through, to go bust	perfective
+поборотися	поборо́тися	verb	to fight, to struggle (for a while); to wrestle	perfective
+забутися	забу́тися	verb	to forget oneself; to doze off	perfective
+курсант	курса́нт	noun	cadet, trainee	
+втрапити	втра́пити	verb	to get (into), to land (in)	perfective
+синьйор	синьйо́р	noun	signor, signore	
+пересадити	пересади́ти	verb	to transplant; to move (someone to another seat); to change (to another train)	perfective
+комин	ко́мин	noun	chimney	
+управитися	упра́витися	verb	to manage, to cope (with), to get (something) done	perfective
+задурно	заду́рно	adv	(colloquial) for nothing, for free	
+заледве	зале́две	adv	barely, hardly, only just	
+клон	клон	noun	clone	
+типово	типо́во	adv	typically; (predicative) it is typical	
+розумово	розумо́во	adv	mentally, intellectually	
+змалечку	зма́лечку	adv	since childhood, from an early age	
+неперевершено	непереве́ршено	adv	superbly, unsurpassably	
+родео	роде́о	noun	rodeo	
+порівну	по́рівну	adv	equally, evenly (поділити порівну “to split evenly”)	
+кондомініум	кондомі́ніум	noun	condominium	
+паранойя	парано́йя	noun	paranoia	
+сакура	са́кура	noun	cherry blossom, Japanese cherry	
+підсилювач	підси́лювач	noun	amplifier	
+житися	жи́тися	verb	to live, to get on (як тобі живеться? “how are you getting on?”)	imperfective
+поклик	по́клик	noun	call, summons (поклик серця “the call of the heart”)	
+морквинка	моркви́нка	noun	(diminutive) little carrot	
+генпрокурор	генпрокуро́р	noun	prosecutor general, attorney general	
+заклопотаний	заклопо́таний	adj	worried, preoccupied, troubled	
+зволікати	зволіка́ти	verb	to delay, to put off, to drag one's feet	imperfective
+дитбудинок	дитбуди́нок	noun	children's home, orphanage	
+папая	папа́я	noun	papaya	
+мужичок	мужичо́к	noun	(colloquial) little man, fellow	
+галон	гало́н	noun	gallon	
+єгиптянин	єгиптя́нин	noun	Egyptian	
+дзвіночок	дзвіно́чок	noun	(diminutive) little bell; bluebell, harebell	
+лютувати	лютува́ти	verb	to rage, to be furious	imperfective
+стимулятор	стимуля́тор	noun	stimulant; stimulator, pacemaker	
+парадний	пара́дний	adj	ceremonial, dress (парадна форма “dress uniform”); front, main (парадний вхід “front entrance”)	
+кабельний	ка́бельний	adj	cable (кабельне телебачення “cable television”)	
+рекетир	рекети́р	noun	racketeer, extortionist	
+каратися	кара́тися	verb	to be punished (карається законом “is punishable by law”); to suffer	imperfective
+вилікуватися	ви́лікуватися	verb	to be cured, to recover	perfective
+вібрація	вібра́ція	noun	vibration	
+манія	ма́нія	noun	mania	
+травичка	трави́чка	noun	(diminutive) grass	
+насмілитися	насмі́литися	verb	to dare, to venture	perfective
+звабити	зва́бити	verb	to seduce, to lure	perfective
+клеїтися	кле́їтися	verb	to stick; (colloquial) to hit on, to chat up (до когось); to go well (розмова не клеїться “the conversation isn't going well”)	imperfective
+поєднуватися	поє́днуватися	verb	to be combined, to go together (with)	imperfective
+проговоритися	проговори́тися	verb	to let slip, to blab	perfective
+пошити	поши́ти	verb	to sew, to make (clothes); to have (clothes) made	perfective
+поплатитися	поплати́тися	verb	to pay (for), to suffer (for)	perfective
+негідний	негі́дний	adj	unworthy; despicable, base	
+маркграф	маркгра́ф	noun	margrave	
+пролітати	проліта́ти	verb	to fly past, to fly over; to fly by (of time)	imperfective
+натягнути	натягну́ти	verb	to pull on, to put on; to stretch, to tighten	perfective
+кіберспорт	кіберспо́рт	noun	esports, cybersport	
+лапати	ла́пати	verb	(colloquial) to paw, to grope	imperfective
+наставити	наста́вити	verb	to point, to aim (at); to put (up) a lot of; to instruct	perfective
+злодюга	злодю́га	noun	(colloquial) thief, crook	
+содовий	со́довий	adj	soda (содова вода “soda water”)	
+припаркуватися	припаркува́тися	verb	to park	perfective
+списувати	спи́сувати	verb	to copy (from someone), to crib; to write off	imperfective
+рятівний	рятівни́й	adj	rescue, life-saving (рятівне коло “life ring”)	
+репетувати	репетува́ти	verb	to yell, to scream, to bawl	imperfective
+пластичний	пласти́чний	adj	plastic (пластична хірургія “plastic surgery”); graceful, supple	
+пролитися	проли́тися	verb	to spill, to be spilt; to be shed	perfective
+теревенити	тереве́нити	verb	(colloquial) to chatter, to natter	imperfective
+гостьовий	гостьови́й	adj	guest (гостьова кімната “guest room”)	
+ємний	є́мний	adj	capacious, roomy; (of words) concise, pithy	
+попустити	попусти́ти	verb	to loosen, to slacken; (colloquial) to let go, to calm down (тебе попустило? “have you calmed down?”)	perfective
+прочісувати	прочі́сувати	verb	to comb, to search thoroughly	imperfective
+психувати	психува́ти	verb	(colloquial) to freak out, to lose it, to get worked up	imperfective
+поскладати	посклада́ти	verb	to fold (up), to put away, to stack	perfective
+занапастити	занапасти́ти	verb	to ruin, to destroy	perfective
+припасти	припа́сти	verb	to press oneself (to), to fall (to) (припасти до душі “to take a liking to”)	perfective
+поцілити	поці́лити	verb	to hit (a target), to aim and hit	perfective
+вимкнутися	ви́мкнутися	verb	to switch off, to turn off, to shut down	perfective
+проткнути	проткну́ти	verb	to pierce, to puncture, to run through	perfective
+підготовчий	підгото́вчий	adj	preparatory	
+пробиратися	пробира́тися	verb	to make one's way, to sneak (through)	imperfective
+мартіні	марті́ні	noun	martini	
+очманіти	очмані́ти	verb	(colloquial) to go crazy, to be stunned (очманіти можна “it's mind-blowing”)	perfective
+проколоти	проколо́ти	verb	to pierce, to puncture	perfective
+змерзнути	зме́рзнути	verb	to get cold, to freeze	perfective
+золотко	зо́лотко	noun	(affectionate) sweetheart, darling	
+матч-реванш	матч-рева́нш	noun	return match, rematch	
+доречно	доре́чно	adv	appropriately; (predicative) it is appropriate, it is fitting	
+неясно	нея́сно	adv	unclearly, vaguely; (predicative) it is unclear	
+образливо	обра́зливо	adv	offensively, insultingly; (predicative) it is offensive	
+великодушно	великоду́шно	adv	generously, magnanimously	
+по-старому	по-старо́му	adv	as before, the old way	
+по-англійськи	по-англі́йськи	adv	(in) English; the English way	
+профі	про́фі	noun	(colloquial) pro	
+сплести	сплести́	verb	to weave, to braid, to plait; (colloquial) to make up (a story)	perfective
+відпливати	відплива́ти	verb	to sail away, to set sail; to swim away	imperfective
+прислужник	прислу́жник	noun	servant; (derogatory) lackey, henchman, minion	
+передатися	переда́тися	verb	to be passed on, to be transmitted (of a disease, a mood)	perfective
+недолюблювати	недолю́блювати	verb	to dislike, not to be fond of	imperfective
+підпускати	підпуска́ти	verb	to let (come) near, to let approach	imperfective
+зготувати	зготува́ти	verb	to cook, to make (a meal)	perfective
+виїзний	виїзни́й	adj	away (of a game), visiting, mobile (of a team, a court); exit (виїзна віза “exit visa”)	
+багатоликий	багатоли́кий	adj	many-faced, multifaceted	
+поквитатися	поквита́тися	verb	(colloquial) to get even, to settle scores	perfective
+зажадати	зажада́ти	verb	to demand, to require	perfective
+жувальний	жува́льний	adj	chewing (жувальна гумка “chewing gum”)	
+докинути	доки́нути	verb	to throw (as far as); to throw in, to add (more)	perfective
+зачистити	зачи́стити	verb	to clean (up), to strip (a surface); (military) to clear, to mop up	perfective
+загородити	загороди́ти	verb	to block, to bar (the way); to fence off	perfective
+півмільйона	півмільйо́на	num	half a million	
+нестяма	нестя́ма	noun	frenzy, rapture (до нестями “madly, to distraction”)	
+наваляти	наваля́ти	verb	(colloquial) to beat up, to give a thrashing; to pile up	perfective
+спідній	спі́дній	adj	under, lower (of clothes: спідня білизна “underwear”)	
+проломити	проломи́ти	verb	to break through, to smash (in)	perfective
+квітучий	квіту́чий	adj	blooming, flowering; flourishing, thriving	
+помалу	пома́лу	adv	slowly, little by little, gradually	
+незвичайно	незвича́йно	adv	unusually, extraordinarily	
+рохкання	ро́хкання	noun	grunting (of a pig)	
+божественно	боже́ственно	adv	divinely, heavenly	
+невчасно	невча́сно	adv	at the wrong time, untimely; (predicative) it is a bad time	
+кубометр	кубоме́тр	noun	cubic metre	
+начисто	на́чисто	adv	completely, flatly (відмовитися начисто “to refuse flatly”); clean (переписати начисто “to make a fair copy”)	
+наповал	напова́л	adv	outright, on the spot (убити наповал “to kill outright”)	
+недорого	недо́рого	adv	cheaply, inexpensively; (predicative) it is cheap	
+потоплення	пото́плення	noun	sinking (of a ship); drowning	
+гидко	ги́дко	adv	disgustingly; (predicative) it is disgusting (мені гидко “I feel sick”)	
+безплатно	безпла́тно	adv	free (of charge), for nothing	
+розкішно	розкі́шно	adv	luxuriously, lavishly, splendidly	
+редагування	редагува́ння	noun	editing	
+безрезультатно	безрезульта́тно	adv	without result, to no avail	
+грандіозно	грандіо́зно	adv	grandly, magnificently; (predicative) it is magnificent	
+підпоручник	підпору́чник	noun	second lieutenant	
+досконало	доскона́ло	adv	perfectly, thoroughly (знати досконало “to know inside out”)	
+нескладно	нескла́дно	adv	easily; (predicative) it is not hard	
+тонко	то́нко	adv	thinly, finely; subtly	
+моментально	момента́льно	adv	instantly, in a flash	
+хитро	хи́тро	adv	cunningly, slyly; cleverly	
+прийнятно	прийня́тно	adv	acceptably; (predicative) it is acceptable	
+кардинально	кардина́льно	adv	radically, fundamentally	
+шкереберть	шкере́берть	adv	head over heels, topsy-turvy (піти шкереберть “to go haywire”)	
+вульгарно	вульга́рно	adv	vulgarly, coarsely	
+пончо	по́нчо	noun	poncho	
+симпатично	симпати́чно	adv	nicely, attractively; (predicative) it is nice	
+ганебно	гане́бно	adv	shamefully, disgracefully; (predicative) it is shameful	
+стрибун	стрибу́н	noun	jumper (athlete), leaper	
+первісток	пе́рвісток	noun	firstborn	
+алхімік	алхі́мік	noun	alchemist	
+побігеньки	побіге́ньки	noun	errands (бути на побігеньках “to run errands, to be at someone's beck and call”)	
+землемір	землемі́р	noun	land surveyor	
+офшор	офшо́р	noun	offshore (company, zone)	
+присягтися	присягти́ся	verb	to swear, to vow	perfective
+блудний	блу́дний	adj	prodigal (блудний син “the prodigal son”); stray, wandering	
+кусачки	куса́чки	noun	wire cutters, nippers	
+калібрування	калібрува́ння	noun	calibration	
+налякатися	наляка́тися	verb	to get frightened, to be scared	perfective
+фуга	фу́га	noun	fugue	
+склероз	склеро́з	noun	sclerosis; (colloquial) forgetfulness	
+погибель	поги́бель	noun	ruin, doom, destruction	
+прикусити	прикуси́ти	verb	to bite (one's tongue, lip): прикуси язика! “hold your tongue!”	perfective
+електроліт	електролі́т	noun	electrolyte	
+поздоровлення	поздоро́влення	noun	congratulations, greetings	
+встрявати	встрява́ти	verb	to get mixed up (in), to meddle, to butt in	imperfective
+конспірація	конспіра́ція	noun	secrecy, cover (keeping a plot secret)	
+перемішатися	переміша́тися	verb	to get mixed (up), to mingle	perfective
+частуватися	частува́тися	verb	to help oneself (to food, drink): частуйтеся! “help yourselves!”	imperfective
+чортяка	чортя́ка	noun	(colloquial) devil	
+паскудник	паску́дник	noun	(colloquial) scoundrel, louse, rotter	
+пророкування	пророкува́ння	noun	prophesying, prediction	
+розпусник	розпу́сник	noun	libertine, lecher	
+пронести	пронести́	verb	to carry (through, past); (impersonal) to blow over: пронесло “we got away with it”	perfective
+взаємини	взає́мини	noun	relations, relationship	
+колайдер	кола́йдер	noun	collider	
+прорахувати	прорахува́ти	verb	to calculate, to work out (in advance)	perfective
+латук	лату́к	noun	lettuce	
+бейджик	бе́йджик	noun	(colloquial) name badge, name tag	
+вікенд	віке́нд	noun	weekend	
+поголитися	поголи́тися	verb	to shave	perfective
+вчинення	вчи́нення	noun	committing, commission (of a crime, an act)	
+трильйонний	трильйо́нний	adj	trillionth; trillion (of a sum)	
+відключитися	відключи́тися	verb	to switch off, to disconnect; (colloquial) to pass out, to black out	perfective
+краник	кра́ник	noun	(diminutive) tap, faucet	
+формат	форма́т	noun	format; size (of paper)	
+перестрахуватися	перестрахува́тися	verb	to play it safe, to take extra precautions	perfective
+учта	у́чта	noun	feast, banquet	
+бейдж	бейдж	noun	badge, name tag	
+приглядати	пригляда́ти	verb	to look after, to keep an eye on (за + instrumental)	imperfective
+погаснути	пога́снути	verb	to go out (of a light, a fire)	perfective
+насолити	насоли́ти	verb	to salt; (colloquial) to spite, to do (someone) a bad turn	perfective
+плюшевий	плю́шевий	adj	plush (плюшевий ведмедик “teddy bear”)	
+повчати	повча́ти	verb	to lecture, to preach (at), to instruct	imperfective
+перезавантажити	перезаванта́жити	verb	to restart, to reboot; to reload	perfective
+конференц-зал	конфере́нц-зал	noun	conference room, conference hall	
+грубити	груби́ти	verb	to be rude, to talk back	imperfective
+квартирка	кварти́рка	noun	(diminutive) small flat, little apartment	
+прикурити	прикури́ти	verb	to get a light (from someone's cigarette); to light a cigarette	perfective
+пролежати	проле́жати	verb	to lie (for a time), to stay lying	perfective
+виринати	вирина́ти	verb	to surface, to emerge, to pop up	imperfective
+обмочитися	обмочи́тися	verb	to wet oneself	perfective
+навідати	наві́дати	verb	to visit, to call on	perfective
+забігайлівка	забіга́йлівка	noun	(colloquial) diner, snack bar, greasy spoon	
+водокачка	водока́чка	noun	water tower, pumping station	
+плакатися	пла́катися	verb	to complain, to whine, to cry on someone's shoulder	imperfective
+заклятий	закля́тий	adj	sworn (заклятий ворог “sworn enemy”); cursed, under a spell	
+концертний	конце́ртний	adj	concert	
+привалити	привали́ти	verb	to lean, to pile (against); (colloquial) to turn up; (impersonal) to come one's way (щастя привалило “luck came my way”)	perfective
+пожувати	пожува́ти	verb	to chew (for a while)	perfective
+прирізати	прирі́зати	verb	(colloquial) to knife, to finish off (with a knife)	perfective
+доменний	до́менний	adj	blast (доменна піч “blast furnace”)	
+петарда	пета́рда	noun	firecracker, banger	
+позитив	позити́в	noun	positive (in photography); (colloquial) positivity, good vibes	
+накивати	накива́ти	verb	(only in накивати п'ятами) to take to one's heels, to run off	perfective
+потекти	потекти́	verb	to start flowing, to begin to run; to leak	perfective
+підстригти	підстри́гти	verb	to trim, to cut (hair, a lawn)	perfective
+масовка	масо́вка	noun	extras, crowd (in a film)	
+сигаретка	сигаре́тка	noun	(diminutive) cigarette	
+перестрашитися	перестраши́тися	verb	to get badly frightened	perfective
+живитися	живи́тися	verb	to feed (on), to live (on)	imperfective
+заважкий	заважки́й	adj	too heavy; too hard	
+пречудовий	пречудо́вий	adj	wonderful, marvellous	
+закусити	закуси́ти	verb	to have a snack, to have a bite; to eat (something after a drink); to bite (one's lip)	perfective
+загребти	загребти́	verb	to rake (in), to grab	perfective
+поворухнути	поворухну́ти	verb	to move, to stir (a hand, a finger)	perfective
+бовкнути	бо́вкнути	verb	(colloquial) to blurt out	perfective
+обірватися	обірва́тися	verb	to snap, to break off; to be cut short	perfective
+накреслити	накре́слити	verb	to draw, to sketch; to outline	perfective
+горланити	горла́нити	verb	to bawl, to yell	imperfective
+посвітити	посвіти́ти	verb	to shine (a light): посвіти сюди “shine a light here”	perfective
+жнивар	жнива́р	noun	reaper, harvester	
+дідуган	дідуга́н	noun	(colloquial) old man, old-timer	
+кризовий	кри́зовий	adj	crisis	
+зациклюватися	заци́клюватися	verb	(colloquial) to get hung up (on), to obsess (over)	imperfective
+докторський	до́кторський	adj	doctor's; doctoral	
+нажертися	наже́ртися	verb	(rude) to stuff oneself, to pig out; to get drunk	perfective
+волосинка	волоси́нка	noun	a (single) hair	
+ложечка	ло́жечка	noun	teaspoon; (diminutive) little spoon	
+поєднатися	поєдна́тися	verb	to unite, to combine, to come together	perfective
+постелити	постели́ти	verb	to make (a bed), to spread (a sheet)	perfective
+накидка	наки́дка	noun	cape, cloak; cover (for furniture)	
+підкидати	підкида́ти	verb	to toss up, to throw up; (colloquial) to give a lift; to plant	imperfective
+замахуватися	зама́хуватися	verb	to raise one's hand (to strike), to swing (at); to aim (at something too big)	imperfective
+надутися	наду́тися	verb	to inflate, to swell; (colloquial) to sulk, to pout	perfective
+засіяти	засія́ти	verb	to sow	perfective
+затикати	затика́ти	verb	to plug, to stop up (затикати рота “to shut someone up”)	imperfective
+покращати	покра́щати	verb	to improve, to get better	perfective
+перебиратися	перебира́тися	verb	to move (house); to get across	imperfective
+пиячити	пия́чити	verb	to drink heavily, to booze	imperfective
+лоток	лото́к	noun	tray; (street) stall	
+дисциплінарний	дисципліна́рний	adj	disciplinary	
+носитися	носи́тися	verb	to rush about, to tear around; to fuss (over): носитися з кимось	imperfective
+прокататися	проката́тися	verb	to go for a ride, to go for a drive	perfective
+генний	ге́нний	adj	gene, genetic (генна інженерія “genetic engineering”)	
+пронюхати	проню́хати	verb	(colloquial) to sniff out, to get wind of	perfective
+хакнути	ха́кнути	verb	(colloquial) to hack	perfective
+інтелігентний	інтеліге́нтний	adj	cultured, refined, well-mannered	
+задовбати	задовба́ти	verb	(slang) to drive up the wall, to get on one's nerves: задовбало! “I'm sick of it!”	perfective
+роздрукувати	роздрукува́ти	verb	to print (out)	perfective
+бушувати	бушува́ти	verb	to rage (of a storm, the sea, passions)	imperfective
+приколюватися	прико́люватися	verb	(slang) to joke, to kid: ти приколюєшся? “are you kidding?”	imperfective
+очиститися	очи́ститися	verb	to be cleansed, to purify oneself; to clear (of the sky)	perfective
+піратський	піра́тський	adj	pirate; pirated (піратська копія “pirated copy”)	
+зародитися	зароди́тися	verb	to arise, to originate, to be born (of an idea, a feeling)	perfective
+солідний	солі́дний	adj	solid, sound; respectable; substantial (of a sum)	
+ангельський	а́нгельський	adj	angelic, angel's	
+загадувати	зага́дувати	verb	to set (a riddle); to make (a wish)	imperfective
+лизатися	лиза́тися	verb	to lick oneself; (colloquial) to smooch, to kiss	imperfective
+набиратися	набира́тися	verb	to gather, to build up; to gain (набиратися сил “to gather one's strength”)	imperfective
+навідуватися	наві́дуватися	verb	to drop in (on), to visit (from time to time)	imperfective
+позбирати	позбира́ти	verb	to gather (up), to collect (all of)	perfective
+тіньовий	тіньови́й	adj	shadow; shady (тіньова економіка “shadow economy”)	
+палючий	палю́чий	adj	scorching, burning	
+відступитися	відступи́тися	verb	to give up (on), to back off, to renounce	perfective
+верескливий	верескли́вий	adj	shrill, squealing	
+швидкісний	шви́дкісний	adj	high-speed, speed	
+заїсти	заї́сти	verb	to jam, to stick (заїло “it's stuck”); to eat (something after something else)	perfective
+озвіріти	озвірі́ти	verb	to turn savage, to go berserk	perfective
+замислити	зами́слити	verb	to plan, to conceive, to plot	perfective
+нечувано	нечу́вано	adv	unprecedentedly; (predicative) it is unheard of	
+жваво	жва́во	adv	briskly, lively, animatedly	
+дока	до́ка	noun	(colloquial) expert, past master	
+півмільярда	півмілья́рда	num	half a billion	
+хропіння	хропі́ння	noun	snoring	
+непереливки	непере́ливки	adv	(predicative) it is tough, things are bad	
+ексцентрично	ексцентри́чно	adv	eccentrically	
+почесно	поче́сно	adv	honourably; (predicative) it is an honour	
+синхронно	синхро́нно	adv	in sync, synchronously; simultaneously (of interpreting)	
+терпеливо	терпели́во	adv	patiently	
+флер	флер	noun	aura, air (флер таємниці “an air of mystery”)	
+духовно	духо́вно	adv	spiritually	
+задалеко	задале́ко	adv	too far	
+велебний	веле́бний	adj	reverend, venerable	
+безуспішно	безуспі́шно	adv	unsuccessfully, in vain	
+понос	поно́с	noun	diarrhoea	
+милосердно	милосе́рдно	adv	mercifully	
+покірно	покі́рно	adv	obediently, humbly, meekly	
+конфіденційно	конфіденці́йно	adv	confidentially	
+зверхньо	зве́рхньо	adv	condescendingly, haughtily	
+бінго	бі́нго	noun	bingo	
+скромно	скро́мно	adv	modestly; simply, plainly	
+портфоліо	портфо́ліо	noun	portfolio	
+хлорат	хлора́т	noun	chlorate	
+помаленьку	помале́ньку	adv	slowly, bit by bit, little by little	
+блокування	блокува́ння	noun	blocking; lock (of a device)	
+необачно	необа́чно	adv	carelessly, rashly	
+марнування	марнува́ння	noun	wasting, waste (of time, money)	
+наостанок	наоста́нок	adv	finally, in the end; at parting	
+недоречно	недоре́чно	adv	inappropriately, out of place; (predicative) it is inappropriate	
+відмінятися	відміня́тися	verb	to be cancelled; (grammar) to be declined	imperfective
+зведення	зве́дення	noun	construction, building (of a structure); summary, report (зведення новин “news roundup”)	
+носіння	носі́ння	noun	wearing; carrying	
+переждати	пережда́ти	verb	to wait out, to wait until (something) is over	perfective
+нотка	но́тка	noun	note, hint (нотка суму “a note of sadness”)	
+вичитати	ви́читати	verb	to read (in a book), to find out by reading; to proofread	perfective
+поліс	по́ліс	noun	(insurance) policy	
+силач	сила́ч	noun	strongman	
+ясочка	я́сочка	noun	(affectionate) darling, sweetheart	
+занурення	зану́рення	noun	immersion; dive (of a diver, a submarine)	
+камінчик	камі́нчик	noun	pebble, small stone	
+спусковий	спускови́й	adj	trigger (спусковий гачок “trigger”); launching	
+коронний	коро́нний	adj	signature, best (коронний номер “signature act”); crown	
+звихнутися	звихну́тися	verb	(colloquial) to go crazy, to lose one's mind	perfective
+відчайдух	відчайду́х	noun	daredevil	
+напартачити	напарта́чити	verb	(colloquial) to botch, to mess up	perfective
+угомонитися	угомони́тися	verb	to calm down, to settle down	perfective
+пійло	пі́йло	noun	(colloquial) swill, booze	
+розсудливість	розсу́дливість	noun	prudence, good sense	
+простолюдинка	простолюди́нка	noun	commoner (woman)	
+зносини	зно́сини	noun	relations, dealings, contacts	
+нарахувати	нарахува́ти	verb	to count (up to a number); to charge, to accrue (interest, a fee)	perfective
+заціпеніння	заціпені́ння	noun	numbness, stupor	
+північанин	північа́нин	noun	northerner	
+референт	рефере́нт	noun	assistant, aide (to an executive)	
+утилізувати	утилізува́ти	verb	to recycle, to dispose of	imperfective and perfective
+кубло	кубло́	noun	den, lair, nest (of bandits)	
+сердечко	серде́чко	noun	(diminutive) little heart; (affectionate) sweetheart	
+напруженість	напру́женість	noun	tension, strain	
+пасмо	па́смо	noun	strand, lock (of hair)	
+кулачок	кулачо́к	noun	(diminutive) little fist	
+сингл	сингл	noun	single (record)	
+носовичок	носовичо́к	noun	handkerchief	
+новісінький	нові́сінький	adj	brand new	
+відсунутися	відсу́нутися	verb	to move away, to move aside	perfective
+бардачок	бардачо́к	noun	(colloquial) glove compartment	
+провертати	проверта́ти	verb	to turn (a key); (colloquial) to pull off (a deal, a scheme)	imperfective
+додаватися	додава́тися	verb	to be added; to increase	imperfective
+лікувальний	лікува́льний	adj	medicinal, healing, therapeutic	
+простак	проста́к	noun	simpleton	
+вселенський	вселе́нський	adj	universal, cosmic; ecumenical	
+затіяти	заті́яти	verb	to start, to undertake, to get up to (що ти затіяв? “what are you up to?”)	perfective
+розгулювати	розгу́лювати	verb	to stroll about, to walk around (freely)	imperfective
+завідувач	заві́дувач	noun	head, manager (of a department)	
+герпес	ге́рпес	noun	herpes	
+проміняти	проміня́ти	verb	to trade (for), to exchange (for)	perfective
+звеліти	звелі́ти	verb	to order, to tell (someone to do something)	perfective
+утилізація	утиліза́ція	noun	recycling, disposal	
+охоронятися	охороня́тися	verb	to be guarded, to be protected	imperfective
+франшиза	франши́за	noun	franchise	
+пащека	паще́ка	noun	(colloquial) jaws, mouth, trap	
+замикатися	замика́тися	verb	to lock oneself in; to withdraw (into oneself)	imperfective
+витрачатися	витрача́тися	verb	to be spent, to be used up; to spend money	imperfective
+курнути	курну́ти	verb	(colloquial) to take a puff, to have a smoke	perfective
+рипатися	ри́патися	verb	(colloquial) to make a move, to kick up a fuss: не рипайся! “don't move!”	imperfective
+фамільний	фамі́льний	adj	family (фамільна коштовність “family heirloom”)	
+томографія	томогра́фія	noun	tomography; (colloquial) scan	
+насадити	насади́ти	verb	to plant; to impose; to put (on a spit, a hook)	perfective
+підкласти	підкла́сти	verb	to put under; to slip, to plant (secretly)	perfective
+стрілятися	стріля́тися	verb	to shoot oneself; to fight a duel	imperfective
+висуватися	висува́тися	verb	to lean out, to stick out; to put oneself forward	imperfective
+отруїтися	отруї́тися	verb	to be poisoned, to get food poisoning; to poison oneself	perfective
+протонний	прото́нний	adj	proton	
+капелюшок	капелю́шок	noun	(diminutive) little hat	
+кочовик	кочови́к	noun	nomad	
+врегулювати	врегулюва́ти	verb	to settle, to resolve (a dispute); to regulate	perfective
+надувний	надувни́й	adj	inflatable	
+влягтися	влягти́ся	verb	to settle down, to die down: все вляжеться “it will all blow over”	perfective
+губитися	губи́тися	verb	to get lost; to be at a loss	imperfective
+застебнути	застебну́ти	verb	to button (up), to fasten, to zip up	perfective
+нашивка	наши́вка	noun	patch, stripe (on a uniform)	
+скотитися	скоти́тися	verb	to roll down, to slide down	perfective
+скоштувати	скоштува́ти	verb	to taste, to try	perfective
+розкриватися	розкрива́тися	verb	to open (up); to come out, to be revealed	imperfective
+обвинувачуватися	обвинува́чуватися	verb	to be accused (of), to be charged (with)	imperfective
+плануватися	планува́тися	verb	to be planned	imperfective
+оказія	ока́зія	noun	opportunity, occasion; (colloquial) odd incident	
+липучка	липу́чка	noun	Velcro; flypaper	
+запій	запі́й	noun	drinking bout, binge	
+розпухнути	розпу́хнути	verb	to swell (up)	perfective
+примчатися	примча́тися	verb	to come rushing, to race (to)	perfective
+розсмішити	розсміши́ти	verb	to make (someone) laugh	perfective
+замахнутися	замахну́тися	verb	to raise one's hand (to strike), to swing (at); to aim (at something too big)	perfective
+розкодувати	розкодува́ти	verb	to decode, to decrypt	perfective
+придурюватися	приду́рюватися	verb	(colloquial) to play dumb, to act the fool	imperfective
+обрушитися	обру́шитися	verb	to collapse, to cave in; to come down (on)	perfective
+пробний	про́бний	adj	trial, test (пробна версія “trial version”)	
+дірочка	ді́рочка	noun	(diminutive) little hole	
+розірватися	розірва́тися	verb	to tear, to break; to burst, to explode	perfective
+викручуватися	викру́чуватися	verb	to wriggle out (of), to dodge	imperfective
+міліграм	мілігра́м	noun	milligram	
+виміняти	ви́міняти	verb	to trade (for), to get (something) in exchange	perfective
+хитромудрий	хитрому́дрий	adj	cunning, artful; intricate	
+пророчити	проро́чити	verb	to predict, to foretell	imperfective
+відстрелити	відстре́лити	verb	to shoot off	perfective
+зістрибнути	зістрибну́ти	verb	to jump down, to jump off	perfective
+гайнути	гайну́ти	verb	(colloquial) to dash off, to rush	perfective
+радіосигнал	радіосигна́л	noun	radio signal	
+ляльковий	лялько́вий	adj	doll, doll's; puppet (ляльковий театр “puppet theatre”)	
+налаштуватися	налаштува́тися	verb	to get ready, to set oneself (for), to tune in	perfective
+відлучитися	відлучи́тися	verb	to step out, to leave (for a moment)	perfective
+недотепа	недоте́па	noun	klutz, bungler	
+пожирати	пожира́ти	verb	to devour	imperfective
+лайнер	ла́йнер	noun	liner (ocean liner, airliner)	
+загіпнотизувати	загіпнотизува́ти	verb	to hypnotise	perfective
+заміський	заміськи́й	adj	country, out-of-town (заміський будинок “country house”)	
+безголовий	безголо́вий	adj	headless; (colloquial) brainless	
+розмалювати	розмалюва́ти	verb	to paint (all over), to colour (in)	perfective
+покричати	покрича́ти	verb	to shout (for a while)	perfective
+відключатися	відключа́тися	verb	to switch off, to disconnect; (colloquial) to pass out	imperfective
+добігати	добіга́ти	verb	to run up (to); to be coming to an end (добігати кінця)	imperfective
+поладнати	поладна́ти	verb	to get along, to come to terms	perfective
+іракець	іра́кець	noun	Iraqi	
+порпатися	по́рпатися	verb	to rummage, to dig around, to poke about	imperfective
+сотка	со́тка	noun	(colloquial) a hundred (hryvnias, grams); a hundredth of a hectare	
+метровий	метро́вий	adj	one-metre, a metre long	
+наскучити	наску́чити	verb	to bore, to become tiresome	perfective
+проминути	промину́ти	verb	to pass, to go by	perfective
+підсипати	підси́пати	verb	to add (by pouring); to slip (poison into a drink)	perfective
+некомпетентність	некомпете́нтність	noun	incompetence	
+перестріляти	перестріля́ти	verb	to shoot (all of, one after another)	perfective
+спрацюватися	спрацюва́тися	verb	to learn to work together; to wear out	perfective
+вкластися	вкла́стися	verb	to fit (into), to manage (within): вкластися в бюджет “to stay within budget”	perfective
+порозумнішати	порозумні́шати	verb	to grow wiser	perfective
+пустувати	пустува́ти	verb	to be naughty, to play pranks, to mess about	imperfective
+перерватися	перерва́тися	verb	to be interrupted, to break off	perfective
+віддаватися	віддава́тися	verb	to give oneself (to), to devote oneself (to)	imperfective
+вигулювати	вигу́лювати	verb	to walk (a dog)	imperfective
+потоваришувати	потоваришува́ти	verb	to make friends, to become friends	perfective
+осідлати	осідла́ти	verb	to saddle	perfective
+засвітити	засвіти́ти	verb	to light (up), to switch on; (colloquial) to give away, to expose; (colloquial) to punch (засвітити в око)	perfective
+зцілитися	зціли́тися	verb	to be healed, to recover	perfective
+розкладний	розкладни́й	adj	folding (розкладне ліжко “camp bed”)	
+загризти	загри́зти	verb	to bite to death, to maul	perfective
+загнутися	загну́тися	verb	to bend, to curl; (slang) to croak, to kick the bucket	perfective
+галера	гале́ра	noun	galley (ship)	
+зсунути	зсу́нути	verb	to move, to shift, to push aside	perfective
+обкрадати	обкрада́ти	verb	to rob	imperfective
+влитися	вли́тися	verb	to pour in; to join, to fit in (влитися в колектив “to fit into the team”)	perfective
+сміховинний	сміхови́нний	adj	ridiculous, laughable	
+залягти	залягти́	verb	to lie down, to lie low; to take cover	perfective
+піддувати	піддува́ти	verb	to blow (from below, through gaps): піддувало “there was a draught”	imperfective
+спиртний	спиртни́й	adj	alcoholic (of drinks): спиртні напої “alcoholic drinks”; spirit (lamp, stove)	
+півдорога	півдоро́га	noun	halfway (на півдорозі “halfway”, з півдороги “from halfway”)	
+пилюка	пилю́ка	noun	dust	
+засяяти	зася́яти	verb	to begin to shine, to light up, to beam	perfective
+видертися	ви́дертися	verb	to climb up, to clamber (up, out)	perfective
+завал	зава́л	noun	blockage, collapse, rubble; (colloquial) overload, pile of work; (colloquial) flop, disaster	
+подорожній	подоро́жній	adj	travelling, travel; (as a noun) traveller, wayfarer	
+догратися	догра́тися	verb	(colloquial) to play until it ends badly, to ask for trouble (догрався! “now you've done it!”)	perfective
+забігти	забі́гти	verb	to drop in, to pop in, to run in (to); to run (far, ahead)	perfective
+западня	западня́	noun	trap, snare	
+нехороший	нехоро́ший	adj	bad, not nice, nasty	
+настигти	насти́гти	verb	to catch up with, to overtake; to overtake, to befall (of night, misfortune)	perfective
+кровний	кро́вний	adj	blood (кровний родич “blood relative”); vital, personal (кровна справа); hard-earned (кровні гроші)	
+подути	поду́ти	verb	to blow (for a while), to start blowing	perfective
+дотягнути	дотягну́ти	verb	to drag (to), to pull as far as; to hold out, to last (until); to drag out	perfective
+вбратися	вбра́тися	verb	to dress up, to get dressed (in)	perfective
+закотити	закоти́ти	verb	to roll (into, under); закотити очі “to roll one's eyes”, закотити істерику “to throw a tantrum”	perfective
+вигоріти	ви́горіти	verb	to burn out, to burn down; to fade (in the sun); (colloquial) to burn out (from overwork)	perfective
+зіпсуватися	зіпсува́тися	verb	to go bad, to go off (of food); to break down (of a device); to get worse (of weather, mood)	perfective
+заповітний	запові́тний	adj	cherished, treasured; secret (заповітна мрія “cherished dream”)	
+навалити	навали́ти	verb	to pile (up), to heap; (colloquial) to pile on	perfective
+перепасти	перепа́сти	verb	(colloquial) to come one's way, to fall to one's share (тобі теж перепаде “you'll get some too”)	perfective
+прикус	при́кус	noun	bite, occlusion (of the teeth)	
+привабливо	прива́бливо	adv	attractively, appealingly; (predicative) it is attractive, it is tempting	
+юридично	юриди́чно	adv	legally, in legal terms	
+нанівець	наніве́ць	adv	to nothing (звести нанівець “to bring to nothing, to undo”)	
+убезпечити	убезпе́чити	verb	to secure, to protect, to make safe	perfective
+навпростець	навпросте́ць	adv	straight, by the shortest way; (figurative) bluntly, directly	
+намарно	нама́рно	adv	in vain, for nothing	
+поетично	поети́чно	adv	poetically	
+загартовуватися	загарто́вуватися	verb	to harden oneself, to toughen up; to be tempered (of steel)	imperfective
+генетично	генети́чно	adv	genetically	
+полонез	полоне́з	noun	polonaise	
+квінта	кві́нта	noun	fifth (in music)	
+плавно	пла́вно	adv	smoothly, gently	
+лячно	ля́чно	adv	(predicative) it is scary, it is frightening	
+направлення	напра́влення	noun	referral (to a doctor, a hospital), official assignment; direction	
+просвітління	просвітлі́ння	noun	enlightenment; brightening, clearing up; lucid moment	
+непотрібно	непотрі́бно	adv	needlessly; (predicative) there is no need, it is not needed	
+порибалити	пориба́лити	verb	to go fishing (for a while), to do some fishing	perfective
+перехоплення	перехо́плення	noun	interception	
+звідусюди	звідусю́ди	adv	from everywhere, from all sides	
+пунктик	пу́нктик	noun	(colloquial) fixation, hang-up, quirk	
+протизаконно	протизако́нно	adv	illegally, unlawfully	
+педикюр	педикю́р	noun	pedicure	
+диско	ди́ско	noun	disco (music)	
+невдало	невда́ло	adv	unsuccessfully, badly, unluckily	
+нервово	нерво́во	adv	nervously	
+свавілля	сваві́лля	noun	arbitrariness, lawlessness, high-handedness	
+клубочок	клубо́чок	noun	(diminutive) small ball (of yarn); згорнутися клубочком “to curl up in a ball”	
+актуально	актуа́льно	adv	(predicative) it is relevant, it is topical	
+старомодно	старомо́дно	adv	in an old-fashioned way; (predicative) it is old-fashioned	
+самознищення	самозни́щення	noun	self-destruction	
+некомфортно	некомфо́ртно	adv	uncomfortably; (predicative) it is uncomfortable	
+блеф	блеф	noun	bluff	
+оголошуватися	оголо́шуватися	verb	to be announced	imperfective
+метафорично	метафори́чно	adv	metaphorically	
+шляхетно	шляхе́тно	adv	nobly	
+хлюпання	хлю́пання	noun	splashing, sloshing	
+життєво	життє́во	adv	vitally (життєво важливий “vitally important”)	
+знамення	знаме́ння	noun	sign, omen, portent	
+незатишно	незати́шно	adv	uncomfortably, uneasily; (predicative) it is not cosy, it is uncomfortable	
+техпаспорт	техпа́спорт	noun	vehicle registration document, logbook	
+пластика	пла́стика	noun	grace of movement, plasticity; (colloquial) plastic surgery	
+натурально	натура́льно	adv	naturally, realistically; (colloquial) of course, naturally	
+зроду	зро́ду	adv	never in one's life (зроду не бачив “never seen in my life”)	
+перуанець	перуа́нець	noun	Peruvian (man)	
+нескоро	неско́ро	adv	not soon, late	
+спонтанно	спонта́нно	adv	spontaneously	
+вимагатися	вимага́тися	verb	to be required	imperfective
+супроти	супро́ти	prep	against; opposite	
+суфле	суфле́	noun	soufflé	
+скоренько	скоре́нько	adv	(colloquial) quickly, quick	
+підсісти	підсі́сти	verb	to sit down (next to), to join (at a table); (colloquial) to get hooked (on)	perfective
+нагальність	нага́льність	noun	urgency	
+ексклюзив	ексклюзи́в	noun	exclusive (story, item)	
+сімейка	сіме́йка	noun	(colloquial) little family; (ironic) clan, bunch	
+депо	депо́	noun	depot (railway, tram, fire)	
+звучання	звуча́ння	noun	sound (of a voice, an instrument), sounding	
+вивільнятися	вивільня́тися	verb	to free oneself, to be released	imperfective
+обслуговуватися	обслуго́вуватися	verb	to be served, to be serviced	imperfective
+калачик	кала́чик	noun	small bread roll; згорнутися калачиком “to curl up”	
+викриття	викриття́	noun	exposure, disclosure, unmasking	
+показуха	показу́ха	noun	(colloquial) show, window dressing	
+гувернантка	гуверна́нтка	noun	governess	
+гример	гриме́р	noun	make-up artist	
+очищувати	очи́щувати	verb	to clean, to cleanse, to purify	imperfective
+схотітися	схоті́тися	verb	(impersonal) to feel like (мені схотілося “I felt like it”)	perfective
+квадратик	квадра́тик	noun	small square	
+знаходження	знахо́дження	noun	finding, discovery; being (somewhere), location	
+поклажа	покла́жа	noun	luggage, load	
+бургомістр	бургомі́стр	noun	burgomaster, mayor	
+софтбол	софтбо́л	noun	softball	
+нечепура	нечепу́ра	noun	slob, untidy person	
+гніздечко	гнізде́чко	noun	(diminutive) little nest; (affectionate) love nest	
+мазок	мазо́к	noun	stroke, dab (of paint); smear (medical)	
+нунчаки	нунча́ки	noun	nunchaku	
+скальп	скальп	noun	scalp	
+передихнути	передихну́ти	verb	to take a breather, to catch one's breath	perfective
+тайник	тайни́к	noun	hiding place, secret stash	
+пітбуль	пітбу́ль	noun	pit bull	
+подушечка	поду́шечка	noun	(diminutive) small pillow, cushion; pad (of a finger, a paw)	
+голосок	голосо́к	noun	(diminutive) little voice	
+тоталізатор	тоталіза́тор	noun	totalisator, betting pool, bookmaker's	
+компот	компо́т	noun	compote (fruit drink)	
+амфетамін	амфетамі́н	noun	amphetamine	
+плазмовий	пла́змовий	adj	plasma	
+спецефект	спецефе́кт	noun	special effect	
+скоєння	ско́єння	noun	commission (of a crime)	
+феодал	феода́л	noun	feudal lord	
+тонік	то́нік	noun	tonic (water); toner (for the skin)	
+браток	брато́к	noun	(colloquial) brother, mate, buddy; (slang) gangster	
+козирний	кози́рний	adj	trump (козирна карта “trump card”); (colloquial) top, best	
+дерматолог	дермато́лог	noun	dermatologist	
+підправити	підпра́вити	verb	to touch up, to correct, to adjust	perfective
+сепсис	се́псис	noun	sepsis	
+листочок	листо́чок	noun	(diminutive) little leaf; sheet, slip (of paper)	
+депіляція	депіля́ція	noun	hair removal, depilation	
+потеревенити	потереве́нити	verb	(colloquial) to chat, to have a chinwag	perfective
+ясноокий	ясноо́кий	adj	bright-eyed, clear-eyed	
+жеребчик	жере́бчик	noun	(diminutive) colt, young stallion	
+спочинок	спочи́нок	noun	rest, repose	
+півлітра	півлі́тра	noun	half a litre; (colloquial) half-litre bottle (of vodka)	
+повідривати	повідрива́ти	verb	to tear off (many, one after another)	perfective
+випуститися	ви́пуститися	verb	to graduate	perfective
+декор	деко́р	noun	decor, decoration	
+поплакатися	попла́катися	verb	to cry on someone's shoulder, to complain (поплакатися в жилетку)	perfective
+переломити	переломи́ти	verb	to break (in two); to turn around, to overcome (a situation, oneself)	perfective
+розпорядник	розпоря́дник	noun	steward, manager, organiser	
+красунечка	красу́нечка	noun	(affectionate) pretty girl, little beauty	
+самогонник	самого́нник	noun	moonshiner	
+закруглятися	закругля́тися	verb	(colloquial) to wrap up, to round off	imperfective
+звірятко	звіря́тко	noun	(diminutive) little animal, critter	
+припудрити	припу́дрити	verb	to powder (lightly); (figurative) to gloss over	perfective
+нетерплячість	нетерпля́чість	noun	impatience	
+гіпнотичний	гіпноти́чний	adj	hypnotic	
+збавити	зба́вити	verb	to reduce, to lower (speed, price)	perfective
+промити	проми́ти	verb	to wash out, to rinse; промити мізки “to brainwash”	perfective
+прапорщик	пра́порщик	noun	warrant officer, ensign	
+дунути	ду́нути	verb	to blow (once), to puff	perfective
+непристойність	непристо́йність	noun	indecency, obscenity	
+позмагатися	позмага́тися	verb	to compete, to have a contest	perfective
+оформлення	офо́рмлення	noun	design, layout, decoration; processing, registration (of documents)	
+менінгіт	менінгі́т	noun	meningitis	
+потакати	потака́ти	verb	to indulge, to pander (to), to go along (with)	imperfective
+накладка	накла́дка	noun	overlay, pad, cover; (colloquial) hitch, slip-up	
+поклопотатися	поклопота́тися	verb	to see to, to take care (of); to put in a word (for)	perfective
+допитливість	допи́тливість	noun	curiosity, inquisitiveness	
+облік	о́блік	noun	accounting, record-keeping; registration (стати на облік “to register”)	
+готичний	готи́чний	adj	Gothic; gothic (of style, fiction)	
+гримучий	гриму́чий	adj	rattling, thundering; гримуча змія “rattlesnake”, гримуча суміш “explosive mixture”	
+аут	а́ут	noun	out (in sport)	
+діабетик	діабе́тик	noun	diabetic	
+відрекомендуватися	відрекомендува́тися	verb	to introduce oneself	perfective
+засмоктати	засмокта́ти	verb	to suck in, to suck under (of a bog, a whirlpool)	perfective
+підвестися	підвести́ся	verb	to get up, to stand up, to rise	perfective
+командор	командо́р	noun	commander (of an order); commodore	
+долити	доли́ти	verb	to top up, to pour (more), to add (liquid)	perfective
+послух	по́слух	noun	obedience; (religious) penance, novice's duties	
+сперти	спе́рти	verb	(colloquial) to swipe, to nick, to pinch; to lean (against)	perfective
+тарілочка	тарі́лочка	noun	(diminutive) small plate, saucer	
+поцьомати	поцьо́мати	verb	(colloquial) to kiss, to give a smooch	perfective
+компост	компо́ст	noun	compost	
+зваблювати	зва́блювати	verb	to seduce, to lure, to tempt	imperfective
+наспівувати	наспі́вувати	verb	to hum, to sing softly	imperfective
+пристав	при́став	noun	bailiff; (historical) police officer	
+факторія	факто́рія	noun	trading post	
+пістоль	пісто́ль	noun	(dated) pistol	
+стаж	стаж	noun	length of service, work experience	
+накрутити	накрути́ти	verb	to wind (on), to twist; (colloquial) to wind up, to work up (someone); to inflate (prices, figures)	perfective
+чаклунський	чаклу́нський	adj	witch's, sorcerer's, magic	
+оформляти	оформля́ти	verb	to design, to arrange (a room, a book); to process (documents), to register	imperfective
+помилуватися	помилува́тися	verb	to admire, to feast one's eyes (on)	perfective
+впарювати	впа́рювати	verb	(slang) to palm off, to foist (on someone), to push (a product)	imperfective
+пенсійний	пенсі́йний	adj	pension, retirement	
+обливатися	облива́тися	verb	to douse oneself (with water); обливатися потом “to be bathed in sweat”	imperfective
+розучитися	розучи́тися	verb	to forget how (to do something), to lose the knack	perfective
+набрехати	набреха́ти	verb	to lie, to tell lies	perfective
+новоприбулий	новоприбу́лий	adj	newly arrived; (as a noun) newcomer	
+протримати	протри́мати	verb	to hold, to keep (for a time)	perfective
+живучий	живу́чий	adj	hardy, tenacious, hard to kill	
+леткий	летки́й	adj	volatile (of a substance)	
+бідненький	бідне́нький	adj	(affectionate) poor (thing), poor little	
+шавка	ша́вка	noun	(derogatory) mutt, cur; (derogatory) lackey	
+радіаційний	радіаці́йний	adj	radiation	
+націлитися	наці́литися	verb	to aim (at), to take aim; to set one's sights (on)	perfective
+жартик	жа́ртик	noun	(diminutive) little joke	
+забійний	забі́йний	adj	(colloquial) killer, awesome; slaughter (забійна худоба “livestock for slaughter”)	
+відзняти	відзня́ти	verb	to film, to shoot (a scene, a film)	perfective
+тронний	тро́нний	adj	throne (тронний зал “throne room”)	
+зліпити	зліпи́ти	verb	to mould, to model (from clay, snow); to stick together	perfective
+кримінальник	криміна́льник	noun	criminal, crook	
+підшлунковий	підшлунко́вий	adj	підшлункова залоза “pancreas”	
+здутися	зду́тися	verb	to deflate, to go flat; (slang) to run out of steam	perfective
+осушити	осуши́ти	verb	to drain (a swamp); to drain, to empty (a glass)	perfective
+стартувати	стартува́ти	verb	to start, to take off, to launch	imperfective and perfective
+прояснитися	проясни́тися	verb	to clear up (of weather, the sky, the mind); to become clear	perfective
+викликатися	виклика́тися	verb	to volunteer; to be caused	imperfective
+інфляційний	інфляці́йний	adj	inflationary, inflation	
+призначатися	признача́тися	verb	to be intended (for), to be meant (for); to be appointed	imperfective
+намастити	намасти́ти	verb	to spread, to smear; to grease, to oil	perfective
+закатати	заката́ти	verb	to roll up (sleeves); to preserve, to put up (in jars)	perfective
+виповзти	ви́повзти	verb	to crawl out	perfective
+заміжній	замі́жній	adj	married (of a woman)	
+засумніватися	засумніва́тися	verb	to begin to doubt, to have doubts	perfective
+невролог	невро́лог	noun	neurologist	
+пташечка	пта́шечка	noun	(affectionate) little bird, birdie	
+дебільний	дебі́льний	adj	(derogatory) moronic, idiotic	
+підвозити	підво́зити	verb	to give (someone) a lift; to bring, to deliver	imperfective
+напустити	напусти́ти	verb	to let in, to fill (with water, air); напустити туману “to muddy the waters”; to set (on someone)	perfective
+залізячка	залізя́чка	noun	(colloquial) bit of metal, piece of iron; (ironic) gadget, machine	
+погладшати	погла́дшати	verb	to put on weight, to get fatter	perfective
+завантажуватися	заванта́жуватися	verb	to load, to boot up (of a computer); to be loaded	imperfective
+вивестися	ви́вестися	verb	to hatch; to die out, to disappear; to come out (of a stain)	perfective
+наскочити	наско́чити	verb	to run into, to bump into, to come across; to attack, to set upon	perfective
+випатрати	ви́патрати	verb	to gut, to disembowel	perfective
+буйвіл	бу́йвіл	noun	buffalo	
+тридцятка	тридця́тка	noun	(colloquial) thirty (a number, a banknote, a bus); one's thirties	
+цуценячий	цуценя́чий	adj	puppy's, puppy (цуценячі очі “puppy eyes”)	
+зрошувальний	зро́шувальний	adj	irrigation	
+наковтатися	наковта́тися	verb	to swallow a lot (of water, smoke)	perfective
+застрибнути	застрибну́ти	verb	to jump in, to jump on (to)	perfective
+дослухатися	дослу́хатися	verb	to heed, to listen (to advice)	perfective
+згаяти	зга́яти	verb	to waste, to lose (time)	perfective
+відхопити	відхопи́ти	verb	(colloquial) to grab, to snatch; to get (a share, a punishment)	perfective
+дихнути	дихну́ти	verb	to breathe (once), to take a breath	perfective
+сирітка	сирі́тка	noun	(affectionate) poor little orphan	
+фотографуватися	фотографува́тися	verb	to have one's photo taken, to pose for a photo	imperfective
+сутана	сута́на	noun	cassock, soutane	
+підвернутися	підверну́тися	verb	to turn up, to come along (of a chance); to twist (an ankle)	perfective
+вселитися	всели́тися	verb	to move in (to a home); to possess, to enter (of a spirit)	perfective
+згуртуватися	згуртува́тися	verb	to unite, to rally, to close ranks	perfective
+переловити	перелови́ти	verb	to catch (all, one after another)	perfective
+засмагати	засмага́ти	verb	to sunbathe, to tan	imperfective
+вакуумний	ва́куумний	adj	vacuum	
+бабусин	бабу́син	adj	grandma's, granny's	
+підлетіти	підлеті́ти	verb	to fly up (to); to jump up, to shoot up (of prices)	perfective
+прославитися	просла́витися	verb	to become famous	perfective
+випробувальний	випро́бувальний	adj	test, trial (випробувальний термін “probation period”)	
+вугільний	вугі́льний	adj	coal	
+старшокласник	старшокла́сник	noun	senior pupil, high-school student	
+провінціал	провінціа́л	noun	provincial (person)	
+скакалка	скака́лка	noun	skipping rope, jump rope	
+трояндовий	троя́ндовий	adj	rose, rosy	
+хатній	ха́тній	adj	home, household, domestic (хатня робота “housework”)	
+бойлер	бо́йлер	noun	boiler, water heater	
+стовбичити	стовби́чити	verb	(colloquial) to stand around, to hang about	imperfective
+доблесний	до́блесний	adj	valiant, gallant	
+надирати	надира́ти	verb	to tear off (bit by bit); (colloquial) надирати дупу “to kick (someone's) butt”	imperfective
+джазовий	джа́зовий	adj	jazz	
+прискоритися	приско́ритися	verb	to speed up, to accelerate	perfective
+мініатюрний	мініатю́рний	adj	miniature, tiny	
+вганяти	вганя́ти	verb	to drive in, to hammer in	imperfective
+кришталевий	криштале́вий	adj	crystal	
+спокуситися	спокуси́тися	verb	to be tempted, to give in to temptation	perfective
+помандрувати	помандрува́ти	verb	to travel, to go travelling	perfective
+перетелефонувати	перетелефонува́ти	verb	to call back, to ring back	perfective
+пробурити	пробури́ти	verb	to drill (through)	perfective
+штрикнути	штрикну́ти	verb	to stab, to prick, to jab	perfective
+заїжджати	заїжджа́ти	verb	to drop in, to call (by car); to pick up (за кимось “to pick someone up”); to drive in	imperfective
+підсунути	підсу́нути	verb	to push (under, closer); to slip (something to someone)	perfective
+розпакувати	розпакува́ти	verb	to unpack, to unwrap	perfective
+осяяти	ося́яти	verb	to light up, to illuminate; to dawn on (of an idea)	perfective
+осквернити	оскверни́ти	verb	to desecrate, to defile	perfective
+змести	змести́	verb	to sweep (away, off)	perfective
+розсунути	розсу́нути	verb	to move apart, to part, to draw back (curtains)	perfective
+бойскаут	бойска́ут	noun	boy scout	
+горбатитися	горба́титися	verb	(colloquial) to slave away, to toil; to hunch	imperfective
+покупатися	покупа́тися	verb	to have a swim, to have a bath (for a while)	perfective
+поривати	порива́ти	verb	to break (with), to break off; to carry away, to sweep along	imperfective
+розправитися	розпра́витися	verb	to deal with, to make short work of (з кимось); to straighten (out)	perfective
+сценічний	сцені́чний	adj	stage, theatrical	
+праведник	пра́ведник	noun	righteous person	
+обставити	обста́вити	verb	to furnish; to surround (with); (colloquial) to outdo, to beat	perfective
+поратися	по́ратися	verb	to busy oneself, to potter about, to do chores	imperfective
+гіпнотизувати	гіпнотизува́ти	verb	to hypnotise, to mesmerise	imperfective
+підірватися	підірва́тися	verb	to be blown up (on a mine); to strain oneself	perfective
+піхотний	піхо́тний	adj	infantry	
+потовкти	потовкти́	verb	to crush, to pound; (colloquial) to beat up	perfective
+виграшний	ви́грашний	adj	winning; advantageous (виграшна позиція)	
+запалати	запала́ти	verb	to blaze up, to flare up, to burst into flames	perfective
+втирати	втира́ти	verb	to rub in; (slang) to feed (someone) a line	imperfective
+таро	таро́	noun	tarot	
+затягтися	затягти́ся	verb	to drag on (of time); to take a drag (on a cigarette); to tighten	perfective
+озерний	озе́рний	adj	lake	
+синьйора	синьйо́ра	noun	signora, madam	
+сплисти	сплисти́	verb	to float away, to drift off; to come up, to resurface (of a memory); to slip by (of time)	perfective
+хіть	хіть	noun	lust, desire	
+двадцятка	двадця́тка	noun	(colloquial) twenty (a number, a banknote); top twenty	
+виписка	ви́писка	noun	extract, statement (bank statement); discharge (from hospital)	
+перетягнути	перетягну́ти	verb	to drag over, to pull across; to win over (to one's side)	perfective
+підіграти	підігра́ти	verb	to play along (with); to accompany (on an instrument)	perfective
+закувати	закува́ти	verb	to shackle, to chain, to put in irons	perfective
+бахнути	ба́хнути	verb	(colloquial) to bang, to go bang; to whack; to knock back (a drink)	perfective
+задути	заду́ти	verb	to blow out (a candle); to start blowing	perfective
+повчити	повчи́ти	verb	to teach (a little), to give (someone) a lesson	perfective
+буровий	бурови́й	adj	drilling (бурова установка “drilling rig”)	
+спочити	спочи́ти	verb	to rest; to rest in peace (of the dead)	perfective
+ллятися	лля́тися	verb	to pour, to flow, to stream	imperfective
+безболісно	безбо́лісно	adv	painlessly	
+некрасиво	некраси́во	adv	unattractively; (predicative) it is not nice, it is wrong (of behaviour)	
+мостик	мо́стик	noun	small bridge, footbridge; bridge (of a ship; in gymnastics)	
+довгенько	довге́нько	adv	(colloquial) quite a while, a good while	
+унісон	унісо́н	noun	unison	
+кадриль	кадри́ль	noun	quadrille	
+худобина	худо́бина	noun	(one) head of cattle, beast; (derogatory) brute	
+акурат	акура́т	adv	(colloquial) exactly, just	
+сирок	сиро́к	noun	curd snack (glazed or sweet); processed cheese	
+гуманно	гума́нно	adv	humanely	
+дзижчання	дзижча́ння	noun	buzzing, humming	
+вмивати	вмива́ти	verb	to wash (someone's face); вмивати руки “to wash one's hands (of)”	imperfective
+насилу	наси́лу	adv	barely, with difficulty	
+замовляння	замовля́ння	noun	spell, incantation, charm	
+колорит	колори́т	noun	colouring; flavour, local colour	
+популярно	популя́рно	adv	popularly; in simple terms	
+нітрохи	нітро́хи	adv	not at all, not a bit	
+дешифратор	дешифра́тор	noun	decoder	
+продуктивно	продукти́вно	adv	productively	
+недешево	неде́шево	adv	not cheaply; (predicative) it is not cheap	
+владнатися	владна́тися	verb	to be settled, to work out	perfective
+економка	еконо́мка	noun	housekeeper	
+похмуро	похму́ро	adv	gloomily, grimly	
+кріплення	крі́плення	noun	fastening, mount; binding (of a ski)	
+хімічно	хімі́чно	adv	chemically	
+знадвору	знадво́ру	adv	from outside	
+незграбно	незгра́бно	adv	clumsily, awkwardly	
+стильно	сти́льно	adv	stylishly; (predicative) it is stylish	
+пошуміти	пошумі́ти	verb	to make some noise	perfective
+підступно	підсту́пно	adv	treacherously, insidiously	
+інкогніто	інко́гніто	adv	incognito	
+недарма	недарма́	adv	not for nothing, with good reason	
+заманливо	зама́нливо	adv	temptingly; (predicative) it is tempting	
+безстрашність	безстра́шність	noun	fearlessness	
+блуд	блуд	noun	fornication, lechery	
+клонування	клонува́ння	noun	cloning	
+поламатися	полама́тися	verb	to break (down)	perfective
+віднедавна	віднеда́вна	adv	recently, lately, of late	
+відсмоктувач	відсмо́ктувач	noun	suction device, aspirator	
+по-чесному	по-че́сному	adv	(colloquial) honestly, fairly	
+знайомо	знайо́мо	adv	(predicative) it is familiar, it sounds familiar	
+півкіло	півкіло́	noun	half a kilo	
+неохота	неохо́та	noun	reluctance; (predicative) мені неохота “I don't feel like it”	
+гмикати	гми́кати	verb	to say “hmm”, to hum and haw	imperfective
+похвально	похва́льно	adv	commendably; (predicative) it is commendable	
+неочікувано	неочі́кувано	adv	unexpectedly	
+сульфат	сульфа́т	noun	sulphate	
+підло	пі́дло	adv	meanly, basely; (predicative) it is mean, it is low	
+незбагненно	незбагне́нно	adv	incomprehensibly; (predicative) it is beyond comprehension	
+лагідно	ла́гідно	adv	gently, tenderly, kindly	
+присвята	присвя́та	noun	dedication	
+боржок	боржо́к	noun	(diminutive) small debt	
+пихтіння	пихті́ння	noun	puffing, panting	
+рата	ра́та	noun	instalment	
+гульнути	гульну́ти	verb	(colloquial) to have a good time, to party	perfective
+наосліп	нао́сліп	adv	blindly, at random	
+настійно	насті́йно	adv	insistently, urgently	
+перезавантаження	перезаванта́ження	noun	reboot, restart; reset	
+переховування	перехо́вування	noun	hiding; harbouring (of a criminal)	
+сліпо	слі́по	adv	blindly	
+складання	склада́ння	noun	putting together, compiling; assembly; taking (an exam)	
+неприродно	неприро́дно	adv	unnaturally	
+душевно	душе́вно	adv	sincerely, warmly; (predicative) it is cosy, it is nice	
+з-поміж	з-по́між	prep	from among	
+пікання	пі́кання	noun	beeping	
+знімальний	зніма́льний	adj	filming (знімальний майданчик “film set”, знімальна група “film crew”)	
+ухилення	ухи́лення	noun	evasion, dodging (ухилення від податків “tax evasion”)	
+відпущення	відпу́щення	noun	відпущення гріхів “absolution”	
+заждатися	зажда́тися	verb	to wait a long time, to be tired of waiting	perfective
+посигналити	посигна́лити	verb	to honk, to signal	perfective
+вмикатися	вмика́тися	verb	to switch on, to come on	imperfective
+квакер	ква́кер	noun	Quaker	
+потемніти	потемні́ти	verb	to darken, to grow dark	perfective
+панталони	пантало́ни	noun	pantaloons; knickers, bloomers	
+вольність	во́льність	noun	freedom, liberty; liberty, licence (taking liberties)	
+батерфляй	батерфля́й	noun	butterfly (stroke)	
+зцілення	зці́лення	noun	healing, cure	
+невірно	неві́рно	adv	incorrectly, wrongly; unfaithfully	
+долинути	доли́нути	verb	to reach, to drift (of a sound, a smell: долинув голос “a voice carried over”)	perfective
+абощо	або́що	particle	or something, or the like, or whatever	
+дотепно	доте́пно	adv	wittily, cleverly; (predicative) it is witty	
+якнайдалі	якнайда́лі	adv	as far as possible, as far away as possible	
+потайки	по́тайки	adv	secretly, on the sly, behind someone's back	
+розступитися	розступи́тися	verb	to step aside, to part, to make way (розступіться! “make way!”)	perfective
+терпітися	терпі́тися	verb	(impersonal) to be impatient: мені не терпиться “I can't wait”	imperfective
+мадера	маде́ра	noun	Madeira (wine)	
+риза	ри́за	noun	vestment, chasuble (of a priest); riza, metal cover of an icon	
+сквер	сквер	noun	small public garden, square (with trees)	
+оженитися	ожени́тися	verb	to get married, to marry (of a man)	perfective
+дартс	дартс	noun	darts (game)	
+стемніти	стемні́ти	verb	to get dark (стемніло “it got dark”)	perfective
+тяга	тя́га	noun	draught (in a chimney); thrust, traction; craving, pull (to, towards)	
+злізати	зліза́ти	verb	to climb down, to get down (злізай! “get down!”)	imperfective
+провалювати	прова́лювати	verb	to fail, to ruin (an exam, a plan); (slang) провалюй! “get lost!”	imperfective
+тюряга	тюря́га	noun	(slang) prison, slammer, clink	
+збочення	збо́чення	noun	perversion; deviation	
+підпілля	підпі́лля	noun	underground (a secret resistance movement: піти в підпілля “to go underground”)	
+диліжанс	диліжа́нс	noun	stagecoach	
+нарватися	нарва́тися	verb	(colloquial) to run into (trouble), to ask for it; to bump into	perfective
+накричати	накрича́ти	verb	to shout at, to yell at	perfective
+наїхати	наї́хати	verb	to run over, to run into (with a vehicle); (colloquial) to lean on, to have a go at	perfective
+загробний	загро́бний	adj	beyond the grave, of the afterlife (загробне життя “afterlife”)	
+штукенція	штуке́нція	noun	(colloquial) thingy, gizmo, contraption	
+магазинчик	магази́нчик	noun	(diminutive) little shop	
+ерудит	еруди́т	noun	erudite person, polymath	
+схопитися	схопи́тися	verb	to grab, to seize (за щось); to jump up; to set (of concrete, glue)	perfective
+запанікувати	запанікува́ти	verb	to panic	perfective
+всевишній	Всеви́шній	noun	the Most High, the Almighty, God	
+боксерський	боксе́рський	adj	boxing, boxer's (боксерський ринг “boxing ring”)	
+дертися	де́ртися	verb	to climb, to clamber; (colloquial) to fight, to scuffle	imperfective
+розриватися	розрива́тися	verb	to tear, to burst, to break; to be torn (between)	imperfective
+винюхувати	виню́хувати	verb	to sniff out; (colloquial) to nose around, to snoop	imperfective
+скупатися	скупа́тися	verb	to have a swim, to bathe, to have a bath	perfective
+краплина	крапли́на	noun	drop	
+триклятий	трикля́тий	adj	(colloquial) damned, cursed, blasted	
+побігати	побі́гати	verb	to run about (for a while)	perfective
+перевестися	перевести́ся	verb	to transfer (to another school, unit); to die out	perfective
+зволити	зво́лити	verb	(dated, ironic) to deign, to be pleased to (звольте “kindly, if you please”)	perfective
+забитися	заби́тися	verb	to hide (away), to get into (a corner); to hurt oneself (by a knock); to start beating (of the heart)	perfective
+наглянути	нагля́нути	verb	to keep an eye on, to look after	perfective
+засікти	засі́кти	verb	to spot, to notice, to clock; to time (засікти час)	perfective
+доганяти	доганя́ти	verb	to catch up with, to chase; (slang) to get it, to understand	imperfective
+промазати	прома́зати	verb	(colloquial) to miss (a target)	perfective
+буркотун	буркоту́н	noun	grumbler, grouch	
+офіцерський	офіце́рський	adj	officer's, officers'	
+настанова	настано́ва	noun	instruction, guidance, directive	
+білявка	біля́вка	noun	blonde (woman)	
+керуватися	керува́тися	verb	to be guided (by), to go by	imperfective
+недоумкуватий	недоу́мкуватий	adj	dim-witted, half-witted	
+загорітися	загорі́тися	verb	to catch fire, to light up; to become keen (on)	perfective
+спинятися	спиня́тися	verb	to stop	imperfective
+обвести	обвести́	verb	to lead round; to outline, to circle; (colloquial) to fool, to dupe (обвести навколо пальця “to twist round one's little finger”)	perfective
+обчистити	обчи́стити	verb	to clean; to peel; (colloquial) to rob, to clean out	perfective
+заразний	зара́зний	adj	contagious, infectious	
+підпустити	підпусти́ти	verb	to let (come) near, to let approach	perfective
+вхопитися	вхопи́тися	verb	to grab hold (of), to seize	perfective
+сфотографуватися	сфотографува́тися	verb	to have one's photo taken	perfective
+попадатися	попада́тися	verb	to get caught; to come across, to turn up (не попадайся! “don't get caught!”)	imperfective
+мінеральний	мінера́льний	adj	mineral (мінеральна вода “mineral water”)	
+підтвердитися	підтве́рдитися	verb	to be confirmed, to prove true	perfective
+покаятися	пока́ятися	verb	to repent, to confess	perfective
+пожалкувати	пожалкува́ти	verb	to regret (ти пожалкуєш “you'll regret it”)	perfective
+славитися	сла́витися	verb	to be famous (for), to be renowned	imperfective
+детективний	детекти́вний	adj	detective (детективний роман “detective novel”)	
+спливти	спливти́	verb	to surface, to come up; to float away; to come to light; to pass (of time)	perfective
+гурток	гурто́к	noun	club, circle, group (шаховий гурток “chess club”)	
+виколоти	ви́колоти	verb	to gouge out, to put out (an eye)	perfective
+причастя	прича́стя	noun	Holy Communion, the Eucharist; (grammar) participle	
+душно	ду́шно	adv	(predicative) it is stuffy, it is close	
+передчасно	передча́сно	adv	prematurely, too early	
+субтитрування	субтитрува́ння	noun	subtitling	
+видалення	ви́далення	noun	removal, deletion; extraction (of a tooth)	
+неприйнятно	неприйня́тно	adv	unacceptably; (predicative) it is unacceptable	
+румпель	ру́мпель	noun	tiller	
+порожньо	по́рожньо	adv	(predicative) it is empty	
+неофіційно	неофіці́йно	adv	unofficially, off the record	
+морально	мора́льно	adv	morally	
+проблематично	проблемати́чно	adv	problematically; (predicative) it is problematic, it is hard	
+слушно	слу́шно	adv	rightly, justly; (predicative) it is right, fair point	
+багацько	бага́цько	adv	(colloquial) a lot, quite a lot	
+досадно	доса́дно	adv	(predicative) it is annoying, it is a shame	
+прохолодно	прохоло́дно	adv	coolly; (predicative) it is cool, it is chilly	
+воістину	воі́стину	adv	truly, verily (Воістину воскрес! “He is risen indeed!”)	
+безмежно	безме́жно	adv	boundlessly, infinitely, immensely	
+стерео	сте́рео	noun	stereo	
+фокстрот	фокстро́т	noun	foxtrot	
+медальйон	медальйо́н	noun	locket, medallion	
+ванний	ва́нний	adj	bath (ванна кімната “bathroom”)	
+допуск	до́пуск	noun	clearance, access (to secret information, a site), admission; (technical) tolerance	
+клопотання	клопота́ння	noun	petition, request; trouble, bother	
+половинка	полови́нка	noun	half; (colloquial) other half, better half	
+балаган	балага́н	noun	farce, circus, mess, shambles	
+сланцевий	сла́нцевий	adj	shale, slate (сланцевий газ “shale gas”)	
+настання	наста́ння	noun	onset, coming (з настанням ночі “at nightfall”)	
+затьмарення	затьма́рення	noun	darkening, clouding (затьмарення розуму “clouding of the mind”); eclipse	
+паморочитися	па́морочитися	verb	(impersonal) to feel dizzy: голова паморочиться “my head is spinning”	imperfective
+квадрант	квадра́нт	noun	quadrant	
+обладунок	обладу́нок	noun	(usually plural) armour	
+укріплення	укрі́плення	noun	fortification; strengthening, reinforcement	
+номерний	номерни́й	adj	numbered (номерний знак “number plate”)	
+самосуд	самосу́д	noun	lynching, mob justice, vigilante justice	
+пролягати	проляга́ти	verb	to lie, to run, to pass (of a road, a path)	imperfective
+рейнджер	ре́йнджер	noun	ranger	
+прислуга	прислу́га	noun	servants, domestic staff; servant	
+печерний	пече́рний	adj	cave (печерна людина “caveman”)	
+стажування	стажува́ння	noun	internship, training placement	
+обірвати	обірва́ти	verb	to tear off, to break off; to cut short, to interrupt	perfective
+підшукати	підшука́ти	verb	to find, to look out (something suitable)	perfective
+потренуватися	потренува́тися	verb	to practise, to train (a bit)	perfective
+мустанг	муста́нг	noun	mustang	
+відьмин	ві́дьмин	adj	witch's	
+пристати	приста́ти	verb	to pester, to harass (пристати до когось); to stick (to); to join; to put in (of a boat)	perfective
+цілісінький	цілі́сінький	adj	(colloquial) whole, entire (цілісінький день “the whole day long”); safe and sound	
+ляля	ля́ля	noun	(affectionate) doll, dolly; baby	
+повчитися	повчи́тися	verb	to study (for a while), to learn (from)	perfective
+замучити	заму́чити	verb	to torment, to wear out; to torture to death	perfective
+сирний	си́рний	adj	cheese, cheesy	
+десант	деса́нт	noun	landing force, airborne troops; landing (of troops)	
+прочистити	прочи́стити	verb	to clean out, to clear	perfective
+пригнути	пригну́ти	verb	to bend down, to bow (пригніть голови! “heads down!”)	perfective
+виблювати	ви́блювати	verb	to vomit, to throw up	perfective
+охоронний	охоро́нний	adj	security, protective (охоронна сигналізація “burglar alarm”)	
+пригорнути	пригорну́ти	verb	to hug, to hold close	perfective
+сховок	схо́вок	noun	hiding place, stash, cache	
+накопати	накопа́ти	verb	to dig (up) (a quantity); (colloquial) to dig up (dirt on someone)	perfective
+сіпатися	сі́патися	verb	to twitch, to jerk; to fidget	imperfective
+задрипанець	задри́панець	noun	(derogatory) scruff, slob, nobody	
+розбігтися	розбі́гтися	verb	to run off, to scatter; to take a run-up; (colloquial) to split up	perfective
+поприбирати	поприбира́ти	verb	to tidy up, to clean up	perfective
+перестрибнути	перестрибну́ти	verb	to jump over	perfective
+підкрастися	підкра́стися	verb	to sneak up (on), to creep up	perfective
+прочесати	прочеса́ти	verb	to comb, to search thoroughly (an area)	perfective
+згубити	згуби́ти	verb	to lose	perfective
+помочитися	помочи́тися	verb	to urinate	perfective
+порватися	порва́тися	verb	to tear, to break, to snap	perfective
+часточка	ча́сточка	noun	particle, small part, bit	
+адвокатський	адвока́тський	adj	lawyer's, legal (адвокатська фірма “law firm”)	
+запакувати	запакува́ти	verb	to pack (up), to wrap (up)	perfective
+нездатний	незда́тний	adj	incapable (of), unable (to)	
+порішити	поріши́ти	verb	(colloquial) to bump off, to kill; to decide	perfective
+пропащий	пропа́щий	adj	lost, hopeless, ruined	
+розкритися	розкри́тися	verb	to open; to be revealed, to come out; to open up (to someone)	perfective
+влетіти	влеті́ти	verb	to fly in, to rush in; (colloquial) to be in for it (тобі влетить “you'll catch it”)	perfective
+невловимий	невлови́мий	adj	elusive; subtle, imperceptible	
+згодувати	згодува́ти	verb	to feed (to)	perfective
+викрутитися	ви́крутитися	verb	to wriggle out (of), to get out of (a situation)	perfective
+намочити	намочи́ти	verb	to wet, to soak	perfective
+кожнісінький	кожні́сінький	pron	every single	
+хильнути	хильну́ти	verb	(colloquial) to have a drink, to knock back	perfective
+аневризма	аневри́зма	noun	aneurysm	
+зрив	зрив	noun	disruption, foiling (of a plan); breakdown (нервовий зрив “nervous breakdown”)	
+приглушити	приглуши́ти	verb	to muffle, to dim, to turn down	perfective
+нажити	нажи́ти	verb	to make (a fortune), to acquire; to bring upon oneself (нажити ворогів “to make enemies”)	perfective
+нескінченно	нескінче́нно	adv	endlessly, infinitely	
+по-новому	по-ново́му	adv	in a new way, differently	
+напрокат	напрока́т	adv	for hire, on hire (взяти напрокат “to rent, to hire”)	
+одначе	одна́че	conj	(dated) however, yet, but	
+бісовий	бі́совий	adj	(colloquial) devilish, damned	
+пристрасно	при́страсно	adv	passionately	
+хіпі	хі́пі	noun	hippie	
+декалог	декало́г	noun	the Decalogue, the Ten Commandments	
+комендантський	коменда́нтський	adj	commandant's (комендантська година “curfew”)	
+реагування	реагува́ння	noun	response, reaction (швидке реагування “rapid response”)	
+воскресіння	воскресі́ння	noun	resurrection	
+аморально	амора́льно	adv	immorally; (predicative) it is immoral	
+пуф	пуф	noun	pouffe, footstool	
+вдалині	вдалині́	adv	in the distance, far off	
+непристойно	непристо́йно	adv	indecently, improperly; (predicative) it is indecent	
+кардіостимулятор	кардіостимуля́тор	noun	pacemaker	
+нецікаво	неціка́во	adv	(predicative) it is boring, it is not interesting	
+гіпотетично	гіпотети́чно	adv	hypothetically	
+семінарія	семіна́рія	noun	seminary	
+розшукуватися	розшу́куватися	verb	to be wanted (by the police), to be sought	imperfective
+бенд	бенд	noun	(colloquial) band (a music group)	
+кельт	кельт	noun	Celt	
+жакет	жаке́т	noun	jacket (tailored, usually a woman's)	
+годинка	годи́нка	noun	(diminutive) an hour or so, a little hour	
+амоній	амо́ній	noun	ammonium	
+закортіти	закорті́ти	verb	(impersonal) to feel an urge (to): мені закортіло “I felt like it”	perfective
+седан	седа́н	noun	saloon, sedan (car)	
+бортовий	бортови́й	adj	on-board, ship's (бортовий журнал “logbook”)	
+дозволятися	дозволя́тися	verb	to be allowed, to be permitted	imperfective
+ключик	клю́чик	noun	(diminutive) little key	
+улов	уло́в	noun	catch (of fish), haul	
+інгалятор	інгаля́тор	noun	inhaler	
+освіжувач	осві́жувач	noun	air freshener	
+виманити	ви́манити	verb	to lure out, to entice; to coax (something out of someone)	perfective
+судимість	суди́мість	noun	criminal record, previous conviction	
+доплатити	доплати́ти	verb	to pay extra, to pay the difference	perfective
+обранець	обра́нець	noun	chosen one; elected representative	
+намовити	намо́вити	verb	to put up to, to talk into (something bad)	perfective
+паркуватися	паркува́тися	verb	to park	imperfective
+міститися	місти́тися	verb	to be located, to be housed; to be contained	imperfective
+ошукати	ошука́ти	verb	to cheat, to deceive, to swindle	perfective
+змучитися	зму́читися	verb	to be worn out, to get exhausted	perfective
+санчата	санча́та	noun	(diminutive) sled, sledge	
+натовкти	натовкти́	verb	to pound, to crush; (colloquial) to beat up	perfective
+пенс	пенс	noun	penny, pence	
+дурощі	ду́рощі	noun	nonsense, foolishness, silliness	
+ящір	я́щір	noun	lizard; saurian (prehistoric)	
+легковажність	легкова́жність	noun	frivolity, carelessness, light-mindedness	
+аналог	ана́лог	noun	analogue, equivalent	
+плейбой	плейбо́й	noun	playboy	
+пудрити	пу́дрити	verb	to powder; (colloquial) пудрити мізки “to mess with someone's head”	imperfective
+пологовий	полого́вий	adj	maternity, of childbirth (пологовий будинок “maternity hospital”)	
+каталка	ката́лка	noun	gurney, (hospital) trolley	
+проспівати	проспіва́ти	verb	to sing (through)	perfective
+протерти	проте́рти	verb	to wipe; to rub through, to wear through	perfective
+тупорилий	тупори́лий	adj	(slang, derogatory) thick, dumb, dim	
+херес	хе́рес	noun	sherry	
+сигнальний	сигна́льний	adj	signal, warning (сигнальна ракета “flare”)	
+готельний	готе́льний	adj	hotel (готельний номер “hotel room”)	
+перепробувати	перепро́бувати	verb	to try (all, many, one after another)	perfective
+судмедексперт	судмедекспе́рт	noun	forensic pathologist, medical examiner	
+ординатор	ордина́тор	noun	resident (hospital doctor)	
+затямити	затя́мити	verb	to remember, to get into one's head (затям! “mark my words!”)	perfective
+закурити	закури́ти	verb	to light up (a cigarette), to start smoking	perfective
+надриватися	надрива́тися	verb	to overstrain oneself, to work oneself to death; надриватися від сміху “to split one's sides”	imperfective
+балончик	бало́нчик	noun	(diminutive) can, spray can, canister	
+приперти	припе́рти	verb	(colloquial) to lug, to bring; to pin (against): приперти до стіни “to corner”	perfective
+поворухнутися	поворухну́тися	verb	to stir, to move	perfective
+комендатура	комендату́ра	noun	commandant's office	
+подіяти	поді́яти	verb	to work, to take effect (ліки подіяли “the medicine worked”)	perfective
+ковбойський	ковбо́йський	adj	cowboy	
+прикупити	прикупи́ти	verb	to buy (some more), to pick up	perfective
+трапеза	тра́пеза	noun	meal (formal, monastic)	
+вимикатися	вимика́тися	verb	to switch off, to shut down	imperfective
+запастися	запасти́ся	verb	to stock up (on) (запасися терпінням “be patient”)	perfective
+поринути	пори́нути	verb	to plunge, to dive; to be immersed (in thought, in work)	perfective
+переховувати	перехо́вувати	verb	to hide, to harbour (a fugitive)	imperfective
+підіслати	підісла́ти	verb	to send (secretly), to plant (a spy)	perfective
+конфедерат	конфедера́т	noun	Confederate	
+довбешка	довбе́шка	noun	(colloquial) noggin, head; (derogatory) blockhead	
+речовий	речови́й	adj	material (речовий доказ “material evidence”); kit (речовий мішок “kitbag”)	
+вполювати	вполюва́ти	verb	to hunt down, to bag	perfective
+братчик	бра́тчик	noun	(affectionate) brother, mate; (historical) member of a brotherhood	
+доглядальниця	догляда́льниця	noun	nurse, carer	
+орендний	оре́ндний	adj	rental, lease	
+затівати	затіва́ти	verb	to plot, to be up to (що ти затіваєш? “what are you up to?”)	imperfective
+побоятися	побоя́тися	verb	to be afraid (to), to fear	perfective
+продуктовий	продукто́вий	adj	food, grocery (продуктовий магазин “grocery shop”)	
+постріляти	постріля́ти	verb	to shoot (for a while); to shoot (many, one after another)	perfective
+крамничка	крамни́чка	noun	(diminutive) little shop	
+поскакати	поскака́ти	verb	to gallop off; to jump around, to hop about	perfective
+продути	проду́ти	verb	to blow through; (colloquial) to lose (a game, money)	perfective
+пригрозити	пригрози́ти	verb	to threaten	perfective
+залатати	залата́ти	verb	to patch (up)	perfective
+добігти	добі́гти	verb	to run up to, to reach (running)	perfective
+виправдовуватися	виправдо́вуватися	verb	to justify oneself, to make excuses	imperfective
+скейт	скейт	noun	skateboard	
+ослабити	осла́бити	verb	to weaken, to loosen	perfective
+посунути	посу́нути	verb	to move, to shift, to push (aside)	perfective
+настрашити	настраши́ти	verb	to frighten, to scare	perfective
+заклеїти	закле́їти	verb	to seal, to glue up, to tape over	perfective
+покопатися	покопа́тися	verb	to dig (a bit); to rummage (through)	perfective
+надивитися	надиви́тися	verb	to see enough (of), to have one's fill of looking (не можу надивитися “I can't take my eyes off”)	perfective
+дотягнутися	дотягну́тися	verb	to reach (by stretching)	perfective
+потерти	поте́рти	verb	to rub	perfective
+облити	обли́ти	verb	to pour (something) over, to douse, to splash	perfective
+топтати	топта́ти	verb	to trample, to tread	imperfective
+змерзти	зме́рзти	verb	to get cold, to freeze	perfective
+по-доброму	по-до́брому	adv	nicely, the easy way, amicably	
+нечисто	нечи́сто	adv	uncleanly; (predicative) something is fishy (тут щось нечисто “something is not right here”)	
+паскудство	паску́дство	noun	(colloquial) filth, nasty thing, dirty trick	
+шкідливо	шкідли́во	adv	harmfully; (predicative) it is harmful	
+неприпустимо	неприпусти́мо	adv	(predicative) it is unacceptable, it is inadmissible	
+гоління	голі́ння	noun	shaving	
+бридко	бри́дко	adv	disgustingly; (predicative) it is disgusting	
+секретно	секре́тно	adv	secretly, in confidence; (predicative) it is secret	
+обурливо	обу́рливо	adv	outrageously; (predicative) it is outrageous	
+паскудно	паску́дно	adv	nastily; (predicative) it is nasty, it is rotten	
+мовитися	мо́витися	verb	(impersonal) to be said: як мовиться “as they say”	imperfective
+люмен	лю́мен	noun	lumen	
+правдиво	правди́во	adv	truthfully	
+радикально	радика́льно	adv	radically	
+перебір	перебі́р	noun	(colloquial) too much, overkill; going through, sorting (перебір варіантів “trying the options one by one”)	
+намічатися	наміча́тися	verb	to be in the offing, to be on the cards, to be planned	imperfective
+шулер	шу́лер	noun	cardsharp, cheat	
+краплинка	крапли́нка	noun	(diminutive) little drop; a tiny bit	
+клінч	клінч	noun	clinch (in boxing)	
+чарочка	ча́рочка	noun	(diminutive) little glass, shot glass	
+хлібець	хлібе́ць	noun	(diminutive) bread, small loaf; (plural) crispbread	
+інквізитор	інквізи́тор	noun	inquisitor	
+жевжик	же́вжик	noun	(colloquial) whippersnapper, dandy	
+гарпія	га́рпія	noun	harpy	
+рулет	руле́т	noun	roll (of meat), Swiss roll	
+фол	фол	noun	foul (in sport)	
+прислужитися	прислужи́тися	verb	to be of service (to), to do a good turn	perfective
+копання	копа́ння	noun	digging	
+задира	зади́ра	noun	bully, troublemaker, scrapper	
+скасовуватися	скасо́вуватися	verb	to be cancelled	imperfective
+злодюжка	злодю́жка	noun	petty thief	
+костюмчик	костю́мчик	noun	(diminutive) suit, little costume	
+освоїтися	осво́їтися	verb	to settle in, to find one's feet	perfective
+генпрокуратура	генпрокурату́ра	noun	Prosecutor General's Office	
+нокдаун	нокда́ун	noun	knockdown	
+баночка	ба́ночка	noun	(diminutive) jar, small jar	
+шкіпер	шкі́пер	noun	skipper	
+пропрацювати	пропрацюва́ти	verb	to work (for a period); to work through, to study thoroughly	perfective
+санки	санки́	noun	sled, sledge	
+фондовий	фо́ндовий	adj	stock, fund (фондова біржа “stock exchange”)	
+згадуватися	зга́дуватися	verb	to be mentioned; to come to mind	imperfective
+гепнутися	ге́пнутися	verb	(colloquial) to fall with a thud, to come a cropper	perfective
+інтрижка	інтри́жка	noun	fling, affair	
+випхати	ви́пхати	verb	to push out, to shove out	perfective
+вагончик	ваго́нчик	noun	(diminutive) small carriage; trailer, cabin	
+покоїтися	поко́їтися	verb	to rest, to lie (покойся з миром “rest in peace”)	imperfective
+пригнати	пригна́ти	verb	to drive (here), to bring (a car, a herd)	perfective
+знятися	зня́тися	verb	to be filmed, to appear (in a film); to have a photo taken; to take off (of a bird, a plane)	perfective
+трансвестит	трансвести́т	noun	transvestite	
+кінний	кі́нний	adj	mounted, horse (кінна поліція “mounted police”)	
+писанина	писани́на	noun	(colloquial) paperwork, scribbling	
+стерлінг	сте́рлінг	noun	sterling	
+армада	арма́да	noun	armada	
+кубрик	ку́брик	noun	crew's quarters (on a ship)	
+орхідея	орхіде́я	noun	orchid	
+кілок	кіло́к	noun	stake, peg	
+долучити	долучи́ти	verb	to add, to attach, to include	perfective
+зрівнятися	зрівня́тися	verb	to compare, to be equal (з тобою ніхто не зрівняється “no one compares to you”); to draw level	perfective
+зблизитися	збли́зитися	verb	to become close, to grow closer	perfective
+накручувати	накру́чувати	verb	to wind (on, up); (colloquial) to work oneself up (не накручуй себе “don't wind yourself up”)	imperfective
+підслухати	підслу́хати	verb	to overhear, to eavesdrop	perfective
+вкоротити	вкороти́ти	verb	to shorten, to cut short	perfective
+вшитися	вши́тися	verb	(slang) to clear off, to make oneself scarce	perfective
+посмоктати	посмокта́ти	verb	to suck (for a while)	perfective
+вистрибувати	вистри́бувати	verb	to jump out	imperfective
+прориватися	прорива́тися	verb	to break through, to burst through	imperfective
+відслужити	відслужи́ти	verb	to serve (one's time); to hold (a church service)	perfective
+годинниковий	годиннико́вий	adj	clock, watch (за годинниковою стрілкою “clockwise”)	
+пралька	пра́лька	noun	(colloquial) washing machine	
+спецпідрозділ	спецпідро́зділ	noun	special unit, special forces unit	
+зарахувати	зарахува́ти	verb	to enrol, to admit; to count (in), to credit	perfective
+віддалитися	віддали́тися	verb	to move away; to drift apart	perfective
+забуватися	забува́тися	verb	to be forgotten; to forget oneself (не забувайся! “know your place!”)	imperfective
+поправляти	поправля́ти	verb	to correct; to adjust, to straighten	imperfective
+щічка	щі́чка	noun	(diminutive) cheek	
+переправити	перепра́вити	verb	to take across, to ferry; to smuggle; to forward	perfective
+бестія	бе́стія	noun	beast; (colloquial) rogue, sly one	
+перечекати	перечека́ти	verb	to wait out	perfective
+плюватися	плюва́тися	verb	to spit	imperfective
+заприсягтися	заприсягти́ся	verb	to swear (an oath), to vow	perfective
+грюкати	грю́кати	verb	to bang, to slam	imperfective
+відімкнути	відімкну́ти	verb	to unlock	perfective
+сезонний	сезо́нний	adj	seasonal	
+припуститися	припусти́тися	verb	to make (a mistake): припуститися помилки	perfective
+зачинитися	зачини́тися	verb	to close, to shut; to lock oneself in	perfective
+вивертати	виверта́ти	verb	to turn inside out; to twist; to empty out (pockets)	imperfective
+криміналіст	криміналі́ст	noun	forensic scientist, criminologist	
+покатати	поката́ти	verb	to give a ride (to), to take for a spin	perfective
+засмажити	засма́жити	verb	to fry, to roast	perfective
+виплутатися	ви́плутатися	verb	to get out (of), to disentangle oneself	perfective
+розбігатися	розбіга́тися	verb	to scatter, to run off; (colloquial) to split up	imperfective
+понестися	понести́ся	verb	to rush off, to dash off	perfective
+патрулювати	патрулюва́ти	verb	to patrol	imperfective
+засовувати	засо́вувати	verb	to shove in, to stick in, to tuck	imperfective
+створюватися	ство́рюватися	verb	to be created, to be formed	imperfective
+прикритися	прикри́тися	verb	to cover oneself; to hide behind (as a pretext)	perfective
+вмитися	вми́тися	verb	to wash (one's face and hands)	perfective
+настукати	насту́кати	verb	to tap out (a message); (colloquial) to snitch (on someone)	perfective
+строфа	строфа́	noun	stanza, verse	
+протверезіти	протверезі́ти	verb	to sober up	perfective
+призвати	призва́ти	verb	to call up, to draft (into the army); to call (to order)	perfective
+розпатякати	розпатя́кати	verb	(colloquial) to blab, to blurt out	perfective
+розігріватися	розігріва́тися	verb	to warm up (before exercise, of an engine); to heat up	imperfective
+місиво	мі́сиво	noun	mush, mash, slop; (figurative) carnage, bloody mess	
+хамло	хамло́	noun	(colloquial, derogatory) boor, lout, oaf	
+викорінити	ви́корінити	verb	to eradicate, to root out, to stamp out	perfective
+послід	послі́д	noun	droppings (of birds); afterbirth	
+налітати	наліта́ти	verb	to swoop down (on), to attack, to descend (on); to fly into, to crash into (налітай! “dig in!”)	imperfective
+побазікати	побазі́кати	verb	(colloquial) to chat, to have a natter	perfective
+віршик	ві́ршик	noun	(diminutive) little poem, rhyme, verse	
+пірнання	пірна́ння	noun	diving, dive	
+заїзд	заї́зд	noun	race, heat (in motor or horse racing); check-in (at a hotel); entrance, driveway	
+ножик	но́жик	noun	(diminutive) little knife, penknife	
+протиставити	протиста́вити	verb	to contrast (with), to set against, to oppose (to)	perfective
+перехвилюватися	перехвилюва́тися	verb	to get too worked up, to get overexcited, to be badly shaken	perfective
+несплата	неспла́та	noun	non-payment, failure to pay	
+меланома	мелано́ма	noun	melanoma	
+вибути	ви́бути	verb	to leave, to drop out (of), to be eliminated	perfective
+чаклування	чаклува́ння	noun	witchcraft, sorcery, magic	
+уточняти	уточня́ти	verb	to specify, to clarify, to make more precise	imperfective
+генезис	гене́зис	noun	genesis, origin	
+розворот	розворо́т	noun	U-turn, turn (of a vehicle); spread (two facing pages)	
+прослизнути	прослизну́ти	verb	to slip (through, past), to sneak (in, out)	perfective
+злічити	злічи́ти	verb	to count, to number	perfective
+втерти	вте́рти	verb	to rub in	perfective
+контактний	конта́ктний	adj	contact (контактні лінзи “contact lenses”); sociable, easy to get on with	
+слабенький	слабе́нький	adj	(diminutive) weak, feeble, frail	
+трунар	труна́р	noun	undertaker, coffin-maker	
+шкіритися	шкі́ритися	verb	to grin, to bare one's teeth	imperfective
+працюватися	працюва́тися	verb	(impersonal) to feel like working, to go (of work): мені не працюється “I can't get any work done”	imperfective
+злиняти	злиня́ти	verb	to fade (of colour); (slang) to clear off, to scram	perfective
+помріяти	помрі́яти	verb	to dream (for a while), to daydream	perfective
+потворність	потво́рність	noun	ugliness, hideousness	
+твердолобий	твердоло́бий	adj	thick-headed, pig-headed; hardline	
+грошик	гро́шик	noun	(diminutive) coin, penny; (plural) money, cash	
+переноситися	перено́ситися	verb	to be carried, to be moved; to be postponed; to be transported (in thought)	imperfective
+промайнути	промайну́ти	verb	to flash by, to flicker past, to go by (of time)	perfective
+потішити	поті́шити	verb	to amuse, to please, to cheer up	perfective
+звинувачуватися	звинува́чуватися	verb	to be accused (of), to be charged (with)	imperfective
+лапка	ла́пка	noun	(diminutive) paw; (plural) quotation marks	
+більйон	більйо́н	noun	billion	
+бійцівський	бійці́вський	adj	fighting (бійцівський клуб “fight club”)	
+підсобка	підсо́бка	noun	(colloquial) back room, storeroom, utility room	
+приналежність	принале́жність	noun	belonging, membership (in); (plural) accessories, equipment	
+матусин	мату́син	adj	mum's, mother's	
+бравий	бра́вий	adj	dashing, gallant, smart	
+наїжджати	наїжджа́ти	verb	to run into, to run over; (colloquial) to lean on, to pick on; to come now and then	imperfective
+наведення	наве́дення	noun	aiming, guidance (of a weapon); bringing (of examples); (technical) induction	
+наплутати	наплу́тати	verb	to muddle up, to get mixed up, to get (something) wrong	perfective
+прогресія	прогре́сія	noun	progression	
+етиленгліколь	етиленгліко́ль	noun	(technical) ethylene glycol, antifreeze	
+третинний	трети́нний	adj	tertiary	
+хіхікати	хіхі́кати	verb	to giggle, to snigger	imperfective
+плед	плед	noun	blanket, throw, plaid	
+побалувати	поба́лувати	verb	to spoil, to treat, to pamper (a little)	perfective
+варнякати	варня́кати	verb	(colloquial) to babble, to talk rubbish, to blather	imperfective
+горошинка	гороши́нка	noun	(diminutive) pea; polka dot	
+жабка	жа́бка	noun	(diminutive) little frog	
+магнолія	магно́лія	noun	magnolia	
+причандалля	причанда́лля	noun	(colloquial) gear, stuff, bits and pieces	
+руйнація	руйна́ція	noun	destruction, ruin, devastation	
+паства	па́ства	noun	flock (a priest's congregation)	
+ліквідатор	ліквіда́тор	noun	liquidator; Chernobyl clean-up worker	
+доплата	допла́та	noun	extra payment, surcharge, supplement	
+повтор	повто́р	noun	repetition, repeat; replay, rerun	
+нюхнути	нюхну́ти	verb	to take a sniff, to smell	perfective
+гетра	ге́тра	noun	gaiter, legging; (plural) leg warmers, football socks	
+виправдатися	ви́правдатися	verb	to justify oneself, to clear oneself; to prove justified, to pay off	perfective
+карапуз	карапу́з	noun	toddler, tot, chubby little child	
+знахарка	зна́харка	noun	folk healer, herbalist, wise woman	
+шарфик	ша́рфик	noun	(diminutive) scarf, neckerchief	
+заполонити	заполони́ти	verb	to take over, to overrun, to fill, to flood	perfective
+коректування	коректува́ння	noun	correction, adjustment	
+перебути	перебу́ти	verb	to get through, to wait out; to stay (for a time)	perfective
+медогляд	медо́гляд	noun	medical (examination), check-up	
+автоматика	автома́тика	noun	automation, automatic equipment, controls	
+затягуватися	затя́гуватися	verb	to drag on; to tighten; to heal over; to take a drag (on a cigarette)	imperfective
+шептун	шепту́н	noun	whisperer	
+влити	вли́ти	verb	to pour in	perfective
+розчистити	розчи́стити	verb	to clear (away), to clean up	perfective
+сипатися	си́патися	verb	to pour, to spill, to trickle (of sand, grain); to fall (of snow, blows, sparks)	imperfective
+злющий	злю́щий	adj	(colloquial) furious, vicious, very angry	
+повозитися	повози́тися	verb	to tinker (with), to fiddle (with), to spend some time (on); to romp, to play about	perfective
+контрактник	контра́ктник	noun	contract soldier; contractor	
+замотувати	замо́тувати	verb	to wrap up, to wind (round); (colloquial) to wear out	imperfective
+кошмарний	кошма́рний	adj	nightmarish, horrible, awful	
+несвіжий	несві́жий	adj	stale, not fresh, off; tired-looking	
+примкнути	примкну́ти	verb	to join (a group, a side); to fix (a bayonet)	perfective
+мемуар	мемуа́р	noun	(usually plural) memoir, memoirs	
+нацькувати	нацькува́ти	verb	to set (a dog) on; to incite, to turn (someone) against	perfective
+планувальник	планува́льник	noun	planner, scheduler	
+асоціюватися	асоціюва́тися	verb	to be associated (with), to remind of	imperfective
+завозити	заво́зити	verb	to deliver, to bring in; to drop off (someone on the way)	imperfective
+розговоритися	розговори́тися	verb	to get talking, to open up, to become talkative	perfective
+помах	по́мах	noun	wave, stroke, flap, swing	
+належність	нале́жність	noun	belonging, membership (in); (plural) accessories	
+заваритися	завари́тися	verb	to brew (of tea); (figurative) to begin, to start up (of trouble: заварилася каша)	perfective
+янголятко	янголя́тко	noun	(diminutive) little angel	
+світати	світа́ти	verb	to dawn, to grow light (світає “it's getting light”)	imperfective
+флорист	флори́ст	noun	florist	
+перерізувати	перері́зувати	verb	to cut (through), to cut in two	imperfective
+ліквідовувати	ліквідо́вувати	verb	to eliminate, to liquidate, to wind up	imperfective
+втупитися	вту́питися	verb	to stare (at), to fix one's eyes (on)	perfective
+полікувати	полікува́ти	verb	to treat (for a while), to give some treatment	perfective
+перегнати	перегна́ти	verb	to overtake, to outrun; to drive (cattle, a car) somewhere; to distil	perfective
+маніпулятор	маніпуля́тор	noun	manipulator	
+залітати	заліта́ти	verb	to fly in, to drop in; (colloquial) to get pregnant	imperfective
+підлість	пі́длість	noun	meanness, baseness, dirty trick	
+співкамерник	співка́мерник	noun	cellmate	
+перемикатися	перемика́тися	verb	to switch (over), to change (to)	imperfective
+ускладнитися	ускладни́тися	verb	to become complicated, to get worse	perfective
+панькатися	па́нькатися	verb	(colloquial) to fuss (over), to mollycoddle, to treat with kid gloves	imperfective
+стяти	стя́ти	verb	to cut off, to behead	perfective
+донесення	доне́сення	noun	report, dispatch	
+змонтувати	змонтува́ти	verb	to assemble, to install, to fit; to edit (a film)	perfective
+відтягнути	відтягну́ти	verb	to pull back, to drag away; to put off, to delay	perfective
+грязюка	грязю́ка	noun	(colloquial) mud, muck	
+замотати	замота́ти	verb	to wrap (up), to wind; (colloquial) to wear out	perfective
+накупити	накупи́ти	verb	to buy (a lot of), to stock up (on)	perfective
+нечупара	нечупа́ра	noun	slob, sloven	
+попливти	попливти́	verb	to swim off, to sail off, to float away	perfective
+підопічний	підопі́чний	noun	ward, charge, protégé; patient (in someone's care)	
+розплющувати	розплю́щувати	verb	to open (one's eyes)	imperfective
+спецпризначенець	спецпризна́ченець	noun	special forces soldier, commando	
+спокусник	споку́сник	noun	seducer, tempter	
+альпініст	альпіні́ст	noun	mountaineer, climber	
+споглядати	спогляда́ти	verb	to contemplate, to gaze (at), to watch	imperfective
+гранітний	грані́тний	adj	granite	
+оббивка	обби́вка	noun	upholstery	
+урвати	урва́ти	verb	to snatch, to grab (some); to break off, to cut short	perfective
+демонічний	демоні́чний	adj	demonic	
+перемотати	перемота́ти	verb	to rewind; to rewrap, to rewind (a bandage, thread)	perfective
+сольний	со́льний	adj	solo	
+зачаїтися	зачаї́тися	verb	to lie low, to lurk, to hide	perfective
+запечатати	запеча́тати	verb	to seal (up)	perfective
+оракул	ора́кул	noun	oracle	
+гризтися	гри́зтися	verb	to squabble, to bicker; to bite each other (of dogs)	imperfective
+розігрітися	розігрі́тися	verb	to warm up	perfective
+петунія	пету́нія	noun	petunia	
+ляпнути	ля́пнути	verb	to blurt out; to slap, to smack	perfective
+фінішний	фі́нішний	adj	finishing, final (фінішна пряма “home straight”)	
+нераціональний	нераціона́льний	adj	irrational, inefficient, wasteful	
+заставка	заста́вка	noun	screensaver; opening titles, intro	
+непідвладний	непідвла́дний	adj	beyond the control (of), not subject (to)	
+попалити	попали́ти	verb	to burn (a lot of, all)	perfective
+гарячкувати	гарячкува́ти	verb	to get worked up, to act rashly, to be hasty	imperfective
+вирядитися	ви́рядитися	verb	to dress up, to doll oneself up	perfective
+прооперувати	прооперува́ти	verb	to operate (on)	perfective
+ексцентричний	ексцентри́чний	adj	eccentric	
+позбиратися	позбира́тися	verb	to gather (all), to come together	perfective
+акторство	акто́рство	noun	acting	
+улюблениця	улю́блениця	noun	favourite, darling (of a woman or girl)	
+налетіти	налеті́ти	verb	to swoop (on), to attack; to run into, to crash into; to flock in	perfective
+розігрівати	розігріва́ти	verb	to warm up, to heat up	imperfective
+стрілити	стрі́лити	verb	to shoot, to fire (once)	perfective
+вкрутити	вкрути́ти	verb	to screw in	perfective
+перетерти	перете́рти	verb	to grind, to rub through; (slang) to talk over	perfective
+підколювати	підко́лювати	verb	(colloquial) to tease, to needle; to pin up	imperfective
+ткнути	ткну́ти	verb	to poke, to jab, to prod	perfective
+нализатися	нализа́тися	verb	(colloquial) to get plastered, to get drunk	perfective
+рівнятися	рівня́тися	verb	to equal, to be equal (to); to dress ranks; to look up to (рівнятися на)	imperfective
+увімкнутися	увімкну́тися	verb	to switch on, to come on	perfective
+помучитися	пому́читися	verb	to suffer (for a while), to struggle	perfective
+реаліст	реалі́ст	noun	realist	
+пристойність	присто́йність	noun	decency, propriety	
+страйковий	страйкови́й	adj	strike (страйковий комітет “strike committee”)	
+перезапустити	перезапусти́ти	verb	to restart, to reboot, to relaunch	perfective
+кралечка	кра́лечка	noun	(colloquial) pretty girl, beauty	
+конкубіна	конкубі́на	noun	concubine	
+підступність	підсту́пність	noun	treachery, deviousness, insidiousness	
+проінформувати	проінформува́ти	verb	to inform, to brief	perfective
+боксувати	боксува́ти	verb	to box; to spin, to skid (of wheels)	imperfective
+сформуватися	сформува́тися	verb	to form, to take shape	perfective
+урватися	урва́тися	verb	to snap, to break; to break off, to stop abruptly (терпець урвався “patience ran out”)	perfective
+шептатися	шепта́тися	verb	to whisper (to each other)	imperfective
+сумирний	суми́рний	adj	meek, docile, mild	
+відгризти	відгри́зти	verb	to bite off	perfective
+непопулярний	непопуля́рний	adj	unpopular	
+закороткий	закоро́ткий	adj	too short	
+дражнитися	дражни́тися	verb	to tease, to make faces	imperfective
+звабливий	звабли́вий	adj	seductive, alluring, tempting	
+тематика	тема́тика	noun	subject matter, themes, topics	
+поливалка	полива́лка	noun	(colloquial) sprinkler, watering can; street-washing truck	
+підсадити	підсади́ти	verb	to help up, to give a leg up; to plant (an informer); (colloquial) to get (someone) hooked (on)	perfective
+розстебнути	розстебну́ти	verb	to unbutton, to unfasten, to unzip	perfective
+рольовий	рольови́й	adj	role (рольова гра “role-playing game”)	
+заслабкий	заслабки́й	adj	too weak	
+застібнути	застібну́ти	verb	to button up, to fasten, to zip up	perfective
+окуліст	окулі́ст	noun	ophthalmologist, eye doctor	
+відстійний	відсті́йний	adj	(slang) lame, crappy, rubbish	
+покопати	покопа́ти	verb	to dig (for a while)	perfective
+імпульсивний	імпульси́вний	adj	impulsive	
+старшина	старшина́	noun	sergeant major, petty officer; (historical) Cossack officers	
+хамити	хами́ти	verb	to be rude, to be cheeky, to insult	imperfective
+самогонка	самого́нка	noun	moonshine, home-made vodka	
+притримувати	притри́мувати	verb	to hold, to hold back; to keep, to hold (a door) open	imperfective
+підземка	підзе́мка	noun	(colloquial) the underground, the subway	
+ефектний	ефе́ктний	adj	striking, impressive, spectacular	
+дратуватися	дратува́тися	verb	to get irritated, to be annoyed	imperfective
+погнатися	погна́тися	verb	to chase (after), to give chase	perfective
+вплутати	вплу́тати	verb	to involve, to drag (into), to mix up (in)	perfective
+магазинний	магази́нний	adj	shop-bought, store-bought	
+налазити	нала́зити	verb	to fit (of clothes, shoes: не налазить “it won't go on”)	imperfective
+вектор	ве́ктор	noun	vector	
+викручувати	викру́чувати	verb	to unscrew; to twist, to wring	imperfective
+провезти	провезти́	verb	to carry, to transport, to take (through); to smuggle	perfective
+рабський	ра́бський	adj	slave, slavish, servile	
+підмовляти	підмовля́ти	verb	to put (someone) up to, to egg on, to incite	imperfective
+марксистський	маркси́стський	adj	Marxist	
+записний	записни́й	adj	записна книжка “notebook”; (colloquial) inveterate, regular	
+причалити	прича́лити	verb	to moor, to dock, to tie up	perfective
+загоїтися	заго́їтися	verb	to heal (up)	perfective
+засідати	засіда́ти	verb	to sit, to be in session; to sit (for a long time)	imperfective
+зрадницький	зра́дницький	adj	treacherous, traitorous	
+чесатися	чеса́тися	verb	to itch; to comb one's hair; to scratch oneself	imperfective
+перегорнути	перегорну́ти	verb	to turn (a page, over)	perfective
+шуткувати	шуткува́ти	verb	(colloquial) to joke, to kid	imperfective
+обмежуватися	обме́жуватися	verb	to limit oneself (to), to be confined (to)	imperfective
+завідувати	заві́дувати	verb	to manage, to run, to be in charge (of)	imperfective
+воронячий	воро́нячий	adj	crow's, raven's	
+зациклитися	заци́клитися	verb	(colloquial) to get hung up (on), to become fixated (on)	perfective
+прокатати	проката́ти	verb	to roll (out); to drive around, to give a ride (for a while)	perfective
+приблуда	приблу́да	noun	stray (animal or person), drifter	
+запороти	запоро́ти	verb	(colloquial) to botch, to mess up; to flog to death	perfective
+підливати	підлива́ти	verb	to pour more, to top up	imperfective
+молокосос	молокосо́с	noun	(derogatory) greenhorn, whippersnapper	
+переламати	перелама́ти	verb	to break (many, in many places)	perfective
+підвладний	підвла́дний	adj	subject (to), under the power (of)	
+неординарний	неордина́рний	adj	unusual, out of the ordinary, remarkable	
+прокотитися	прокоти́тися	verb	to roll; to go for a ride, to take a spin; to sweep (through, of a wave, a sound)	perfective
+дренажний	дрена́жний	adj	drainage	
+ротвейлер	ротве́йлер	noun	Rottweiler	
+намовляти	намовля́ти	verb	to talk (into), to put (someone) up (to), to persuade	imperfective
+загриміти	загримі́ти	verb	to thunder, to crash; (colloquial) to land (in prison, in hospital)	perfective
+наплести	наплести́	verb	to make up (lies), to spin (a tale); to weave (a lot of)	perfective
+припускатися	припуска́тися	verb	to make (a mistake): припускатися помилки	imperfective
+байдарка	байда́рка	noun	kayak, canoe	
+запертися	запе́ртися	verb	to lock oneself in; (colloquial) to deny	perfective
+дамський	да́мський	adj	ladies', women's	
+задирати	задира́ти	verb	to lift up, to raise (задирати носа “to turn up one's nose”); to pick on, to bully	imperfective
+конденсатор	конденса́тор	noun	capacitor; condenser	
+заселитися	засели́тися	verb	to move in, to settle in; to check in (at a hotel)	perfective
+облетіти	облеті́ти	verb	to fly around; to fall (of leaves); to spread (of news)	perfective
+випускатися	випуска́тися	verb	to graduate (from a school); to be produced, to be released	imperfective
+палитися	пали́тися	verb	to burn; (slang) to give oneself away, to get caught	imperfective
+переплюнути	переплю́нути	verb	(colloquial) to outdo, to beat, to go one better	perfective
+зіскочити	зіско́чити	verb	to jump off, to jump down	perfective
+покотитися	покоти́тися	verb	to roll (away, down)	perfective
+пересувати	пересува́ти	verb	to move, to shift	imperfective
+приглядатися	пригляда́тися	verb	to look closely (at), to watch; to get used to the look (of)	imperfective
+настрашитися	настраши́тися	verb	to get scared, to be frightened	perfective
+прикрутити	прикрути́ти	verb	to screw on, to fasten; to turn down (the volume, the gas)	perfective
+перемкнутися	перемкну́тися	verb	to switch (over), to change (to)	perfective
+пострибати	постриба́ти	verb	to jump (for a while), to jump about	perfective
+настирливий	насти́рливий	adj	persistent, pushy, insistent	
+прокол	проко́л	noun	puncture; (colloquial) slip-up, blunder	
+ячмінний	ячмі́нний	adj	barley	
+маркет	ма́ркет	noun	(colloquial) supermarket, store	
+притихнути	прити́хнути	verb	to quiet down, to go quiet, to die down	perfective
+мертвяк	мертвя́к	noun	(colloquial) dead man, corpse; zombie	
+спертися	спе́ртися	verb	to lean (on, against)	perfective
+притупити	притупи́ти	verb	to dull, to blunt	perfective
+малеча	мале́ча	noun	little ones, small children	
+нездужати	незду́жати	verb	to be unwell, to be ill	imperfective
+базиліка	бази́ліка	noun	basilica	
+припливти	припливти́	verb	to swim up, to sail in, to arrive (by water)	perfective
+антисептик	антисе́птик	noun	antiseptic	
+рибальський	риба́льський	adj	fishing, fisherman's	
+вивалитися	ви́валитися	verb	to fall out, to tumble out	perfective
+манна	ма́нна	noun	manna; манна крупа “semolina”	
+спатися	спа́тися	verb	(impersonal) мені не спиться “I can't sleep”	imperfective
+кед	кед	noun	(usually plural) sneaker, canvas shoe	
+прилюдно	прилю́дно	adv	publicly, in public	
+завидно	зави́дно	adv	(predicative) it makes one envious (мені завидно “I'm jealous”)	
+булькання	бу́лькання	noun	gurgling, bubbling	
+кодло	ко́дло	noun	(derogatory) brood, gang, scum	
+облатка	обла́тка	noun	wafer (communion host)	
+невинно	неви́нно	adv	innocently	
+приношення	прино́шення	noun	offering	
+невесело	неве́село	adv	sadly, gloomily; (predicative) it is no fun	
+сопрано	сопра́но	noun	soprano	
+нищення	ни́щення	noun	destruction	
+дружно	дру́жно	adv	together, as one, in harmony	
+вирізання	виріза́ння	noun	cutting out, carving; massacre, slaughter	
+тазик	та́зик	noun	(diminutive) basin, bowl	
+сентиментально	сентимента́льно	adv	sentimentally	
+виснажливо	висна́жливо	adv	exhaustingly	
+факультатив	факультати́в	noun	optional course, elective	
+досередини	досере́дини	adv	inside, inwards	
+благодатний	благода́тний	adj	fertile, beneficial, blessed	
+по-італійськи	по-італі́йськи	adv	in Italian, the Italian way	
+напоказ	напока́з	adv	for show	
+нерозбірливо	нерозбі́рливо	adv	illegibly, indistinctly	
+гарденія	гарде́нія	noun	gardenia	
+миленько	миле́нько	adv	nicely, sweetly; (predicative) it is cute	
+цілування	цілува́ння	noun	kissing	
+закружитися	закружи́тися	verb	to start spinning, to whirl; to feel dizzy (голова закружилася “my head was spinning”)	perfective
+засмучення	засму́чення	noun	upset, distress, disappointment	
+розпорошення	розпоро́шення	noun	spraying, dispersal	
+нате	на́те	particle	here you are, take it (said to several people or politely)	
+промо	про́мо	noun	promo	
+чортик	чо́ртик	noun	(diminutive) little devil, imp	
+розколюватися	розко́люватися	verb	to split, to crack; (slang) to crack, to confess	imperfective
+назавтра	наза́втра	adv	(on) the next day	
+полоскання	полоска́ння	noun	rinsing; gargling	
+тутечки	ту́течки	adv	(colloquial) right here	
+неввічливо	невві́чливо	adv	rudely, impolitely	
+сайга	сайга́	noun	saiga	
+попурі	попурі́	noun	medley, potpourri	
+відважно	відва́жно	adv	bravely, boldly	
+навзамін	навзамі́н	adv	in exchange, in return, instead	
+повалення	пова́лення	noun	overthrow	
+лоскотно	ло́скотно	adv	(predicative) it tickles	
+туманно	тума́нно	adv	vaguely; mistily	
+заочно	зао́чно	adv	in absentia; by correspondence (of study)	
+ласочка	ла́сочка	noun	(diminutive) weasel; (affectionate) darling	
+бурління	бурлі́ння	noun	gurgling, rumbling (of the stomach), bubbling	
+бриг	бриг	noun	brig	
+джентрі	дже́нтрі	noun	gentry	
+пояснюватися	поя́снюватися	verb	to be explained; to explain oneself	imperfective
+хвацько	хва́цько	adv	dashingly, boldly, with gusto	
+мононуклеоз	мононуклео́з	noun	mononucleosis, glandular fever	
+гудіння	гуді́ння	noun	humming, buzzing, droning	
+поважно	пова́жно	adv	gravely, solemnly; respectfully	
+по-іспанськи	по-іспа́нськи	adv	in Spanish, the Spanish way	
+невтручання	невтруча́ння	noun	non-interference, non-intervention	
+поглузувати	поглузува́ти	verb	to mock, to make fun (of)	perfective
+зимно	зи́мно	adv	(predicative) it is cold	
+доступно	досту́пно	adv	accessibly, clearly, in plain terms; affordably	
+удушення	уду́шення	noun	suffocation, strangling	
+кроленя	кроленя́	noun	baby rabbit, bunny	
+химерно	химе́рно	adv	strangely, bizarrely, fancifully	
+нездорово	нездоро́во	adv	unhealthily	
+болісно	бо́лісно	adv	painfully	
+скоїтися	ско́їтися	verb	to happen, to occur (of something bad): що скоїлося? “what's happened?”	perfective
+чимшвидше	чимшви́дше	adv	as quickly as possible	
+анонімно	аноні́мно	adv	anonymously	
+фігурально	фігура́льно	adv	figuratively	
+казково	казко́во	adv	fabulously, magically, like a fairy tale	
+блювання	блюва́ння	noun	vomiting	
+напівважкий	напівважки́й	adj	light heavyweight (напівважка вага “light heavyweight”)	
+невідання	неві́дання	noun	ignorance, unawareness	
+майоран	майора́н	noun	marjoram	
+феноменально	феномена́льно	adv	phenomenally	
+рецепція	реце́пція	noun	reception (desk)	
+півметра	півме́тра	noun	half a metre	
+брудершафт	брудерша́фт	noun	випити на брудершафт “to drink to friendship (and switch to ти)”	
+краятися	кра́ятися	verb	to break (of the heart: серце крається “my heart is breaking”)	imperfective
+потрошку	потро́шку	adv	little by little, bit by bit; a little	
+звукооператор	звукоопера́тор	noun	sound engineer	
+термостат	термоста́т	noun	thermostat	
+поспостерігати	поспостеріга́ти	verb	to watch, to observe (for a while)	perfective
+віщування	віщува́ння	noun	prophecy, foretelling	
+дурно	ду́рно	adv	stupidly, foolishly; (predicative) it is silly	
+зловісно	злові́сно	adv	ominously, sinisterly	
+пенальті	пена́льті	noun	penalty (kick)	
+дефектний	дефе́ктний	adj	defective, faulty	
+дзвякати	дзвя́кати	verb	to clink, to jingle, to clank	imperfective
+відсьогодні	відсього́дні	adv	from today (on), as of today	
+егоїстично	егоїсти́чно	adv	selfishly	
+тугодум	тугоду́м	noun	(colloquial) slow thinker, slowcoach	
+панк-рок	панк-ро́к	noun	punk rock	
+ясненько	ясне́нько	adv	(colloquial, predicative) it is clear; got it, I see	
+надягнути	надягну́ти	verb	to put on (clothes, shoes)	perfective
+вершечок	верше́чок	noun	(diminutive) top, tip	
+беззаперечно	беззапере́чно	adv	indisputably, unquestionably, without question	
+хропти	хропти́	verb	to snore	imperfective
+ефектно	ефе́ктно	adv	strikingly, impressively, with great effect	
+привселюдно	привселю́дно	adv	publicly, in public, in front of everyone	
+корсаж	корса́ж	noun	bodice; corsage	
+імпульсивно	імпульси́вно	adv	impulsively	
+наплакати	напла́кати	verb	to cry (a lot), to shed (tears) (кіт наплакав “next to nothing”)	perfective
+нагородження	нагоро́дження	noun	awarding, presentation (of an award); award ceremony	
+спухнути	спу́хнути	verb	to swell (up)	perfective
+отченаш	отчена́ш	noun	the Lord's Prayer, the Our Father	
+котеня	котеня́	noun	kitten	
+важчати	ва́жчати	verb	to get heavier	imperfective
+костюмер	костюме́р	noun	wardrobe assistant, costumer (in a theatre, on a film)	
+удавання	удава́ння	noun	pretending, pretence, make-believe	
+розгрібати	розгріба́ти	verb	to rake (apart), to clear (away); (colloquial) to sort out (a mess)	imperfective
+погарячкувати	погарячкува́ти	verb	(colloquial) to act rashly, to lose one's head, to be too hasty	perfective
+перенаселення	перенасе́лення	noun	overpopulation	
+ацидофільний	ацидофі́льний	adj	acidophilus (of milk products)	
+ослячий	осля́чий	adj	donkey's, asinine	
+торохтіти	торохті́ти	verb	to rattle, to clatter; (colloquial) to chatter, to rattle on	imperfective
+магнетрон	магнетро́н	noun	(technical) magnetron	
+стихійний	стихі́йний	adj	spontaneous, unorganised; natural, elemental (стихійне лихо “natural disaster”)	
+виплодок	ви́плодок	noun	(derogatory) spawn, offspring (of evil)	
+услужити	услужи́ти	verb	to do (someone) a favour, to oblige	perfective
+молочар	молоча́р	noun	milkman, dairyman	
+жадання	жада́ння	noun	desire, longing, craving	
+теревені	тереве́ні	noun	(colloquial) idle talk, chit-chat (теревені правити “to chatter”)	
+святоша	свято́ша	noun	(derogatory) sanctimonious person, holier-than-thou, goody-goody	
+подаруночок	подару́ночок	noun	(diminutive) little present, little gift	
+морозильний	морози́льний	adj	freezer, freezing (морозильна камера “freezer”)	
+наслухатися	наслу́хатися	verb	to hear a lot (of), to have heard enough (of)	perfective
+невдоволений	невдово́лений	adj	dissatisfied, displeased, discontented	
+виріз	ви́різ	noun	neckline, cut (of a dress); cut-out, notch	
+саквояж	саквоя́ж	noun	travelling bag, carpetbag, holdall	
+урахування	урахува́ння	noun	taking into account (з урахуванням “taking into account”)	
+обрання	обра́ння	noun	election (to a post)	
+пума	пу́ма	noun	puma, cougar	
+монсеньйор	монсеньйо́р	noun	monsignor; monseigneur	
+таїнство	та́їнство	noun	sacrament; mystery	
+проясніти	проясні́ти	verb	to clear (up), to brighten (of the sky, the mind)	perfective
+назбиратися	назбира́тися	verb	to accumulate, to pile up, to gather	perfective
+конкістадор	конкістадо́р	noun	conquistador	
+пожиток	пожи́ток	noun	(usually plural пожитки) belongings, things, possessions	
+церемонитися	церемо́нитися	verb	to stand on ceremony, to make a fuss (не церемонься “don't be shy”)	imperfective
+оборотний	оборо́тний	adj	reversible; circulating (оборотний капітал “working capital”)	
+розганятися	розганя́тися	verb	to gather speed, to speed up; to take a run-up	imperfective
+недужий	неду́жий	adj	ill, sick, ailing	
+вивихнути	ви́вихнути	verb	to dislocate, to sprain	perfective
+аперкот	аперко́т	noun	uppercut	
+забарвлення	заба́рвлення	noun	colouring, colour; tinge, tone	
+сальтисон	сальтисо́н	noun	brawn, head cheese	
+оборудка	обору́дка	noun	(colloquial) shady deal, scheme, scam	
+номерок	номеро́к	noun	(diminutive) cloakroom ticket, tag, number; small (hotel) room	
+упокоїти	упоко́їти	verb	to lay to rest, to give rest (to the dead) (упокой, Господи “rest, O Lord”)	perfective
+вліпити	вліпи́ти	verb	(colloquial) to slap, to land (a blow); to slap on (a fine, a bad mark)	perfective
+шкапа	шка́па	noun	nag, jade (a worn-out horse)	
+радист	ради́ст	noun	radio operator	
+пестощі	пе́стощі	noun	caresses, petting, tenderness	
+щуролов	щуроло́в	noun	rat-catcher	
+тарантул	тара́нтул	noun	tarantula	
+телепатичний	телепати́чний	adj	telepathic	
+пуття	пуття́	noun	(colloquial) sense, use, good (без пуття “to no purpose”)	
+ковзання	ко́взання	noun	sliding, slipping; skating	
+порожнистий	порожни́стий	adj	hollow	
+заклясти	закля́сти	verb	to put a spell on, to bewitch; to implore	perfective
+надбання	надба́ння	noun	heritage, asset; acquisition	
+метросексуал	метросексуа́л	noun	metrosexual	
+ахати	а́хати	verb	to gasp, to go “ah”, to ooh and ah	imperfective
+самовбивство	самовби́вство	noun	suicide	
+проглянути	прогля́нути	verb	to look through, to skim; to peep out (of the sun)	perfective
+шнурівка	шнурі́вка	noun	lacing, laces	
+зволіти	зволі́ти	verb	to deign, to condescend	perfective
+франт	франт	noun	dandy, fop	
+шунт	шунт	noun	(technical) shunt	
+вишнівка	вишні́вка	noun	cherry liqueur, cherry brandy	
+почесати	почеса́ти	verb	to scratch; (colloquial) to rush off, to set off	perfective
+черепок	черепо́к	noun	shard, potsherd, broken piece	
+придавити	придави́ти	verb	to press down, to squash, to crush; to pin (down)	perfective
+вирубувати	виру́бувати	verb	to cut down, to fell; (colloquial) to switch off, to knock out	imperfective
+ортопед	ортопе́д	noun	orthopaedist	
+прострочити	простро́чити	verb	to miss (a deadline), to let (something) expire, to be late with	perfective
+попадання	попада́ння	noun	hit (of a shot)	
+розцілувати	розцілува́ти	verb	to kiss (warmly, all over), to smother with kisses	perfective
+вивідати	ви́відати	verb	to find out, to worm out (a secret)	perfective
+нашарування	нашарува́ння	noun	layer, stratum; build-up, accretion	
+кодування	кодува́ння	noun	coding, encoding; (colloquial) treatment for alcoholism (by suggestion)	
+острах	о́страх	noun	fear, dread	
+напирати	напира́ти	verb	to press (forward), to push, to crowd in	imperfective
+інкубаційний	інкубаці́йний	adj	incubation (інкубаційний період “incubation period”)	
+сатисфакція	сатисфа́кція	noun	satisfaction (for an insult)	
+солдафон	солдафо́н	noun	(derogatory) martinet, boorish soldier	
+попрактикуватися	попрактикува́тися	verb	to practise (a bit), to get some practice	perfective
+розпилювач	розпи́лювач	noun	sprayer, atomiser	
+подаватися	подава́тися	verb	to head (for), to go (off); to give (way), to yield; to apply (подаватися на роботу “to apply for a job”)	imperfective
+розговорити	розговори́ти	verb	to get (someone) talking	perfective
+копієчка	копі́єчка	noun	(diminutive) kopeck, penny (влетіти в копієчку “to cost a pretty penny”)	
+наглядовий	наглядо́вий	adj	supervisory (наглядова рада “supervisory board”)	
+каталажка	катала́жка	noun	(colloquial) lock-up, clink, jail	
+тріщинка	трі́щинка	noun	(diminutive) small crack, hairline crack	
+відмінник	відмі́нник	noun	straight-A student, top student	
+писнути	пи́снути	verb	to squeak, to peep; to say a word (не писни! “not a word!”)	perfective
+магараджа	магара́джа	noun	maharaja	
+сказання	сказа́ння	noun	legend, tale, saga	
+розгерметизація	розгерметиза́ція	noun	depressurisation, loss of seal	
+запускатися	запуска́тися	verb	to start (up), to launch (of an engine, a program)	imperfective
+діваха	діва́ха	noun	(colloquial) girl, lass	
+ослик	о́слик	noun	(diminutive) little donkey	
+металолом	металоло́м	noun	scrap metal	
+рукопашний	рукопа́шний	adj	hand-to-hand (рукопашний бій “hand-to-hand combat”)	
+втрачатися	втрача́тися	verb	to be lost, to get lost; to fade	imperfective
+метаморфоза	метаморфо́за	noun	metamorphosis	
+обсипати	обси́пати	verb	to shower (with), to strew, to sprinkle (all over)	perfective
+донорство	до́норство	noun	donation (of blood, organs)	
+соліст	солі́ст	noun	soloist; lead singer	
+оздоблення	оздо́блення	noun	decoration, finish, trim	
+прискакати	прискака́ти	verb	to come galloping, to come running	perfective
+сконструювати	сконструюва́ти	verb	to construct, to design, to build	perfective
+оповідка	опові́дка	noun	short story, tale	
+самородок	саморо́док	noun	nugget; natural talent, self-taught genius	
+анестетик	анесте́тик	noun	anaesthetic	
+парафіянин	парафія́нин	noun	parishioner	
+запитатися	запита́тися	verb	(colloquial) to ask	perfective
+табель	та́бель	noun	report card; timesheet	
+напір	напі́р	noun	pressure; onslaught	
+комісійний	комісі́йний	adj	commission (комісійні “commission, fee”; комісійний магазин “second-hand shop”)	
+депеша	депе́ша	noun	dispatch, telegram	
+вентиляційний	вентиляці́йний	adj	ventilation (вентиляційна шахта “air shaft”)	
+покритися	покри́тися	verb	to become covered (with), to be covered	perfective
+лепта	ле́пта	noun	contribution, mite (внести свою лепту “to do one's bit”)	
+золотенький	золоте́нький	adj	(affectionate) golden; dear, darling	
+занепадати	занепада́ти	verb	to decline, to fall into decay, to go downhill	imperfective
+обхоплювати	обхо́плювати	verb	to clasp, to wrap one's arms around; to take in, to encompass	imperfective
+вистигти	ви́стигти	verb	to cool down, to get cold	perfective
+замішання	заміша́ння	noun	confusion, embarrassment	
+барахолка	барахо́лка	noun	(colloquial) flea market, junk market	
+задмухати	задму́хати	verb	to blow out (a candle)	perfective
+нанесення	нане́сення	noun	application (of paint, cream); infliction (of damage)	
+ерогенний	ероге́нний	adj	erogenous	
+пропити	пропи́ти	verb	to spend on drink, to drink away	perfective
+збуватися	збува́тися	verb	to come true	imperfective
+продірявити	продіря́вити	verb	to make a hole in, to puncture	perfective
+сплюнути	сплю́нути	verb	to spit (out) (сплюнь! “touch wood!”)	perfective
+крайовий	крайови́й	adj	regional; edge, marginal	
+незгодний	незго́дний	adj	disagreeing, not in agreement (with)	
+неготовий	негото́вий	adj	not ready, unprepared	
+протектор	проте́ктор	noun	tread (of a tyre); protector	
+напівлюдина	напівлюди́на	noun	half-human (being)	
+секретність	секре́тність	noun	secrecy	
+наладитися	нала́дитися	verb	to get going, to get back to normal, to improve	perfective
+зігнати	зігна́ти	verb	to drive away, to chase off; to round up; to lose (weight)	perfective
+заплямувати	заплямува́ти	verb	to stain, to tarnish, to sully	perfective
+таточко	та́точко	noun	(affectionate) daddy	
+фургончик	фурго́нчик	noun	(diminutive) small van	
+перекреслити	перекре́слити	verb	to cross out; to ruin, to cancel out	perfective
+сповідати	сповіда́ти	verb	to hear (someone's) confession; to profess (a faith)	imperfective
+припхатися	припха́тися	verb	(colloquial) to turn up, to barge in, to drag oneself (somewhere)	perfective
+згорати	згора́ти	verb	to burn (down, out); to burn (with shame, impatience)	imperfective
+нищівний	нищівни́й	adj	crushing, devastating	
+задачка	зада́чка	noun	(diminutive) problem, puzzle, little task	
+замаскуватися	замаскува́тися	verb	to disguise oneself, to camouflage oneself	perfective
+зиркнути	зи́ркнути	verb	to glance, to dart a look	perfective
+дощечка	до́щечка	noun	(diminutive) small board, plank; plaque, nameplate	
+підмітити	підмі́тити	verb	to notice, to spot, to observe	perfective
+ментол	менто́л	noun	menthol	
+дивацтво	дива́цтво	noun	eccentricity, oddity, quirk	
+інтимність	інти́мність	noun	intimacy	
+відігратися	відігра́тися	verb	to win back (one's losses); to get even	perfective
+забрести	забрести́	verb	to wander (into), to stray (somewhere)	perfective
+домінантний	доміна́нтний	adj	dominant	
+кофта	ко́фта	noun	cardigan, jumper, top	
+проповзти	проповзти́	verb	to crawl (past, through)	perfective
+лофт	лофт	noun	loft (flat)	
+солідарний	соліда́рний	adj	in solidarity (with), at one (with)	
+кругленький	кругле́нький	adj	(diminutive) round, roundish (кругленька сума “a tidy sum”)	
+інтернувати	інтернува́ти	verb	to intern	imperfective and perfective
+узріти	узрі́ти	verb	(bookish) to behold, to see	perfective
+плодитися	плоди́тися	verb	to breed, to multiply	imperfective
+розпаковувати	розпако́вувати	verb	to unpack	imperfective
+упекти	упекти́	verb	(colloquial) to put away, to lock up (in jail)	perfective
+секретаріат	секретаріа́т	noun	secretariat	
+яєшня	яє́шня	noun	fried eggs; scrambled eggs	
+напихати	напиха́ти	verb	to stuff, to cram	imperfective
+відкачувати	відка́чувати	verb	to pump out; (colloquial) to bring round, to resuscitate	imperfective
+мочка	мо́чка	noun	earlobe	
+немісцевий	немісце́вий	adj	not local, not from around here	
+моторика	мото́рика	noun	motor skills	
+кліпнути	клі́пнути	verb	to blink; to wink	perfective
+рятування	рятува́ння	noun	rescue, saving	
+втягуватися	втя́гуватися	verb	to get drawn in, to get used to; to retract	imperfective
+спонсорувати	спонсорува́ти	verb	to sponsor	imperfective
+вігвам	вігва́м	noun	wigwam	
+десертний	десе́ртний	adj	dessert (десертна ложка “dessert spoon”)	
+денатурат	денатура́т	noun	methylated spirits	
+випровадити	ви́провадити	verb	to show out, to see off, to send packing	perfective
+сморчок	сморчо́к	noun	morel (mushroom); (colloquial) runt, shrimp	
+обпалити	обпали́ти	verb	to scorch, to singe, to burn	perfective
+натягувати	натя́гувати	verb	to pull on, to stretch, to tighten	imperfective
+людний	лю́дний	adj	crowded, busy	
+продивитися	продиви́тися	verb	to look through, to view, to go through	perfective
+засумувати	засумува́ти	verb	to become sad; to miss (someone)	perfective
+нараховувати	нарахо́вувати	verb	to count, to number; to charge, to accrue	imperfective
+розсудити	розсуди́ти	verb	to judge (between), to settle (a dispute)	perfective
+прочуханка	прочуха́нка	noun	(colloquial) telling-off, dressing-down	
+зіштовхувати	зішто́вхувати	verb	to push (off, together), to bring into collision	imperfective
+утилізатор	утиліза́тор	noun	waste disposal unit, recycler	
+охрестити	охрести́ти	verb	to christen, to baptise; to nickname, to dub	perfective
+витиснути	ви́тиснути	verb	to squeeze out	perfective
+пухнути	пу́хнути	verb	to swell	imperfective
+перезавантажувати	перезаванта́жувати	verb	to restart, to reboot; to reload	imperfective
+скомпрометувати	скомпрометува́ти	verb	to compromise	perfective
+допивати	допива́ти	verb	to finish (a drink), to drink up	imperfective
+чувачок	чувачо́к	noun	(slang, diminutive) dude, guy	
+розрубати	розруба́ти	verb	to chop (in two), to cut up	perfective
+підкотити	підкоти́ти	verb	to roll (up to); (colloquial) to pull up, to drive up	perfective
+свинюка	свиню́ка	noun	(derogatory) pig, swine	
+помчати	помча́ти	verb	to rush off, to dash off, to speed away	perfective
+володарка	воло́дарка	noun	ruler (woman), mistress, owner	
+пробоїна	пробо́їна	noun	hole, breach, gash	
+включатися	включа́тися	verb	to switch on, to come on; to join in	imperfective
+всістися	всі́стися	verb	to sit down, to settle (into)	perfective
+порух	по́рух	noun	movement, motion; impulse	
+однорукий	однору́кий	adj	one-armed	
+нітрат	нітра́т	noun	nitrate	
+кремезний	креме́зний	adj	sturdy, stocky, burly	
+дотягувати	дотя́гувати	verb	to drag (as far as); to hold out (until), to last (until)	imperfective
+крастися	кра́стися	verb	to sneak, to creep, to steal (along)	imperfective
+вихвалятися	вихваля́тися	verb	to boast, to brag, to show off	imperfective
+наламати	налама́ти	verb	to break (a lot of) (наламати дров “to make a mess of things”)	perfective
+кревний	кре́вний	adj	blood, kindred (кревні родичі “blood relatives”)	
+комірник	комі́рник	noun	storekeeper	
+зцілюватися	зці́люватися	verb	to heal, to be healed	imperfective
+голографічний	голографі́чний	adj	holographic	
+відливати	відлива́ти	verb	to pour off; to cast (metal); (colloquial) to take a leak	imperfective
+чвертка	чве́ртка	noun	(colloquial) quarter; quarter-litre bottle (of vodka)	
+чий-небудь	чий-не́будь	pron	anyone's, someone's	
+змочити	змочи́ти	verb	to wet, to moisten	perfective
+продиктувати	продиктува́ти	verb	to dictate	perfective
+бандитський	банди́тський	adj	gangster, bandit, thuggish	
+клонувати	клонува́ти	verb	to clone	imperfective and perfective
+наркокартель	наркокарте́ль	noun	drug cartel	
+застрибувати	застри́бувати	verb	to jump in, to hop in (застрибуй! “hop in!”)	imperfective
+шоковий	шо́ковий	adj	shock (шокова терапія “shock therapy”)	
+поганенький	погане́нький	adj	(colloquial) not very good, poorish, lousy	
+спакуватися	спакува́тися	verb	to pack (up), to get packed	perfective
+обпектися	обпекти́ся	verb	to burn oneself, to get burnt, to scald oneself	perfective
+потрусити	потруси́ти	verb	to shake (a bit); (colloquial) to shake down	perfective
+відсиджуватися	відси́джуватися	verb	to sit it out, to lie low, to hide out	imperfective
+задрипаний	задри́паний	adj	(colloquial) shabby, scruffy, crummy	
+прищемити	прищеми́ти	verb	to pinch, to catch (a finger in a door)	perfective
+спаскудити	спаску́дити	verb	(colloquial) to foul up, to mess up, to spoil	perfective
+скрипучий	скрипу́чий	adj	creaky, squeaky	
+сеньйорита	сеньйори́та	noun	señorita	
+підтяжка	підтя́жка	noun	facelift; (plural підтяжки) braces, suspenders	
+причалювати	прича́лювати	verb	to moor, to dock	imperfective
+кіноакадемія	кіноакаде́мія	noun	film academy	
+підробний	підро́бний	adj	fake, counterfeit, forged	
+запаска	запа́ска	noun	(colloquial) spare (tyre, part); wraparound skirt (of folk dress)	
+нажитися	нажи́тися	verb	to profit, to get rich (on)	perfective
+лотерейний	лотере́йний	adj	lottery (лотерейний квиток “lottery ticket”)	
+поліомієліт	поліомієлі́т	noun	polio, poliomyelitis	
+натренувати	натренува́ти	verb	to train	perfective
+збиватися	збива́тися	verb	to lose (one's way, count), to go astray; to huddle together	imperfective
+тягатися	тяга́тися	verb	to drag oneself (around); to compete, to vie (with)	imperfective
+наміритися	намі́ритися	verb	to make up one's mind, to intend; to take aim	perfective
+пропливати	проплива́ти	verb	to swim past, to sail past, to float by	imperfective
+провідувати	прові́дувати	verb	to visit, to call on	imperfective
+розпорядитися	розпоряди́тися	verb	to give orders, to make arrangements; to dispose (of)	perfective
+перевтомлюватися	перевто́млюватися	verb	to overwork oneself, to get overtired	imperfective
+обмовляти	обмовля́ти	verb	to slander, to backbite	imperfective
+заворушитися	заворуши́тися	verb	to stir, to begin to move	perfective
+перикард	перика́рд	noun	pericardium	
+топтатися	топта́тися	verb	to shuffle (one's feet), to stamp about; to mark time	imperfective
+розігріти	розігрі́ти	verb	to warm up, to heat (up)	perfective
+поповзти	поповзти́	verb	to crawl (off), to start crawling	perfective
+чкурнути	чкурну́ти	verb	(colloquial) to bolt, to scram, to take off	perfective
+відцуратися	відцура́тися	verb	to disown, to renounce, to turn one's back (on)	perfective
+переправляти	переправля́ти	verb	to take across, to ferry; to forward, to send on	imperfective
+вокаліст	вокалі́ст	noun	vocalist, singer	
+зломити	зломи́ти	verb	to break (resistance, someone's spirit)	perfective
+поршень	по́ршень	noun	piston	
+опадати	опада́ти	verb	to fall (of leaves); to subside, to go down	imperfective
+викувати	ви́кувати	verb	to forge	perfective
+розлюбити	розлюби́ти	verb	to fall out of love (with), to stop loving	perfective
+обніматися	обніма́тися	verb	to hug, to embrace (each other)	imperfective
+лепетати	лепета́ти	verb	to babble, to prattle	imperfective
+сміттєвоз	сміттєво́з	noun	rubbish truck, bin lorry	
+косоокий	косоо́кий	adj	cross-eyed, squint-eyed	
+лаборант	лабора́нт	noun	laboratory assistant, lab technician	
+ігристий	ігри́стий	adj	sparkling (ігристе вино “sparkling wine”)	
+перескочити	переско́чити	verb	to jump over; to skip (over)	perfective
+перепродати	перепрода́ти	verb	to resell	perfective
+вжитися	вжи́тися	verb	to settle in, to get used to; to get into (a role)	perfective
+застелити	застели́ти	verb	to cover, to spread (застелити ліжко “to make the bed”)	perfective
+розкрутити	розкрути́ти	verb	to unscrew, to untwist; to spin; (colloquial) to promote, to hype	perfective
+нагнати	нагна́ти	verb	to catch up (with); to drive (in) (нагнати страху “to scare”)	perfective
+наварити	навари́ти	verb	to cook (a lot of); (colloquial) to make a profit	perfective
+худенький	худе́нький	adj	(diminutive) thin, skinny, slight	
+завдаток	завда́ток	noun	deposit, down payment	
+вламуватися	вла́муватися	verb	to break in, to burst in	imperfective
+розсістися	розсі́стися	verb	to sit down (comfortably), to sprawl; to take one's seats	perfective
+вміститися	вмісти́тися	verb	to fit (in)	perfective
+демонстраційний	демонстраці́йний	adj	demonstration, demo	
+агрегат	агрега́т	noun	unit, machine, assembly	
+перегризти	перегри́зти	verb	to gnaw through, to bite through	perfective
+грозитися	грози́тися	verb	to threaten	imperfective
+склока	скло́ка	noun	squabble, feud	
+запасатися	запаса́тися	verb	to stock up (on)	imperfective
+бубонний	бубо́нний	adj	bubonic (бубонна чума “bubonic plague”)	
+адаптивний	адапти́вний	adj	adaptive	
+забаритися	забари́тися	verb	to linger, to be delayed, to take a long time	perfective
+постарішати	постарі́шати	verb	to grow older, to age	perfective
+мішатися	міша́тися	verb	to get in the way, to interfere; to get mixed (up)	imperfective
+фізіотерапевт	фізіотерапе́вт	noun	physiotherapist	
+розтопити	розтопи́ти	verb	to melt; to light (a stove)	perfective
+всидіти	вси́діти	verb	to sit still (не всидіти на місці “to be unable to sit still”)	perfective
+метатися	мета́тися	verb	to rush about, to dash about; to toss (and turn)	imperfective
+пристарілий	приста́рілий	adj	elderly, aged (будинок для пристарілих “old people's home”)	
+непрохідний	непрохідни́й	adj	impassable, impenetrable	
+імбецил	імбеци́л	noun	imbecile	
+розсипати	розси́пати	verb	to spill, to scatter	perfective
+заморський	замо́рський	adj	overseas, foreign	
+змиватися	змива́тися	verb	to wash off; (colloquial) to make off, to clear out	imperfective
+тримач	трима́ч	noun	holder	
+замітати	заміта́ти	verb	to sweep (up); to cover up (замітати сліди “to cover one's tracks”)	imperfective
+гламурний	гламу́рний	adj	glamorous, glam	
+спаплюжити	спаплю́жити	verb	to defile, to desecrate, to besmirch	perfective
+нормалізуватися	нормалізува́тися	verb	to return to normal, to normalise	imperfective and perfective
+гурманський	гурма́нський	adj	gourmet	
+стресовий	стре́совий	adj	stressful, stress	
+олійка	олі́йка	noun	(diminutive) oil (cosmetic, essential)	
+путній	пу́тній	adj	(colloquial) decent, sensible, worthwhile (нічого путнього “nothing worthwhile”)	
+забобонний	забобо́нний	adj	superstitious	
+стружка	стру́жка	noun	shavings, chips	
+виставлятися	виставля́тися	verb	to be exhibited, to show (one's work); (colloquial) to show off	imperfective
+радитися	ра́дитися	verb	to consult, to confer, to ask advice	imperfective
+скрутитися	скрути́тися	verb	to curl up, to twist	perfective
+виноградний	виногра́дний	adj	grape (виноградний сік “grape juice”)	
+обжитися	обжи́тися	verb	to settle in, to make oneself at home	perfective
+проситися	проси́тися	verb	to ask (to go, to be let in), to ask permission	imperfective
+обкуритися	обкури́тися	verb	(slang) to get stoned, to get high	perfective
+притягуватися	притя́гуватися	verb	to be attracted (to), to be drawn (to)	imperfective
+добропорядний	добропоря́дний	adj	respectable, decent, law-abiding	
+порізатися	порі́затися	verb	to cut oneself	perfective
+струшувати	стру́шувати	verb	to shake (off)	imperfective
+каяк	кая́к	noun	kayak	
+грибний	грибни́й	adj	mushroom (грибний суп “mushroom soup”)	
+перейнятися	перейня́тися	verb	to be filled (with), to be moved (by), to take to heart	perfective
+аптечний	апте́чний	adj	pharmacy, chemist's	
+поглумитися	поглуми́тися	verb	to mock, to jeer (at)	perfective
+торішній	торі́шній	adj	last year's	
+обпекти	обпекти́	verb	to burn, to scald	perfective
+струсити	струси́ти	verb	to shake off	perfective
+виписуватися	випи́суватися	verb	to be discharged (from hospital), to check out	imperfective
+відштовхуватися	відшто́вхуватися	verb	to push off (from)	imperfective
+бурильний	бури́льний	adj	drilling	

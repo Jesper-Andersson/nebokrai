@@ -19,7 +19,7 @@ export interface Store {
 }
 
 export const STORES: Store[] = [
-	{ browser: 'chrome', name: 'Chrome', url: '' },
+	{ browser: 'chrome', name: 'Chrome', url: 'https://chromewebstore.google.com/detail/nebokrai-ukrainian-pop-up/lejebpdfdmifdnmemdnmjajemibffmgm' },
 	{ browser: 'firefox', name: 'Firefox', url: '' },
 	{ browser: 'edge', name: 'Edge', url: '' }
 ];

@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-everyday-words',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Look up 2,500 more everyday words', uk: 'Шукайте ще 2500 повсякденних слів' },
+		body: {
+			en: 'Common words that had no meaning here, such as облишити and класний, now have English meanings written for this dictionary, with the stress marked.',
+			uk: 'Поширені слова, яких тут бракувало, як-от «облишити» і «класний», тепер мають англійські значення, написані для цього словника, з наголосом.'
+		}
+	},
+	{
 		id: '2026-11-17-verb-patterns',
 		date: '2026-11-17',
 		kind: 'new',
@@ -52,6 +62,17 @@ export const UPDATES: Update[] = [
 			uk: 'У граматиці з’явилося десять уроків дієслівного керування, як-от дякувати + кому?, а на сторінці дієслова видно, якого відмінка воно вимагає.'
 		},
 		href: '/practice'
+	},
+	{
+		id: '2026-11-17-chrome-extension',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'Look up words on any page in Chrome', uk: 'Шукайте слова на будь-якій сторінці в Chrome' },
+		body: {
+			en: 'The free Nebokrai extension is in the Chrome Web Store: double-click a Ukrainian word on any page to see its meaning, stress and form.',
+			uk: 'Безплатне розширення Небокрай є в Chrome Web Store: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму.'
+		},
+		href: '/extension'
 	},
 	{
 		id: '2026-11-17-everyday-coverage',
@@ -93,6 +114,17 @@ export const UPDATES: Update[] = [
 			en: 'Meanings now carry labels such as surzhyk on канєшно and slang on about 80 words, and slurs such as хохол show a Highly offensive badge with a note.',
 			uk: 'Значення тепер мають позначки, як-от «суржик» у слова канєшно та «сленг» у близько 80 слів, а образи на кшталт «хохол» позначено як «Вкрай образливе» з поясненням.'
 		}
+	},
+	{
+		id: '2026-11-17-ilearn-tutor',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'A new tutor on the Resources page', uk: 'Нова викладачка на сторінці «Ресурси»' },
+		body: {
+			en: 'їLearn offers small-group courses and private lessons, online or in Oxford, with a free one-to-one trial lesson.',
+			uk: 'їLearn пропонує курси в малих групах та індивідуальні уроки, онлайн або в Оксфорді, з безплатним пробним індивідуальним уроком.'
+		},
+		href: '/resources'
 	},
 	{
 		id: '2026-11-17-not-standard-ukrainian',

@@ -10,8 +10,13 @@
 // name is the only text here that the person writes themselves. No email, no
 // password.
 //
+// Also the comments under grammar point pages, which belong to no account:
+// anyone may write one, and it keeps only the page, the text, the name typed
+// (if any) and the time.
+//
 // Nothing here imports from SvelteKit, so `npm test` can run it against an
 // in-memory SQLite database.
+import { MAX_LISTED, type Comment } from '../comments.ts';
 import { planListMerge } from '../lists.ts';
 import { MAX_REVIEW } from '../review/cards.ts';
 import type { DayCounts } from '../review/days.ts';
@@ -134,7 +139,22 @@ export const SCHEMA = [
 		word TEXT NOT NULL,
 		list_id TEXT NOT NULL,
 		PRIMARY KEY (user_id, word, list_id)
-	) WITHOUT ROWID`
+	) WITHOUT ROWID`,
+	// Comments under a grammar point's page (src/lib/comments.ts). Written by
+	// anyone, signed in or not, so no user id: page is the point's id
+	// ('genitive-after-bez'), name what the writer typed or NULL. No address
+	// or account is kept with one. hidden is set by the site's keeper; reports
+	// counts the Report clicks.
+	`CREATE TABLE IF NOT EXISTS comments (
+		id INTEGER PRIMARY KEY,
+		page TEXT NOT NULL,
+		name TEXT,
+		body TEXT NOT NULL,
+		created_at INTEGER NOT NULL,
+		hidden INTEGER NOT NULL DEFAULT 0,
+		reports INTEGER NOT NULL DEFAULT 0
+	)`,
+	`CREATE INDEX IF NOT EXISTS comments_by_page ON comments (page, created_at)`
 ];
 
 export type Provider = 'google' | 'github';
@@ -604,4 +624,52 @@ export async function accountStats(db: UserDb, now: number, weeks = 12): Promise
 		reviewed30: await reviewed(30),
 		signUps
 	};
+}
+
+/**
+ * A page's comments, newest first. The site's keeper (`withHidden`) also gets
+ * the hidden ones, marked, so a comment hidden by mistake can be shown again,
+ * and how often each was reported.
+ */
+export async function listComments(db: UserDb, page: string, withHidden = false): Promise<Comment[]> {
+	const rows = await db.all<{
+		id: number; name: string | null; body: string; created_at: number; hidden: number; reports: number;
+	}>(
+		`SELECT id, name, body, created_at, hidden, reports FROM comments
+		 WHERE page = ? ${withHidden ? '' : 'AND hidden = 0'}
+		 ORDER BY created_at DESC, id DESC LIMIT ?`, [page, MAX_LISTED]);
+	return rows.map(({ hidden, reports, ...row }) => (withHidden ? { ...row, hidden: hidden === 1, reports } : row));
+}
+
+/** Store a comment (already cleaned by cleanComment) and return it as the page shows it. */
+export async function addComment(
+	db: UserDb, page: string, comment: { name: string | null; body: string }, now = Date.now()
+): Promise<Comment> {
+	await db.run('INSERT INTO comments (page, name, body, created_at) VALUES (?, ?, ?, ?)',
+		[page, comment.name, comment.body, now]);
+	// Not last_insert_rowid(): on D1 each statement may run on its own connection
+	const [row] = await db.all<{ id: number }>(
+		'SELECT max(id) AS id FROM comments WHERE page = ? AND created_at = ? AND body = ?', [page, now, comment.body]);
+	return { id: row.id, name: comment.name, body: comment.body, created_at: now };
+}
+
+/**
+ * Count a report of a shown comment. Returns the comment with its new count,
+ * or null when there is no such comment or it is hidden already.
+ */
+export async function reportComment(
+	db: UserDb, id: number
+): Promise<{ page: string; body: string; reports: number } | null> {
+	await db.run('UPDATE comments SET reports = reports + 1 WHERE id = ? AND hidden = 0', [id]);
+	const [row] = await db.all<{ page: string; body: string; reports: number }>(
+		'SELECT page, body, reports FROM comments WHERE id = ? AND hidden = 0', [id]);
+	return row ?? null;
+}
+
+/** Hide a comment from everyone but the site's keeper, or show it again. False when there is no such comment. */
+export async function setCommentHidden(db: UserDb, id: number, hidden: boolean): Promise<boolean> {
+	const found = await db.all('SELECT 1 FROM comments WHERE id = ?', [id]);
+	if (!found.length) return false;
+	await db.run('UPDATE comments SET hidden = ? WHERE id = ?', [hidden ? 1 : 0, id]);
+	return true;
 }

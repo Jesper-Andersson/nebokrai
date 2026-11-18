@@ -1621,6 +1621,32 @@ const en = {
 		tooMany: 'You’ve sent many suggestions in a short time. Please wait a few minutes and try again.',
 		thanks: 'Thank you! Your suggestion was sent.'
 	},
+	/** The comments at the foot of a grammar point's page (GrammarComments.svelte) */
+	comments: {
+		title: 'Comments',
+		none: 'No comments yet. Ask a question or share a tip.',
+		label: 'Your comment',
+		placeholder: 'Ask a question or share a tip…',
+		name: 'Name (optional)',
+		anonymous: 'Anonymous',
+		note: (max: string) => `Shown at once to everyone. Up to ${max} characters.`,
+		post: 'Post comment',
+		posting: 'Posting…',
+		posted: 'Your comment is posted.',
+		report: 'Report',
+		reportLabel: (who: string) => `Report the comment by ${who}`,
+		reported: 'Reported',
+		reportThanks: 'Thank you. The comment was reported.',
+		hide: 'Hide',
+		unhide: 'Show again',
+		hidden: 'Hidden',
+		reports: (n: number) => (n === 1 ? '1 report' : `${n} reports`),
+		empty: 'Write something first.',
+		tooLong: 'The comment or the name is too long. Shorten it and post again.',
+		tooMany: 'You’ve posted several comments in a short time. Please wait a few minutes and try again.',
+		failed: 'Your comment couldn’t be posted. Please try again.',
+		actionFailed: 'That didn’t work. Please try again.'
+	},
 	/** The form for a word the dictionary does not have (AddWord.svelte) */
 	addWord: {
 		/** Under "No matches", and after the guesses of a search */
@@ -3083,6 +3109,34 @@ const uk: Messages = {
 		failed: 'Не вдалося надіслати пропозицію. Спробуйте ще раз.',
 		tooMany: 'Ви надіслали багато пропозицій за короткий час. Зачекайте кілька хвилин і спробуйте ще раз.',
 		thanks: 'Дякуємо! Вашу пропозицію надіслано.'
+	},
+	comments: {
+		title: 'Коментарі',
+		none: 'Коментарів ще немає. Поставте запитання або поділіться порадою.',
+		label: 'Ваш коментар',
+		placeholder: 'Поставте запитання або поділіться порадою…',
+		name: 'Ім’я (необов’язково)',
+		anonymous: 'Анонім',
+		note: (max: string) => `Коментар одразу бачать усі. До ${max} символів.`,
+		post: 'Надіслати коментар',
+		posting: 'Надсилаємо…',
+		posted: 'Ваш коментар додано.',
+		report: 'Поскаржитися',
+		reportLabel: (who: string) => `Поскаржитися на коментар від: ${who}`,
+		reported: 'Скаргу надіслано',
+		reportThanks: 'Дякуємо. Скаргу на коментар надіслано.',
+		hide: 'Сховати',
+		unhide: 'Показати знову',
+		hidden: 'Сховано',
+		reports: (n: number) => `${n} ${
+			n % 10 === 1 && n % 100 !== 11 ? 'скарга'
+			: n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'скарги'
+			: 'скарг'}`,
+		empty: 'Спершу напишіть коментар.',
+		tooLong: 'Коментар або ім’я задовгі. Скоротіть і надішліть ще раз.',
+		tooMany: 'Ви надіслали кілька коментарів за короткий час. Зачекайте кілька хвилин і спробуйте ще раз.',
+		failed: 'Не вдалося надіслати коментар. Спробуйте ще раз.',
+		actionFailed: 'Не вдалося. Спробуйте ще раз.'
 	},
 	addWord: {
 		add: (word: string) => `Додати «${word}»`,

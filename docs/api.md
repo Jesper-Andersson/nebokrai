@@ -634,6 +634,83 @@ For the site's keeper only, from the page `/suggestions`: moves suggestion
 `200`: `{ "ok": true }`. Anyone else, and an id that does not exist, gets
 `404 not_found`; a status that is none of the four gets `400 invalid_status`.
 
+## Comments under grammar points
+
+Readers' comments under the page of each grammar point (`/grammar/<id>`, one
+of the ids in `INTROS` in `src/lib/practice/intros.ts`). Anyone may post one,
+signed in or not, with or without a name. It is shown at once; readers can
+report it, and the site's keeper can hide it. A comment keeps the page, the
+text, the name typed (if any) and the time: no account, no address. Limits are
+in `src/lib/comments.ts`.
+
+Where the server has no accounts database, every endpoint here answers
+`503 unavailable`.
+
+### `GET /api/comments?page=<id>`
+
+The page's comments, newest first, at most 200, without the hidden ones.
+`created_at` is milliseconds since 1970; `name` is `null` for a comment posted
+without one. Not cached.
+
+```json
+{
+  "comments": [
+    { "id": 7, "name": "Олена", "body": "Чому без хліба, а не без хліб?", "created_at": 1800000000000 }
+  ]
+}
+```
+
+The site's keeper (an account in `STATS_USER_IDS`) also gets the hidden
+comments, and every comment carries `"hidden": true|false` and `"reports"`,
+how many times it was reported. A page id that is not a grammar point gets
+`404 not_found`.
+
+### `POST /api/comments`
+
+```json
+{
+  "page": "genitive-after-bez",
+  "body": "Чому без хліба, а не без хліб?",
+  "name": "optional, at most 40 characters",
+  "turnstile": "<token of the form's bot check>"
+}
+```
+
+`body` is at most 1,000 characters. Control characters and the marks that
+reorder text are removed from both texts, and more than one blank line in a
+row is closed up. A visitor who is not signed in needs `turnstile`, as on
+`/api/report`; a signed-in one does not, and the account is not stored with
+the comment. `website` is a honeypot: a body that fills it gets
+`{ "ok": true, "comment": null }` and nothing is stored.
+
+Response `200`: `{ "ok": true, "comment": { "id": 8, "name": null, "body": "…", "created_at": 1800000000000 } }`.
+
+| Status | Body | When |
+|---|---|---|
+| `400` | `{ "error": "missing_body" }` | `body` is empty. |
+| `403` | `{ "error": "bot_check" }` | Not signed in, and no token Cloudflare accepts. |
+| `404` | `{ "error": "not_found" }` | `page` is not a grammar point. |
+| `413` | `{ "error": "too_large" }` | `body` or `name` is over its limit, or the request is over 8 KB. |
+| `429` | `{ "error": "too_many" }` | More than 5 comments in ten minutes from one address. |
+| `503` | `{ "error": "bot_check_unavailable" }` | Cloudflare gave no verdict on the token; send again. |
+
+### `POST /api/comments/<id>/report`
+
+Reports comment `<id>`. No body. The comment stays up and its count goes up;
+the first report also reaches the keeper as a "Report an issue" report.
+Response `200`: `{ "ok": true }`. A comment that does not exist or is hidden
+gets `404 not_found`; more than 20 reports in ten minutes from one address get
+`429 too_many`. The page remembers in the browser which comments it reported,
+so the same reader is not counted twice from one browser.
+
+### `POST /api/comments/<id>`
+
+For the site's keeper only: hides comment `<id>` from everyone else, or shows
+it again. Body: `{ "hidden": true }` or `{ "hidden": false }`. Response `200`:
+`{ "ok": true }`. Anyone else, and an id that does not exist, gets
+`404 not_found`; a `hidden` that is not `true` or `false` gets
+`400 invalid_hidden`.
+
 ## `GET /api/texts`
 
 Every story to read, easiest first: by `level` (none last), then length

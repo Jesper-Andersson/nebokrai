@@ -54,6 +54,17 @@ export const UPDATES: Update[] = [
 		href: '/grammar/points'
 	},
 	{
+		id: '2026-11-18-grammar-comments',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Ask a question under a grammar rule', uk: 'Поставте запитання під граматичним правилом' },
+		body: {
+			en: 'Each grammar point’s page ends with comments: open them to read other learners’ questions and tips, or add your own.',
+			uk: 'Унизу сторінки кожної граматичної теми є коментарі: розгорніть їх, щоб прочитати запитання й поради інших або додати свої.'
+		},
+		href: '/grammar/points'
+	},
+	{
 		id: '2026-11-18-skip-the-letters',
 		date: '2026-11-18',
 		kind: 'changed',

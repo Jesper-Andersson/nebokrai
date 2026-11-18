@@ -94,6 +94,17 @@ export const UPDATES: Update[] = [
 		}
 	},
 	{
+		id: '2026-11-17-ilearn-tutor',
+		date: '2026-11-17',
+		kind: 'new',
+		title: { en: 'A new tutor on the Resources page', uk: 'Нова викладачка на сторінці «Ресурси»' },
+		body: {
+			en: 'їLearn offers small-group courses and private lessons, online or in Oxford, with a free one-to-one trial lesson.',
+			uk: 'їLearn пропонує курси в малих групах та індивідуальні уроки, онлайн або в Оксфорді, з безплатним пробним індивідуальним уроком.'
+		},
+		href: '/resources'
+	},
+	{
 		id: '2026-11-17-not-standard-ukrainian',
 		date: '2026-11-17',
 		kind: 'new',

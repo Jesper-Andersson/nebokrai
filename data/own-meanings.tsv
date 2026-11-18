@@ -2,6 +2,7 @@
 # This is Nebokrai's own writing, under CC BY-SA 4.0 with the rest of nebokrai.db.
 # Nothing of VESUM's (its forms, tags or word lists) is copied into it: VESUM is CC BY-NC-SA 4.0 and stays in
 # vesum.db. It only helped choose which words to write up, by how often they are met in film subtitles.
+# Each headword's stress was compared with the academic dictionary (СУМ) and follows it; none of its text is here.
 # import_wiktionary.py --own-meanings reads this file; a row whose spelling already has an entry is skipped.
 # Columns, tab-separated:
 #   word      the plain spelling: облишити

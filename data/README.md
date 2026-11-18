@@ -87,8 +87,12 @@ column as its tags. It runs before the translation tables, so such a word gets
 this entry rather than a thinner one made from them. A row whose spelling already
 has an entry is skipped, so a row goes quiet once Wiktionary has the page. These
 entries have no table of forms in `nebokrai.db`, so their frequency rank counts
-the dictionary form alone. A batch of rows is reviewed by a person before it goes
-in; to add one, add rows and rebuild.
+the dictionary form alone. The stress of every headword was compared with the
+academic dictionary (СУМ, as shown on goroh.pp.ua) one word at a time: where the
+two differed СУМ's stress was taken, and a word СУМ does not list was left out.
+Only the stressed headword was compared; no text of СУМ's is in the file. The
+first 354 rows were also read by a person before they went in; the rest were
+not. To add a word, add a row and rebuild.
 
 ## Translation tables
 

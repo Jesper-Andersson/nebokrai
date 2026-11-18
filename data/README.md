@@ -11,16 +11,20 @@ extract published by kaikki.org.
     curl -O https://downloads.tatoeba.org/exports/per_language/ukr/ukr_sentences.tsv.bz2
     curl -O https://downloads.tatoeba.org/exports/per_language/ukr/ukr-eng_links.tsv.bz2
     curl -O https://downloads.tatoeba.org/exports/per_language/eng/eng_sentences.tsv.bz2
+    curl -L -o ukwiktionary.xml.bz2 \
+        https://dumps.wikimedia.org/ukwiktionary/latest/ukwiktionary-latest-pages-articles.xml.bz2
     cd ../..
     curl -L https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
         | python3 data/extract_translations.py > data/raw/uk_translations.jsonl
     python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw \
-        --abbreviations data/abbreviations.tsv --own-meanings data/own-meanings.tsv         --translations data/raw/uk_translations.jsonl
+        --abbreviations data/abbreviations.tsv --own-meanings data/own-meanings.tsv \
+        --translations data/raw/uk_translations.jsonl --ukwiktionary data/raw/ukwiktionary.xml.bz2
     python3 data/search.py nebokrai.db good
 
-The build takes about a minute. Only Python 3 is needed, no packages.
-`--freq`, `--tatoeba`, `--abbreviations`, `--own-meanings` and `--translations` are optional;
-without them you get the plain dictionary. The English extract is a 534 MB
+The build takes about two minutes. Only Python 3 is needed, no packages.
+`--freq`, `--tatoeba`, `--abbreviations`, `--own-meanings`, `--translations` and
+`--ukwiktionary` are optional; without them you get the plain dictionary. The Ukrainian
+Wiktionary dump is 16 MB. The English extract is a 534 MB
 download that is read as a stream and not stored; what is kept of it is 8 MB
 (53,511 translations in October 2026). Its file only changes when kaikki.org
 publishes a new extract, so a rebuild can reuse the one in `data/raw/`.
@@ -33,8 +37,8 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 48,887 |
-| `senses` | English meaning of an entry | 68,177 |
+| `entries` | dictionary word + part of speech | 49,583 |
+| `senses` | English meaning of an entry | 68,903 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
 | `relations` | other word an entry names: synonym, antonym, derived or related | 87,783 |
 | `examples` | Tatoeba sentence with English translation | 26,800 |
@@ -165,6 +169,45 @@ Left out:
 - the words in `data/nonstandard.tsv` (174 translations of 156 words in
   November 2026), a hand-written list of words that are not standard
   Ukrainian, most of them Russian words or surzhyk.
+
+## Ukrainian Wiktionary
+
+Ukrainian Wiktionary (uk.wiktionary.org, CC BY-SA 4.0) has pages for words
+that English Wiktionary has neither a page nor a translation for: мура́л,
+набаки́р, жула́н. `import_ukwiktionary.py` reads the Wikimedia dump with
+`--ukwiktionary`, after every other entry is in, and keeps four things of a
+page: its title, the stress from `{{склади}}`, the part of speech from the
+template that opens it (`{{імен uk …}}` is a noun), and the English in its
+translation tables (`|en=[[book]]`). Neither kaikki.org nor Wiktextract reads
+this edition, so the script reads the wikitext itself.
+
+**Words with no entry get one** (696 entries, 726 meanings in November 2026),
+with `entries.source` set to `ukwiktionary`. One meaning per translation
+table, `askew, awry`. They are thin in the same way as the entries from
+English tables: no forms, no frequency rank, after the others in
+search-as-you-type. Their page says where the meanings come from and links to
+the Ukrainian Wiktionary page, whose history lists its authors.
+
+**Words that have an entry get more English search keys** (1,283 keys on 1,950
+words), and another spelling of one becomes a `head` key, as for the English
+tables. `new_words.py` decides which is which.
+
+Left out, of 41,698 pages with a Ukrainian section:
+
+- titles that are not one lowercase word (20,697: names, phrases, affixes);
+- pages with no English translation (16,044), or no part of speech the script
+  knows (1,832);
+- pages that also have a Russian section (348): the Ukrainian section of such
+  a page is often a stray Russian word (огонь, война, чувство);
+- pages labelled Russian or surzhyk, and the words in `nonstandard.tsv` (79).
+
+**The Ukrainian definitions are not used.** Many follow the 11-volume academic
+dictionary (СУМ-11) word for word, with its citations (`Іван Франко, XI, 1952,
+75`), and whether they may be copied under CC BY-SA is not clear. They are in
+Ukrainian, too, where the site's meanings are in English.
+
+The translations are what Wiktionary's editors wrote, so now and then one is
+wrong or misspelt (`багацько` "infinitude"). Report them there.
 
 ## Words that are not standard Ukrainian
 
@@ -513,7 +556,10 @@ only that row, not a new database (see Publishing to D1).
 1. Exact word, stress and case ignored: `калина`
 2. Any inflected form: `книги` finds `книга`, `читаю` finds `читати`
 3. Latin letters in the official romanisation: `kalyna`, `khata`
-4. English meaning that is exactly the query: `good` finds `добрий`
+4. English meaning that is exactly the query: `good` finds `добрий`. A plural
+   or a possessive counts as its singular (`siblings`, `children`, `mother's`),
+   since meanings are written in the singular; `news` and the like are left as
+   they are
 5. Latin letters, loosely spelled: `kalina`
 6. English meaning that mentions the query: `good` also finds `добро`
 7. Prefix match, for search-as-you-type; entries from translation tables only
@@ -745,7 +791,8 @@ articles. It is a working list: never commit it, never load it into
 ## Known gaps
 
 - 1,161 nouns, verbs and adjectives from Wiktionary's own pages have no
-  inflection table, nor have any of the 12,784 entries from translation tables.
+  inflection table, nor have any of the 12,784 entries from translation tables
+  or the 696 from Ukrainian Wiktionary.
 - 18,410 entries have audio.
 - Words missing from both Wiktionary's pages and its translation tables (for
   example `почитати`, `походжати`) are found through VESUM but have no
@@ -756,6 +803,7 @@ articles. It is a working list: never commit it, never load it into
 | Source | Licence | What it requires |
 |---|---|---|
 | English Wiktionary (via kaikki.org) | CC BY-SA 4.0 | credit, and share derived data under the same licence |
+| Ukrainian Wiktionary (Wikimedia dump; titles, stress, part of speech, English translations only) | CC BY-SA 4.0 | same |
 | FrequencyWords (OpenSubtitles 2018) | CC BY-SA 4.0 | same |
 | Tatoeba | CC BY 2.0 FR | credit Tatoeba, link to the sentence |
 | VESUM (separate `vesum.db`) | CC BY-NC-SA 4.0 | credit, non-commercial use only, keep apart from the rows above |

@@ -556,6 +556,10 @@ const en = {
 		wiktionaryTables: 'Wiktionary translation tables',
 		fromTranslations:
 			'Wiktionary has no entry for this word yet. These meanings come from the translation tables of its English entries, so some may be missing.',
+		// An entry made from the translation tables of Ukrainian Wiktionary: мурал
+		ukWiktionary: 'Ukrainian Wiktionary',
+		fromUkWiktionary:
+			'English Wiktionary has no entry for this word yet. These meanings come from the translation table of its Ukrainian Wiktionary page, so some may be missing.',
 		// A slur or a highly offensive word (data/marked-offensive.tsv): хохол
 		offensive: 'Highly offensive',
 		offensiveNote: 'This word is used to insult. It is here so you can recognise it, not to use it.',
@@ -1996,6 +2000,9 @@ const uk: Messages = {
 		wiktionaryTables: 'таблиці перекладів Вікісловника',
 		fromTranslations:
 			'У Вікісловнику ще немає статті про це слово. Ці значення взято з таблиць перекладів в англійських статтях, тож деяких може бракувати.',
+		ukWiktionary: 'Український Вікісловник',
+		fromUkWiktionary:
+			'В англійському Вікісловнику ще немає статті про це слово. Ці значення взято з таблиці перекладів його сторінки в українському Вікісловнику, тож деяких може бракувати.',
 		offensive: 'Вкрай образливе',
 		offensiveNote: 'Це слово вживають, щоб образити. Його подано, щоб ви могли його впізнати, а не вживати.',
 		takes: 'вимагає',

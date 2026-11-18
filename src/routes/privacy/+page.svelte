@@ -1,5 +1,5 @@
 <!-- What the site keeps about a visitor. It says what the code does: read it
-     again whenever users.ts, oauth.ts, reports.ts, missing-words.ts, stats.ts, the browser extension (extension/) or the report endpoint
+     again whenever users.ts (accounts and comments), oauth.ts, reports.ts, missing-words.ts, stats.ts, the browser extension (extension/) or the report endpoint
      changes what is kept, or a page starts loading something from another
      site. It was a section of the About page until 2026-11-13. -->
 <script lang="ts">
@@ -36,6 +36,14 @@
 			сторінкою, з якої ви прийшли, вашими налаштуваннями мови й розкладки та назвою й версією
 			браузера, щоб ми могли знайти проблему. Електронну адресу ми зберігаємо, лише якщо ви її
 			вкажете, і видаляємо, щойно повідомлення закрито.
+		</p>
+
+		<h2>Коментарі</h2>
+		<p>
+			Коментар під сторінкою граматики видно всім, щойно ви його надіслали. Ми зберігаємо лише його
+			текст, ім’я, якщо ви його вкажете, сторінку й час, але не вашу IP-адресу чи обліковий запис, тож
+			видалення облікового запису його не видаляє. Щоб прибрати свій коментар, напишіть на
+			<a href="mailto:{EMAIL}">{EMAIL}</a>.
 		</p>
 
 		<h2>Імпорт</h2>
@@ -121,6 +129,14 @@
 			language and keyboard settings and your browser’s name and version, so that we can find the
 			problem. Your email address is stored only if you give it, and is deleted once the report is
 			closed.
+		</p>
+
+		<h2>Comments</h2>
+		<p>
+			A comment under a grammar page is shown to everyone as soon as you send it. We keep only its
+			text, the name you give (if any), the page and the time, not your IP address or your account,
+			so deleting your account does not remove it. To have a comment of yours taken down, write to
+			<a href="mailto:{EMAIL}">{EMAIL}</a>.
 		</p>
 
 		<h2>Importing</h2>

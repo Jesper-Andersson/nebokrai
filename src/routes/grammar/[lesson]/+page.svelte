@@ -18,6 +18,7 @@
      practice's own (+page.server.ts). -->
 <script lang="ts">
 	import { page } from '$app/state';
+	import GrammarComments from '#lib/GrammarComments.svelte';
 	import Icon from '#lib/Icon.svelte';
 	import PointList from '#lib/PointList.svelte';
 	import Stressed from '#lib/Stressed.svelte';
@@ -275,6 +276,12 @@
 		{m.intro.sources}
 		{#each intro.sources as source, i (source.url)}{#if i}{' · '}{/if}<a href={source.url} target="_blank" rel="noopener" lang="en">{source.title}</a>{/each}
 	</p>
+
+	<!-- Learners' questions and tips, folded away under one line (user's pick,
+	     2026-11-18). Left out where the server has no accounts database. -->
+	{#if data.comments}
+		<GrammarComments pageId={data.id} comments={data.comments} keeper={data.keeper} sitekey={data.turnstile} />
+	{/if}
 </TextPage>
 
 <style>

@@ -22,6 +22,7 @@
 // One object per page, shared through Svelte context (a module variable would
 // be shared between visitors on the server).
 import { getContext, setContext } from 'svelte';
+import type { CoverageTable } from './coverage.ts';
 import { SYNC_MAX, mergeCards, parseCards } from './review/cards.ts';
 import { COMMON_DECKS, DEFAULT_SETTINGS, parseSettings, type ReviewSettings } from './review/decks.ts';
 import { DAYS_MAX, addDays, dayKey, parseDays, type DayCounts } from './review/days.ts';
@@ -85,6 +86,8 @@ export class Review {
 	ready = $state(false);
 	/** The words of each deck of common words, once fetched (fetchDecks). */
 	common = $state.raw<ReadonlyMap<string, string[]>>(new Map());
+	/** How often each common word is used, for the coverage figure, once fetched (fetchFrequency). */
+	frequency = $state.raw<CoverageTable | null>(null);
 
 	#ownDays = $state.raw<DayCounts>({});
 	#otherDays = $state.raw<DayCounts>({});
@@ -102,6 +105,7 @@ export class Review {
 	#loading: Promise<void> | undefined;
 	#read = false;
 	#asked = new Set<string>();
+	#askedFrequency = false;
 
 	constructor(userId: string | null) {
 		this.#userId = userId;
@@ -178,6 +182,19 @@ export class Review {
 				.then((found: { words: string[] }) => (this.common = new Map(this.common).set(id, found.words)))
 				.catch(() => this.#asked.delete(id)); // asked again by the next call
 		}
+	}
+
+	/**
+	 * Fetch the table the coverage figure is worked out from, once. The same
+	 * for everyone and cached for a day; about 60 KB on the wire.
+	 */
+	fetchFrequency(): void {
+		if (this.#askedFrequency) return;
+		this.#askedFrequency = true;
+		void fetch('/api/coverage')
+			.then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+			.then((table: CoverageTable) => (this.frequency = table))
+			.catch(() => (this.#askedFrequency = false)); // asked again by the next call
 	}
 
 	/**

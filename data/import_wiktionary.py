@@ -3,13 +3,15 @@
 
 Usage:
     python3 import_wiktionary.py raw/uk.jsonl nebokrai.db [--freq FILE] [--tatoeba DIR]
-        [--abbreviations FILE] [--translations FILE]
+        [--abbreviations FILE] [--own-meanings FILE] [--translations FILE]
 
     --freq FILE           word frequency list, one "word count" per line
                           (FrequencyWords uk_full.txt, built from film subtitles)
     --tatoeba DIR         folder holding ukr_sentences.tsv.bz2, ukr-eng_links.tsv.bz2
                           and eng_sentences.tsv.bz2 from downloads.tatoeba.org
     --abbreviations FILE  abbreviations.tsv, Nebokrai's own entries
+    --own-meanings FILE   own-meanings.tsv, Nebokrai's own meanings for common
+                          words that Wiktionary has no page for
     --translations FILE   the Ukrainian translations from English Wiktionary's
                           translation tables, as extract_translations.py writes them
 
@@ -38,6 +40,8 @@ import sqlite3
 import sys
 import unicodedata
 
+import new_words
+
 STRESS = "́"
 
 SCHEMA = """
@@ -55,7 +59,8 @@ CREATE TABLE entries (
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
     freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
     offensive   INTEGER,                  -- 1 = marked highly offensive (marked-offensive.tsv); NULL = not
-    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv). No DEFAULT:
+    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv,
+    -- own-meanings.tsv). No DEFAULT:
     -- export_sql.py cannot carry a quoted value in a CREATE statement to D1.
     source      TEXT NOT NULL
 );
@@ -366,7 +371,52 @@ def add_abbreviations(db, path):
     return links, added
 
 
+def add_own_meanings(db, path):
+    """Entries for common words that Wiktionary has no page for, with English
+    meanings written for Nebokrai (own-meanings.tsv): one meaning per
+    `; `-separated gloss, "to look after; to take care of". Marked as
+    Nebokrai's own, like the abbreviations. A spelling that already has an
+    entry is left alone, so a row stops counting once Wiktionary gets the
+    page. The note column says what a reader of the file should know; of it
+    only the grammar a translation would carry (GRAMMAR_TAGS: a verb's aspect,
+    a noun's gender) is stored, as the entry's tags.
+    Returns how many entries were added and how many meanings they have.
+    """
+    added = senses = 0
+    with open(path, encoding="utf-8") as rows:
+        for number, line in enumerate(rows, 1):
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            word, headword, pos, glosses, note = (cell.strip() for cell in line.split("\t"))
+            # A headword that is not the word with stress marks is a typing slip.
+            if plain(headword) != plain(word):
+                raise ValueError(f"{path}:{number}: headword {headword} is not {word}")
+            if db.execute("SELECT 1 FROM search_keys WHERE key=? AND kind='word'", (plain(word),)).fetchone():
+                continue
+            tags = sorted(set(re.findall(r"[a-z]+", note)) & GRAMMAR_TAGS.get(pos, set()))
+            eid = db.execute(
+                "INSERT INTO entries(word, headword, pos, tags, head_forms, source) VALUES (?,?,?,?,'[]','nebokrai')",
+                (word, headword, pos, json.dumps(tags))).lastrowid
+            keys = word_keys(word)
+            for n, gloss in enumerate((g.strip() for g in glosses.split(";") if g.strip()), 1):
+                db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,?,?,'[]','[]')",
+                           (eid, n, gloss))
+                senses += 1
+                # What stands in brackets says which meaning is meant: "to sit (of clothes)"
+                said = re.sub(r"\([^)]*\)", " ", gloss.lower())
+                keys.update((w, "english") for w in ENGLISH_WORD.findall(said) if len(w) > 1)
+            db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
+                           [(k, eid, kind) for k, kind in keys if k])
+            added += 1
+    return added, senses
+
+
 ENGLISH_WORD = re.compile(r"[a-z]+(?:[-'][a-z]+)*")
+# Words that say nothing about a meaning, so two words sharing one of them do
+# not share a meaning: "to go out" and "to put out"
+COMMON_ENGLISH = frozenset("to the of an be in on at for with by up out off from into as or and one "
+                           "get make put go take give have do".split())
 # A translation written in the letters of the Ukrainian alphabet and nothing
 # else. The tables also hold whole questions ("як тебе́ зову́ть?"), notes,
 # mixed scripts, and now and then a word in Russian or Belarusian letters
@@ -428,7 +478,7 @@ def add_nonstandard(db, rows):
     return len(seen)
 
 
-def add_translations(db, path, skip: "set | frozenset" = frozenset()):
+def add_translations(db, path, skip: "set | frozenset" = frozenset(), review=None):
     """Use the Ukrainian translations listed on English Wiktionary's entries
     (data/extract_translations.py writes the file).
 
@@ -443,7 +493,9 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
     For a word that has an entry, the tables only add English search keys:
     комітет is listed under "board (managing committee)", so "board" finds it,
     after the words whose own entry says "board". The part of speech must
-    agree, which keeps "voting" (verb) away from голосування (noun).
+    agree, which keeps "voting" (verb) away from голосування (noun). The same
+    holds for another spelling of a word that has an entry (new_words.py):
+    удома gives its meanings to вдома instead of an entry of its own.
 
     Left out: anything not written in Ukrainian letters alone, inflected forms
     of words that have entries (зачинений is in the table of зачинити),
@@ -451,12 +503,26 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
     of which are ordinary word combinations (соціа́льна справедли́вість, "social
     justice") rather than dictionary words. Set phrases of other kinds are
     kept: про вся́к ви́падок, "just in case".
+
+    `review`, a list, gets one row per spelling turned away or let in, for
+    new_words.write_review().
     """
-    have = collections.defaultdict(list)   # plain spelling -> (id, pos) of its entries
+    words = {}                              # entry id -> plain spelling, for the review
+    entry_rows = []
     for eid, word, pos in db.execute("SELECT id, word, pos FROM entries"):
-        have[plain(word)].append((eid, pos))
-    forms = {key for (key,) in db.execute("SELECT DISTINCT key FROM search_keys WHERE kind='form'")}
+        words[eid] = plain(word)
+        entry_rows.append((plain(word), eid, pos))
+    known = new_words.Known(entry_rows, db.execute(
+        "SELECT k.key, k.entry_id, e.pos FROM search_keys k JOIN entries e ON e.id = k.entry_id"
+        " WHERE k.kind = 'form'").fetchall())
     english = set(db.execute("SELECT entry_id, key FROM search_keys WHERE kind='english'"))
+    reviewed = set()
+
+    def note(key, pos, verdict, reason, ids):
+        if review is not None and (key, pos) not in reviewed:
+            reviewed.add((key, pos))
+            review.append(("wiktionary-translations", key, pos, verdict, reason,
+                           " ".join(sorted({words.get(eid, "") for eid in ids}))))
 
     stats = collections.Counter(translations=0, translations_not_ukrainian=0, translations_left_out=0,
                                 translations_noun_phrases=0, translations_turned_down=0,
@@ -475,17 +541,21 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
         if (key, None) in skip or (key, pos) in skip:
             stats["translations_turned_down"] += 1
             continue
-        if key in have:
-            agrees = [eid for eid, entry_pos in have[key] if entry_pos == pos]
-            if not agrees:
+        # Other spellings are checked below, once all of a word's meanings are in
+        verdict, reason, ids = known.check(key, pos, spellings=False)
+        if reason in ("same-word", "other-pos"):
+            note(key, pos, verdict, reason, ids)
+            if reason == "other-pos":
                 stats["translations_other_pos"] += 1
-            for eid in agrees:
+                continue
+            for eid in ids:
                 for w in set(ENGLISH_WORD.findall(t["en"].lower())):
                     if len(w) > 1 and (eid, w) not in english:
                         english.add((eid, w))
                         more_keys.append((w, eid, "english"))
             continue
-        if key in forms or pos in NOT_VOCABULARY or key.startswith("-") or key.endswith("-"):
+        if verdict == "known" or pos in NOT_VOCABULARY or key.startswith("-") or key.endswith("-"):
+            note(key, pos, "known", reason or "affix", ids)
             stats["translations_left_out"] += 1
             continue
         if pos in ("noun", "name") and " " in key.strip():
@@ -500,7 +570,34 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
     stats["english_keys_from_translations"] = len(more_keys)
 
     stats["entries_from_translations"] = stats["senses_from_translations"] = 0
+    # Another spelling of a word with an entry (удома for вдома) gives that
+    # entry its meanings as search keys instead of an entry of its own, if
+    # the two share an English word. Of two such spellings that both lack an
+    # entry, the one first in alphabetical order gets it.
+    meanings_of = collections.defaultdict(set)
+    for eid, w in english:
+        meanings_of[eid].add(w)
+    twin_keys = []
     for (key, pos), rows in sorted(new.items()):
+        meanings = {w for _, t in rows for w in ENGLISH_WORD.findall(t["en"].lower())
+                    if len(w) > 1 and w not in COMMON_ENGLISH}
+        verdict, reason, ids = known.check(key, pos, meanings, meanings_of)
+        if verdict == "known":
+            note(key, pos, verdict, reason, ids)
+            stats["translations_spelling_twins"] += 1
+            if reason == "spelling":
+                for eid in ids:
+                    # Found as itself, as a spelling on a head line is (add_head_keys)
+                    twin_keys.append((key, eid, "head"))
+                    for w in sorted(meanings):
+                        if (eid, w) not in english:
+                            english.add((eid, w))
+                            meanings_of[eid].add(w)
+                            twin_keys.append((w, eid, "english"))
+            continue
+        if reason:
+            note(key, pos, verdict, reason, ids)
+            stats["translations_spelling_differs"] += 1
         # The stressed spelling, and among those the one most tables use
         spellings = collections.Counter(uk for uk, _ in rows)
         headword = max(spellings, key=lambda s: (STRESS in s, spellings[s]))
@@ -517,6 +614,10 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
             "INSERT INTO entries(word, headword, pos, tags, head_forms, roman, source) VALUES (?,?,?,?,'[]',?,?)",
             (word, headword, pos, json.dumps(tags, ensure_ascii=False), roman, FROM_TRANSLATIONS)).lastrowid
         stats["entries_from_translations"] += 1
+        known.add_word(key, eid, pos)
+        meanings_of[eid] |= meanings
+        words[eid] = key
+        note(key, pos, "new", "", [])
 
         keys = word_keys(word, roman)
         glosses = {}                       # gloss -> its remarks on usage, in the order of the file
@@ -540,6 +641,9 @@ def add_translations(db, path, skip: "set | frozenset" = frozenset()):
             stats["senses_from_translations"] += 1
         db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
                        [(k, eid, kind) for k, kind in keys if k])
+    db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)", twin_keys)
+    stats["english_keys_from_translations"] += sum(kind == "english" for _, _, kind in twin_keys)
+    stats["head_keys_from_spellings"] = sum(kind == "head" for _, _, kind in twin_keys)
     return dict(stats)
 
 
@@ -586,6 +690,8 @@ def add_head_keys(db):
             p = plain(f["form"])
             if TOKEN.fullmatch(p) and p not in known:
                 rows.add((p, eid))
+    # add_translations may have keyed a spelling already (указати for вказати)
+    rows -= set(db.execute("SELECT key, entry_id FROM search_keys WHERE kind='head'"))
     db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,'head')", sorted(rows))
     return len(rows)
 
@@ -1337,7 +1443,7 @@ def add_cloze(db, index, pairs, per_noun=5, ratings=None):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
@@ -1487,10 +1593,18 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         stats["entries"] += stats["abbreviations_added"]
         stats["senses"] += stats["abbreviations_added"]
         kept_links += links
+    # Before the translation tables, so a word written here gets this entry, not a thinner one made from them.
+    if own_meanings:
+        stats["own_meanings_added"], own_senses = add_own_meanings(db, own_meanings)
+        stats["entries"] += stats["own_meanings_added"]
+        stats["senses"] += own_senses
     turned_down = nonstandard()
     stats["nonstandard_words"] = add_nonstandard(db, turned_down)
     if translations:
-        found = add_translations(db, translations, {(word, pos) for word, pos, _ in turned_down})
+        review = []
+        found = add_translations(db, translations, {(word, pos) for word, pos, _ in turned_down}, review)
+        # Next to the translations file, in data/raw/, which git ignores
+        new_words.write_review(os.path.join(os.path.dirname(translations), "new-words-review.tsv"), review)
         stats.update(found)
         stats["entries"] += found["entries_from_translations"]
         stats["senses"] += found["senses_from_translations"]
@@ -1534,10 +1648,12 @@ if __name__ == "__main__":
     ap.add_argument("--freq")
     ap.add_argument("--tatoeba")
     ap.add_argument("--abbreviations", help="data/abbreviations.tsv: Nebokrai's own entries for abbreviations")
+    ap.add_argument("--own-meanings", help="data/own-meanings.tsv: Nebokrai's own meanings for words "
+                                           "Wiktionary has no page for")
     ap.add_argument("--translations",
                     help="data/raw/uk_translations.jsonl from extract_translations.py: entries for words "
                          "with no Wiktionary page of their own")
     args = ap.parse_args()
     for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations,
-                      args.translations).items():
+                      args.translations, args.own_meanings).items():
         print(f"{k:>16}: {v}")

@@ -2,8 +2,11 @@
      a chip for each deck, saying what is due in it today. A chip opens the
      flashcards on that deck alone (/review?deck=, ?list=); a dashed chip is
      a deck no new words come from, whose started words still come back
-     unless it is paused, and "Manage decks" leads to the choice. -->
+     unless it is paused, and "Manage decks" leads to the choice. Under the
+     figure, once a word is known: how much of everyday Ukrainian the known
+     words cover (src/lib/coverage.ts). -->
 <script lang="ts">
+	import { coverage, percent } from '#lib/coverage.ts';
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { stateOf } from '#lib/practice/round.ts';
@@ -12,6 +15,7 @@
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSaved } from '#lib/saved.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
+	import Tip from '#lib/Tip.svelte';
 
 	let { now, ready }: { now: number; ready: boolean } = $props();
 
@@ -62,6 +66,24 @@
 		return { known, learning, total };
 	});
 
+	// The table for the coverage figure is fetched only once there is a word
+	// card to weigh; grammar cards weigh nothing.
+	let hasWordCard = $derived([...review.cards.keys()].some((key) => !key.startsWith('grammar:')));
+	$effect(() => {
+		if (ready && hasWordCard) review.fetchFrequency();
+	});
+	let covered = $derived(ready && review.frequency ? coverage(review.frequency, review.cards, now) : null);
+	let coveredKnown = $derived(covered ? percent(covered.known) : 0);
+	// What the words being learnt add once they are known too
+	let coveredGain = $derived(covered ? percent(covered.known + covered.learning) - coveredKnown : 0);
+	// The line split before its last word, which stays on one line with the
+	// help icon, so on a phone the icon never wraps alone («… ~12% | української ?»)
+	let coverageLine = $derived.by(() => {
+		const text = m.learn.coverage(coveredKnown) + (coveredGain > 0 ? ` · ${m.learn.coverageLearning(coveredGain)}` : '');
+		const cut = text.lastIndexOf(' ') + 1;
+		return { head: text.slice(0, cut), tail: text.slice(cut) };
+	});
+
 	// A thousand is written 1,000 in English and 1000 in Ukrainian
 	const number = (n: number) => (settings.lang === 'uk' ? String(n) : n.toLocaleString('en'));
 	const share = (n: number) => (counts.total ? Math.max(n ? 1.5 : 0, (n / counts.total) * 100) : 0);
@@ -86,6 +108,15 @@
 					<i class="learning" style:width="{share(counts.learning)}%"></i>
 				{/if}
 			</span>
+			{#if covered?.knownWords}
+				<p class="muted coverage">
+					{coverageLine.head}<span class="tail">{coverageLine.tail}<Tip label={m.learn.coverageNote}>
+							{#snippet trigger(props)}
+								<button type="button" class="ui-icon-btn" aria-label={m.learn.coverageNote} {...props}><Icon name="help" size={16} /></button>
+							{/snippet}
+						</Tip></span>
+				</p>
+			{/if}
 		</div>
 		<ul class="chips">
 			{#each decks as deck (deck.id)}
@@ -158,6 +189,22 @@
 
 	.sum p {
 		margin: 0;
+	}
+
+	/* The coverage line, under the figure and the bar */
+	.coverage {
+		grid-column: 1 / -1;
+	}
+
+	/* The last word and the help icon, kept on one line */
+	.tail {
+		white-space: nowrap;
+	}
+
+	/* Full-size to tap, but not stretching its line apart from the others */
+	.tail .ui-icon-btn {
+		margin-block: -0.75rem;
+		vertical-align: middle;
 	}
 
 	.figure {

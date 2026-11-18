@@ -125,6 +125,15 @@ export function commonPath(page = 1): string {
  */
 const NOT_WORDS = new Set(['name', 'character', 'symbol', 'punct', 'suffix', 'prefix', 'interfix', 'combining_form']);
 
+/**
+ * Whether an entry belongs in a list of vocabulary, by the rule above: a
+ * lower-case spelling that is a word. The coverage figure (src/lib/coverage.ts)
+ * counts by the same rule, so its words are the decks' words.
+ */
+export function isListWord(word: string, pos: string): boolean {
+	return word === word.toLowerCase() && !NOT_WORDS.has(pos);
+}
+
 interface Spelling {
 	id: number;
 	word: string;
@@ -139,7 +148,7 @@ async function commonSpellings(db: Db, count: number): Promise<Spelling[]> {
 		[count * 1.5]);
 	const spellings = new Map<string, Spelling>();
 	for (const { id, word, headword, pos } of entries) {
-		if (word !== word.toLowerCase() || NOT_WORDS.has(pos)) continue;
+		if (!isListWord(word, pos)) continue;
 		const had = spellings.get(word);
 		if (!had) {
 			if (spellings.size < count) spellings.set(word, { id, word, headword, pos: [pos] });

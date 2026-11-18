@@ -363,7 +363,7 @@
 		font-size: var(--text-sm);
 	}
 
-	/* The colours of how well a rule is held, as on /learn (GrammarCard.svelte):
+	/* The colours of how well a rule is held, as /learn showed them until 2026-11-18:
 	   known in full, being learnt a tint of it, shaky amber, not begun an empty box */
 	[data-state='known'] {
 		--state: var(--pill-1-line);

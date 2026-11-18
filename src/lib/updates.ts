@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-learn-redesign',
+		date: '2026-11-18',
+		kind: 'changed',
+		title: { en: 'Find your way around Learn more easily', uk: 'Розділ «Навчання» став зрозумілішим' },
+		body: {
+			en: 'Learn asks where you start from, puts the cards due and the grammar points first, and shows the path only if you want it. Settings are now in three tabs.',
+			uk: '«Навчання» питає, з чого ви починаєте, показує спершу картки на повторення й граматичні теми, а шлях — лише коли ви його хочете. Налаштування тепер у трьох вкладках.'
+		},
+		href: '/learn'
+	},
+	{
 		id: '2026-11-18-grammar-points',
 		date: '2026-11-18',
 		kind: 'new',

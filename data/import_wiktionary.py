@@ -3,13 +3,15 @@
 
 Usage:
     python3 import_wiktionary.py raw/uk.jsonl nebokrai.db [--freq FILE] [--tatoeba DIR]
-        [--abbreviations FILE] [--translations FILE]
+        [--abbreviations FILE] [--own-meanings FILE] [--translations FILE]
 
     --freq FILE           word frequency list, one "word count" per line
                           (FrequencyWords uk_full.txt, built from film subtitles)
     --tatoeba DIR         folder holding ukr_sentences.tsv.bz2, ukr-eng_links.tsv.bz2
                           and eng_sentences.tsv.bz2 from downloads.tatoeba.org
     --abbreviations FILE  abbreviations.tsv, Nebokrai's own entries
+    --own-meanings FILE   own-meanings.tsv, Nebokrai's own meanings for common
+                          words that Wiktionary has no page for
     --translations FILE   the Ukrainian translations from English Wiktionary's
                           translation tables, as extract_translations.py writes them
 
@@ -57,7 +59,8 @@ CREATE TABLE entries (
     freq        REAL NOT NULL DEFAULT 0,  -- occurrences per million words, all forms together
     freq_rank   INTEGER,                  -- 1 = most common word; NULL = not seen in the corpus
     offensive   INTEGER,                  -- 1 = marked highly offensive (marked-offensive.tsv); NULL = not
-    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv). No DEFAULT:
+    -- wiktionary, or nebokrai for an entry written for this dictionary (abbreviations.tsv,
+    -- own-meanings.tsv). No DEFAULT:
     -- export_sql.py cannot carry a quoted value in a CREATE statement to D1.
     source      TEXT NOT NULL
 );
@@ -366,6 +369,47 @@ def add_abbreviations(db, path):
             links.append((eid, plain(full)))
             added += 1
     return links, added
+
+
+def add_own_meanings(db, path):
+    """Entries for common words that Wiktionary has no page for, with English
+    meanings written for Nebokrai (own-meanings.tsv): one meaning per
+    `; `-separated gloss, "to look after; to take care of". Marked as
+    Nebokrai's own, like the abbreviations. A spelling that already has an
+    entry is left alone, so a row stops counting once Wiktionary gets the
+    page. The note column says what a reader of the file should know; of it
+    only the grammar a translation would carry (GRAMMAR_TAGS: a verb's aspect,
+    a noun's gender) is stored, as the entry's tags.
+    Returns how many entries were added and how many meanings they have.
+    """
+    added = senses = 0
+    with open(path, encoding="utf-8") as rows:
+        for number, line in enumerate(rows, 1):
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            word, headword, pos, glosses, note = (cell.strip() for cell in line.split("\t"))
+            # A headword that is not the word with stress marks is a typing slip.
+            if plain(headword) != plain(word):
+                raise ValueError(f"{path}:{number}: headword {headword} is not {word}")
+            if db.execute("SELECT 1 FROM search_keys WHERE key=? AND kind='word'", (plain(word),)).fetchone():
+                continue
+            tags = sorted(set(re.findall(r"[a-z]+", note)) & GRAMMAR_TAGS.get(pos, set()))
+            eid = db.execute(
+                "INSERT INTO entries(word, headword, pos, tags, head_forms, source) VALUES (?,?,?,?,'[]','nebokrai')",
+                (word, headword, pos, json.dumps(tags))).lastrowid
+            keys = word_keys(word)
+            for n, gloss in enumerate((g.strip() for g in glosses.split(";") if g.strip()), 1):
+                db.execute("INSERT INTO senses(entry_id, n, gloss, tags, examples) VALUES (?,?,?,'[]','[]')",
+                           (eid, n, gloss))
+                senses += 1
+                # What stands in brackets says which meaning is meant: "to sit (of clothes)"
+                said = re.sub(r"\([^)]*\)", " ", gloss.lower())
+                keys.update((w, "english") for w in ENGLISH_WORD.findall(said) if len(w) > 1)
+            db.executemany("INSERT INTO search_keys(key, entry_id, kind) VALUES (?,?,?)",
+                           [(k, eid, kind) for k, kind in keys if k])
+            added += 1
+    return added, senses
 
 
 ENGLISH_WORD = re.compile(r"[a-z]+(?:[-'][a-z]+)*")
@@ -1399,7 +1443,7 @@ def add_cloze(db, index, pairs, per_noun=5, ratings=None):
                 cloze_points_too_small=sorted(set(kept) - set(points)))
 
 
-def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None):
+def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=None, own_meanings=None):
     db = sqlite3.connect(dst)
     db.executescript("DROP TABLE IF EXISTS search_keys; DROP TABLE IF EXISTS forms;"
                      "DROP TABLE IF EXISTS relations;"
@@ -1549,6 +1593,11 @@ def build(src, dst, freq=None, tatoeba=None, abbreviations=None, translations=No
         stats["entries"] += stats["abbreviations_added"]
         stats["senses"] += stats["abbreviations_added"]
         kept_links += links
+    # Before the translation tables, so a word written here gets this entry, not a thinner one made from them.
+    if own_meanings:
+        stats["own_meanings_added"], own_senses = add_own_meanings(db, own_meanings)
+        stats["entries"] += stats["own_meanings_added"]
+        stats["senses"] += own_senses
     turned_down = nonstandard()
     stats["nonstandard_words"] = add_nonstandard(db, turned_down)
     if translations:
@@ -1599,10 +1648,12 @@ if __name__ == "__main__":
     ap.add_argument("--freq")
     ap.add_argument("--tatoeba")
     ap.add_argument("--abbreviations", help="data/abbreviations.tsv: Nebokrai's own entries for abbreviations")
+    ap.add_argument("--own-meanings", help="data/own-meanings.tsv: Nebokrai's own meanings for words "
+                                           "Wiktionary has no page for")
     ap.add_argument("--translations",
                     help="data/raw/uk_translations.jsonl from extract_translations.py: entries for words "
                          "with no Wiktionary page of their own")
     args = ap.parse_args()
     for k, v in build(args.source, args.database, args.freq, args.tatoeba, args.abbreviations,
-                      args.translations).items():
+                      args.translations, args.own_meanings).items():
         print(f"{k:>16}: {v}")

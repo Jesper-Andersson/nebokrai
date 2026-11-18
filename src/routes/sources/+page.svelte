@@ -158,7 +158,9 @@
 		The dictionary data shown on this site, apart from VESUM, is available under
 		<a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. You may copy and
 		adapt it if you give credit and share your version under the same licence. VESUM data stays
-		under its own non-commercial licence.
+		under its own licence,
+		<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>: you may
+		copy and adapt it too, with the same credit and share-alike, but not for commercial use.
 	</p>
 	<p>Nebokrai is a non-commercial project.</p>
 

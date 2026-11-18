@@ -53,7 +53,8 @@ Tatoeba's original text. The API returns `examples[].adapted` and
 [FrequencyWords](https://github.com/hermitdave/FrequencyWords) by Hermit Dave
 (CC BY-SA 4.0), which is based on film and television subtitles from
 [OpenSubtitles](https://www.opensubtitles.org/) collected in the
-[OPUS](https://opus.nlpl.eu/) corpus.
+[OPUS](https://opus.nlpl.eu/) corpus. The share of everyday Ukrainian a
+learner's known words cover, on /learn, is derived from the same frequencies.
 
 **Recognising word forms** that are missing from Wiktionary, and **the tables
 of forms** of words with no entry (a page for книжечка, read live from
@@ -139,8 +140,10 @@ drawn for it.
 
 The dictionary data shown on this site, apart from VESUM, is available under
 CC BY-SA 4.0. You may copy and adapt it if you give credit and share your
-version under the same licence. VESUM data stays under its own non-commercial
-licence.
+version under the same licence. VESUM data stays under its own licence,
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/): you may
+copy and adapt it too, with the same credit and share-alike, but not for
+commercial use.
 
 Nebokrai is a non-commercial project.
 

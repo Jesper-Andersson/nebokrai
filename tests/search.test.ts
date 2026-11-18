@@ -125,9 +125,10 @@ test('words named on another entry\'s head line', { skip }, async () => {
 	assert.deepEqual([first.word, first.match, first.through], ['вперше', 'head', { word: 'упе́рше', kind: 'alternative' }]);
 	const [adverb] = await search(db, 'історично');
 	assert.deepEqual([adverb.word, adverb.through?.kind], ['історичний', 'adverb']);
-	// A form of a head-line word, through VESUM: мінеральних is мінеральний, listed by мінера́л
-	const [mineral] = await search(db, 'мінеральних', { vesum });
-	assert.deepEqual([mineral.word, mineral.match, mineral.through], ['мінерал', 'form', { word: 'мінера́льний', kind: 'adjective' }]);
+	// A form of a head-line word, through VESUM: агітаційних is агітаційний, listed by агіта́ція.
+	// (мінеральних was the example until own-meanings.tsv gave мінеральний an entry.)
+	const [agitation] = await search(db, 'агітаційних', { vesum });
+	assert.deepEqual([agitation.word, agitation.match, agitation.through], ['агітація', 'form', { word: 'агітаці́йний', kind: 'adjective' }]);
 	// A head-line word is a sure match: no guesses
 	const answer = await lookup(db, 'уперше');
 	assert.deepEqual(answer.suggestions, []);
@@ -148,12 +149,13 @@ test('names and reflexive verbs that only VESUM knows', { skip }, async () => {
 	assert.equal(verb.vesum_only, true);
 	assert.equal('kind' in verb, false);
 
-	// утворюватися has no entry: the verb it is made from answers, and says how it was reached
-	const [form] = await search(db, 'утворюються', { vesum });
-	assert.equal(form.word, 'утворювати');
+	// автоматизуватися has no entry: the verb it is made from answers, and says how it was reached.
+	// (утворюватися was the example until own-meanings.tsv gave it an entry.)
+	const [form] = await search(db, 'автоматизуються', { vesum });
+	assert.equal(form.word, 'автоматизувати');
 	assert.equal(form.match, 'form');
 	assert.deepEqual(form.matched_forms, []);
-	assert.deepEqual(form.through, { word: 'утворюватися', kind: 'reflexive' });
+	assert.deepEqual(form.through, { word: 'автоматизуватися', kind: 'reflexive' });
 	// A reflexive verb with an entry of its own is that entry, reached through nothing
 	const [learn] = await search(db, 'вчитися', { vesum });
 	assert.equal(learn.word, 'вчитися');

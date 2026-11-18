@@ -6,6 +6,7 @@
 import { mount, unmount } from 'svelte';
 import { SITE, type GlossReply, type GlossRequest, type SavedReply, type SavedRequest } from '../../lib/api.ts';
 import { DEFAULTS, watchSettings, type Settings } from '../../lib/settings.ts';
+import { placeIn, textRun } from '../../lib/text-run.ts';
 import { wordAt } from '../../lib/word-at.ts';
 import { plain } from '../../../src/lib/search/normalize.ts';
 import Card from './Card.svelte';
@@ -24,6 +25,12 @@ function caretAt(x: number, y: number): { node: Node; offset: number } | null {
 	const range = document.caretRangeFromPoint?.(x, y);
 	return range ? { node: range.startContainer, offset: range.startOffset } : null;
 }
+
+/** A span, a link, a bold word: an element that does not part the text around it. */
+const inline = (element: Element) => {
+	const display = getComputedStyle(element).display;
+	return display === 'inline' || display === 'contents';
+};
 
 const editable = (target: EventTarget | null) =>
 	target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select') !== null);
@@ -88,20 +95,31 @@ export default defineContentScript({
 			if (editable(target)) return;
 			const caret = caretAt(x, y);
 			if (!caret || !(caret.node instanceof Text)) return;
-			const at = wordAt(caret.node.data, caret.offset);
+			// The word may go on in the next piece of text: кн<span>и́</span>га
+			const run = textRun(caret.node, inline);
+			const at = wordAt(run.text, run.origin + caret.offset);
 			if (!at) return;
-			if (card.open && shown?.node === caret.node && shown.start === at.start) return;
+			const from = placeIn(run, at.start);
+			const to = placeIn(run, at.end, true);
+			if (card.open && shown?.node === from.node && shown.start === from.offset) return;
 
 			const range = document.createRange();
-			range.setStart(caret.node, at.start);
-			range.setEnd(caret.node, at.end);
+			range.setStart(from.node, from.offset);
+			range.setEnd(to.node, to.offset);
 			// The nearest text to a point in a margin is not a word under the pointer
-			const on = [...range.getClientRects()].find(
-				(r) => x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2
-			);
-			if (!on) return;
+			const rects = [...range.getClientRects()];
+			const hit = rects.find((r) => x >= r.left - 2 && x <= r.right + 2 && y >= r.top - 2 && y <= r.bottom + 2);
+			if (!hit) return;
+			// A word in several pieces has a box for each; the card stands by the
+			// whole of it, as far as it is on the line the pointer is on
+			const line = rects.filter((r) => r.top < hit.bottom && r.bottom > hit.top);
+			const on = {
+				left: Math.min(...line.map((r) => r.left)),
+				top: Math.min(...line.map((r) => r.top)),
+				bottom: Math.max(...line.map((r) => r.bottom))
+			};
 
-			shown = { node: caret.node, start: at.start };
+			shown = { node: from.node, start: from.offset };
 			await ready();
 			const mine = ++card.asked;
 			Object.assign(card, {

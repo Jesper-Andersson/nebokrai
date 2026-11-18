@@ -360,7 +360,7 @@ common first.
 
 | Field | Meaning |
 |---|---|
-| `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`); or `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"). Credit and link accordingly: neither of the last two has a Wiktionary page. An entry from translation tables is thin: no `forms`, `etymology`, `ipa` or `freq_rank`, and each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`. |
+| `source` | `wiktionary`; `nebokrai` for an entry written for this dictionary (the abbreviations `км`, `англ.`, and English meanings of our own for common words Wiktionary has no page for, `облишити`; such an entry has no `forms`, `etymology` or `ipa`); or `wiktionary-translations` for a word with no Wiktionary page of its own, made from the translation tables of English pages (`шериф`, under "sheriff"). Credit and link accordingly: neither of the last two has a Wiktionary page. An entry from translation tables is thin: no `forms`, `etymology`, `ipa` or `freq_rank`, and each meaning is the English word with the table's note on which of its meanings is meant, `sheriff (all meanings)`. |
 | `offensive` | `true` for a slur on a people or a faith, or a word Wiktionary calls highly offensive (`хохол`), from Nebokrai's hand-written `data/marked-offensive.tsv`. Show a warning with it. Slurs on Russians are `false` by choice; their meanings still carry Wiktionary's tags (`derogatory`, `ethnic`, `slur`). |
 | `roman` | Wiktionary's scholarly romanisation. Can be `null`. |
 | `ipa` | Pronunciation. `null` for 30% of entries, nearly all of them entries from translation tables (2% of the others). |
@@ -690,6 +690,10 @@ each endpoint lists are ignored and do not make a separate cache entry.
 (`max-age=15, s-maxage=15`): a station is asked at most four times a minute in
 each Cloudflare data centre, however many people are listening.
 
+`/api/coverage` is kept for a day (`max-age=86400, s-maxage=86400`), by
+browsers as well: it changes only with the dictionary, and it is the largest
+answer the site gives.
+
 After `nebokrai.db` is rebuilt and uploaded, answers can be up to an hour old,
 with the entry ids of the previous build. Purge the cache in the Cloudflare
 dashboard to switch at once.
@@ -744,6 +748,7 @@ them into named [lists](#lists).
 | `POST /api/words/missing` | no | Words an import found in no entry, kept for adding to the dictionary. |
 | `POST /api/review/sync` | yes | Send the flashcards reviewed in this browser, receive those reviewed elsewhere. |
 | `GET /api/review/deck/<deck>` | no | The words of a ready-made review deck. |
+| `GET /api/coverage` | no | How often each common word is used, for the coverage figure on /learn. |
 | `DELETE /api/account` | yes | Delete the account and everything kept for it. `{ "ok": true }`. |
 
 "Signed in" means the request carries the `session` cookie. The browser sends
@@ -1031,6 +1036,30 @@ Response `200`: `{ "deck": "common-500", "words": ["не", "я", "в", …] }`. 
 commonest spellings in order, as `/common-words` counts them: places 1 to 500,
 501 to 1,000 and 1,001 to 2,000. Cached like a search. The `saved` deck is the
 visitor's own list and has no address here.
+
+#### `GET /api/coverage`
+
+How often each common word is used, for the line on /learn that says how much
+of everyday Ukrainian the visitor's known words cover. The sum is done in the
+browser over its own flashcards (`src/lib/coverage.ts`), so this answer is the
+same for everyone. Cached for a day (see Caching).
+
+Response `200`:
+
+```json
+{ "words": ["не", "я", "в", …], "freq": [27800, 16500, 13500, …], "total": 612009 }
+```
+
+- `words`: spellings, commonest first, in the order of `/common-words` and the
+  decks; the first 500 are `common-500`. A spelling with several entries
+  (мати, a verb and a noun) is one word.
+- `freq`: uses per million words of film and TV subtitles, beside each
+  spelling, summed over its entries and rounded to three significant figures.
+- `total`: the same summed over every ranked word, words used less than once per
+  million included, though they are left out of the lists.
+
+Names, capitalised spellings and what is not a word (letters, signs, affixes)
+are left out of both sides. About 11,600 words, 270 KB, 63 KB compressed.
 
 ### Grammar practice
 

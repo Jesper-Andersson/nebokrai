@@ -29,13 +29,16 @@
 	let {
 		text,
 		before,
-		after
+		after,
+		marked = false
 	}: {
 		/** The word as the sentence has it: склянку */
 		text: string;
 		/** The words either side, only when a space alone stands between (never across a comma). */
 		before?: string;
 		after?: string;
+		/** A word the reader has not learnt yet, in a story: underlined (`unknown` in app.css). */
+		marked?: boolean;
 	} = $props();
 
 	const settings = useSettings();
@@ -97,7 +100,7 @@
 </script>
 
 <Popover.Root bind:open {onOpenChange}
-	><Popover.Trigger class={[...text].length === 1 ? 'ui-gloss-word short' : 'ui-gloss-word'} openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
+	><Popover.Trigger class={['ui-gloss-word', [...text].length === 1 ? 'short' : '', marked ? 'unknown' : ''].filter(Boolean).join(' ')} openOnHover openDelay={HOVER_OPEN} closeDelay={HOVER_CLOSE}
 		>{text}</Popover.Trigger
 	><Popover.Portal>
 		<Popover.Content class="ui-popover ui-gloss" sideOffset={6} collisionPadding={8}>

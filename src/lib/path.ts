@@ -43,9 +43,12 @@ export interface PathLesson {
 	placed?: boolean;
 }
 
-/** A text read, by the reading feature: its band is the commonest words it keeps to (500, 1000, 2000, 5000). */
+/**
+ * A text read, by the reading feature: its Storybooks level, 1 (easiest) to 5
+ * (texts.ts). Stories have no frequency band: every level needed the same one.
+ */
 export interface TextRead {
-	band: number;
+	level: number;
 }
 
 export interface PathInput {
@@ -113,8 +116,8 @@ type Need =
 	| { kind: 'deck'; deck: CommonDeckId; share: number }
 	| { kind: 'deck-count'; deck: CommonDeckId; words: number }
 	| { kind: 'lessons'; group: LessonGroup; upTo: number | 'all' }
-	/** `count` texts read at `band` or a harder one: an easy story is no proof of reading a hard one. */
-	| { kind: 'texts'; band: number; count: number }
+	/** `count` texts read at `level` or a harder one: an easy story is no proof of reading a hard one. */
+	| { kind: 'texts'; level: number; count: number }
 	| { kind: 'coverage'; share: number };
 
 export const STAGE_NEEDS: Readonly<Record<StageId, readonly Need[]>> = {
@@ -126,15 +129,15 @@ export const STAGE_NEEDS: Readonly<Record<StageId, readonly Need[]>> = {
 	everyday: [
 		{ kind: 'deck', deck: 'common-500', share: 0.6 },
 		{ kind: 'lessons', group: 'preposition', upTo: 4 },
-		{ kind: 'texts', band: 500, count: 1 }
+		{ kind: 'texts', level: 1, count: 1 }
 	],
 	'getting-around': [
 		{ kind: 'deck', deck: 'common-500', share: 0.85 },
 		{ kind: 'deck', deck: 'common-1000', share: 0.5 },
 		{ kind: 'lessons', group: 'preposition', upTo: 6 },
 		{ kind: 'lessons', group: 'government', upTo: 1 },
-		// "3 stories at band 1k or lower": any band counts, the easiest included
-		{ kind: 'texts', band: 500, count: 3 },
+		// Three stories of any level, the easiest included
+		{ kind: 'texts', level: 1, count: 3 },
 		{ kind: 'coverage', share: 0.75 }
 	],
 	conversations: [
@@ -142,12 +145,14 @@ export const STAGE_NEEDS: Readonly<Record<StageId, readonly Need[]>> = {
 		{ kind: 'deck', deck: 'common-2000', share: 0.4 },
 		{ kind: 'lessons', group: 'preposition', upTo: 'all' },
 		{ kind: 'lessons', group: 'government', upTo: 'all' },
-		{ kind: 'texts', band: 2000, count: 3 }
+		// Level 3 and above: longer stories, longer sentences (18 of the 29)
+		{ kind: 'texts', level: 3, count: 3 }
 	],
 	reading: [
 		{ kind: 'deck', deck: 'common-2000', share: 0.8 },
 		{ kind: 'coverage', share: 0.85 },
-		{ kind: 'texts', band: 5000, count: 3 }
+		// Level 4 and above (6 of the 29)
+		{ kind: 'texts', level: 4, count: 3 }
 	]
 };
 
@@ -203,8 +208,8 @@ function criterion(need: Need, input: PathInput): Criterion | null {
 		}
 		case 'texts': {
 			if (!input.texts) return null;
-			const have = Math.min(input.texts.filter((text) => text.band >= need.band).length, need.count);
-			return { kind: 'texts', key: String(need.band), have, need: need.count, done: have >= need.count, href: '/read' };
+			const have = Math.min(input.texts.filter((text) => text.level >= need.level).length, need.count);
+			return { kind: 'texts', key: String(need.level), have, need: need.count, done: have >= need.count, href: `/read?level=${need.level}` };
 		}
 		case 'coverage': {
 			if (input.coverage === undefined) return null;

@@ -93,12 +93,12 @@ test('an input left out drops its criteria, and every stage can still be reached
 	assert.equal(all.next, null);
 
 	// With the texts given, they count
-	const reading = pathOf({ ...everything, texts: [{ band: 500 }, { band: 1000 }] });
+	const reading = pathOf({ ...everything, texts: [{ level: 1 }, { level: 2 }] });
 	assert.equal(reading.current, 'everyday'); // three texts are wanted for Getting around
-	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ band: 500 }) }).current, 'getting-around');
-	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ band: 2000 }) }).current, 'conversations');
+	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ level: 1 }) }).current, 'getting-around');
+	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ level: 3 }) }).current, 'conversations');
 	// A harder text counts where an easier one is asked for
-	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ band: 5000 }) }).current, 'reading');
+	assert.equal(pathOf({ ...everything, texts: Array(3).fill({ level: 4 }) }).current, 'reading');
 	// A lesson missing from the database (no sentences) is not asked for
 	assert.equal(pathOf({ ...everything, lessons: lessons({ preposition: 99 }).filter((l) => l.group !== 'government') })
 		.current, 'reading');

@@ -141,6 +141,24 @@ The cog that opens the weekly goal's settings is the "settings" icon from
 [Lucide](https://lucide.dev/) (ISC licence). The site's other line icons were
 drawn for it.
 
+### Stories
+
+(The text for `/sources` once the reader at `/read` is built; the stories are
+in the database and the API already.)
+
+**The stories to read** are 29 illustrated children's stories from
+[Global Storybooks](https://globalstorybooks.net/), as published in Ukrainian
+on [Storybooks Canada](https://storybookscanada.ca/stories/uk/). Most were
+first written for [African Storybook](https://africanstorybook.org/). Each is
+available under the
+[Creative Commons Attribution licence](https://creativecommons.org/licenses/by/4.0/),
+version 3.0 or 4.0 as the story says, and each story names its writer,
+illustrator, translator and reader and links to the original. Nebokrai adds
+stress marks to the words whose stress the dictionary knows for certain and
+splits the pages into sentences; it changes nothing else. Each page is read
+aloud by the person the story names. The 11 Ukrainian stories there under a
+non-commercial licence are not used.
+
 ### Using our data
 
 The dictionary data shown on this site, apart from VESUM, is available under
@@ -197,6 +215,7 @@ nothing from VESUM is put in the form or stored with the suggestion.
 | The letters' recordings on the alphabet page (32 files by Tabrus, Wikimedia Commons, 2023) | CC BY-SA 4.0 | Credit the author, link to the licence, say what was changed, share the changed files under the same licence | The line under the letters on `/alphabet` (author, licence, "cut down to the letter and cleaned of noise"); each letter's original on Commons beside its play button; Sources page. The files are `static/audio/letters/*.mp3`, made with their list (`src/lib/alphabet/recordings.ts`) by `data/letter_recordings.py`, and are CC BY-SA 4.0 themselves |
 | Tatoeba | CC BY 2.0 FR | Credit the author of each sentence; say if changed | Link each sentence to `tatoeba.org/sentences/show/<id>` (`tatoeba_id` is stored); a sentence corrected by `data/tatoeba-corrections.tsv` is credited "Tatoeba #id, adapted" |
 | FrequencyWords | CC BY-SA 4.0 | Credit; share-alike | Sources page |
+| Stories (29 from Global Storybooks, via Storybooks Canada; `data/import_stories.py`) | CC BY 3.0 or 4.0, per story | Credit the writer, illustrator, translator and reader; link to the licence and the original; say what was changed | Each row of `texts` keeps its `licence`, `licence_url`, `url`, `credits` and `origin`, returned by `/api/texts`; to be shown on each story at `/read/<slug>` (one line under the title, the full credits at the end, "stress marks added, split into sentences") and on the Sources page. CC BY-NC stories are skipped by the import. The recordings (`static/audio/texts/`, made by `data/fetch_story_audio.py`, not yet fetched) are taken to share each story's licence: the site does not say so outright, and Global Storybooks is to be asked before they are published |
 | VESUM, and dict_uk's `twisters.lst` (suggestions for non-standard words) | CC BY-NC-SA 4.0 | Credit; no commercial use; share-alike | Sources page; under every table of VESUM's forms on a word page; kept in its own database |
 | Background photo "field" (Igor Karimov, Unsplash) | Unsplash Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/field-*.webp` |
 | Background photo "hills" (neslihan, Pexels) | Pexels Licence | No credit required; we give it anyway | Sources page. Files: `src/lib/assets/backgrounds/hills-*.webp` |
@@ -215,6 +234,10 @@ How the licences fit together:
   one dataset, so VESUM is kept in a database of its own and nothing from it is
   copied into the dictionary. A search answer can show both side by side, each
   under its own licence.
+- **Stories keep their own licence.** CC BY material may be part of a CC BY-SA
+  collection, so the stories sit in `nebokrai.db` beside the dictionary, but,
+  as with Tatoeba's sentences, each story is credited under its own CC BY
+  licence, row by row.
 - **Non-commercial.** While VESUM is used: no advertising and no paid features.
 - **Audio credit.** Only the mp3 address is stored. The Commons page address is
   worked out from it: the file name is the second-to-last part of the address

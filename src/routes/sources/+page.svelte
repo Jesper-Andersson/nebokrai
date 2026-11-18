@@ -58,6 +58,16 @@
 			those are marked "edited", and the mark shows Tatoeba's original.
 		</dd>
 
+		<dt>Stories</dt>
+		<dd>
+			The 29 stories on <a href="/read">Stories</a> are the Ukrainian stories of
+			<a href="https://storybookscanada.ca/">Storybooks Canada</a> (Global Storybooks) that are under
+			<a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a> or
+			<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; those under a non-commercial
+			licence are left out. Each story's page names its writer, illustrator, translator and reader and links
+			its source and licence. Nebokrai added the stress marks and split the pages into sentences.
+		</dd>
+
 		<dt>Word frequency</dt>
 		<dd>
 			<a href="https://github.com/hermitdave/FrequencyWords">FrequencyWords</a> by Hermit Dave

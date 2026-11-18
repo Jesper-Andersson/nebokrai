@@ -1,5 +1,6 @@
-<!-- The two doors at the head of /learn: flashcards and grammar, each with
-     what it has waiting and its button, on one line. One not yet begun
+<!-- The doors at the head of /learn: flashcards and grammar, each with
+     what it has waiting and its button, on one line, and the stories to read
+     (/read) once the site has some. One not yet begun
      says so in place of a count of nothing. -->
 <script lang="ts">
 	import Icon from '#lib/Icon.svelte';
@@ -11,6 +12,7 @@
 		wordsBegun,
 		rulesDue,
 		rulesBegun,
+		stories = 0,
 		onfirstwords
 	}: {
 		/** Cards on a learning step or due today, in the decks switched on. */
@@ -18,6 +20,8 @@
 		wordsBegun: boolean;
 		rulesDue: number;
 		rulesBegun: boolean;
+		/** How many stories there are to read; no door without any. */
+		stories?: number;
 		/** Before /review?start: switch on a deck to begin with. */
 		onfirstwords: () => void;
 	} = $props();
@@ -26,7 +30,7 @@
 	let m = $derived(messagesFor(settings.lang));
 </script>
 
-<div class="doors">
+<div class="doors" class:three={stories > 0}>
 	<a
 		class="ui-card door"
 		data-kind="cards"
@@ -48,6 +52,13 @@
 		</strong>
 		<span class="go">{m.learn.action.rulesGo} <Icon name="arrow-right" size={16} /></span>
 	</a>
+	{#if stories > 0}
+		<a class="ui-card door stories" data-kind="stories" href="/read">
+			<span class="kind"><Icon name="message" size={15} /> {m.learn.kind.stories}</span>
+			<strong>{m.learn.action.stories(stories)}</strong>
+			<span class="go">{m.learn.action.storiesGo} <Icon name="arrow-right" size={16} /></span>
+		</a>
+	{/if}
 </div>
 
 <style>
@@ -63,6 +74,14 @@
 
 	[data-kind='grammar'] {
 		--kind: var(--pill-1-line);
+	}
+
+	[data-kind='stories'] {
+		--kind: var(--pill-3-line);
+	}
+
+	.doors.three {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
 	/* The kind over what it has waiting, and the button beside both */
@@ -137,6 +156,15 @@
 	@media (max-width: 640px) {
 		.doors {
 			gap: 0.6rem;
+		}
+
+		/* The third door under the two, the width of both */
+		.doors.three {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.stories {
+			grid-column: 1 / -1;
 		}
 
 		.door {

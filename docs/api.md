@@ -11,6 +11,7 @@ reads the database directly instead of calling `/api/word`.
 | `/api/search?q=…` | results page | `lookup()` in `suggest.ts` |
 | `/api/word/…` | Details page | `wordDetails()` in `word.ts` |
 | `/api/gloss?w=…` | the card over a word in a sentence | `glossFor()` in `src/lib/gloss.ts` |
+| `/api/texts`, `/api/texts/…` | the stories to read (`/read`, still to be built) | `listTexts()`, `textBySlug()` in `src/lib/texts.ts` |
 
 Saved words and accounts have endpoints of their own, described at the end
 under [Saved words and accounts](#saved-words-and-accounts). The radio has one,
@@ -633,6 +634,94 @@ For the site's keeper only, from the page `/suggestions`: moves suggestion
 `200`: `{ "ok": true }`. Anyone else, and an id that does not exist, gets
 `404 not_found`; a status that is none of the four gets `400 invalid_status`.
 
+## `GET /api/texts`
+
+Every story to read, easiest first: by `level` (none last), then length
+(`tokens`), then title. Made by `listTexts()` in `src/lib/texts.ts` from the `texts` and
+`text_sentences` tables (`data/import_stories.py`). For the coming list page
+at `/read`.
+
+```json
+{
+  "texts": [
+    {
+      "slug": "duzhe-vysokyi-cholovik",
+      "title": "Ду́же висо́кий чолові́к",
+      "title_en": "A very tall man",
+      "level": 2,
+      "tokens": 74,
+      "unknown": 4,
+      "pages": 12,
+      "url": "https://storybookscanada.ca/stories/uk/0001/",
+      "licence": "CC BY 3.0",
+      "licence_url": "https://creativecommons.org/licenses/by/3.0/",
+      "credits": [
+        { "role": "Written by", "name": "Cornelius Gulere" },
+        { "role": "Illustrated by", "name": "Catherine Groenewald" },
+        { "role": "Translated by", "name": "Nataliya Tyshchuk" },
+        { "role": "Read by", "name": "Oksana Duchak" }
+      ],
+      "origin": { "title": "A very tall man", "url": "https://africanstorybook.org/reader.php?id=918",
+                  "site": "African Storybook", "site_url": "https://africanstorybook.org/" },
+      "vocab": [[["дуже", "дужий"], 6], [["бути"], 5], [["високий"], 5], …]
+    }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `slug` | The title in national transliteration; `-2` is added when two titles give the same one. The story is `/api/texts/<slug>`. |
+| `title` | With a stress mark on each word whose stress the dictionary knows for certain (see `uk` below). |
+| `level` | The story's level on Storybooks, 1 (easiest) to 5. It follows length and sentences, not vocabulary: there is no frequency band, since the stories of every level needed the same one. How hard a story is for one reader is the share of its words they know, `knownShare(vocab, cards)` in `texts.ts`, summed in the browser. |
+| `tokens`, `unknown` | Words in the story, and how many of them the dictionary does not know (mostly names: Калай). |
+| `pages` | Pages, the title page included. |
+| `url`, `licence`, `licence_url`, `credits`, `origin` | Who made the story and under what licence: to be shown with it. `origin` is where Storybooks took it from, or `null`. Only CC BY stories are included. |
+| `vocab` | The story's known words, counted by what they may be: `[lemmas, count]`, where `lemmas` are the `word`s of the entries a word is or is a form of (води: `["вода", "водити"]`). `knownShare(vocab, cards, now)` in `texts.ts` gives the share the visitor knows. |
+
+## `GET /api/texts/<slug>`
+
+One story. The fields of `/api/texts` (inside `text`), and:
+
+```json
+{
+  "text": {
+    "slug": "duzhe-vysokyi-cholovik",
+    …,
+    "cover_url": "https://storybookscanada.ca/images/0001/01.jpg",
+    "bare": 0.145,
+    "contents": [
+      {
+        "page": 2,
+        "en": "His hoe was too short.",
+        "audio": "/audio/texts/duzhe-vysokyi-cholovik/02.mp3",
+        "sentences": [
+          {
+            "n": 1,
+            "uk": "Його моти́ка була́ закоротка.",
+            "uk_source": "Його мотика була закоротка.",
+            "lemmas": [["я", "ти", "ми", "він", …, "його", "йога"], ["мотика"], ["бути"], []]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `cover_url` | The first page's illustration, on Storybooks. |
+| `bare` | The share of words of two or more syllables left without a stress mark. |
+| `contents` | The pages in order. Page 1 is the title page, and its one sentence is the title. |
+| `en` | The English of the whole page; it is not split into sentences. |
+| `audio` | The page read aloud by the person `credits` names ("Read by"), served by this site. Until `data/fetch_story_audio.py` has been run the file is not there. |
+| `uk` | The sentence with stress marks (U+0301) added where the dictionary gives one stressed spelling only: `його` stays bare because it may be його́ or йо́го. Nothing else is changed. |
+| `uk_source` | The sentence as the story has it. |
+| `lemmas` | For each word of the sentence, in order (the words `tokens()` in `src/lib/sentence.ts` finds in `uk`), the entry `word`s it may be, most frequent first; `[]` for a word the dictionary does not know. |
+
+A slug no story has gets `404` with `{ "error": "not_found", "slug": "…" }`.
+
 ## Licence of the data
 
 The answers carry dictionary data, and each source keeps its own licence
@@ -645,6 +734,7 @@ The answers carry dictionary data, and each source keeps its own licence
 | Results with `vesum_only: true`, their `kind`, `use` past Nebokrai's own suggestions, and `through` on a result with `match: "form"` | VESUM and dict_uk, CC BY-NC-SA 4.0: no commercial use |
 | `through` on a result with `match: "head"` | Wiktionary, CC BY-SA 4.0: it is read from the entry's head line |
 | `freq_rank` | FrequencyWords, CC BY-SA 4.0 |
+| `/api/texts…`: a story's text, English, pictures and recordings | The story's own `licence` (CC BY 3.0 or 4.0): credit `credits` and link `url` and `licence_url`; say that stress marks were added and the pages split into sentences. `lemmas` and `vocab` are worked out from the dictionary, CC BY-SA 4.0 |
 
 A result with `match: "form"` and an empty `matched_forms` was found with
 VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
@@ -657,6 +747,7 @@ VESUM's help, but everything in it apart from `through` is the Wiktionary entry.
 | `400` | `/api/gloss` with a word over 40 characters. Body: `{ "error": "word_too_long" }`. |
 | `404` | `/api/word/…` for a word with no entry. |
 | `404` | `/api/radio/now/…` for a station that is not in the list. |
+| `404` | `/api/texts/…` for a slug no story has. Body: `{ "error": "not_found", "slug": "…" }`. |
 | `400` | `/api/practice` with no `points`, or more than 20. Body: `{ "error": "bad_points", "max": 20 }`. |
 | `429` | `/api/search`, `/api/word/…` or `/api/gloss` asked too often. Body: `{ "error": "too_many" }`; see below. |
 | `500` | Anything unexpected. Body: `{ "error": "internal" }`, with SvelteKit's `status` and `message` beside it. |
@@ -680,7 +771,8 @@ The search page and the details page never come near it.
 
 ## Caching
 
-The dictionary endpoints (`/api/search`, `/api/word/…`, `/api/gloss`) answer
+The dictionary endpoints (`/api/search`, `/api/word/…`, `/api/gloss`,
+`/api/texts` and `/api/texts/…`) answer
 the same thing to every visitor, so a `200` is sent with
 `Cache-Control: public, max-age=300, s-maxage=3600` and kept in Cloudflare's
 cache for an hour (`src/lib/server/cache.ts`). Parameters other than the ones

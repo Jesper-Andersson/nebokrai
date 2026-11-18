@@ -45,6 +45,9 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,549 |
 | `search_keys` | normalised lookup key pointing at an entry | 1,820,777 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
+| `texts` | story to read, with its licence and credits (`import_stories.py`) | 29 |
+| `text_pages` | page of a story: its English and its recording | 368 |
+| `text_sentences` | sentence of a story, with stress marks and the entry words of each word | 915 |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
 same forms are already in X's own table.
@@ -550,6 +553,57 @@ To make them again in a built database without a full rebuild:
 
 That changes only the one `meta` row, so the dictionary already in D1 needs
 only that row, not a new database (see Publishing to D1).
+
+## Stories to read (`texts`)
+
+The stories for `/read` are the Ukrainian stories of Global Storybooks, as
+Storybooks Canada publishes them (`storybookscanada.ca/stories/uk/`): 40
+illustrated children's stories, each read aloud page by page. 29 are CC BY
+3.0 or 4.0 and are kept; the 11 under CC BY-NC 3.0 are skipped (0002, 0003,
+0009, 0030, 0067, 0112, 0120, 0129, 0231, 0234, 0271), so nothing
+non-commercial enters this file. Each row keeps its own licence, link and
+credits.
+
+    python3 data/import_stories.py nebokrai.db --fetch   # first time: 40 pages, about 1 MB, into data/raw/storybooks/
+    python3 data/import_stories.py nebokrai.db           # again, offline
+    python3 data/import_stories.py nebokrai.db --check
+
+The script makes the three tables again on every run and prints, per story,
+its level, word count, unknown words, and the share left without a stress mark. `--check` stops with an error if a lemma has no entry, a stress mark is
+not the dictionary's only stressed spelling, a sentence differs from the
+original by more than stress, or a page has no recording.
+
+- **Sentences:** each page is split after `.`, `!`, `?` or `…` (and any closing
+  quote) when a capital follows. Page 1 is the title page; its one sentence is
+  the title.
+- **Stress:** a word gets U+0301 only when the entries it may be give exactly
+  one stressed spelling for it. `води` stays bare (води́ of вода, во́ди the
+  plural, води́ of водити), and so does `його` (його́, or йо́го of йога).
+  November 2026: 0 to 32% of the words of two or more syllables per story
+  stayed bare, 10 to 32% in all but two.
+- **Lemmas:** for each word, the `word` of every entry it is or is a form of
+  (`form_index()`), most frequent first; what review cards are keyed by.
+  vesum.db is never read.
+- **Level, not band:** a story's difficulty is its Storybooks `level`. A
+  frequency band (the fewest commonest words that cover 95% of a story's
+  known words) was tried and dropped in November 2026: 20 of the 29 stories
+  needed more than 5,000, and at 90%, 92% or 95%, with or without leaving out
+  a story's repeated topic words, the median band was the same at every level.
+  FrequencyWords is film subtitles, where корова and гіпопотам are rare. The
+  reader is shown the share of a story's words they know instead.
+- **Totals (November 2026):** 7,266 words, 454 of them unknown to the
+  dictionary (mostly names), in 915 sentences on 368 pages.
+
+`import_wiktionary.py` leaves these tables alone, but a rebuild gives the
+entries new forms and ranks: run `import_stories.py` again after one.
+
+The recordings are made by `data/fetch_story_audio.py nebokrai.db`, which
+fetches the kept stories' mp3s (about 55 MB) into `data/raw/storybooks/` and
+re-encodes them with ffmpeg to mono 48 kbit/s under
+`static/audio/texts/<slug>/NN.mp3`, the path `text_pages.audio` holds. It has
+not been run yet: the download, and whether the files are committed or go to
+R2, wait for a decision. Storybooks does not say outright that the recordings
+are under each story's licence; Global Storybooks is to be asked first.
 
 ## How search works (`search.py`)
 

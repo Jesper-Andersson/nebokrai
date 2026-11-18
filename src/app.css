@@ -1159,6 +1159,14 @@ select {
 /* A one-letter word (з, в, і, у, є) is only about 8px wide, too small to
    press (WCAG 2.5.8 asks for 24px). It gets the full width, and the negative
    margin hands back the word spaces either side, so the line hardly moves. */
+/* A word of a story the reader has not learnt yet (/read/<story>): a thin
+   line under it, quieter than the dotted one a pointer resting on a word draws. */
+.ui-gloss-word.unknown {
+	text-decoration: underline solid var(--border-strong);
+	text-decoration-thickness: 1.5px;
+	text-underline-offset: 4px;
+}
+
 .ui-gloss-word.short {
 	min-inline-size: 24px;
 	margin-inline: -0.25em;

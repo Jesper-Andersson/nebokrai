@@ -64,7 +64,7 @@ export function vesumDescription(m: Messages, word: VesumWord): string {
 
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */
 const PAGES = [
-	'/', '/learn', '/alphabet', '/grammar', '/practice', '/resources', '/support', '/about', '/sources', '/privacy',
+	'/', '/learn', '/alphabet', '/grammar', '/practice', '/read', '/resources', '/support', '/about', '/sources', '/privacy',
 	'/words', '/updates', '/placement',
 	// The browser extension's page, once a store has it
 	...(EXTENSION_LIVE ? ['/extension'] : [])
@@ -96,6 +96,12 @@ export async function sitemap(db: Db, origin: string): Promise<string> {
 	for (const letter of [...ALPHABET, OTHER]) {
 		const pages = Math.ceil((under.get(letter) ?? 0) / WORDS_PER_PAGE);
 		for (let page = 1; page <= pages; page++) paths.add(encodeURI(letterPath(letter, page)));
+	}
+	// The stories, once the database has them (data/import_stories.py)
+	try {
+		for (const { slug } of await db.all<{ slug: string }>('SELECT slug FROM texts ORDER BY id')) paths.add(`/read/${slug}`);
+	} catch {
+		// no stories' tables in this database yet
 	}
 	for (const { word } of rows) paths.add(wordPath(word));
 	const urls = [...paths].map((path) => `<url><loc>${xml(origin + path)}</loc></url>`);

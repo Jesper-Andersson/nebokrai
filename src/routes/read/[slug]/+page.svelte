@@ -216,7 +216,7 @@
 			</button>
 			<span class="where">
 				<b>{m.read.pageOf(current + 1, pages.length)}</b>
-				{#if readBy}<span class="muted">{m.read.readBy(readBy)}</span>{/if}
+				{#if readBy}<span class="muted by">{m.read.readBy(readBy)}</span>{/if}
 			</span>
 			<span class="track" aria-hidden="true"><span style:width="{progress * 100}%"></span></span>
 			<button type="button" class="speed" onclick={nextSpeed} title={m.read.speed} aria-label={m.read.speed}>{speed}×</button>
@@ -238,7 +238,7 @@
 						type="button"
 						class="ui-icon-btn page-play"
 						onclick={() => playPage(i)}
-						aria-label={playing && current === i ? m.read.stopPage(page.page) : m.read.playPage(page.page)}
+						aria-label={playing && current === i ? m.read.stopPage(i + 1) : m.read.playPage(i + 1)}
 					>
 						<Icon name={playing && current === i ? 'stop' : 'play'} size={14} filled />
 					</button>
@@ -577,9 +577,14 @@
 			gap: var(--gap-inline);
 		}
 
+		/* One row of buttons, the track under it; who reads is in the credits */
 		.track {
 			flex-basis: 100%;
 			order: 9;
+		}
+
+		.by {
+			display: none;
 		}
 
 		.divider {

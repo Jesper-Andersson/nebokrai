@@ -53,7 +53,7 @@
 			{#each levels as l (l)}
 				<a class="ui-segment" href="/read?level={l}" data-state={level === l ? 'checked' : undefined}
 					aria-current={level === l ? 'page' : undefined}
-					><span class="word">{m.read.levelShort}&nbsp;</span>{l}</a
+					><span><span class="word">{m.read.levelShort}{' '}</span>{l}</span></a
 				>
 			{/each}
 		</nav>

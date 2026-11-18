@@ -11,15 +11,21 @@
 // (numbers.ts). What each point says is interface text, in i18n.ts
 // (`practice.meaning`).
 //
+// The last group is case government (government.ts): a verb with the case
+// it asks of its noun, дякувати + кому? (дякую мамі). Its sentences are in
+// the same table, found and made by add_government.
+//
 // Nothing here imports from Svelte, so `npm test` can run it.
 
-export type PointCase = 'nominative' | 'genitive' | 'accusative' | 'instrumental' | 'locative';
+import { GOVERNMENT_LESSONS, askOf, meaningOf, patternOf, type GovernmentCase } from './government.ts';
+
+export type PointCase = 'nominative' | 'genitive' | 'dative' | 'accusative' | 'instrumental' | 'locative';
 
 /**
  * What a point is about: the case after a preposition, the form a number
  * asks of its noun, or which of two nouns does what (roles.ts).
  */
-export type PointKind = 'preposition' | 'number' | 'roles';
+export type PointKind = 'preposition' | 'number' | 'roles' | 'government';
 
 export interface Point {
 	id: string;
@@ -33,6 +39,10 @@ export interface Point {
 	source: 'cloze' | 'frames';
 	/** A short phrase that shows the rule at work, as /learn's table of a lesson prints it: без цукру. */
 	example: string;
+	/** For a verb's pattern: the question its noun answers, with the preposition (кому?, на кого? на що?). */
+	ask?: string;
+	/** For a verb's pattern: what it says in English (to thank someone); i18n.ts has no line for it. */
+	en?: string;
 }
 
 const preposition = (id: string, cue: string, kase: PointCase, example: string): Point =>
@@ -41,6 +51,26 @@ const number = (id: string, cue: string, kase: PointCase, counts: 'singular' | '
 	({ id, kind: 'number', cue, case: kase, number: counts, source: 'frames', example });
 const roles = (id: string, cue: string, kase: PointCase, example: string): Point =>
 	({ id, kind: 'roles', cue, case: kase, source: 'frames', example });
+
+const CASE_NAMES: Record<GovernmentCase, PointCase> = {
+	gen: 'genitive', dat: 'dative', acc: 'accusative', ins: 'instrumental', loc: 'locative'
+};
+
+/** The practised patterns of government.ts as points, in the order of their lessons. */
+const government = (): Point[] =>
+	GOVERNMENT_LESSONS.flatMap((lesson) => lesson.points).map((id) => {
+		const pattern = patternOf(id)!;
+		return {
+			id,
+			kind: 'government',
+			cue: pattern.lemmas[0],
+			case: CASE_NAMES[pattern.case],
+			source: 'cloze',
+			example: pattern.example,
+			ask: askOf(pattern),
+			en: meaningOf(pattern)
+		};
+	});
 
 /**
  * In the order they are best met, which is the order of the lessons
@@ -80,7 +110,8 @@ export const POINTS: readonly Point[] = [
 	preposition('nad-ins', 'над', 'instrumental', 'над столом'),
 	preposition('pid-ins', 'під', 'instrumental', 'під столом'),
 	preposition('pid-acc', 'під', 'accusative', 'під стіл'),
-	preposition('proty-gen', 'проти', 'genitive', 'проти вітру')
+	preposition('proty-gen', 'проти', 'genitive', 'проти вітру'),
+	...government()
 ];
 
 const BY_ID = new Map(POINTS.map((point) => [point.id, point]));
@@ -88,10 +119,24 @@ const BY_ID = new Map(POINTS.map((point) => [point.id, point]));
 export const pointOf = (id: string): Point | undefined => BY_ID.get(id);
 
 /** The cases, in the order the page lists their prepositions. */
-export const POINT_CASES: readonly PointCase[] = ['locative', 'accusative', 'genitive', 'instrumental'];
+export const POINT_CASES: readonly PointCase[] = ['locative', 'accusative', 'genitive', 'instrumental', 'dative'];
 
 /** Whether a point is a number's and not a preposition's. */
 export const isNumber = (point: Point): boolean => point.kind === 'number';
+
+/** Whether a point is a verb's pattern (government.ts) and not a preposition's. */
+export const isGovernment = (point: Point): boolean => point.kind === 'government';
+
+/** A rule as a lesson's table and the rule card print it: без; дякувати + кому? */
+export const ruleOf = (point: Point): string => (point.ask ? `${point.cue} + ${point.ask}` : point.cue);
+
+/**
+ * What a point says, in the interface's language: i18n.ts's line, or for a
+ * verb's pattern its English, which the Ukrainian interface leaves out
+ * (the pattern is Ukrainian already).
+ */
+export const meaningOfPoint = (meanings: Record<string, string>, point: Point, lang: string): string =>
+	meanings[point.id] ?? (lang === 'en' ? (point.en ?? '') : '');
 
 // A point's schedule is kept with the flashcards' (review.svelte.ts), under a
 // name no word has, so the account holds it and the weekly goal counts it with no

@@ -10,7 +10,7 @@
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
 	import { lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
-	import { cardKey, type Point } from '#lib/practice/points.ts';
+	import { cardKey, meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
 	import { useSettings } from '#lib/settings.ts';
@@ -33,18 +33,27 @@
 	const held = (point: Point): PointState => (ready ? stateOf(review.cards.get(cardKey(point.id)), now) : 'new');
 
 	let lessons = $derived(lessonRows(offered, held));
+	/** The two lists, each under its heading: the cases after prepositions, and the verbs' patterns. */
+	let groups = $derived(
+		[
+			{ id: 'learn-cases', label: m.learn.cases, rows: lessons.filter((lesson) => lesson.group === 'preposition') },
+			{ id: 'learn-verbs', label: m.learn.verbPatterns, rows: lessons.filter((lesson) => lesson.group === 'government') }
+		].filter((group) => group.rows.length)
+	);
 
 	let chosen = $state<string | null>(null);
 	let open = $derived(openLesson(lessons, chosen));
 	// On a phone the lessons are a row that scrolls sideways: a lesson opened
 	// on an earlier visit may be off its right end, so the row is brought to
 	// it once. Only the row moves, never the page.
-	let row = $state<HTMLUListElement>();
+	let rows = $state<HTMLUListElement[]>([]);
 	onMount(async () => {
 		chosen = readOpenLesson();
 		await tick();
-		const item = row?.querySelector<HTMLElement>('.lesson.open')?.parentElement;
-		if (item) centre(item, 'auto');
+		for (const row of rows) {
+			const item = row?.querySelector<HTMLElement>('.lesson.open')?.parentElement;
+			if (item) centre(row, item, 'auto');
+		}
 		measure();
 	});
 
@@ -52,27 +61,34 @@
 	// swipe alone was not to be guessed at, and a mouse in a narrow window
 	// could not do it at all (user, 2026-11-16). Where the lessons are a
 	// list, at full width, nothing overflows and there are no arrows.
-	let canBack = $state(false);
-	let canMore = $state(false);
+	// Each list's row is measured apart, by its place in `groups`
+	let canBack = $state<boolean[]>([]);
+	let canMore = $state<boolean[]>([]);
 	function measure() {
-		if (!row) return;
-		canBack = row.scrollLeft > 4;
-		canMore = row.scrollLeft + row.clientWidth < row.scrollWidth - 4;
+		rows.forEach((row, i) => {
+			if (!row) return;
+			canBack[i] = row.scrollLeft > 4;
+			canMore[i] = row.scrollLeft + row.clientWidth < row.scrollWidth - 4;
+		});
 	}
-	const nudge = (way: 1 | -1) => row?.scrollBy({ left: way * row.clientWidth * 0.8, behavior: 'smooth' });
+	const nudge = (i: number, way: 1 | -1) =>
+		rows[i]?.scrollBy({ left: way * rows[i].clientWidth * 0.8, behavior: 'smooth' });
 
 	function choose(id: string, button: HTMLElement) {
 		chosen = id;
 		rememberOpenLesson(id);
-		if (button.parentElement) centre(button.parentElement, 'smooth');
+		const row = button.closest('ul');
+		if (row && button.parentElement) centre(row, button.parentElement, 'smooth');
 	}
 
 	// A lesson pressed comes to the middle of the row, which brings the next
 	// one into reach: pressing lesson after lesson walks to the end of the
 	// row with no swipe (user, 2026-11-16).
-	function centre(item: HTMLElement, behavior: ScrollBehavior) {
-		row?.scrollTo({ left: item.offsetLeft - (row.clientWidth - item.offsetWidth) / 2, behavior });
+	function centre(row: HTMLElement, item: HTMLElement, behavior: ScrollBehavior) {
+		row.scrollTo({ left: item.offsetLeft - (row.clientWidth - item.offsetWidth) / 2, behavior });
 	}
+
+	const meaning = (point: Point) => meaningOfPoint(m.practice.meaning, point, settings.lang);
 
 	const takes = (point: Point) =>
 		m.grammar.terms[point.case].name.toLocaleLowerCase(settings.lang)
@@ -86,10 +102,12 @@
 	{#if open}
 		<div class="ui-card card">
 			<div class="lessons">
-				<h3 class="group" id="learn-cases">{m.learn.cases}</h3>
-				<div class="row" class:more={canMore}>
-				<ul aria-labelledby="learn-cases" bind:this={row} onscroll={measure}>
-					{#each lessons as lesson (lesson.id)}
+				{#each groups as group, g (group.id)}
+				<div class="set">
+				<h3 class="group" id={group.id}>{group.label}</h3>
+				<div class="row" class:more={canMore[g]}>
+				<ul aria-labelledby={group.id} bind:this={rows[g]} onscroll={measure}>
+					{#each group.rows as lesson (lesson.id)}
 						<li>
 							<button
 								type="button"
@@ -109,21 +127,23 @@
 						</li>
 					{/each}
 				</ul>
-				{#if canBack || canMore}
+				{#if canBack[g] || canMore[g]}
 					<!-- Beside the heading, clear of the lessons themselves -->
 					<span class="nudges">
-						<button type="button" class="ui-icon-btn" disabled={!canBack} aria-label={m.learn.lessonsBack} title={m.learn.lessonsBack} onclick={() => nudge(-1)}>
+						<button type="button" class="ui-icon-btn" disabled={!canBack[g]} aria-label={m.learn.lessonsBack} title={m.learn.lessonsBack} onclick={() => nudge(g, -1)}>
 							<Icon name="arrow-left" size={18} />
 						</button>
-						<button type="button" class="ui-icon-btn" disabled={!canMore} aria-label={m.learn.lessonsMore} title={m.learn.lessonsMore} onclick={() => nudge(1)}>
+						<button type="button" class="ui-icon-btn" disabled={!canMore[g]} aria-label={m.learn.lessonsMore} title={m.learn.lessonsMore} onclick={() => nudge(g, 1)}>
 							<Icon name="arrow-right" size={18} />
 						</button>
 					</span>
 				{/if}
 				</div>
-			</div>
+				</div>
+				{/each}
+				</div>
 
-			<div class="body">
+				<div class="body">
 				<div class="title">
 					<div>
 						<h3>{open.n} · {m.learn.short[open.id]}</h3>
@@ -138,7 +158,7 @@
 					<table>
 						<thead>
 							<tr>
-								<th>{m.learn.column.after}</th>
+								<th>{open.group === 'government' ? m.learn.column.verb : m.learn.column.after}</th>
 								<th>{m.learn.column.takes}</th>
 								<th>{m.learn.column.means}</th>
 								<th>{m.learn.column.example}</th>
@@ -152,9 +172,9 @@
 						<tbody>
 							{#each open.points as { point, state } (point.id)}
 								<tr>
-									<td class="cue" lang="uk">{point.cue}</td>
+									<td class="cue" lang="uk">{ruleOf(point)}</td>
 									<td>{takes(point)}</td>
-									<td>{m.practice.meaning[point.id]}</td>
+									<td>{meaning(point)}</td>
 									<td class="example" lang="uk">{point.example}</td>
 									<td>
 										<!-- Not begun: the empty box alone says so, and the words
@@ -453,8 +473,8 @@
 			mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
 		}
 
-		/* The two arrows stand at the right of the heading's line */
-		.lessons {
+		/* The two arrows stand at the right of their list's heading */
+		.set {
 			position: relative;
 		}
 

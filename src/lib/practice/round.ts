@@ -65,6 +65,9 @@ export interface Gap {
 	roles?: { verb: string; doer: { word: string; headword: string; start: number; length: number } };
 	/** For a where item: the noun in the case of the other question, with stress (вершині beside вершину). */
 	partner?: string;
+	/** For a verb's pattern (government.ts): where the verb stands in `uk`, shown in bold (дякую мамі). */
+	cue_start?: number;
+	cue_length?: number;
 }
 
 /**
@@ -350,6 +353,30 @@ export function gradePoint(id: string, before: ReviewCard | undefined, outcomes:
 }
 
 /** A sentence as two halves round its gap. */
+/**
+ * A stretch of a gap's sentence, from `from` to `to`, cut where the verb of a
+ * government point stands, so that the verb can be shown in bold: head, verb,
+ * tail. With no verb in the stretch, all of it is the head.
+ */
+export function cueParts(gap: Gap, from: number, to: number): [head: string, cue: string, tail: string] {
+	const start = gap.cue_start ?? -1;
+	const end = start + (gap.cue_length ?? 0);
+	if (start < from || end > to || end <= start) return [gap.uk.slice(from, to), '', ''];
+	return [gap.uk.slice(from, start), gap.uk.slice(start, end), gap.uk.slice(end, to)];
+}
+
+/**
+ * A form as it would stand in the gap: with a capital where the gap starts
+ * the sentence and the sentence has one there (Мені́ подобається…), else as
+ * given. Only what is shown changes: a choice is still marked by `plain()`,
+ * which ignores case, and a typed мені or Мені are both right.
+ */
+export function asInGap(gap: Gap, form: string): string {
+	const first = gap.uk.charAt(0);
+	if (gap.start !== 0 || first === first.toLocaleLowerCase('uk')) return form;
+	return form.charAt(0).toLocaleUpperCase('uk') + form.slice(1);
+}
+
 export function split(gap: Gap): { before: string; word: string; after: string } {
 	return {
 		before: gap.uk.slice(0, gap.start),

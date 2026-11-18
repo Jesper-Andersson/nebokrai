@@ -19,6 +19,8 @@ QUERIES = [
     "kalyna", "kalina", "khata", "xata", "pryvit", "Kyiv", "shchastia", "dobryi", "čytáty",
     # English meanings
     "good", "dog", "to go", "mother", "to read", "the horizon", "viburnum", "guelder rose", "in", "water",
+    # English plurals and possessives find the singular meaning; news is no plural of new
+    "siblings", "children", "cities", "knives", "mother's", "news",
     # a capitalised meaning is still an exact match: English -> англійський
     "English",
     # old words (archaic, obsolete, dated) after modern ones: an obsolete exact meaning after the
@@ -51,6 +53,9 @@ QUERIES = [
     # for вказувати), and one that only looks like one and keeps its own entry (уступати "to yield",
     # not вступати "to enter")
     "блоґ", "указувати", "уступати",
+    # entries made from Ukrainian Wiktionary's translation tables: a noun, by its English word, an adverb,
+    # and a prefix that reaches one only when the other entries leave room (мура)
+    "мурал", "mural", "набакир", "мура",
     # not standard Ukrainian: Russian words and surzhyk point to the Ukrainian ones. From VESUM's list
     # (таможня, приговор, шокуючий), from Nebokrai's own (криша, and бебісіттер, which VESUM lacks), a
     # form of one (криші), and таракан, which is also a surname

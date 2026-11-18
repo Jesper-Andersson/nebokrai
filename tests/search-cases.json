@@ -2012,6 +2012,12 @@
     "prefix"
    ],
    [
+    49078,
+    "добридосвіток",
+    "intj",
+    "prefix"
+   ],
+   [
     15136,
     "добрий вечір",
     "intj",
@@ -2136,6 +2142,12 @@
     "prefix"
    ],
    [
+    49078,
+    "добридосвіток",
+    "intj",
+    "prefix"
+   ],
+   [
     15136,
     "добрий вечір",
     "intj",
@@ -3228,6 +3240,12 @@
     "english_mention"
    ],
    [
+    5558,
+    "авіаносець",
+    "noun",
+    "english_mention"
+   ],
+   [
     27477,
     "виводок",
     "noun",
@@ -3255,12 +3273,6 @@
     28900,
     "-ер",
     "suffix",
-    "english_mention"
-   ],
-   [
-    36967,
-    "Богомати",
-    "name",
     "english_mention"
    ]
   ],
@@ -3355,6 +3367,12 @@
     "english_mention"
    ],
    [
+    5558,
+    "авіаносець",
+    "noun",
+    "english_mention"
+   ],
+   [
     27477,
     "виводок",
     "noun",
@@ -3383,12 +3401,6 @@
     "-ер",
     "suffix",
     "english_mention"
-   ],
-   [
-    36967,
-    "Богомати",
-    "name",
-    "english_mention"
    ]
   ],
   "suggest": []
@@ -4528,6 +4540,1266 @@
   "suggest": []
  },
  {
+  "query": "siblings",
+  "vesum": false,
+  "expect": [
+   [
+    45467,
+    "родженство",
+    "noun",
+    "english"
+   ],
+   [
+    46679,
+    "суродженець",
+    "noun",
+    "english"
+   ],
+   [
+    175,
+    "брат",
+    "noun",
+    "english_mention"
+   ],
+   [
+    11069,
+    "найменший",
+    "adj",
+    "english_mention"
+   ],
+   [
+    32854,
+    "троюрідна сестра",
+    "noun",
+    "english_mention"
+   ],
+   [
+    32855,
+    "троюрідний брат",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "siblings",
+  "vesum": true,
+  "expect": [
+   [
+    45467,
+    "родженство",
+    "noun",
+    "english"
+   ],
+   [
+    46679,
+    "суродженець",
+    "noun",
+    "english"
+   ],
+   [
+    175,
+    "брат",
+    "noun",
+    "english_mention"
+   ],
+   [
+    11069,
+    "найменший",
+    "adj",
+    "english_mention"
+   ],
+   [
+    32854,
+    "троюрідна сестра",
+    "noun",
+    "english_mention"
+   ],
+   [
+    32855,
+    "троюрідний брат",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "children",
+  "vesum": false,
+  "expect": [
+   [
+    2975,
+    "дитина",
+    "noun",
+    "english"
+   ],
+   [
+    4464,
+    "діти",
+    "noun",
+    "english"
+   ],
+   [
+    421,
+    "дитя",
+    "noun",
+    "english"
+   ],
+   [
+    13331,
+    "дитячий",
+    "adj",
+    "english"
+   ],
+   [
+    15623,
+    "молоді",
+    "noun",
+    "english"
+   ],
+   [
+    8981,
+    "дітлахи",
+    "noun",
+    "english"
+   ],
+   [
+    8982,
+    "дітлах",
+    "noun",
+    "english"
+   ],
+   [
+    19591,
+    "породження",
+    "noun",
+    "english"
+   ],
+   [
+    31202,
+    "дітвора",
+    "noun",
+    "english"
+   ],
+   [
+    29457,
+    "-еня",
+    "suffix",
+    "english"
+   ],
+   [
+    48957,
+    "бахур",
+    "noun",
+    "english"
+   ],
+   [
+    38937,
+    "дитятко",
+    "noun",
+    "english"
+   ],
+   [
+    27280,
+    "дітлашня",
+    "noun",
+    "english"
+   ],
+   [
+    816,
+    "найти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    15426,
+    "виходити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    24679,
+    "дівчатко",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7003,
+    "кулька",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8985,
+    "дітки",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1297,
+    "родити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    20382,
+    "дріб",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "children",
+  "vesum": true,
+  "expect": [
+   [
+    2975,
+    "дитина",
+    "noun",
+    "english"
+   ],
+   [
+    4464,
+    "діти",
+    "noun",
+    "english"
+   ],
+   [
+    421,
+    "дитя",
+    "noun",
+    "english"
+   ],
+   [
+    13331,
+    "дитячий",
+    "adj",
+    "english"
+   ],
+   [
+    15623,
+    "молоді",
+    "noun",
+    "english"
+   ],
+   [
+    8981,
+    "дітлахи",
+    "noun",
+    "english"
+   ],
+   [
+    8982,
+    "дітлах",
+    "noun",
+    "english"
+   ],
+   [
+    19591,
+    "породження",
+    "noun",
+    "english"
+   ],
+   [
+    31202,
+    "дітвора",
+    "noun",
+    "english"
+   ],
+   [
+    29457,
+    "-еня",
+    "suffix",
+    "english"
+   ],
+   [
+    48957,
+    "бахур",
+    "noun",
+    "english"
+   ],
+   [
+    38937,
+    "дитятко",
+    "noun",
+    "english"
+   ],
+   [
+    27280,
+    "дітлашня",
+    "noun",
+    "english"
+   ],
+   [
+    816,
+    "найти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    15426,
+    "виходити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    24679,
+    "дівчатко",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7003,
+    "кулька",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8985,
+    "дітки",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1297,
+    "родити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    20382,
+    "дріб",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "cities",
+  "vesum": false,
+  "expect": [
+   [
+    2110,
+    "місто",
+    "noun",
+    "english"
+   ],
+   [
+    127,
+    "город",
+    "noun",
+    "english"
+   ],
+   [
+    9876,
+    "міський",
+    "adj",
+    "english"
+   ],
+   [
+    396,
+    "варош",
+    "noun",
+    "english"
+   ],
+   [
+    25728,
+    "городський",
+    "adj",
+    "english"
+   ],
+   [
+    16720,
+    "Мена",
+    "name",
+    "english_mention"
+   ],
+   [
+    25702,
+    "Аба",
+    "name",
+    "english_mention"
+   ],
+   [
+    3825,
+    "Додома",
+    "name",
+    "english_mention"
+   ],
+   [
+    470,
+    "Нью-Йорк",
+    "name",
+    "english_mention"
+   ],
+   [
+    484,
+    "Париж",
+    "name",
+    "english_mention"
+   ],
+   [
+    29690,
+    "Ха",
+    "name",
+    "english_mention"
+   ],
+   [
+    463,
+    "Лос-Анджелес",
+    "name",
+    "english_mention"
+   ],
+   [
+    16780,
+    "Щастя",
+    "name",
+    "english_mention"
+   ],
+   [
+    409,
+    "Варшава",
+    "name",
+    "english_mention"
+   ],
+   [
+    471,
+    "Нью-Йорк",
+    "name",
+    "english_mention"
+   ],
+   [
+    450,
+    "Лондон",
+    "name",
+    "english_mention"
+   ],
+   [
+    17601,
+    "Ван",
+    "name",
+    "english_mention"
+   ],
+   [
+    2223,
+    "квартал",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18362,
+    "Ізмаїл",
+    "name",
+    "english_mention"
+   ],
+   [
+    570,
+    "Бостон",
+    "name",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "cities",
+  "vesum": true,
+  "expect": [
+   [
+    2110,
+    "місто",
+    "noun",
+    "english"
+   ],
+   [
+    127,
+    "город",
+    "noun",
+    "english"
+   ],
+   [
+    9876,
+    "міський",
+    "adj",
+    "english"
+   ],
+   [
+    396,
+    "варош",
+    "noun",
+    "english"
+   ],
+   [
+    25728,
+    "городський",
+    "adj",
+    "english"
+   ],
+   [
+    16720,
+    "Мена",
+    "name",
+    "english_mention"
+   ],
+   [
+    25702,
+    "Аба",
+    "name",
+    "english_mention"
+   ],
+   [
+    3825,
+    "Додома",
+    "name",
+    "english_mention"
+   ],
+   [
+    470,
+    "Нью-Йорк",
+    "name",
+    "english_mention"
+   ],
+   [
+    484,
+    "Париж",
+    "name",
+    "english_mention"
+   ],
+   [
+    29690,
+    "Ха",
+    "name",
+    "english_mention"
+   ],
+   [
+    463,
+    "Лос-Анджелес",
+    "name",
+    "english_mention"
+   ],
+   [
+    16780,
+    "Щастя",
+    "name",
+    "english_mention"
+   ],
+   [
+    409,
+    "Варшава",
+    "name",
+    "english_mention"
+   ],
+   [
+    471,
+    "Нью-Йорк",
+    "name",
+    "english_mention"
+   ],
+   [
+    450,
+    "Лондон",
+    "name",
+    "english_mention"
+   ],
+   [
+    17601,
+    "Ван",
+    "name",
+    "english_mention"
+   ],
+   [
+    2223,
+    "квартал",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18362,
+    "Ізмаїл",
+    "name",
+    "english_mention"
+   ],
+   [
+    570,
+    "Бостон",
+    "name",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "knives",
+  "vesum": false,
+  "expect": [
+   [
+    5288,
+    "ніж",
+    "noun",
+    "english"
+   ],
+   [
+    11921,
+    "ножовий",
+    "adj",
+    "english"
+   ],
+   [
+    7235,
+    "колоти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    17743,
+    "лезо",
+    "noun",
+    "english_mention"
+   ],
+   [
+    35397,
+    "ножик",
+    "noun",
+    "english_mention"
+   ],
+   [
+    34403,
+    "прирізати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3908,
+    "шпатель",
+    "noun",
+    "english_mention"
+   ],
+   [
+    41873,
+    "мастихін",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18125,
+    "мисливський ніж",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6647,
+    "скобель",
+    "noun",
+    "english_mention"
+   ],
+   [
+    9991,
+    "тесак",
+    "noun",
+    "english_mention"
+   ],
+   [
+    10780,
+    "фінський ніж",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "knives",
+  "vesum": true,
+  "expect": [
+   [
+    5288,
+    "ніж",
+    "noun",
+    "english"
+   ],
+   [
+    11921,
+    "ножовий",
+    "adj",
+    "english"
+   ],
+   [
+    7235,
+    "колоти",
+    "verb",
+    "english_mention"
+   ],
+   [
+    17743,
+    "лезо",
+    "noun",
+    "english_mention"
+   ],
+   [
+    35397,
+    "ножик",
+    "noun",
+    "english_mention"
+   ],
+   [
+    34403,
+    "прирізати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3908,
+    "шпатель",
+    "noun",
+    "english_mention"
+   ],
+   [
+    41873,
+    "мастихін",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18125,
+    "мисливський ніж",
+    "noun",
+    "english_mention"
+   ],
+   [
+    6647,
+    "скобель",
+    "noun",
+    "english_mention"
+   ],
+   [
+    9991,
+    "тесак",
+    "noun",
+    "english_mention"
+   ],
+   [
+    10780,
+    "фінський ніж",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "mother's",
+  "vesum": false,
+  "expect": [
+   [
+    124,
+    "мати",
+    "noun",
+    "english"
+   ],
+   [
+    20239,
+    "матінка",
+    "noun",
+    "english"
+   ],
+   [
+    22893,
+    "материнський",
+    "adj",
+    "english"
+   ],
+   [
+    35429,
+    "матусин",
+    "adj",
+    "english"
+   ],
+   [
+    1947,
+    "неня",
+    "noun",
+    "english"
+   ],
+   [
+    4082,
+    "материн",
+    "adj",
+    "english"
+   ],
+   [
+    9276,
+    "родителька",
+    "noun",
+    "english"
+   ],
+   [
+    397,
+    "мама",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5969,
+    "Сара",
+    "name",
+    "english_mention"
+   ],
+   [
+    1471,
+    "бабуся",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8901,
+    "матуся",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1388,
+    "матка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    31485,
+    "бабуня",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18718,
+    "Богородиця",
+    "name",
+    "english_mention"
+   ],
+   [
+    802,
+    "теща",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16818,
+    "мачуха",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8873,
+    "свекруха",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5558,
+    "авіаносець",
+    "noun",
+    "english_mention"
+   ],
+   [
+    27477,
+    "виводок",
+    "noun",
+    "english_mention"
+   ],
+   [
+    26453,
+    "годувальниця",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "mother's",
+  "vesum": true,
+  "expect": [
+   [
+    124,
+    "мати",
+    "noun",
+    "english"
+   ],
+   [
+    20239,
+    "матінка",
+    "noun",
+    "english"
+   ],
+   [
+    22893,
+    "материнський",
+    "adj",
+    "english"
+   ],
+   [
+    35429,
+    "матусин",
+    "adj",
+    "english"
+   ],
+   [
+    1947,
+    "неня",
+    "noun",
+    "english"
+   ],
+   [
+    4082,
+    "материн",
+    "adj",
+    "english"
+   ],
+   [
+    9276,
+    "родителька",
+    "noun",
+    "english"
+   ],
+   [
+    397,
+    "мама",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5969,
+    "Сара",
+    "name",
+    "english_mention"
+   ],
+   [
+    1471,
+    "бабуся",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8901,
+    "матуся",
+    "noun",
+    "english_mention"
+   ],
+   [
+    1388,
+    "матка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    31485,
+    "бабуня",
+    "noun",
+    "english_mention"
+   ],
+   [
+    18718,
+    "Богородиця",
+    "name",
+    "english_mention"
+   ],
+   [
+    802,
+    "теща",
+    "noun",
+    "english_mention"
+   ],
+   [
+    16818,
+    "мачуха",
+    "noun",
+    "english_mention"
+   ],
+   [
+    8873,
+    "свекруха",
+    "noun",
+    "english_mention"
+   ],
+   [
+    5558,
+    "авіаносець",
+    "noun",
+    "english_mention"
+   ],
+   [
+    27477,
+    "виводок",
+    "noun",
+    "english_mention"
+   ],
+   [
+    26453,
+    "годувальниця",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "news",
+  "vesum": false,
+  "expect": [
+   [
+    8390,
+    "новини",
+    "noun",
+    "english"
+   ],
+   [
+    19802,
+    "звістка",
+    "noun",
+    "english"
+   ],
+   [
+    8930,
+    "вість",
+    "noun",
+    "english"
+   ],
+   [
+    27037,
+    "відомості",
+    "noun",
+    "english"
+   ],
+   [
+    27251,
+    "вістка",
+    "noun",
+    "english"
+   ],
+   [
+    3638,
+    "новина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7821,
+    "преса",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3194,
+    "донести",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25684,
+    "рознести",
+    "verb",
+    "english_mention"
+   ],
+   [
+    6131,
+    "новинка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    23675,
+    "летючий",
+    "adj",
+    "english_mention"
+   ],
+   [
+    33395,
+    "хроніка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    30458,
+    "докотитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25971,
+    "розлетітися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25682,
+    "розносити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    22682,
+    "розпускати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3192,
+    "доносити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    22683,
+    "розпустити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25969,
+    "розлітатися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    6259,
+    "фоторепортер",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "news",
+  "vesum": true,
+  "expect": [
+   [
+    8390,
+    "новини",
+    "noun",
+    "english"
+   ],
+   [
+    19802,
+    "звістка",
+    "noun",
+    "english"
+   ],
+   [
+    8930,
+    "вість",
+    "noun",
+    "english"
+   ],
+   [
+    27037,
+    "відомості",
+    "noun",
+    "english"
+   ],
+   [
+    27251,
+    "вістка",
+    "noun",
+    "english"
+   ],
+   [
+    3638,
+    "новина",
+    "noun",
+    "english_mention"
+   ],
+   [
+    7821,
+    "преса",
+    "noun",
+    "english_mention"
+   ],
+   [
+    3194,
+    "донести",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25684,
+    "рознести",
+    "verb",
+    "english_mention"
+   ],
+   [
+    6131,
+    "новинка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    23675,
+    "летючий",
+    "adj",
+    "english_mention"
+   ],
+   [
+    33395,
+    "хроніка",
+    "noun",
+    "english_mention"
+   ],
+   [
+    30458,
+    "докотитися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25971,
+    "розлетітися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25682,
+    "розносити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    22682,
+    "розпускати",
+    "verb",
+    "english_mention"
+   ],
+   [
+    3192,
+    "доносити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    22683,
+    "розпустити",
+    "verb",
+    "english_mention"
+   ],
+   [
+    25969,
+    "розлітатися",
+    "verb",
+    "english_mention"
+   ],
+   [
+    6259,
+    "фоторепортер",
+    "noun",
+    "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
   "query": "English",
   "vesum": false,
   "expect": [
@@ -4920,6 +6192,12 @@
     "english"
    ],
    [
+    2068,
+    "світ",
+    "noun",
+    "english_mention"
+   ],
+   [
     15552,
     "підійти",
     "verb",
@@ -4982,12 +6260,6 @@
    [
     844,
     "лампа",
-    "noun",
-    "english_mention"
-   ],
-   [
-    8023,
-    "промінь",
     "noun",
     "english_mention"
    ]
@@ -5047,6 +6319,12 @@
     "english"
    ],
    [
+    2068,
+    "світ",
+    "noun",
+    "english_mention"
+   ],
+   [
     15552,
     "підійти",
     "verb",
@@ -5109,12 +6387,6 @@
    [
     844,
     "лампа",
-    "noun",
-    "english_mention"
-   ],
-   [
-    8023,
-    "промінь",
     "noun",
     "english_mention"
    ]
@@ -9458,6 +10730,12 @@
     "english_mention"
    ],
    [
+    1658,
+    "бюро",
+    "noun",
+    "english_mention"
+   ],
+   [
     3285,
     "забити",
     "verb",
@@ -9496,12 +10774,6 @@
    [
     6081,
     "днище",
-    "noun",
-    "english_mention"
-   ],
-   [
-    6243,
-    "шашка",
     "noun",
     "english_mention"
    ]
@@ -9585,6 +10857,12 @@
     "english_mention"
    ],
    [
+    1658,
+    "бюро",
+    "noun",
+    "english_mention"
+   ],
+   [
     3285,
     "забити",
     "verb",
@@ -9625,10 +10903,23 @@
     "днище",
     "noun",
     "english_mention"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "shrike",
+  "vesum": false,
+  "expect": [
+   [
+    46316,
+    "сорокопуд",
+    "noun",
+    "english"
    ],
    [
-    6243,
-    "шашка",
+    49107,
+    "жулан",
     "noun",
     "english_mention"
    ]
@@ -9637,19 +10928,6 @@
  },
  {
   "query": "shrike",
-  "vesum": false,
-  "expect": [
-   [
-    46316,
-    "сорокопуд",
-    "noun",
-    "english"
-   ]
-  ],
-  "suggest": []
- },
- {
-  "query": "shrike",
   "vesum": true,
   "expect": [
    [
@@ -9657,6 +10935,12 @@
     "сорокопуд",
     "noun",
     "english"
+   ],
+   [
+    49107,
+    "жулан",
+    "noun",
+    "english_mention"
    ]
   ],
   "suggest": []
@@ -9750,6 +11034,222 @@
    ]
   ],
   "suggest": []
+ },
+ {
+  "query": "мурал",
+  "vesum": false,
+  "expect": [
+   [
+    49244,
+    "мурал",
+    "noun",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "мурал",
+  "vesum": true,
+  "expect": [
+   [
+    49244,
+    "мурал",
+    "noun",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "mural",
+  "vesum": false,
+  "expect": [
+   [
+    49244,
+    "мурал",
+    "noun",
+    "latin"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "mural",
+  "vesum": true,
+  "expect": [
+   [
+    49244,
+    "мурал",
+    "noun",
+    "latin"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "набакир",
+  "vesum": false,
+  "expect": [
+   [
+    49248,
+    "набакир",
+    "adv",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "набакир",
+  "vesum": true,
+  "expect": [
+   [
+    49248,
+    "набакир",
+    "adv",
+    "word"
+   ]
+  ],
+  "suggest": []
+ },
+ {
+  "query": "мура",
+  "vesum": false,
+  "expect": [
+   [
+    779,
+    "мур",
+    "noun",
+    "form"
+   ],
+   [
+    1802,
+    "мурашка",
+    "noun",
+    "prefix"
+   ],
+   [
+    11721,
+    "Мурашко",
+    "name",
+    "prefix"
+   ],
+   [
+    1803,
+    "мураха",
+    "noun",
+    "prefix"
+   ],
+   [
+    6331,
+    "мурахоїд",
+    "noun",
+    "prefix"
+   ],
+   [
+    42234,
+    "мурава",
+    "noun",
+    "prefix"
+   ],
+   [
+    49244,
+    "мурал",
+    "noun",
+    "prefix"
+   ],
+   [
+    6328,
+    "мурашник",
+    "noun",
+    "prefix"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    779,
+    [
+     [
+      "му́ра",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
+ },
+ {
+  "query": "мура",
+  "vesum": true,
+  "expect": [
+   [
+    779,
+    "мур",
+    "noun",
+    "form"
+   ],
+   [
+    1802,
+    "мурашка",
+    "noun",
+    "prefix"
+   ],
+   [
+    11721,
+    "Мурашко",
+    "name",
+    "prefix"
+   ],
+   [
+    1803,
+    "мураха",
+    "noun",
+    "prefix"
+   ],
+   [
+    6331,
+    "мурахоїд",
+    "noun",
+    "prefix"
+   ],
+   [
+    42234,
+    "мурава",
+    "noun",
+    "prefix"
+   ],
+   [
+    49244,
+    "мурал",
+    "noun",
+    "prefix"
+   ],
+   [
+    6328,
+    "мурашник",
+    "noun",
+    "prefix"
+   ]
+  ],
+  "suggest": [],
+  "forms": [
+   [
+    779,
+    [
+     [
+      "му́ра",
+      [
+       "genitive",
+       "singular"
+      ]
+     ]
+    ]
+   ]
+  ]
  },
  {
   "query": "таможня",

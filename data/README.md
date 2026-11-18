@@ -635,7 +635,7 @@ python3 data/export_wordlist.py nebokrai.db static/words.json
     pip install pymorphy3 pymorphy3-dicts-uk
     curl -o data/raw/twisters.lst \
         https://raw.githubusercontent.com/brown-uk/dict_uk/1140395379c34dcc5992df5b6006ed1842355fc7/data/dict/twisters.lst
-    python3 data/import_vesum.py vesum.db --twisters data/raw/twisters.lst   # about 80 seconds, 212 MB
+    python3 data/import_vesum.py vesum.db --twisters data/raw/twisters.lst   # about 7 minutes, 485 MB
     python3 data/search.py nebokrai.db --vesum vesum.db книжечку
 
 `--twisters` is optional; without it there are no suggestions for non-standard
@@ -667,6 +667,31 @@ Three things soften that bare result:
   one has an entry: `утворюються` finds `утворювати`, marked as reached
   `through` `утворюватися`. This happens while searching; no reflexive verb is
   written into `nebokrai.db`, which would be copying from VESUM.
+
+Every VESUM word also has a page (`/word/knyzhechka`), with no meaning but
+its grammar line and its full table of forms, read from three more tables
+(`src/lib/search/vesum-word.ts`):
+
+- `vesum_words`: one row per paradigm, 415,878 of them for the 393,095 words
+  (швидкий is an adjective and a noun; осташко a surname of each gender).
+  `latin` is the loose romanisation, as `search_keys` kind `latin` in the
+  dictionary, so a page address finds its words the way it finds entries.
+  `tags` are the word's own, in Wiktionary's words: `["feminine","inanimate"]`.
+  It is indexed on `latin` and on `(lemma, pos)`, so neither an address nor a
+  borrowed table reads the whole table.
+- `vesum_paradigms`: every form of every paradigm, 6.5 million rows, in
+  VESUM's order (nominative first), each with a `tagset`.
+- `vesum_tagsets`: the 71 different lists of form tags, stored once:
+  `["instrumental","singular"]`. They are Wiktionary's tags, so
+  `src/lib/forms.ts` draws VESUM's forms in the same tables. A form VESUM
+  marks as not standard keeps its place and gets `nonstandard`.
+
+VESUM has no stress marks, so neither do these pages. An entry written for
+Nebokrai, or made from translation tables or Ukrainian Wiktionary, that has no forms of its own
+borrows VESUM's table at request time when exactly one paradigm has its
+spelling and part of speech; its footer credits VESUM for it. Nothing is
+written into `nebokrai.db`. The pages of words with no meaning carry
+`noindex` and are not in the sitemap.
 
 **VESUM must stay in its own file.** Its licence is CC BY-NC-SA 4.0
 (non-commercial), Wiktionary's is CC BY-SA 4.0, and the two cannot be merged
@@ -707,7 +732,8 @@ back is one deploy.
 needs publishing again when `import_vesum.py` has been run again.
 
 Loading counts as rows written, index entries included: about 4.8 million for
-the dictionary and 3.7 million for VESUM. The Workers Paid plan includes 50
+the dictionary and about 11 million for VESUM (3.7 million forms for search,
+6.5 million for the tables, and the 415,878 words with their index). The Workers Paid plan includes 50
 million a month; the free plan's 100,000 a day cannot load either.
 
 To try a dump without touching the account, use `--local` in place of

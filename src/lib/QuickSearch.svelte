@@ -50,7 +50,9 @@
 				const answer: LookupResult = await res.json();
 				found = answer;
 				failed = false;
-				const first = [...answer.results, ...answer.suggestions].find((e) => !('vesum_only' in e && e.vesum_only));
+				// A dictionary entry before a word only VESUM knows, which has a page but no meaning
+				const all = [...answer.results, ...answer.suggestions];
+				const first = all.find((e) => !('vesum_only' in e && e.vesum_only)) ?? all[0];
 				selected = first ? key(first) : '';
 			} catch {
 				if (!controller.signal.aborted) failed = true;
@@ -118,11 +120,11 @@
 <svelte:window onkeydown={onWindowKeydown} />
 
 {#snippet row(entry: Entry)}
-	{@const noPage = 'vesum_only' in entry && entry.vesum_only === true}
-	<Command.Item class="ui-quick-item" value={key(entry)} disabled={noPage} onSelect={() => go(entry)}>
+	{@const noMeaning = 'vesum_only' in entry && entry.vesum_only === true}
+	<Command.Item class="ui-quick-item" value={key(entry)} onSelect={() => go(entry)}>
 		<Headword text={entry.headword} size="sm" />
 		<Grammar pos={entry.pos} inline />
-		<span class="ui-quick-gloss">{noPage ? ('kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry) : entry.glosses.slice(0, 2).join('; ')}</span>
+		<span class="ui-quick-gloss">{noMeaning ? ('kind' in entry && entry.kind ? m.card.kind[entry.kind] : m.card.noEntry) : entry.glosses.slice(0, 2).join('; ')}</span>
 	</Command.Item>
 {/snippet}
 

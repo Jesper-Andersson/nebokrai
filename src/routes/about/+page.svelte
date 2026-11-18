@@ -112,7 +112,7 @@
 			значення, наголоси й таблиці — з англомовного Вікісловника, записи вимови — з Вікісховища,
 			приклади речень — з Tatoeba, а частотність — із субтитрів до фільмів і серіалів. ВЕСУМ, Великий
 			електронний словник української мови, допомагає розпізнавати форми слів, яких бракує у
-			Вікісловнику. Докладніше на сторінці <a href="/sources">Джерела й ліцензії</a>.
+			Вікісловнику, і дає таблиці форм для слів, яких у словнику ще немає. Докладніше на сторінці <a href="/sources">Джерела й ліцензії</a>.
 		</p>
 
 		<h2>Про мене</h2>
@@ -226,7 +226,8 @@
 			The dictionary has about 30,000 words and is built from open data made by volunteers. Meanings,
 			stress and tables come from the English Wiktionary, recordings from Wikimedia Commons, example
 			sentences from Tatoeba, and frequency ranks from film and television subtitles. VESUM, the
-			Large Electronic Dictionary of Ukrainian, recognises word forms that Wiktionary lacks. See
+			Large Electronic Dictionary of Ukrainian, recognises word forms that Wiktionary lacks and gives
+			the tables of forms for words the dictionary does not have yet. See
 			<a href="/sources">Sources and licences</a> for the credits.
 		</p>
 

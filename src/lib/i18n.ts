@@ -566,6 +566,14 @@ const en = {
 		/** Before the questions a verb's noun answers, under the grammar line: takes · кому? · за що? */
 		takes: 'takes',
 		recording: 'Recording on Wikimedia Commons',
+		// The page of a word only VESUM knows (книжечка): what it lacks, said once above the table
+		noMeaning: 'No meaning yet. Nebokrai has not written one for this word; its forms are from VESUM, and its stress is not known yet.',
+		// VESUM, the big list of Ukrainian words and forms that the tables of such words come from
+		vesum: 'VESUM',
+		// Before the VESUM credit on an entry of our own whose table is VESUM's
+		tableFrom: 'Table from',
+		// On the page of a word that is not standard Ukrainian (таможня), before the words to use: ми́тниця
+		sayInstead: 'Say instead:',
 		rankTitle: (rank: string) => `Number ${rank} among the most frequent Ukrainian words`,
 		unranked: 'Too rare to rank',
 		report: 'Report a mistake'
@@ -1364,6 +1372,12 @@ const en = {
 		/** книга: meaning in English, stress and declension */
 		wordTitle: (word: string, has: WordFacts) =>
 			`${word}: ${listOf(['meaning in English', has.stress && 'stress', has.table], 'and')}`,
+		/** книжечка: declension. A word only VESUM knows, which has no meaning to promise. */
+		vesumTitle: (word: string, table: WordFacts['table']) =>
+			`${word}: ${table ?? 'Ukrainian word'}`,
+		/** книжечка (noun): a Ukrainian word with no meaning in Nebokrai yet. With a full declension table. */
+		vesumDescription: (word: string, pos: string, table: WordFacts['table']) =>
+			`${word} (${pos}): a Ukrainian word with no meaning in Nebokrai yet.${table ? ` With a full ${table} table.` : ''}`,
 		/** The last sentence of a word's description: what its page shows besides the meanings. */
 		wordShows: (has: WordFacts) => {
 			const shown = listOf([
@@ -2007,6 +2021,10 @@ const uk: Messages = {
 		offensiveNote: 'Це слово вживають, щоб образити. Його подано, щоб ви могли його впізнати, а не вживати.',
 		takes: 'вимагає',
 		recording: 'Запис на Вікісховищі',
+		noMeaning: 'Значення ще немає. Небокрай ще не написав його для цього слова; форми взято з ВЕСУМ, а наголос поки невідомий.',
+		vesum: 'ВЕСУМ',
+		tableFrom: 'Таблиця:',
+		sayInstead: 'Кажіть натомість:',
 		rankTitle: (rank: string) => `${rank}-е місце серед найуживаніших українських слів`,
 		unranked: 'Надто рідкісне для рейтингу',
 		report: 'Повідомити про помилку'
@@ -2744,6 +2762,10 @@ const uk: Messages = {
 				'значення англійською', has.stress && 'наголос',
 				has.table && (has.table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання')
 			], 'і')}`,
+		vesumTitle: (word, table) =>
+			`${word}: ${table === 'conjugation' ? 'дієвідмінювання' : table ? 'відмінювання' : 'українське слово'}`,
+		vesumDescription: (word, pos, table) =>
+			`${word} (${pos}): українське слово, значення якого в Небокраї ще немає.${table ? ` З повною таблицею ${table === 'conjugation' ? 'дієвідмінювання' : 'відмінювання'}.` : ''}`,
 		wordShows: (has) => {
 			const shown = listOf([
 				has.stress && 'наголос', has.audio && 'аудіо',

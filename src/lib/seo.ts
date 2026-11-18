@@ -11,6 +11,7 @@ import { EXTENSION_LIVE } from './extension.ts';
 import { posLabel, type Messages, type WordFacts } from './i18n.ts';
 import type { Db } from './search/db.ts';
 import { wordPath } from './search/slug.ts';
+import type { VesumWord } from './search/vesum-word.ts';
 import type { WordEntry } from './search/word.ts';
 
 const STRESS = '́';
@@ -44,6 +45,21 @@ export function wordDescription(m: Messages, entry: WordEntry): string {
 	// Cut at the last whole word that fits
 	if (meanings.length > room) meanings = meanings.slice(0, room).replace(/[\s,;(]+\S*$/, '') + '…';
 	return `${start}${meanings}${meanings.endsWith('…') ? '' : '.'} ${shows}`.trim();
+}
+
+const tableOf = (word: VesumWord): WordFacts['table'] =>
+	word.forms.length === 0 ? null : word.pos === 'verb' ? 'conjugation' : 'declension';
+
+/**
+ * книжечка: declension · Nebokrai. For a word only VESUM knows; such pages
+ * are kept out of search engines (noindex) until the word has a meaning.
+ */
+export function vesumTitle(m: Messages, word: VesumWord): string {
+	return `${m.meta.vesumTitle(word.word, tableOf(word))} · Nebokrai`;
+}
+
+export function vesumDescription(m: Messages, word: VesumWord): string {
+	return m.meta.vesumDescription(word.word, posLabel(m, word.pos).toLowerCase(), tableOf(word));
 }
 
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */

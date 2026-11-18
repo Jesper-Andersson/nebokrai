@@ -4,10 +4,15 @@
      meanings (the rest behind a closed row), example sentences and the words
      related to it. The right has the form tables behind tabs
      (FormTables.svelte) and the etymology, closed. On a phone the two stack.
-     A spelling with several entries gets a list of them first. -->
+     A spelling with several entries gets a list of them first.
+
+     A word only VESUM knows (книжечка) has no entry: its page is the headword,
+     the grammar line, a band saying there is no meaning yet, and the table
+     at full width (option A, 2026-11-18). -->
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
 	import { mergeProps } from 'bits-ui';
+	import AddWord from '#lib/AddWord.svelte';
 	import FormTables from '#lib/FormTables.svelte';
 	import FrequencyMeter from '#lib/FrequencyMeter.svelte';
 	import Grammar from '#lib/Grammar.svelte';
@@ -37,7 +42,9 @@
 	import { wordPath } from '#lib/search/slug.ts';
 	import type { Relation, Sense, WordEntry } from '#lib/search/word.ts';
 	import { FROM_TRANSLATIONS, FROM_UK_WIKTIONARY, isThin } from '#lib/search/word.ts';
-	import { wordDescription, wordTitle } from '#lib/seo.ts';
+	import type { VesumWord } from '#lib/search/vesum-word.ts';
+	import { vesumDescription, vesumTitle, wordDescription, wordTitle } from '#lib/seo.ts';
+	import { canAddWord } from '#lib/suggest.ts';
 	import { useSettings } from '#lib/settings.ts';
 	import { play as playWord } from '#lib/speak.ts';
 	import { differOnlyByStress, stressMoved, stressShift } from '#lib/stress.ts';
@@ -132,7 +139,11 @@
 	// The second column: the tables and the etymology. A page without either
 	// keeps the narrower width of one column of text.
 	const hasSide = (entry: WordEntry) => entry.forms.length > 0 || Boolean(entry.etymology);
-	let wide = $derived(data.entries.some(hasSide));
+	let wide = $derived(data.entries.some(hasSide) || data.vesum.some((w) => w.forms.length > 0));
+	const VESUM_LICENCE = 'https://creativecommons.org/licenses/by-nc-sa/4.0/';
+	const VESUM_SITE = 'https://vesum.nlp.net.ua/';
+	// A distorted word (таможня) gets no "Add a meaning": it should not get an entry.
+	const askable = (w: VesumWord) => w.kind !== 'distorted' && canAddWord(w.word);
 
 	// The list of entries names each headword only when they are not all the
 	// same (за́мок and замо́к, or а, А and -а behind one address).
@@ -147,7 +158,15 @@
 </script>
 
 <!-- A spelling with several entries is described by its most common one -->
-<PageMeta title={wordTitle(m, data.entries[0])} description={wordDescription(m, data.entries[0])} />
+{#if data.entries.length}
+	<PageMeta title={wordTitle(m, data.entries[0])} description={wordDescription(m, data.entries[0])} />
+{:else}
+	<PageMeta title={vesumTitle(m, data.vesum[0])} description={vesumDescription(m, data.vesum[0])} />
+{/if}
+<!-- 390,000 pages with no meaning would read as thin content: kept out of search engines -->
+<svelte:head>
+	{#if !data.entries.length}<meta name="robots" content="noindex" />{/if}
+</svelte:head>
 
 <div class="ui-page" class:wide>
 	<p class="back">
@@ -438,8 +457,68 @@
 					{#if entry.audio_url}
 						· <a href={commonsPage(entry.audio_url)}>{m.word.recording}</a>
 					{/if}
+					{#if data.borrowed.includes(entry.id)}
+						· {m.word.tableFrom} <a href={VESUM_SITE}>{m.word.vesum}</a>
+						(<a href={VESUM_LICENCE}>CC BY-NC-SA 4.0</a>)
+					{/if}
 				</span>
 				<a href="/report?entry={entry.id}">{m.word.report}</a>
+			</footer>
+		</article>
+	{/each}
+
+	{#each data.vesum as word, i (i)}
+		{@const { tables, other } = formTables(word.pos, word.forms, word.word)}
+		{@const also = (word.use ?? []).filter((u) => u.word.replace(/́/g, '') !== word.word)}
+		<article class="ui-card vesum">
+			<header>
+				<div class="title">
+					<Headword text={word.word} size="lg" tag="h1" />
+				</div>
+				<div class="grammar">
+					<Grammar pos={word.pos} tags={word.tags} headForms={[]} />
+				</div>
+			</header>
+
+			<div class="band">
+				<p>
+					{#if word.kind}{m.card.kind[word.kind]}{:else}{m.word.noMeaning}{/if}
+					{#if also.length}
+						{m.word.sayInstead}
+						{#each also as u, j (u.word)}{#if j}{', '}{/if}{#if u.has_entry}<a lang="uk" href={wordPath(u.word.replace(/́/g, ''))}><Stressed text={u.word} /></a>{:else}<span lang="uk"><Stressed text={u.word} /></span>{/if}{/each}
+					{/if}
+				</p>
+				{#if askable(word)}<AddWord word={word.word} label={m.addWord.addMeaning} />{/if}
+			</div>
+
+			{#if tables.length || other.length}
+				<section class="vesum-forms">
+					<h2 class="ui-label">{word.pos === 'verb' ? m.word.conjugation : m.word.forms}</h2>
+					{#if tables.length}<FormTables {tables} headword={word.word} suggest={null} />{/if}
+					{#if other.length}
+						<dl class="other">
+							{#each other as group, j (j)}
+								{@const label = otherFormLabel(group.tags)}
+								{@const text = formName(m, settings.lang, label.key && m.grammar.otherForms[label.key], label.extra)}
+								<div>
+									<dt>{#if label.term}<Term id={label.term}>{text}</Term>{:else}{text}{/if}</dt>
+									<dd lang="uk">{group.forms.join(', ')}</dd>
+								</div>
+							{/each}
+						</dl>
+					{/if}
+					<p class="guide">
+						<a href="/grammar#{word.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
+					</p>
+				</section>
+			{/if}
+
+			<footer>
+				<span>
+					{m.word.from} <a href={VESUM_SITE}>{m.word.vesum}</a>
+					(<a href={VESUM_LICENCE}>CC BY-NC-SA 4.0</a>)
+				</span>
+				<a href="/report">{m.word.report}</a>
 			</footer>
 		</article>
 	{/each}
@@ -852,5 +931,30 @@
 		article {
 			padding: 1.1rem 1rem 0.9rem;
 		}
+	}
+
+	/* A word only VESUM knows: what it lacks, once, quietly, between the
+	   grammar line and the table (option A, 2026-11-18) */
+	.band {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--gap-inline);
+		margin: var(--gap-stack) 0;
+		padding: var(--gap-stack) var(--gap-block);
+		border-radius: var(--radius-md);
+		background: var(--surface-2);
+		color: var(--ink-2);
+		font-size: var(--text-sm);
+	}
+
+	.band p {
+		flex: 1 1 20rem;
+	}
+
+	/* The table has the card to itself: there is no column of meanings beside it */
+	.vesum-forms {
+		margin-top: var(--gap-block);
 	}
 </style>

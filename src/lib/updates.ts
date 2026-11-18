@@ -46,10 +46,10 @@ export const UPDATES: Update[] = [
 		id: '2026-11-18-stories',
 		date: '2026-11-18',
 		kind: 'new',
-		title: { en: 'Read short stories in Ukrainian', uk: 'Читайте короткі історії українською' },
+		title: { en: 'Read short stories in Ukrainian', uk: 'Читайте короткі оповідання українською' },
 		body: {
 			en: 'Stories, under Learn, has 29 illustrated stories by level: tap any word for its meaning, see how many of its words you know, and save the new ones.',
-			uk: 'У розділі «Навчання» є 29 історій з малюнками за рівнями: натисніть на слово, щоб побачити значення, дізнайтеся, скільки слів ви знаєте, і збережіть нові.'
+			uk: 'У розділі «Навчання» є 29 оповідань з малюнками за рівнями: натисніть на слово, щоб побачити значення, дізнайтеся, скільки слів ви знаєте, і збережіть нові.'
 		},
 		href: '/read'
 	},

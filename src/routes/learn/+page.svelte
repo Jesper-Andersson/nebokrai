@@ -228,7 +228,8 @@
 		<div class="main">
 			<!-- The levelled path, above the rest (user, Figma "Card A", 2026-11-17) -->
 			<div class="path-slot">
-				<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }} />
+				<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }}
+					onskipletters={() => alphabet.skip(true)} />
 			</div>
 			<div class="doors-slot">
 				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} stories={data.stories} onfirstwords={firstWords} />

@@ -6,6 +6,10 @@
      soft panel, a ✓ for a step done and a link for one still open. At the
      foot, the placement test, to take or take again.
 
+     While the letters are the step, a learner who reads Cyrillic already can
+     say so under the button, as on the newcomer's first card: a learner who
+     has reviewed a word no longer sees that card, and was held at stage 1.
+
      A stage once reached stays reached. That is kept in this browser, and
      only once the coverage table is here: before it, a stage that asks for
      coverage would look met for a moment and be kept as reached. -->
@@ -23,13 +27,16 @@
 		now,
 		ready,
 		offered,
-		letters
+		letters,
+		onskipletters
 	}: {
 		now: number;
 		ready: boolean;
 		/** The grammar rules that have sentences. */
 		offered: readonly string[];
 		letters: PathInput['letters'];
+		/** The learner reads the letters already (Alphabet.skip). */
+		onskipletters?: () => void;
 	} = $props();
 
 	const settings = useSettings();
@@ -100,6 +107,9 @@
 		<div class="go">
 			{#if ready && step}
 				<a class="ui-btn ui-btn-primary" href={step.href}>{goText(m, step, input.lessons)} <Icon name="arrow-right" size={16} /></a>
+				{#if step.kind === 'letters' && onskipletters}
+					<button type="button" class="skip" onclick={onskipletters}>{m.learn.first.letters.skip}</button>
+				{/if}
 			{:else if ready}
 				<a class="ui-btn ui-btn-primary" href="/review">{m.path.keepGoing} <Icon name="arrow-right" size={16} /></a>
 			{/if}
@@ -199,8 +209,31 @@
 		grid-area: name;
 	}
 
+	/* The button, and under it the letters' skip when they are the step */
 	.go {
+		display: grid;
 		grid-area: go;
+		justify-items: center;
+		gap: 0.4rem;
+	}
+
+	/* As the skip on the newcomer's first card (routes/learn/+page.svelte) */
+	.skip {
+		padding: 0.1rem 0;
+		border: 0;
+		background: none;
+		color: var(--muted);
+		font: inherit;
+		font-size: var(--text-sm);
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+		cursor: pointer;
+	}
+
+	@media (hover: hover) {
+		.skip:hover {
+			color: var(--ink);
+		}
 	}
 
 	.bar {

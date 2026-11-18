@@ -15,11 +15,11 @@ extract published by kaikki.org.
     curl -L https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl.gz \
         | python3 data/extract_translations.py > data/raw/uk_translations.jsonl
     python3 data/import_wiktionary.py data/raw/uk.jsonl nebokrai.db --freq data/raw/uk_full.txt --tatoeba data/raw \
-        --abbreviations data/abbreviations.tsv --translations data/raw/uk_translations.jsonl
+        --abbreviations data/abbreviations.tsv --own-meanings data/own-meanings.tsv         --translations data/raw/uk_translations.jsonl
     python3 data/search.py nebokrai.db good
 
 The build takes about a minute. Only Python 3 is needed, no packages.
-`--freq`, `--tatoeba`, `--abbreviations` and `--translations` are optional;
+`--freq`, `--tatoeba`, `--abbreviations`, `--own-meanings` and `--translations` are optional;
 without them you get the plain dictionary. The English extract is a 534 MB
 download that is read as a stream and not stored; what is kept of it is 8 MB
 (53,511 translations in October 2026). Its file only changes when kaikki.org
@@ -33,13 +33,13 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 
 | Table | One row per | Rows (Nov 2026) |
 |---|---|---|
-| `entries` | dictionary word + part of speech | 46,376 |
-| `senses` | English meaning of an entry | 65,108 |
+| `entries` | dictionary word + part of speech | 48,887 |
+| `senses` | English meaning of an entry | 68,177 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 87,295 |
-| `examples` | Tatoeba sentence with English translation | 25,970 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 87,783 |
+| `examples` | Tatoeba sentence with English translation | 26,683 |
 | `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,548 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,774,768 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,810,005 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
@@ -74,6 +74,25 @@ each into an entry shaped like a kept page ("abbreviation of кіломе́тр
 an entry is skipped (55 were added in November 2026). To add one, add a row and
 rebuild. An abbreviation written with a full stop is found without it too:
 `ст` finds `ст.`.
+
+`data/own-meanings.tsv` holds English meanings written for Nebokrai for common
+words that Wiktionary has no page for (`облишити`, `класний`, `подалі`; 2,512 rows
+in November 2026), with the stressed headword and part of speech. The words were
+chosen by how often they occur in the FrequencyWords list, with VESUM used only
+to find the dictionary form while drafting; nothing of VESUM's is in the file.
+`--own-meanings` turns each row into an entry with `entries.source` set to
+`nebokrai`, one meaning per `; `-separated gloss, English search keys from the
+glosses (not from what stands in brackets), and the verb's aspect from the note
+column as its tags. It runs before the translation tables, so such a word gets
+this entry rather than a thinner one made from them. A row whose spelling already
+has an entry is skipped, so a row goes quiet once Wiktionary has the page. These
+entries have no table of forms in `nebokrai.db`, so their frequency rank counts
+the dictionary form alone. The stress of every headword was compared with the
+academic dictionary (СУМ, as shown on goroh.pp.ua) one word at a time: where the
+two differed СУМ's stress was taken, and a word СУМ does not list was left out.
+Only the stressed headword was compared; no text of СУМ's is in the file. The
+first 354 rows were also read by a person before they went in; the rest were
+not. To add a word, add a row and rebuild.
 
 ## Translation tables
 

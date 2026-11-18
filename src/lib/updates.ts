@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-skip-the-letters',
+		date: '2026-11-18',
+		kind: 'changed',
+		title: { en: 'Skip the letters if you can read them', uk: 'Пропустіть літери, якщо вже вмієте їх читати' },
+		body: {
+			en: 'Your path on Learn now offers "I can read them already" at the Letters stage, not only on the first-steps card.',
+			uk: 'Ваш шлях у розділі «Навчання» тепер пропонує «Я вже вмію їх читати» на етапі «Літери», а не лише на картці перших кроків.'
+		},
+		href: '/learn'
+	},
+	{
 		id: '2026-11-18-more-everyday-words',
 		date: '2026-11-18',
 		kind: 'new',

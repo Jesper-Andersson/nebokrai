@@ -43,6 +43,16 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-everyday-words',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Look up 2,500 more everyday words', uk: 'Шукайте ще 2500 повсякденних слів' },
+		body: {
+			en: 'Common words that had no meaning here, such as облишити and класний, now have English meanings written for this dictionary, with the stress marked.',
+			uk: 'Поширені слова, яких тут бракувало, як-от «облишити» і «класний», тепер мають англійські значення, написані для цього словника, з наголосом.'
+		}
+	},
+	{
 		id: '2026-11-17-everyday-coverage',
 		date: '2026-11-17',
 		kind: 'new',

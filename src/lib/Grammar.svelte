@@ -47,7 +47,7 @@
 		brief?: boolean;
 		inline?: boolean;
 		/** The questions a verb's noun answers, each with its practice page where it has one. */
-		takes?: { ask: string; href?: string }[];
+		takes?: { ask: string; href?: string; lang?: string }[];
 	} = $props();
 
 	const settings = useSettings();
@@ -111,7 +111,7 @@
 			<span class="row">
 				<span class="part">{m.word.takes}</span>
 				{#each takes as item (item.ask)}
-					<span class="part" lang="uk"
+					<span class="part" lang={item.lang ?? 'uk'}
 						>{#if item.href}<a href={item.href}>{item.ask}</a>{:else}{item.ask}{/if}</span
 					>
 				{/each}

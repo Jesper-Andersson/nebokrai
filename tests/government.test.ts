@@ -7,11 +7,11 @@
 import { existsSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { messagesFor } from '../src/lib/i18n.ts';
 import { drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
 import {
 	GOVERNMENT, NOUN_SETS, PRACTISED, askOf, euphonic, governmentOf, isPractisable, patternOf
 } from '../src/lib/practice/government.ts';
+import { introOf } from '../src/lib/practice/intros.ts';
 import { LESSONS } from '../src/lib/practice/lessons.ts';
 import { POINTS, pointOf, ruleOf } from '../src/lib/practice/points.ts';
 import { cueParts, type Gap } from '../src/lib/practice/round.ts';
@@ -40,12 +40,12 @@ const sets = new Map<string, string[]>();
 	}
 }
 
-test('every practised pattern is a point in a lesson of verbs, named in both languages', () => {
+test('every practised pattern is a point in a lesson of verbs, which has a page and so a name', () => {
 	const lessons = LESSONS.filter((lesson) => lesson.group === 'government');
 	assert.deepEqual(lessons.flatMap((lesson) => lesson.points), PRACTISED.map((pattern) => pattern.id));
 	for (const lesson of lessons) {
 		assert.ok(lesson.points.length <= 6, lesson.id);
-		for (const lang of ['en', 'uk'] as const) assert.ok(messagesFor(lang).learn.short[lesson.id], `${lesson.id} ${lang}`);
+		assert.ok(introOf(lesson.id), `${lesson.id} has a page, and so a name`);
 	}
 	for (const pattern of PRACTISED) {
 		const point = pointOf(pattern.id);

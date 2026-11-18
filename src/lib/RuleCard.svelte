@@ -28,6 +28,7 @@
 	import Translation from '#lib/Translation.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { introPath, lessonOfPoint } from '#lib/practice/intros.ts';
 	import { meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { split, type Gap } from '#lib/practice/round.ts';
 	import { endingsOf, examplesFor } from '#lib/practice/rules.ts';
@@ -61,6 +62,8 @@
 	let go: HTMLElement | null = $state(null);
 
 	let endings = $derived(endingsOf(point));
+	/** The page of the lesson the rule is in, opened in a tab of its own so the round is kept. */
+	let lesson = $derived(lessonOfPoint(point.id));
 	let examples = $state.raw<Gap[] | null>(null);
 	let asked = false;
 
@@ -164,6 +167,10 @@
 				{/if}
 			</div>
 
+			{#if lesson}
+				<a class="ui-rule-explain" href={introPath(lesson)} target="_blank" rel="noopener">{m.intro.explain}</a>
+			{/if}
+
 			<Dialog.Close class="ui-btn ui-btn-primary ui-rule-go" bind:ref={go}>
 				{first ? t.tryIt : t.resume}
 				<Icon name="arrow-right" size={18} />
@@ -180,6 +187,13 @@
 		top: 0.6rem;
 		right: 0.6rem;
 		color: var(--muted);
+	}
+
+	/* The lesson's page, under the examples */
+	:global(.ui-rule-explain) {
+		justify-self: start;
+		color: var(--accent);
+		font-size: var(--text-sm);
 	}
 
 	/* The card renders at the end of <body> (Bits UI's portal), where scoped styles do not reach */

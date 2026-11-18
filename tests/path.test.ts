@@ -43,6 +43,15 @@ test('a newcomer is before the first stage, and the next step is the letters', (
 	assert.ok(path.stages.every((stage) => !stage.reached));
 });
 
+test("a lessons step not yet begun opens the lesson's page, and the first verbs' the present tense", () => {
+	const step = (input: PathInput, key: string) =>
+		pathOf(input).stages.flatMap((stage) => stage.criteria).find((criterion) => criterion.key === key);
+	assert.equal(step(NOBODY, 'preposition:2')?.href, '/grammar/where');
+	assert.equal(step({ ...NOBODY, lessons: lessons({ preposition: 1 }) }, 'preposition:2')?.href, '/grammar/where-to');
+	assert.equal(step(NOBODY, 'government:1')?.href, '/grammar/present-tense?next=gov-na-acc');
+	assert.equal(step({ ...NOBODY, lessons: lessons({ government: 1 }) }, 'government:all')?.href, '/grammar/gov-ins');
+});
+
 test('the letters are reached by knowing them, by skipping them, or by a placement of 500 words or more', () => {
 	assert.equal(pathOf({ ...NOBODY, letters: { known: 32, total: 33, skipped: false } }).current, null);
 	assert.equal(pathOf({ ...NOBODY, letters: { known: 33, total: 33, skipped: false } }).current, 'letters');

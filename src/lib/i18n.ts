@@ -4,6 +4,7 @@
 // here is shown as it is stored.
 import { termOf, type Group, type HeadFormKey, type OtherFormKey, type TermId } from './grammar.ts';
 import type { Cost, Kind, LevelSpan, Order, Price } from './resources.ts';
+import type { Level, TopicId } from './practice/intros.ts';
 import type { Lang } from './settings.ts';
 
 /** What a word's page has to show, for its title and description (see seo.ts). */
@@ -333,27 +334,6 @@ const en = {
 		/** Over the second list of lessons: which case a verb asks for (дякувати + кому?). */
 		verbPatterns: 'Verb patterns',
 		/** Each lesson in a word or two, in the list beside the open one. */
-		short: {
-			where: 'Location',
-			'where-to': 'Direction',
-			'who-whom': 'Who & Whom',
-			'with-from': 'With & From',
-			numbers: 'Counting',
-			'for-about': 'For & About',
-			'before-after': 'Before & After',
-			around: 'Nearby',
-			'above-below': 'Above & Below',
-			'gov-na-acc': 'Verbs + на що?',
-			'gov-ins': 'Verbs + чим?',
-			'gov-gen': 'Verbs + чого?',
-			'gov-dat': 'Verbs + кому?',
-			'gov-za-acc': 'Verbs + за що?',
-			'gov-u-na': 'Verbs + у що? на чому?',
-			'gov-na-who': 'Verbs + на кого?',
-			'gov-z-ins': 'Verbs + з ким?',
-			'gov-dat-more': 'More verbs + кому?',
-			'gov-za-ins': 'Verbs + за ким?'
-		} as Record<string, string>,
 		rulesKnown: (n: number, total: number) => `${n} of ${total} rules known`,
 		/** Starts a round of the open lesson; and, on a row, of that rule alone. */
 		practiseThis: 'Practise this',
@@ -370,7 +350,9 @@ const en = {
 			common: 'Common vocabulary',
 			commonNote: (n: string) => `${n} words`,
 			grammar: 'Grammar syllabus',
-			grammarNote: 'Gender, cases, verbs…'
+			grammarNote: 'Gender, cases, verbs…',
+			points: 'Grammar points',
+			pointsNote: (n: number) => `${n} points, a page each`
 		},
 		/**
 		 * What a newcomer sees in place of the dashboard, until the first
@@ -395,7 +377,7 @@ const en = {
 			grammar: {
 				name: 'Try a round of grammar',
 				text: 'Ten real sentences, each with a gap to fill.',
-				go: 'Start a round'
+				go: 'Start the first lesson'
 			}
 		}
 	},
@@ -601,6 +583,9 @@ const en = {
 		more: 'More in the guide',
 		/** The link beside a word's tables */
 		explained: 'What these words mean',
+		/** Beside it on a verb's page, and a number's */
+		presentExplained: 'How the present tense works',
+		numbersExplained: 'How a number changes the noun',
 		/** A search result's grammar line on a phone, where "imperfective" has no room beside the word */
 		short: { perfective: 'pf.', imperfective: 'impf.' } as Record<string, string>,
 		groups: {
@@ -1239,6 +1224,68 @@ const en = {
 	 * stage list under it, and the labels the placement test leaves on decks
 	 * and lessons.
 	 */
+	/** The grammar-point pages (/grammar/<lesson>, practice/intros.ts) and their index on /grammar. */
+	intro: {
+		crumb: 'Grammar',
+		cases: 'Cases',
+		verbs: 'Verbs',
+		lesson: (n: number) => `Lesson ${n}`,
+		verbLesson: (n: number) => `Verb lesson ${n}`,
+		beforeVerbs: 'Before the verb lessons',
+		/** Said on a page in the Ukrainian interface: the explanations are not translated. */
+		englishOnly: '',
+		stem: 'stem',
+		ending: 'ending',
+		firstSet: '-ати verbs (1st set)',
+		secondSet: '-ити verbs (2nd set)',
+		/** Over a case's table of endings: "Locative endings". */
+		endings: (name: string) => `${name} endings`,
+		endingsOf: 'Endings of which case',
+		previousIn: (topic: string) => `← Previous in ${topic}`,
+		nextIn: (topic: string) => `Next in ${topic} →`,
+		examples: 'Examples',
+		seeAlso: 'See also',
+		/** Before the pages a grammar point cites, at its foot */
+		sources: 'Sources:',
+		start: 'Start practising',
+		next: (name: string) => `Next: ${name}`,
+		skip: 'Skip to practice',
+		allForms: (word: string) => `${word}, all forms`,
+		glossary: (term: string) => `${term} (glossary)`,
+		/** The index on /grammar */
+		points: 'Grammar points',
+		pointsAbout: 'Every grammar point on a page of its own: the pattern, its endings, examples and what trips learners up. Read them in any order.',
+		jumpTo: 'Jump to:',
+		byWord: 'By word:',
+		topics: {
+			verbs: 'Verbs',
+			'verb-cases': 'Verbs and their cases',
+			prepositions: 'Prepositions',
+			sentences: 'Sentences',
+			numbers: 'Numbers'
+		} as Record<TopicId, string>,
+		/** Said under a group's heading, where it needs saying */
+		topicAbout: {
+			'verb-cases': 'Each verb asks for a case of its own. Learn the verb with its question.'
+		} as Partial<Record<TopicId, string>>,
+		point: 'Point',
+		pattern: 'Pattern',
+		example: 'Example',
+		/** On a rule's card in a round */
+		explain: 'Read the explanation',
+		/** At the end of a round, before the pages of the lessons that had a miss */
+		readMissed: 'Read about these rules:',
+		/** Under a case in the glossary: the grammar points that ask for it */
+		usedIn: 'Grammar points:',
+		/** The CEFR levels, by name, and the side list and index that show them */
+		levels: { A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate' } as Record<Level, string>,
+		level: 'Level',
+		allLevels: 'All',
+		showLevel: 'Show the points of one level',
+		levelFrom: 'Level from the 2024 State Standard',
+		levelEstimated: 'Level estimated: the 2024 State Standard does not list it',
+		allPoints: 'All grammar points'
+	},
 	path: {
 		title: 'Your path',
 		allStages: 'All stages',
@@ -1337,7 +1384,9 @@ const en = {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian', read: 'Stories',
 		privacy: 'Privacy', stats: 'Usage', suggestions: 'Suggestions', import: 'Import words', updates: 'Updates',
-		extension: 'Nebokrai in your browser', placement: 'Placement test'
+		extension: 'Nebokrai in your browser', placement: 'Placement test',
+		/** The index of the grammar points: what /updates names a link to it */
+		'grammar/points': 'Grammar points'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1407,6 +1456,8 @@ const en = {
 		privacy: 'What Nebokrai keeps and what it does not: no ads and no third-party trackers, cookies only for signing in and settings, and what an account or a report stores.',
 		stats: 'Visits, searches and accounts on Nebokrai, counted without cookies. For the site’s owner only.',
 		suggestions: 'Corrections to the dictionary that readers have suggested, for review. For the site’s owner only.',
+		grammarPoints: 'Ukrainian grammar points for learners, each on a page: the pattern, its endings and examples, for verbs, prepositions, cases and numbers.',
+		grammarPoint: (title: string) => `${title}: the pattern, its endings, examples from real Ukrainian sentences, and what trips learners up. Then practise it.`,
 		grammar: 'Ukrainian grammar words in plain English: gender, the seven cases and the question each answers, verb aspect, and what they change in a sentence.',
 		resources: 'Courses, podcasts, dictionaries and tools for learning Ukrainian, chosen by hand, with the level and the cost of each.',
 		support: 'Where to donate to Ukraine: United24 and other funds for defence, medicine, aid, children, education, animals, rebuilding, culture and veterans.',
@@ -1884,27 +1935,6 @@ const uk: Messages = {
 		off: 'нові слова звідси не беруться',
 		cases: 'Відмінки',
 		verbPatterns: 'Дієслівне керування',
-		short: {
-			where: 'Де',
-			'where-to': 'Куди',
-			'who-whom': 'Хто кого',
-			'with-from': 'З ким і звідки',
-			numbers: 'Лічба',
-			'for-about': 'Для і про',
-			'before-after': 'До і після',
-			around: 'Поруч',
-			'above-below': 'Над і під',
-			'gov-na-acc': 'Дієслова + на що?',
-			'gov-ins': 'Дієслова + чим?',
-			'gov-gen': 'Дієслова + чого?',
-			'gov-dat': 'Дієслова + кому?',
-			'gov-za-acc': 'Дієслова + за що?',
-			'gov-u-na': 'Дієслова + у що? на чому?',
-			'gov-na-who': 'Дієслова + на кого?',
-			'gov-z-ins': 'Дієслова + з ким?',
-			'gov-dat-more': 'Ще дієслова + кому?',
-			'gov-za-ins': 'Дієслова + за ким?'
-		},
 		// "з" takes the genitive: з 1 правила, з 3 правил
 		rulesKnown: (n, total) => `засвоєно ${n} з ${total} ${total % 10 === 1 && total % 100 !== 11 ? 'правила' : 'правил'}`,
 		practiseThis: 'Тренувати це',
@@ -1919,7 +1949,9 @@ const uk: Messages = {
 			common: 'Найуживаніші слова',
 			commonNote: (n) => `${n} слів`,
 			grammar: 'Граматичні терміни',
-			grammarNote: 'Рід, відмінки, дієслова…'
+			grammarNote: 'Рід, відмінки, дієслова…',
+			points: 'Граматичні теми',
+			pointsNote: (n) => `${n} тем, кожна на сторінці`
 		},
 		first: {
 			title: 'Почніть тут',
@@ -1940,7 +1972,7 @@ const uk: Messages = {
 			grammar: {
 				name: 'Спробуйте раунд граматики',
 				text: 'Десять справжніх речень, у кожному пропуск.',
-				go: 'Почати раунд'
+				go: 'Почати перший урок'
 			}
 		}
 	},
@@ -2110,6 +2142,8 @@ const uk: Messages = {
 	grammar: {
 		more: 'Докладніше в довіднику',
 		explained: 'Що означають ці слова',
+		presentExplained: 'Як утворюється теперішній час',
+		numbersExplained: 'Як число змінює іменник',
 		short: { perfective: 'док.', imperfective: 'недок.' },
 		groups: {
 			pos: 'Частини мови',
@@ -2699,6 +2733,58 @@ const uk: Messages = {
 			again: 'Імпортувати інший файл'
 		}
 	},
+	intro: {
+		crumb: 'Граматика',
+		cases: 'Відмінки',
+		verbs: 'Дієслова',
+		lesson: (n: number) => `Урок ${n}`,
+		verbLesson: (n: number) => `Урок дієслів ${n}`,
+		beforeVerbs: 'Перед уроками дієслів',
+		englishOnly: 'Пояснення подано англійською.',
+		stem: 'основа',
+		ending: 'закінчення',
+		firstSet: '-ати (перша дієвідміна)',
+		secondSet: '-ити (друга дієвідміна)',
+		endings: (name: string) => `Закінчення: ${name.toLocaleLowerCase('uk')}`,
+		endingsOf: 'Закінчення якого відмінка',
+		previousIn: (topic: string) => `← Попередня тема: ${topic.toLocaleLowerCase('uk')}`,
+		nextIn: (topic: string) => `Наступна тема: ${topic.toLocaleLowerCase('uk')} →`,
+		examples: 'Приклади',
+		seeAlso: 'Див. також',
+		sources: 'Джерела:',
+		start: 'Почати тренування',
+		next: (name: string) => `Далі: ${name}`,
+		skip: 'Одразу до тренування',
+		allForms: (word: string) => `${word}: усі форми`,
+		glossary: (term: string) => `${term} (словничок)`,
+		points: 'Граматичні теми',
+		pointsAbout: 'Кожна граматична тема на окремій сторінці: схема, закінчення, приклади й типові помилки. Читайте в будь-якому порядку.',
+		jumpTo: 'Перейти до:',
+		byWord: 'За словом:',
+		topics: {
+			verbs: 'Дієслова',
+			'verb-cases': 'Дієслова та відмінки',
+			prepositions: 'Прийменники',
+			sentences: 'Речення',
+			numbers: 'Числа'
+		},
+		topicAbout: {
+			'verb-cases': 'Кожне дієслово вимагає свого відмінка. Вчіть дієслово разом з його питанням.'
+		},
+		point: 'Тема',
+		pattern: 'Схема',
+		example: 'Приклад',
+		explain: 'Прочитати пояснення',
+		readMissed: 'Прочитати про ці правила:',
+		usedIn: 'Граматичні теми:',
+		levels: { A1: 'Початковий', A2: 'Елементарний', B1: 'Середній' },
+		level: 'Рівень',
+		allLevels: 'Усі',
+		showLevel: 'Показати теми одного рівня',
+		levelFrom: 'Рівень за Стандартом державної мови 2024 року',
+		levelEstimated: 'Рівень оцінено: Стандарт 2024 року його не називає',
+		allPoints: 'Усі граматичні теми'
+	},
 	path: {
 		title: 'Ваш шлях',
 		allStages: 'Усі етапи',
@@ -2787,7 +2873,8 @@ const uk: Messages = {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську', read: 'Оповідання',
 		privacy: 'Приватність', stats: 'Відвідуваність', suggestions: 'Пропозиції', import: 'Імпорт слів', updates: 'Оновлення',
-		extension: 'Nebokrai у вашому браузері', placement: 'Тест на рівень'
+		extension: 'Nebokrai у вашому браузері', placement: 'Тест на рівень',
+		'grammar/points': 'Граматичні теми'
 	},
 	read: {
 		title: 'Оповідання',
@@ -2840,6 +2927,8 @@ const uk: Messages = {
 		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й сторонніх трекерів, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
 		stats: 'Відвідування, пошуки й облікові записи Nebokrai, пораховані без файлів cookie. Лише для власника сайту.',
 		suggestions: 'Виправлення до словника, які запропонували читачі, на розгляд. Лише для власника сайту.',
+		grammarPoints: 'Граматичні теми української для тих, хто вчить мову, кожна на сторінці: схема, закінчення й приклади для дієслів, прийменників, відмінків і чисел.',
+		grammarPoint: (title: string) => `${title}: схема, закінчення, приклади з живих українських речень і типові помилки. А потім тренування.`,
 		grammar: 'Українські граматичні терміни простими словами: рід, сім відмінків і питання до кожного, вид дієслова, і що вони змінюють у реченні.',
 		resources: 'Курси, подкасти, словники й інструменти для вивчення української, дібрані вручну, з рівнем і вартістю кожного.',
 		support: 'Куди задонатити для України: United24 та інші фонди для оборони, медицини, допомоги, дітей, освіти, тварин, відбудови, культури й ветеранів.',

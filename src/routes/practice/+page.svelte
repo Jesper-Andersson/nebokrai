@@ -26,6 +26,7 @@
 	import {
 		LESSONS, lessonRows, newPicks, openLesson, readOpenLesson, rememberOpenLesson
 	} from '#lib/practice/lessons.ts';
+	import { introPath, lessonName } from '#lib/practice/intros.ts';
 	import { POINTS, cardKey, meaningOfPoint, pointOf, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
 	import { useReview } from '#lib/review.svelte.ts';
@@ -175,7 +176,7 @@
 		<div class="ui-card rows">
 			{#each group.rows as lesson (lesson.id)}
 				{@const isOpen = lesson.id === open?.id}
-				{@const name = m.learn.short[lesson.id]}
+				{@const name = lessonName(lesson.id)}
 				<div class="row" class:open={isOpen}>
 					<div class="head">
 						<button
@@ -215,6 +216,11 @@
 
 					{#if isOpen}
 						<div class="fold" id="lesson-{lesson.id}">
+							<!-- The lesson's page, which explains its rules before or after a round -->
+							<a class="explain" href={introPath(lesson.id)}>
+								<Icon name="book" size={16} />
+								{m.intro.explain}
+							</a>
 							<!-- Wide: the table, as on /learn -->
 							<table>
 								<thead>
@@ -512,6 +518,17 @@
 	/* --- The open lesson's rules --- */
 	.fold {
 		padding: 0 1rem 0.9rem 3.6rem;
+	}
+
+	/* The lesson's page, above its rules */
+	.explain {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin: 0.1rem 0 0.4rem;
+		color: var(--accent);
+		font-size: var(--text-sm);
+		font-weight: 600;
 	}
 
 	.state {

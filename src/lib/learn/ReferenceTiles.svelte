@@ -1,10 +1,12 @@
 <!-- The pages for reading, at the foot of /learn: the alphabet, the common
-     words and the grammar words, each a tile with its mark, its name and
+     words, the grammar points (a page each, for reading in any order) and
+     the grammar words, each a tile with its mark, its name and
      what it holds. The alphabet's mark is three letters, not a drawing. -->
 <script lang="ts">
 	import Icon from '#lib/Icon.svelte';
 	import { COMMON_WORDS } from '#lib/browse.ts';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { INTROS, POINTS_PATH } from '#lib/practice/intros.ts';
 	import { useSettings } from '#lib/settings.ts';
 
 	let {
@@ -49,6 +51,16 @@
 			</a>
 		</li>
 		<li>
+			<a class="ui-card tile" data-kind="points" href={POINTS_PATH}>
+				<span class="mark"><Icon name="list" size={22} /></span>
+				<span class="text">
+					<b>{m.learn.tile.points}</b>
+					<span class="note">{m.learn.tile.pointsNote(INTROS.length)}</span>
+				</span>
+				<Icon name="arrow-right" size={16} />
+			</a>
+		</li>
+		<li>
 			<a class="ui-card tile" data-kind="grammar" href="/grammar">
 				<span class="mark"><Icon name="table" size={22} /></span>
 				<span class="text">
@@ -78,7 +90,7 @@
 
 	.tiles {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 1rem;
 		margin: 0;
 		padding: 0;
@@ -112,7 +124,8 @@
 		--kind-soft: var(--accent-soft);
 	}
 
-	[data-kind='grammar'] {
+	[data-kind='grammar'],
+	[data-kind='points'] {
 		--kind: var(--pill-1-line);
 		--kind-soft: color-mix(in srgb, var(--pill-1-line) 14%, var(--surface));
 	}
@@ -155,6 +168,13 @@
 	@media (hover: hover) {
 		.tile:hover {
 			border-color: var(--accent);
+		}
+	}
+
+	/* Four in a row only where each has room for its note */
+	@media (max-width: 1000px) {
+		.tiles {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
 		}
 	}
 

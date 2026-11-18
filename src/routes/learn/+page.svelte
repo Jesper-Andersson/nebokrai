@@ -29,6 +29,8 @@
 	import PathCard from '#lib/learn/PathCard.svelte';
 	import ReferenceTiles from '#lib/learn/ReferenceTiles.svelte';
 	import VocabularyCard from '#lib/learn/VocabularyCard.svelte';
+	import { introPath } from '#lib/practice/intros.ts';
+	import { LESSONS } from '#lib/practice/lessons.ts';
 	import { POINTS, cardKey, isPointKey } from '#lib/practice/points.ts';
 	import { plan } from '#lib/review/cards.ts';
 	import { COMMON_DECKS, newWords, reviewWords } from '#lib/review/decks.ts';
@@ -207,7 +209,8 @@
 							<p>{m.learn.first.grammar.text}</p>
 						</div>
 						<div class="path-go">
-							<a class="ui-btn" href="/practice">{m.learn.first.grammar.go} <Icon name="arrow-right" size={16} /></a>
+							<!-- A newcomer has begun no lesson: the first one's page, which leads into its round -->
+							<a class="ui-btn" href={introPath(LESSONS[0].id)}>{m.learn.first.grammar.go} <Icon name="arrow-right" size={16} /></a>
 						</div>
 					</li>
 				</ol>

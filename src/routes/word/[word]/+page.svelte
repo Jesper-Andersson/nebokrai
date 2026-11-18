@@ -37,6 +37,7 @@
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { lastSearch } from '#lib/last-search.ts';
 	import { askOf, governmentOf } from '#lib/practice/government.ts';
+	import { PRESENT_TENSE, introPath, prepositionCases } from '#lib/practice/intros.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -66,14 +67,25 @@
 	});
 
 	// Which case a verb asks of its noun (practice/government.ts), under the
-	// grammar line: takes · кому? · за що?, each leading to its practice
-	const takesOf = (entry: WordEntry) =>
-		entry.pos === 'verb' || entry.pos === 'adj'
-			? governmentOf(entry.word).map((pattern) => ({
-					ask: askOf(pattern),
-					href: pattern.lesson ? `/practice?rule=${pattern.id}` : undefined
-				}))
-			: [];
+	// grammar line: takes · кому? · за що?, each leading to the page that
+	// explains it, which leads on to its practice. A preposition's line names
+	// its cases the same way: у takes · locative · accusative.
+	const takesOf = (entry: WordEntry) => {
+		if (entry.pos === 'verb' || entry.pos === 'adj') {
+			return governmentOf(entry.word).map((pattern) => ({
+				ask: askOf(pattern),
+				href: pattern.lesson ? introPath(pattern.lesson) : undefined
+			}));
+		}
+		if (entry.pos === 'prep') {
+			return prepositionCases(entry.word).map((each) => ({
+				ask: m.grammar.terms[each.case].name.toLocaleLowerCase(settings.lang),
+				href: introPath(each.lesson),
+				lang: settings.lang
+			}));
+		}
+		return [];
+	};
 
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
@@ -423,6 +435,8 @@
 								{/if}
 								<p class="guide">
 									<a href="/grammar#{entry.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
+									{#if entry.pos === 'verb'}{' · '}<a href={introPath(PRESENT_TENSE)}>{m.grammar.presentExplained}</a>{/if}
+									{#if entry.pos === 'num'}{' · '}<a href={introPath('numbers')}>{m.grammar.numbersExplained}</a>{/if}
 								</p>
 							</section>
 						{/if}
@@ -509,6 +523,7 @@
 					{/if}
 					<p class="guide">
 						<a href="/grammar#{word.pos === 'verb' ? 'verbs' : 'cases'}">{m.grammar.explained}</a>
+						{#if word.pos === 'verb'}{' · '}<a href={introPath(PRESENT_TENSE)}>{m.grammar.presentExplained}</a>{/if}
 					</p>
 				</section>
 			{/if}

@@ -159,6 +159,20 @@ splits the pages into sentences; it changes nothing else. Each page is read
 aloud by the person the story names. The 11 Ukrainian stories there under a
 non-commercial licence are not used.
 
+### Grammar points
+
+(A note for this file, not text for `/sources`: each grammar point's page names
+its own references at its foot.)
+
+**The grammar points** (`/grammar/points`, written in
+`src/lib/practice/intros.ts`) are Nebokrai's own text. Each page cites one or
+two public pages that state its rule, from
+[Read Ukrainian!](https://ukrainianlanguage.org.uk/),
+[Ukrainian Lessons](https://www.ukrainianlessons.com/), English Wiktionary and
+Wikipedia, so a learner can check the rule and read on; no text is copied from
+them. A page's example sentences are the grammar practice's own: those from
+Tatoeba are credited and linked one by one, as everywhere else.
+
 ### Using our data
 
 The dictionary data shown on this site, apart from VESUM, is available under

@@ -9,6 +9,7 @@ import {
 } from './browse.ts';
 import { EXTENSION_LIVE } from './extension.ts';
 import { posLabel, type Messages, type WordFacts } from './i18n.ts';
+import { INTROS, POINTS_PATH, introPath } from './practice/intros.ts';
 import type { Db } from './search/db.ts';
 import { wordPath } from './search/slug.ts';
 import type { VesumWord } from './search/vesum-word.ts';
@@ -66,6 +67,8 @@ export function vesumDescription(m: Messages, word: VesumWord): string {
 const PAGES = [
 	'/', '/learn', '/alphabet', '/grammar', '/practice', '/read', '/resources', '/support', '/about', '/sources', '/privacy',
 	'/words', '/updates', '/placement',
+	// The grammar points, a page each (practice/intros.ts)
+	POINTS_PATH, ...INTROS.map((intro) => introPath(intro.id)),
 	// The browser extension's page, once a store has it
 	...(EXTENSION_LIVE ? ['/extension'] : [])
 ];

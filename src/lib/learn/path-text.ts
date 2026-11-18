@@ -2,13 +2,14 @@
 // path card on /learn and its stage list: "300 of the commonest 500 words",
 // "Lesson 4: For & About", and the card's button, "Next: lesson 4 · For & About".
 import type { Messages } from '../i18n.ts';
+import { lessonName } from '../practice/intros.ts';
 import type { Criterion, PathLesson } from '../path.ts';
 
 /** The first lesson a lessons step still waits on, with its number and short name. */
 function lessonOf(m: Messages, criterion: Criterion, lessons: readonly PathLesson[]) {
 	const lesson = criterion.lesson ? lessons.find((l) => l.id === criterion.lesson) : undefined;
 	if (!lesson) return null;
-	return { n: lesson.n, name: m.learn.short[lesson.id] ?? lesson.id, verb: lesson.group === 'government' };
+	return { n: lesson.n, name: lessonName(lesson.id), verb: lesson.group === 'government' };
 }
 
 /** What a step asks for, as the stage list says it. */

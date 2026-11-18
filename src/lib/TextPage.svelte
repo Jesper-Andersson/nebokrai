@@ -19,8 +19,20 @@
 		title,
 		description,
 		wide = false,
-		children
-	}: { title: string; description: string; wide?: boolean; children: Snippet } = $props();
+		children,
+		aside
+	}: {
+		title: string;
+		description: string;
+		wide?: boolean;
+		children: Snippet;
+		/**
+		 * A list to read on in, beside the sheet: on the left where the window
+		 * has room for it (`.side`), folded under the sheet where it has not
+		 * (`.panel`). The grammar points' pages pass both (PointList.svelte).
+		 */
+		aside?: Snippet;
+	} = $props();
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
@@ -41,8 +53,11 @@
 		void tick().then(() => {
 			if (!live) return;
 			parts = headings().map((heading, i) => {
-				// A heading with no id of its own is given one to link to
-				if (!heading.id) heading.id = `part-${i + 1}`;
+				// A heading with no id of its own is given one to link to. Numbered
+				// afresh each time: going from one page to another of the same route
+				// (one grammar point to the next) keeps some headings' elements, and
+				// an old part-2 beside a new part-2 broke the list's keyed each (500)
+				if (!heading.id || heading.id.startsWith('part-')) heading.id = `part-${i + 1}`;
 				return { id: heading.id, text: heading.textContent?.trim() ?? '' };
 			});
 			mark();
@@ -66,10 +81,15 @@
 
 <svelte:window onscroll={mark} />
 
-<article class="ui-card" class:wide bind:this={sheet}>
-	<h1 class="ui-title">{title}</h1>
-	{@render children()}
-</article>
+<!-- With a list beside it, the sheet and the list share a row: the list in
+     the left margin, lined up with the sheet's top and staying in view -->
+<div class={{ row: aside }}>
+	{#if aside}<div class="side-slot">{@render aside()}</div>{/if}
+	<article class="ui-card" class:wide bind:this={sheet}>
+		<h1 class="ui-title">{title}</h1>
+		{@render children()}
+	</article>
+</div>
 
 {#if parts.length >= 3}
 	<nav class="parts" aria-label={m.nav.onThisPage}>
@@ -137,6 +157,57 @@
 	/* A link from the list beside the sheet stops below the sticky header */
 	article :global(h2) {
 		scroll-margin-top: 4.75rem;
+	}
+
+	/* The list beside the sheet: on its left, where the window has room for
+	   both margins (15rem here, 13rem for "On this page"); else under it */
+	.row {
+		display: flex;
+		flex-direction: column-reverse;
+	}
+
+	.side-slot :global(.side) {
+		display: none;
+	}
+
+	.side-slot :global(.panel) {
+		width: min(var(--prose), 100% - 2rem);
+		margin: 0 auto 2rem;
+	}
+
+	@media (min-width: 80rem) {
+		.row {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) var(--prose) minmax(0, 1fr);
+			column-gap: 2rem;
+			align-items: start;
+		}
+
+		.row article {
+			grid-column: 2;
+			grid-row: 1;
+			width: 100%;
+		}
+
+		.side-slot {
+			position: sticky;
+			top: 5rem;
+			grid-column: 1;
+			grid-row: 1;
+			justify-self: end;
+			width: 15rem;
+			max-height: calc(100dvh - 6rem);
+			margin-top: 1.5rem;
+			overflow-y: auto;
+		}
+
+		.side-slot :global(.side) {
+			display: block;
+		}
+
+		.side-slot :global(.panel) {
+			display: none;
+		}
 	}
 
 	/* The sections, in the margin to the right of the sheet. Only where the

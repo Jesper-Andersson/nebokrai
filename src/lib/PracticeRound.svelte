@@ -19,6 +19,7 @@
 	import { messagesFor } from '#lib/i18n.ts';
 	import { cardKey, pointOf, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { askWhere, gradePoint, planRound, planWeak, split, type Gap, type Outcome } from '#lib/practice/round.ts';
+	import { introPath, lessonName, lessonOfPoint } from '#lib/practice/intros.ts';
 	import { introduces } from '#lib/practice/rules.ts';
 	import { whereAnswer } from '#lib/practice/where.ts';
 	import type { ReviewCard } from '#lib/review/fsrs.ts';
@@ -137,6 +138,8 @@
 		});
 		return [...by];
 	});
+	/** The pages of the lessons that had a miss, once each: the moment an explanation is most wanted. */
+	let toRead = $derived([...new Set(missed.map(([point]) => lessonOfPoint(point.id)).filter((id) => id !== undefined))]);
 </script>
 
 {#if stage === 'loading' || stage === 'failed'}
@@ -213,6 +216,12 @@
 					</li>
 				{/each}
 			</ul>
+			{#if toRead.length}
+				<p class="read">
+					{m.intro.readMissed}
+					{#each toRead as id, i (id)}{#if i}{' · '}{/if}<a href={introPath(id)}>{lessonName(id)}</a>{/each}
+				</p>
+			{/if}
 		{:else}
 			<p class="muted">{m.practice.allRight}</p>
 		{/if}
@@ -265,6 +274,15 @@
 
 	.end .ui-label {
 		width: 100%;
+	}
+
+	.read {
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.read a {
+		color: var(--accent);
 	}
 
 	.missed {

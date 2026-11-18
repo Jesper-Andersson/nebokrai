@@ -11,12 +11,27 @@
 	import PageMeta from '#lib/PageMeta.svelte';
 	import { CASES, EXAMPLES, GROUPS, HINTS, type Group } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { POINTS_PATH, PRESENT_TENSE, introPath, lessonName, lessonsWithCase } from '#lib/practice/intros.ts';
 	import { useSettings } from '#lib/settings.ts';
 
 	const settings = useSettings();
 	let m = $derived(messagesFor(settings.lang));
 
 	const groups = Object.keys(GROUPS) as Group[];
+
+	/**
+	 * The grammar points a word of the glossary leads on to: each case to the
+	 * lessons that ask for it, conjugation to the present tense, a preposition
+	 * and a numeral to their groups of points. Shown under the word's note.
+	 */
+	let pointsFor = $derived((id: string): { href: string; text: string }[] => {
+		if ((CASES as string[]).includes(id)) return lessonsWithCase(id).map((lesson) => ({ href: introPath(lesson), text: lessonName(lesson) }));
+		if (id === 'conjugation') return [{ href: introPath(PRESENT_TENSE), text: m.grammar.presentExplained }];
+		if (id === 'preposition') return [{ href: `${POINTS_PATH}#prepositions`, text: m.intro.topics.prepositions }];
+		if (id === 'numeral') return [{ href: introPath('numbers'), text: lessonName('numbers') }];
+		return [];
+	});
+
 
 	// "noun, verb, adjective…": what a line of the contents says is in its group
 	let preview = $derived((group: Group) =>
@@ -40,6 +55,8 @@
 			{/each}
 		</nav>
 
+		<!-- The grammar points, each a page of its own, listed on a page of their own -->
+		<p class="practise"><a href={POINTS_PATH}>{m.intro.points}</a></p>
 		<!-- From reading a rule to using it: the exercises are a page away -->
 		<p class="practise"><a href="/practice">{m.grammar.practise}</a></p>
 	</header>
@@ -93,6 +110,12 @@
 							<p>{term.text}</p>
 							{#if example}
 								<p class="example"><b lang="uk">{example.uk}</b><span class="muted">{example.en}</span></p>
+							{/if}
+							{#if pointsFor(id).length}
+								<p class="used">
+									{m.intro.usedIn}
+									{#each pointsFor(id) as link, i (link.href)}{#if i}{' · '}{/if}<a href={link.href}>{link.text}</a>{/each}
+								</p>
 							{/if}
 						</dd>
 					</div>
@@ -292,6 +315,17 @@
 	}
 
 	/* The Ukrainian and what it means, set off from the explanation */
+	/* The grammar points a word leads on to, under its note */
+	.used {
+		margin-top: 0.4rem;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.used a {
+		color: var(--accent);
+	}
+
 	.example {
 		display: flex;
 		flex-wrap: wrap;

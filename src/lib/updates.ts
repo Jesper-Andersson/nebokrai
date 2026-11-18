@@ -43,6 +43,17 @@ export interface Update {
 // the one most worth reading on top.
 export const UPDATES: Update[] = [
 	{
+		id: '2026-11-18-grammar-points',
+		date: '2026-11-18',
+		kind: 'new',
+		title: { en: 'Read each grammar rule before you practise it', uk: 'Прочитайте правило, перш ніж його тренувати' },
+		body: {
+			en: 'Grammar points has a page for each lesson and the present tense, with the pattern, examples and its CEFR level.',
+			uk: 'У «Граматичних темах» кожен урок і теперішній час мають свою сторінку: схема, приклади й рівень CEFR.'
+		},
+		href: '/grammar/points'
+	},
+	{
 		id: '2026-11-18-skip-the-letters',
 		date: '2026-11-18',
 		kind: 'changed',

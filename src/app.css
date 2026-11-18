@@ -911,6 +911,33 @@ select {
 	box-shadow: inset 0 0 0 1px var(--stress);
 }
 
+/* A CEFR level (grammar points): A1 in the green of a right answer, A2 in
+   the accent, B1 in the flag's gold */
+.ui-level {
+	display: inline-block;
+	flex: none;
+	padding: 0 0.35rem;
+	border-radius: var(--radius-sm);
+	font-size: var(--text-xs);
+	font-weight: 700;
+	line-height: 1.5;
+}
+
+.ui-level[data-level='A1'] {
+	background: var(--right-soft);
+	color: var(--right);
+}
+
+.ui-level[data-level='A2'] {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.ui-level[data-level='B1'] {
+	background: var(--flag-soft);
+	color: var(--flag-line);
+}
+
 .ui-badge {
 	display: inline-flex;
 	align-items: center;

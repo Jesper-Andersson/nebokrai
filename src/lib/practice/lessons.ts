@@ -5,7 +5,7 @@
 //
 // A lesson's number is its place in its group's list and is kept nowhere, so a
 // lesson can be put between two others. Its short name is interface text, in
-// i18n.ts (`learn.short`).
+// intros.ts (`lessonName`, from the lesson's page title).
 //
 // The Learn page's Grammar card and the practice page lay the lessons out the
 // same way (lessonRows), and open the same one: the lesson last opened on

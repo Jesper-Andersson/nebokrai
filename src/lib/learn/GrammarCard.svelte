@@ -9,6 +9,7 @@
 	import { onMount, tick } from 'svelte';
 	import Icon from '#lib/Icon.svelte';
 	import { messagesFor } from '#lib/i18n.ts';
+	import { introPath, lessonHref, lessonName } from '#lib/practice/intros.ts';
 	import { lessonRows, openLesson, readOpenLesson, rememberOpenLesson } from '#lib/practice/lessons.ts';
 	import { cardKey, meaningOfPoint, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { stateOf, type PointState } from '#lib/practice/round.ts';
@@ -117,7 +118,7 @@
 								onclick={(event) => choose(lesson.id, event.currentTarget)}
 							>
 								<span class="n">{lesson.n}</span>
-								<b>{m.learn.short[lesson.id]}</b>
+								<b>{lessonName(lesson.id)}</b>
 								<small lang="uk">{lesson.cues.join(' · ')}</small>
 								<span class="segments" aria-hidden="true">
 									{#each lesson.points as { point, state } (point.id)}<i data-state={state}></i>{/each}
@@ -147,13 +148,15 @@
 				<div class="body">
 				<div class="title">
 					<div>
-						<h3>{open.n} · {m.learn.short[open.id]}</h3>
+						<h3>{open.n} · {lessonName(open.id)}</h3>
 						<span class="muted">
 							{ready ? m.learn.rulesKnown(open.known, open.points.length) : ''}
 							{#if ready && open.placed}· <span class="placed">{m.path.knownFromTest}</span>{/if}
 						</span>
+						<a class="explain" href={introPath(open.id)}>{m.intro.explain}</a>
 					</div>
-					<a class="ui-btn ui-btn-primary" href="/practice?lesson={open.id}">
+					<!-- A lesson not begun opens its page first (intros.ts, lessonHref) -->
+					<a class="ui-btn ui-btn-primary" href={ready ? lessonHref(open, lessons) : `/practice?lesson=${open.id}`}>
 						{m.learn.practiseThis} <Icon name="arrow-right" size={16} />
 					</a>
 				</div>
@@ -361,6 +364,14 @@
 
 	.title .ui-btn {
 		flex: none;
+	}
+
+	/* The lesson's page, to read again after it has been begun */
+	.explain {
+		display: block;
+		width: fit-content;
+		color: var(--accent);
+		font-size: var(--text-sm);
 	}
 
 	/* Positioned, so that the hidden column name (ui-sr-only, absolute) is

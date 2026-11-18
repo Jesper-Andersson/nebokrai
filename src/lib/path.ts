@@ -17,6 +17,7 @@
 //
 // Pure: no Svelte, no storage, so `npm test` runs it (tests/path.test.ts).
 import { coverage, milestones, type CoverageTable } from './coverage.ts';
+import { lessonHref } from './practice/intros.ts';
 import { lessonRows, type LessonGroup } from './practice/lessons.ts';
 import { cardKey, type Point } from './practice/points.ts';
 import { stateOf as pointState, type PointState } from './practice/round.ts';
@@ -202,7 +203,7 @@ function criterion(need: Need, input: PathInput): Criterion | null {
 			const first = asked.find((lesson) => !lessonDone(lesson));
 			return {
 				kind: 'lessons', key: `${need.group}:${need.upTo}`, have: done.length, need: asked.length,
-				done: done.length === asked.length, href: first ? `/practice?lesson=${first.id}` : '/practice',
+				done: done.length === asked.length, href: first ? lessonHref(first, input.lessons) : '/practice',
 				...(first ? { lesson: first.id } : {})
 			};
 		}

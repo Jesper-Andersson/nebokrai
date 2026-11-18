@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { messagesFor } from '../src/lib/i18n.ts';
 import { MAX_GAPS, drawGaps, pointCounts } from '../src/lib/practice/gaps.ts';
+import { introOf } from '../src/lib/practice/intros.ts';
 import { LESSONS, lessonRows, newPicks, openLesson } from '../src/lib/practice/lessons.ts';
 import { COUNTED, drawNumber, isNumberPoint, numberCount, stressLike } from '../src/lib/practice/numbers.ts';
 import { POINTS, cardKey, isNumber, isPointKey, pointOf } from '../src/lib/practice/points.ts';
@@ -66,10 +67,8 @@ test('the lessons hold every point once, in the order of the points', () => {
 	assert.equal(new Set(LESSONS.map((lesson) => lesson.id)).size, LESSONS.length);
 	for (const lesson of LESSONS) {
 		assert.ok(lesson.points.length, lesson.id);
-		for (const lang of ['en', 'uk'] as const) {
-			// Its name in a word or two, for the lists on /learn and /practice
-			assert.ok(messagesFor(lang).learn.short[lesson.id], `${lesson.id} ${lang} short`);
-		}
+		// Its name, for the lists on /learn and /practice, comes from its page's title
+		assert.ok(introOf(lesson.id), `${lesson.id} has a page, and so a name`);
 	}
 });
 

@@ -40,10 +40,10 @@ down to lines with `"lang_code": "uk"`; the format is the same.
 | `entries` | dictionary word + part of speech | 49,583 |
 | `senses` | English meaning of an entry | 68,903 |
 | `forms` | inflected form (declension / conjugation cell) | 573,324 |
-| `relations` | other word an entry names: synonym, antonym, derived or related | 87,783 |
-| `examples` | Tatoeba sentence with English translation | 26,683 |
-| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,548 |
-| `search_keys` | normalised lookup key pointing at an entry | 1,810,005 |
+| `relations` | other word an entry names: synonym, antonym, derived or related | 87,820 |
+| `examples` | Tatoeba sentence with English translation | 26,813 |
+| `cloze` | Sentence with one noun to fill in after a preposition (Tatoeba) or a verb (Tatoeba, or made from a frame) | 8,549 |
+| `search_keys` | normalised lookup key pointing at an entry | 1,820,777 |
 | `nonstandard` | Ukrainian word to say instead of a non-standard one (`data/nonstandard.tsv`) | 156 words |
 
 Pages that only say "genitive singular of X" are skipped (26,760), because the
@@ -522,6 +522,35 @@ counts of every pattern and N sentences of each kind to read.
 `завдяки` (+ dative) is in `PREPOSITIONS` but has fewer than 20 sentences,
 so it is not offered.
 
+## Made-up words for the placement test (`meta.placement_pseudo`)
+
+The placement test (`src/lib/placement.ts`, `GET /api/placement`) mixes 20
+made-up words among its real ones: a learner who says they know one has
+guessed, and the score is corrected for it. The build makes 300 of them
+(`pseudo_candidates` in `import_wiktionary.py`) and keeps them as a JSON list in
+the `meta` row `placement_pseudo`.
+
+Each starts from a noun, verb or adjective of frequency rank 500 to 5,000 and
+5 to 9 letters, keeps its first letter and its ending (a verb's `-тися`, a
+noun's `-ння`, else the last two letters), and changes one letter in between:
+a vowel for another vowel, or a consonant between two vowels for another
+consonant, never и for і, е for є or г for ґ (`кролик` gives `кромик`).
+Anything found in `forms.plain` or `search_keys` is dropped. The seed is
+fixed, so the same database gives the same words.
+
+VESUM is not asked here: its licence keeps it out of this file. When the test
+is served, any made-up word VESUM knows as a form is dropped (15 of 300 in
+November 2026, among them `вужчий` and `сальний`, real words the dictionary
+lacks). `npm test` checks that none is a form or key of the dictionary and that
+at least 90% survive VESUM.
+
+To make them again in a built database without a full rebuild:
+
+    python3 data/add_placement_pseudo.py nebokrai.db --sample 20
+
+That changes only the one `meta` row, so the dictionary already in D1 needs
+only that row, not a new database (see Publishing to D1).
+
 ## How search works (`search.py`)
 
 1. Exact word, stress and case ignored: `калина`
@@ -709,6 +738,16 @@ million a month; the free plan's 100,000 a day cannot load either.
 
 To try a dump without touching the account, use `--local` in place of
 `--remote`; the data then goes into `.wrangler/` in the repo.
+
+A change to one `meta` row needs no new database. The placement test's
+made-up words, for instance, are one statement, with the list as
+`add_placement_pseudo.py` wrote it:
+
+    INSERT OR REPLACE INTO meta (key, value) VALUES ('placement_pseudo', '["…", …]');
+
+run with `wrangler d1 execute <database> --remote --command` or `--file`. That
+is one row written. Like any change to the account, it waits for the
+go-ahead.
 
 ## Recordings of the letters
 

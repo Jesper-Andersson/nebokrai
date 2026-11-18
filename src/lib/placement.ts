@@ -1,0 +1,231 @@
+// The placement test: about five minutes that say where a learner who knows
+// some Ukrainian already should start. It moves starting points only (the
+// first common word new cards come from, and lessons marked "placed out"); it
+// never makes a card.
+//
+// Part 1 is 80 words, one at a time, "I know it" or "Not sure": 12 real words
+// from each of five bands of the commonest spellings (the order the decks of
+// common words use, browse.ts), and 20 made-up words that look like real ones
+// (data/import_wiktionary.py, add_placement_pseudo). Saying yes to a made-up
+// word is a false alarm; the hit rate of each band is corrected by it, as in
+// yes/no vocabulary tests (Meara and Buxton 1987), so a learner who says yes to
+// everything is placed nowhere.
+//
+// Part 2 is grammar, as multiple choice (the gaps of /api/practice): two items
+// for each lesson about cases after prepositions, then one for each lesson of
+// verbs' patterns (дякувати + кому?), each in the lessons' order. A lesson is
+// placed out when all its items are right. Each group stops after two failed
+// lessons in a row, so a beginner is not walked through all 28.
+//
+// Pure: GET and POST /api/placement draw and score with it, and the browser
+// works out the lessons placed out with it. No SvelteKit imports.
+import { LESSONS, type Lesson, type LessonGroup } from './practice/lessons.ts';
+import type { Random } from './practice/round.ts';
+import { COMMON_DECKS } from './review/decks.ts';
+
+/** The bands of commonest spellings words are drawn from, by place (from 1). */
+export const BANDS = [
+	{ from: 1, to: 500 },
+	{ from: 501, to: 1000 },
+	{ from: 1001, to: 2000 },
+	{ from: 2001, to: 3000 },
+	{ from: 3001, to: 5000 }
+] as const;
+/** How many common spellings the test reads: the end of the last band. */
+export const TEST_WORDS = BANDS[BANDS.length - 1].to;
+export const WORDS_PER_BAND = 12;
+export const PSEUDO_COUNT = 20;
+/** Real and made-up words together: 80. */
+export const WORD_ITEMS = BANDS.length * WORDS_PER_BAND + PSEUDO_COUNT;
+
+/** A band counts as known when its corrected hit rate is at least this. */
+export const KNOWN_SHARE = 0.8;
+/** Above this share of yes to made-up words the result is not to be trusted, and nothing is placed. */
+export const MAX_FALSE_ALARMS = 0.4;
+/** Fewer made-up words answered than this, and the false alarms cannot be measured. */
+export const MIN_PSEUDO_ANSWERS = 10;
+/**
+ * The furthest start: one past the end of the decks of common words. A start
+ * past 2,000 means every deck is had; bigger decks are a change of their own.
+ */
+export const MAX_START = COMMON_DECKS[COMMON_DECKS.length - 1].to + 1;
+
+/**
+ * The lessons part 2 asks about, in order: the nine about cases after
+ * prepositions, then the ten of verbs' patterns. Every lesson there is.
+ */
+export const PLACEMENT_LESSONS: readonly Lesson[] = [
+	...LESSONS.filter((lesson) => lesson.group === 'preposition'),
+	...LESSONS.filter((lesson) => lesson.group === 'government')
+];
+/**
+ * Items a lesson is asked with: two for a preposition's (у місті, на столі are
+ * two rules a learner can half know), one for a verbs' pattern, whose lesson
+ * is one question (кому?) over several verbs. 9 × 2 + 10 × 1 = 28.
+ */
+export const ITEMS_PER_LESSON: Readonly<Record<LessonGroup, number>> = { preposition: 2, government: 1 };
+const GROUP_OF = new Map(LESSONS.map((lesson) => [lesson.id, lesson.group]));
+/** Items part 2 holds with every lesson's sentences in the dictionary. */
+export const GRAMMAR_ITEMS = PLACEMENT_LESSONS.reduce((sum, lesson) => sum + ITEMS_PER_LESSON[lesson.group], 0);
+
+function shuffled<T>(items: readonly T[], random: Random): T[] {
+	const out = [...items];
+	for (let i = out.length - 1; i > 0; i--) {
+		const j = Math.floor(random() * (i + 1));
+		[out[i], out[j]] = [out[j], out[i]];
+	}
+	return out;
+}
+
+const sample = <T>(items: readonly T[], count: number, random: Random): T[] =>
+	shuffled(items, random).slice(0, count);
+
+/** The band of a place among the commonest spellings, by index into BANDS, or -1 past them. */
+export const bandOf = (place: number): number => BANDS.findIndex((band) => place >= band.from && place <= band.to);
+
+/**
+ * The words of part 1, shuffled. `common` are the commonest spellings in
+ * order (place 1 first), at least TEST_WORDS of them; `pseudo` the made-up
+ * words that may be asked, already checked against every dictionary at hand.
+ */
+export function drawWords(common: readonly string[], pseudo: readonly string[], random: Random): string[] {
+	const real = BANDS.flatMap((band) => sample(common.slice(band.from - 1, band.to), WORDS_PER_BAND, random));
+	const madeUp = sample(pseudo.filter((word) => !real.includes(word)), PSEUDO_COUNT, random);
+	return shuffled([...real, ...madeUp], random);
+}
+
+export interface WordAnswer {
+	word: string;
+	/** "I know it". */
+	yes: boolean;
+}
+
+export interface BandScore {
+	from: number;
+	to: number;
+	asked: number;
+	yes: number;
+	/** The hit rate corrected for false alarms, 0 to 1. */
+	known: number;
+}
+
+export interface WordScore {
+	bands: BandScore[];
+	/** Made-up words asked, and how many had a yes. */
+	pseudo: { asked: number; yes: number };
+	/** Words estimated known among the commonest 5,000, rounded to tens. */
+	size: number;
+	/** The place new common words should start from: 1 to MAX_START; 1 when not reliable. */
+	start: number;
+	/** False when too many made-up words had a yes, or too few were answered to tell. */
+	reliable: boolean;
+}
+
+/**
+ * Score part 1. `placeOf` gives a real word's place among the commonest
+ * spellings; `isPseudo` says a word is made up. An answer for a word that is
+ * neither, or for a word answered already, is left out.
+ *
+ * With h the share of yes in a band and f the share of yes to made-up words,
+ * the band's known share is max(0, (h − f) / (1 − f)); the size is the sum of
+ * each band's share times its width, and the start is the first place of the
+ * first band under KNOWN_SHARE.
+ */
+export function scoreWords(
+	answers: readonly WordAnswer[], placeOf: (word: string) => number | undefined, isPseudo: (word: string) => boolean
+): WordScore {
+	const counts = BANDS.map(() => ({ asked: 0, yes: 0 }));
+	const pseudo = { asked: 0, yes: 0 };
+	const seen = new Set<string>();
+	for (const { word, yes } of answers) {
+		if (seen.has(word)) continue;
+		seen.add(word);
+		if (isPseudo(word)) {
+			pseudo.asked += 1;
+			if (yes) pseudo.yes += 1;
+			continue;
+		}
+		const band = bandOf(placeOf(word) ?? 0);
+		if (band < 0) continue;
+		counts[band].asked += 1;
+		if (yes) counts[band].yes += 1;
+	}
+	const f = pseudo.asked ? pseudo.yes / pseudo.asked : 0;
+	const reliable = pseudo.asked >= MIN_PSEUDO_ANSWERS && f <= MAX_FALSE_ALARMS;
+	const bands = BANDS.map(({ from, to }, i) => {
+		const { asked, yes } = counts[i];
+		const h = asked ? yes / asked : 0;
+		return { from, to, asked, yes, known: f < 1 ? Math.max(0, (h - f) / (1 - f)) : 0 };
+	});
+	const size = Math.round(bands.reduce((sum, band) => sum + band.known * (band.to - band.from + 1), 0) / 10) * 10;
+	const short = bands.find((band) => band.known < KNOWN_SHARE);
+	const start = reliable ? Math.min(short ? short.from : TEST_WORDS + 1, MAX_START) : 1;
+	return { bands, pseudo, size: reliable ? size : 0, start, reliable };
+}
+
+/** A size as the range of the band it falls in, for the result: 1,240 is 1,001–2,000. Below 1, null. */
+export function sizeRange(size: number): { from: number; to: number } | null {
+	if (size < 1) return null;
+	const band = BANDS.find((b) => size <= b.to) ?? BANDS[BANDS.length - 1];
+	return { from: band.from, to: band.to };
+}
+
+// --- Part 2 ---
+
+/** One lesson of part 2: the rules to ask, one sentence each. */
+export interface GrammarAsk {
+	lesson: string;
+	points: string[];
+}
+
+/**
+ * The rules part 2 asks for each placement lesson that has sentences
+ * (`offered`, the rules that do), in the lessons' order: ITEMS_PER_LESSON of
+ * its rules drawn at random, a rule again where it has fewer. 28 in all.
+ */
+export function grammarAsks(offered: readonly string[], random: Random): GrammarAsk[] {
+	return PLACEMENT_LESSONS.flatMap((lesson) => {
+		const points = lesson.points.filter((id) => offered.includes(id));
+		if (!points.length) return [];
+		const wanted = ITEMS_PER_LESSON[lesson.group];
+		const drawn = sample(points, wanted, random);
+		while (drawn.length < wanted) drawn.push(drawn[drawn.length % points.length]);
+		return [{ lesson: lesson.id, points: drawn }];
+	});
+}
+
+/** A lesson of part 2 as answered: one entry per item, true when right. */
+export interface GrammarResult {
+	lesson: string;
+	right: readonly boolean[];
+}
+
+/** Two failed lessons in a row end part 2. */
+export const STOP_AFTER_FAILS = 2;
+
+/**
+ * Part 2 so far: the lessons placed out (all of a lesson's ITEMS_PER_LESSON
+ * items right), and the groups to stop asking: those with two failed lessons
+ * in a row. The groups are counted apart, so a learner who stumbles over the
+ * prepositions is still asked about the verbs. Lessons are taken in the order
+ * given, which is the order asked; a lesson not part of the test is ignored.
+ */
+export function placeLessons(results: readonly GrammarResult[]): { placed: string[]; stopped: LessonGroup[] } {
+	const placed: string[] = [];
+	const fails = new Map<LessonGroup, number>();
+	const stopped: LessonGroup[] = [];
+	for (const { lesson, right } of results) {
+		const group = GROUP_OF.get(lesson);
+		if (!group || stopped.includes(group)) continue;
+		const wanted = ITEMS_PER_LESSON[group];
+		if (right.length >= wanted && right.every(Boolean)) {
+			placed.push(lesson);
+			fails.set(group, 0);
+		} else if (right.length >= wanted || right.some((r) => !r)) {
+			const failed = (fails.get(group) ?? 0) + 1;
+			fails.set(group, failed);
+			if (failed >= STOP_AFTER_FAILS) stopped.push(group);
+		}
+	}
+	return { placed, stopped };
+}

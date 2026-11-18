@@ -5,7 +5,8 @@
 //
 // What is stored about a person: the id their provider (Google or GitHub) gives
 // them, their display name, the words they saved, when they exported them, the
-// lists they sorted them into and how their flashcard reviews went. A list's
+// lists they sorted them into, how their flashcard reviews went, and their
+// progress outside the cards (placement test, letters, texts read). A list's
 // name is the only text here that the person writes themselves. No email, no
 // password.
 //
@@ -16,6 +17,9 @@ import { MAX_REVIEW } from '../review/cards.ts';
 import type { DayCounts } from '../review/days.ts';
 import { parseSettings, type ReviewSettings } from '../review/decks.ts';
 import type { ReviewCard } from '../review/fsrs.ts';
+import {
+	PROGRESS_KINDS, mergeRecords, parseRecords, type ProgressKind, type ProgressRecords
+} from '../review/progress.ts';
 import {
 	MAX_LISTS, MAX_SAVED, MAX_WORD_LENGTH, type ExportedMarks, type SavedWord, type WordList
 } from '../saved.ts';
@@ -101,6 +105,16 @@ export const SCHEMA = [
 		settings TEXT NOT NULL,
 		updated_at INTEGER NOT NULL
 	)`,
+	// The learner's progress outside the cards, a record to a row: the placement
+	// test, the alphabet and the texts read (review/progress.ts), as JSON. Each
+	// is joined with the copy a browser sends, never replaced by it.
+	`CREATE TABLE IF NOT EXISTS user_progress (
+		user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+		kind TEXT NOT NULL,
+		value TEXT NOT NULL,
+		updated_at INTEGER NOT NULL,
+		PRIMARY KEY (user_id, kind)
+	) WITHOUT ROWID`,
 	// The lists a person sorts saved words into. id is made in the browser
 	// (lists.ts), so a list made while signed out is the same list after the
 	// merge. The name is not UNIQUE here: «Їжа» and «їжа» count as one name, and
@@ -219,7 +233,7 @@ export async function deleteUser(db: UserDb, userId: string): Promise<void> {
 	// Spelled out rather than left to ON DELETE CASCADE, so nothing is left
 	// behind even where foreign keys are not enforced.
 	const tables = [
-		'review_settings', 'review_days', 'review_cards', 'list_words', 'lists', 'exported_words', 'saved_words',
+		'user_progress', 'review_settings', 'review_days', 'review_cards', 'list_words', 'lists', 'exported_words', 'saved_words',
 		'sessions', 'identities'
 	];
 	for (const table of tables) {
@@ -389,6 +403,41 @@ export async function getReviewSettings(db: UserDb, userId: string): Promise<Rev
 	} catch {
 		return null;
 	}
+}
+
+/** The account's progress records, each read as a browser's would be. */
+export async function getProgress(db: UserDb, userId: string): Promise<ProgressRecords> {
+	const rows = await db.all<{ kind: string; value: string }>(
+		'SELECT kind, value FROM user_progress WHERE user_id = ?', [userId]);
+	const sent: Record<string, unknown> = {};
+	for (const { kind, value } of rows) {
+		try {
+			sent[kind] = JSON.parse(value);
+		} catch {
+			// A row that is not JSON is as good as none: the browser's copy replaces it
+		}
+	}
+	// Checked against the clock when they were stored: no need to again.
+	return parseRecords(sent, Infinity);
+}
+
+/**
+ * Take in a browser's progress records, each joined with the account's copy
+ * (mergeRecords), and give back the account's records as they now stand.
+ */
+export async function saveProgress(
+	db: UserDb, userId: string, records: ProgressRecords, now = Date.now()
+): Promise<ProgressRecords> {
+	const kinds = PROGRESS_KINDS.filter((kind) => records[kind]);
+	if (!kinds.length) return getProgress(db, userId);
+	const merged = mergeRecords(await getProgress(db, userId), records);
+	for (const kind of kinds as ProgressKind[]) {
+		await db.run(
+			`INSERT INTO user_progress (user_id, kind, value, updated_at) VALUES (?, ?, ?, ?)
+			 ON CONFLICT (user_id, kind) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+			[userId, kind, JSON.stringify(merged[kind]), now]);
+	}
+	return merged;
 }
 
 /** A browser's name for itself: a UUID, or anything as plain. */

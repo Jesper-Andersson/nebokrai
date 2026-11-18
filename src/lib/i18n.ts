@@ -1231,11 +1231,110 @@ const en = {
 			again: 'Import another file'
 		}
 	},
+	/**
+	 * The levelled path (src/lib/path.ts): the card at the top of /learn, the
+	 * stage list under it, and the labels the placement test leaves on decks
+	 * and lessons.
+	 */
+	path: {
+		title: 'Your path',
+		allStages: 'All stages',
+		hideStages: 'Hide stages',
+		stage: {
+			letters: 'Letters',
+			'first-words': 'First words',
+			everyday: 'Everyday',
+			'getting-around': 'Getting around',
+			conversations: 'Conversations',
+			reading: 'Reading'
+		} as Record<string, string>,
+		/** Under the stage's name: "Stage 3 of 6 · 2 of 4 steps done". */
+		progress: (n: number, of: number, done: number, steps: number) => `Stage ${n} of ${of} · ${done} of ${steps} steps done`,
+		allReached: (of: number) => `All ${of} stages reached`,
+		/** Beside a stage's name in the list. */
+		done: 'done',
+		now: 'now',
+		next: 'next',
+		/** One thing a stage asks for. `key` is the deck, or the lessons' group and how far. */
+		step: (kind: string, key: string, need: number): string => {
+			if (kind === 'letters') return `All ${need} letters`;
+			if (kind === 'deck') {
+				if (key === 'common-500') return `${need} of the commonest 500 words`;
+				if (key === 'common-1000') return `${need} of words 501–1,000`;
+				return `${need.toLocaleString('en')} of words 1,001–2,000`;
+			}
+			if (kind === 'lessons') {
+				const [group, upTo] = key.split(':');
+				if (group === 'government') return upTo === 'all' ? 'Every verb lesson' : 'The first verb lesson';
+				if (upTo === 'all') return 'Every lesson on cases';
+				return upTo === '1' ? 'Lesson 1' : `Lessons 1–${upTo}`;
+			}
+			if (kind === 'texts') return need === 1 ? 'Read one story' : `Read ${need} stories`;
+			return `Your words cover ${need}% of everyday Ukrainian`;
+		},
+		/** An open lesson step, as a link: "Lesson 4: For & About". */
+		lesson: (n: number, name: string) => `Lesson ${n}: ${name}`,
+		verbLesson: (n: number, name: string) => `Verb lesson ${n}: ${name}`,
+		/** The path card's one button. */
+		go: (what: string) => `Next: ${what}`,
+		goWhat: (kind: string, key: string): string => {
+			if (kind === 'letters') return 'the letters';
+			if (kind === 'deck') {
+				return key === 'common-500' ? 'the commonest 500 words' : key === 'common-1000' ? 'words 501–1,000' : 'words 1,001–2,000';
+			}
+			if (kind === 'texts') return 'read a story';
+			return 'review your words';
+		},
+		goLesson: (n: number, name: string) => `lesson ${n} · ${name}`,
+		goVerbLesson: (n: number, name: string) => `verb lesson ${n} · ${name}`,
+		keepGoing: 'Keep reviewing',
+		/** For a learner with no placement yet, and one with a result. */
+		takeTest: 'Take the placement test',
+		retakeTest: 'Take the placement test again',
+		/** On a newcomer's three steps. */
+		newcomerAsk: 'Already know some Ukrainian?',
+		/** On a lesson the placement test placed out. */
+		knownFromTest: 'Known from test',
+		/** Beside the decks once a placement moved where new words start. */
+		startingFrom: (n: string) => `Starting from word ${n}`,
+		startingNote: 'New words skip the commonest ones the placement test says you know. Words you began before stay.'
+	},
+	/** The placement test (/placement, src/lib/placement.ts). */
+	placement: {
+		title: 'Find your starting point',
+		lead: 'You’ll see 80 words, one at a time. Say whether you know each. Some are made up, so answer honestly. Then a few short grammar questions.',
+		note: 'About 5–7 minutes. Nothing is added to your reviews; it only moves where your decks and lessons start.',
+		start: 'Start',
+		notNow: 'Not now',
+		loading: 'Getting the test ready…',
+		failed: 'The test could not be loaded. Check your connection and try again.',
+		unavailable: 'The placement test is not available right now.',
+		retry: 'Try again',
+		/** Over the words, and over the grammar. */
+		wordCount: (n: number, of: number) => `Word ${n} of ${of}`,
+		grammarCount: (n: number, of: number) => `Question ${n} of ${of}`,
+		grammarLead: 'Now a few grammar questions. Choose the form that fits.',
+		know: 'I know it',
+		notSure: 'Not sure',
+		stop: 'Stop',
+		scoring: 'Working out your result…',
+		/** The result: the size of the learner's vocabulary, as a range. */
+		knowRange: (from: string, to: string) => `You probably know ${from}–${to} words`,
+		knowFew: 'You are starting from the first words',
+		startsFrom: (n: string) => `Decks start from word ${n}`,
+		startsAtFirst: 'Decks start from the first word',
+		lessonsKnown: (n: number) => (n === 1 ? '1 lesson marked “Known from test”' : `${n} lessons marked “Known from test”`),
+		goLearn: 'Go to Learn',
+		undo: 'Undo this result',
+		unreliableTitle: 'We couldn’t place you this time',
+		unreliableText: 'You said you knew several of the made-up words, so the result wouldn’t be fair to you. Nothing has changed.',
+		fromStart: 'Start from the beginning instead'
+	},
 	pageTitle: {
 		resources: 'Resources', saved: 'Saved words', about: 'About', grammar: 'The different Grammar words explained',
 		review: 'Flashcards', alphabet: 'Ukrainian Alphabet', practice: 'Grammar practice', learn: 'Learn Ukrainian',
 		privacy: 'Privacy', stats: 'Usage', suggestions: 'Suggestions', import: 'Import words', updates: 'Updates',
-		extension: 'Nebokrai in your browser'
+		extension: 'Nebokrai in your browser', placement: 'Placement test'
 	},
 	/**
 	 * What search results and link previews show for each page: its title and
@@ -1247,6 +1346,7 @@ const en = {
 		home: 'A free Ukrainian–English dictionary for learners. Search in Ukrainian, Latin letters or English and see the stress, full inflection tables, audio and examples.',
 		about: 'What Nebokrai is, what you can do with it, where its words come from and who makes it.',
 		learn: 'Start learning Ukrainian: the alphabet with a drill on its 33 letters, the 1,000 most common words, the grammar words explained, and grammar practice.',
+		placement: 'Already know some Ukrainian? A 5–7 minute test of 80 words and a few grammar questions says where your flashcards and grammar lessons should start.',
 		extension: 'A free browser extension for Chrome, Firefox and Edge: double-click a Ukrainian word on any page to see its meaning, stress and form, and save it to your lists.',
 		privacy: 'What Nebokrai keeps and what it does not: no ads and no third-party trackers, cookies only for signing in and settings, and what an account or a report stores.',
 		stats: 'Visits, searches and accounts on Nebokrai, counted without cookies. For the site’s owner only.',
@@ -2541,17 +2641,102 @@ const uk: Messages = {
 			again: 'Імпортувати інший файл'
 		}
 	},
+	path: {
+		title: 'Ваш шлях',
+		allStages: 'Усі етапи',
+		hideStages: 'Сховати етапи',
+		stage: {
+			letters: 'Літери',
+			'first-words': 'Перші слова',
+			everyday: 'Повсякдення',
+			'getting-around': 'Даю раду',
+			conversations: 'Розмови',
+			reading: 'Читання'
+		},
+		progress: (n, of, done, steps) => `Етап ${n} з ${of} · виконано ${done} з ${steps}`,
+		allReached: (of) => `Пройдено всі ${of} етапів`,
+		done: 'пройдено',
+		now: 'зараз',
+		next: 'далі',
+		step: (kind, key, need) => {
+			if (kind === 'letters') return `Усі ${need} літери`;
+			if (kind === 'deck') {
+				if (key === 'common-500') return `${need} з 500 найуживаніших слів`;
+				if (key === 'common-1000') return `${need} зі слів 501–1000`;
+				return `${need} зі слів 1001–2000`;
+			}
+			if (kind === 'lessons') {
+				const [group, upTo] = key.split(':');
+				if (group === 'government') return upTo === 'all' ? 'Усі уроки дієслів' : 'Перший урок дієслів';
+				if (upTo === 'all') return 'Усі уроки відмінків';
+				return upTo === '1' ? 'Урок 1' : `Уроки 1–${upTo}`;
+			}
+			if (kind === 'texts') {
+				return need === 1 ? 'Прочитати одне оповідання' : `Прочитати ${counted(need, 'оповідання', 'оповідання', 'оповідань')}`;
+			}
+			return `Ваші слова охоплюють ${need}% повсякденної української`;
+		},
+		lesson: (n, name) => `Урок ${n}: ${name}`,
+		verbLesson: (n, name) => `Урок дієслів ${n}: ${name}`,
+		go: (what) => `Далі: ${what}`,
+		goWhat: (kind, key) => {
+			if (kind === 'letters') return 'літери';
+			if (kind === 'deck') {
+				return key === 'common-500' ? '500 найуживаніших слів' : key === 'common-1000' ? 'слова 501–1000' : 'слова 1001–2000';
+			}
+			if (kind === 'texts') return 'прочитати оповідання';
+			return 'повторювати слова';
+		},
+		goLesson: (n, name) => `урок ${n} · ${name}`,
+		goVerbLesson: (n, name) => `урок дієслів ${n} · ${name}`,
+		keepGoing: 'Повторювати далі',
+		takeTest: 'Пройти тест на рівень',
+		retakeTest: 'Пройти тест на рівень ще раз',
+		newcomerAsk: 'Уже трохи знаєте українську?',
+		knownFromTest: 'Відомо з тесту',
+		startingFrom: (n) => `Починаючи зі слова ${n}`,
+		startingNote: 'Нові слова оминають найуживаніші, які ви, за тестом на рівень, знаєте. Слова, які ви вже почали вчити, залишаються.'
+	},
+	placement: {
+		title: 'Знайдіть, звідки почати',
+		lead: 'Ви побачите 80 слів, по одному. Скажіть, чи знаєте кожне. Деякі з них вигадані, тож відповідайте чесно. Потім буде кілька коротких запитань з граматики.',
+		note: 'Приблизно 5–7 хвилин. До ваших повторень нічого не додається: тест лише змінює, звідки починаються колоди й уроки.',
+		start: 'Почати',
+		notNow: 'Не зараз',
+		loading: 'Готуємо тест…',
+		failed: 'Не вдалося завантажити тест. Перевірте з’єднання й спробуйте ще раз.',
+		unavailable: 'Тест на рівень зараз недоступний.',
+		retry: 'Спробувати ще раз',
+		wordCount: (n, of) => `Слово ${n} з ${of}`,
+		grammarCount: (n, of) => `Запитання ${n} з ${of}`,
+		grammarLead: 'Тепер кілька запитань з граматики. Виберіть форму, яка пасує.',
+		know: 'Знаю',
+		notSure: 'Не впевнений',
+		stop: 'Зупинити',
+		scoring: 'Рахуємо результат…',
+		knowRange: (from, to) => `Ви, найпевніше, знаєте ${from}–${to} слів`,
+		knowFew: 'Ви починаєте з перших слів',
+		startsFrom: (n) => `Колоди починаються зі слова ${n}`,
+		startsAtFirst: 'Колоди починаються з першого слова',
+		lessonsKnown: (n) => `${counted(n, 'урок позначено', 'уроки позначено', 'уроків позначено')} «Відомо з тесту»`,
+		goLearn: 'До навчання',
+		undo: 'Скасувати цей результат',
+		unreliableTitle: 'Цього разу не вдалося визначити рівень',
+		unreliableText: 'Ви позначили як відомі кілька вигаданих слів, тож результат був би для вас несправедливим. Нічого не змінилося.',
+		fromStart: 'Почати з самого початку'
+	},
 	pageTitle: {
 		resources: 'Ресурси', saved: 'Збережені слова', about: 'Про проєкт', grammar: 'Різні граматичні терміни з поясненнями',
 		review: 'Картки', alphabet: 'Українська абетка', practice: 'Вправи з граматики', learn: 'Вчимо українську',
 		privacy: 'Приватність', stats: 'Відвідуваність', suggestions: 'Пропозиції', import: 'Імпорт слів', updates: 'Оновлення',
-		extension: 'Nebokrai у вашому браузері'
+		extension: 'Nebokrai у вашому браузері', placement: 'Тест на рівень'
 	},
 	meta: {
 		homeTitle: 'Nebokrai: українсько-англійський словник з наголосами та відмінюванням',
 		home: 'Безкоштовний українсько-англійський словник для тих, хто вивчає мову. Пошук українською, латинкою чи англійською; наголоси, таблиці відмінювання, аудіо та приклади.',
 		about: 'Що таке Nebokrai, що тут можна робити, звідки взято слова й хто його створює.',
 		learn: 'Почніть вивчати українську: абетка з вправами на всі 33 літери, 1000 найуживаніших слів, граматичні терміни з поясненнями та вправи з граматики.',
+		placement: 'Уже трохи знаєте українську? Тест на 5–7 хвилин із 80 слів і кількох запитань з граматики покаже, звідки почати картки й уроки граматики.',
 		extension: 'Безплатне розширення для Chrome, Firefox та Edge: двічі клацніть українське слово на будь-якій сторінці, щоб побачити його значення, наголос і форму та зберегти до своїх списків.',
 		privacy: 'Що Nebokrai зберігає, а що ні: без реклами й сторонніх трекерів, файли cookie лише для входу й налаштувань, і що зберігають обліковий запис та повідомлення.',
 		stats: 'Відвідування, пошуки й облікові записи Nebokrai, пораховані без файлів cookie. Лише для власника сайту.',

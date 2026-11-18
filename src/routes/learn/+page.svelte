@@ -26,6 +26,7 @@
 	import Doors from '#lib/learn/Doors.svelte';
 	import GoalCard from '#lib/learn/GoalCard.svelte';
 	import GrammarCard from '#lib/learn/GrammarCard.svelte';
+	import PathCard from '#lib/learn/PathCard.svelte';
 	import ReferenceTiles from '#lib/learn/ReferenceTiles.svelte';
 	import VocabularyCard from '#lib/learn/VocabularyCard.svelte';
 	import { POINTS, cardKey, isPointKey } from '#lib/practice/points.ts';
@@ -64,7 +65,7 @@
 	/** As /review counts them, and the header: reviews from every deck not paused, new words from the ones ticked. */
 	let cardsToday = $derived(plan(
 		review.cards, reviewWords(review.settings, savedWords, saved.lists, review.common), review.settings.new_per_day, now,
-		newWords(review.settings, savedWords, saved.lists, review.common)));
+		newWords(review.settings, savedWords, saved.lists, review.common, review.start)));
 	let cardsDue = $derived(cardsToday.learning.length + cardsToday.due.length);
 	let wordsBegun = $derived([...review.cards.keys()].some((key) => !isPointKey(key)));
 
@@ -146,6 +147,8 @@
 				<div>
 					<h2 id="learn-first">{m.learn.first.title}</h2>
 					<p class="first-lead">{m.learn.first.lead}</p>
+					<!-- For a learner who is not starting from nothing: the placement test moves where they start -->
+					<p class="placement">{m.path.newcomerAsk} <a href="/placement">{m.path.takeTest}</a></p>
 				</div>
 				<ol class="path">
 					<li data-kind="alphabet" class:done={lettersDone}>
@@ -223,6 +226,10 @@
 		</aside>
 
 		<div class="main">
+			<!-- The levelled path, above the rest (user, Figma "Card A", 2026-11-17) -->
+			<div class="path-slot">
+				<PathCard {now} {ready} {offered} letters={{ known: letters.known, total: ALPHABET.length, skipped: alphabet.skipped }} />
+			</div>
 			<div class="doors-slot">
 				<Doors {cardsDue} {wordsBegun} {rulesDue} {rulesBegun} onfirstwords={firstWords} />
 			</div>
@@ -331,6 +338,17 @@
 		font-size: var(--title);
 		font-weight: 700;
 		line-height: 1.25;
+	}
+
+	.placement {
+		margin: 0.5rem 0 0;
+		color: var(--muted);
+		font-size: var(--text-sm);
+	}
+
+	.placement a {
+		color: var(--accent);
+		font-weight: 600;
 	}
 
 	.first-lead {
@@ -487,6 +505,8 @@
 			display: contents;
 		}
 
+		/* The path first, then the doors: the same order, kept in the page's */
+		.path-slot,
 		.doors-slot {
 			order: -2;
 		}

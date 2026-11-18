@@ -65,7 +65,7 @@ export function vesumDescription(m: Messages, word: VesumWord): string {
 /** The pages for everyone, apart from the words. /saved and /report are left out on purpose. */
 const PAGES = [
 	'/', '/learn', '/alphabet', '/grammar', '/practice', '/resources', '/support', '/about', '/sources', '/privacy',
-	'/words', '/updates',
+	'/words', '/updates', '/placement',
 	// The browser extension's page, once a store has it
 	...(EXTENSION_LIVE ? ['/extension'] : [])
 ];

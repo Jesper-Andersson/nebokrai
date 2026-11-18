@@ -36,6 +36,7 @@
 	} from '#lib/grammar.ts';
 	import { formName, messagesFor, posLabel, tagLabel } from '#lib/i18n.ts';
 	import { lastSearch } from '#lib/last-search.ts';
+	import { askOf, governmentOf } from '#lib/practice/government.ts';
 	import { useRadio } from '#lib/radio.svelte.ts';
 	import { plain } from '#lib/search/normalize.ts';
 	import { wordPath } from '#lib/search/slug.ts';
@@ -63,6 +64,16 @@
 		if (from?.url.pathname === '/') back = '/' + lastSearch();
 		else if (!from?.url.pathname.startsWith('/word/')) back = '/';
 	});
+
+	// Which case a verb asks of its noun (practice/government.ts), under the
+	// grammar line: takes · кому? · за що?, each leading to its practice
+	const takesOf = (entry: WordEntry) =>
+		entry.pos === 'verb' || entry.pos === 'adj'
+			? governmentOf(entry.word).map((pattern) => ({
+					ask: askOf(pattern),
+					href: pattern.lesson ? `/practice?rule=${pattern.id}` : undefined
+				}))
+			: [];
 
 	const wiktionary = (word: string) =>
 		`https://en.wiktionary.org/wiki/${encodeURIComponent(word)}#Ukrainian`;
@@ -260,7 +271,7 @@
 					</p>
 				{/if}
 				<div class="grammar">
-					<Grammar pos={entry.pos} tags={entry.tags} headForms={lineForms} />
+					<Grammar pos={entry.pos} tags={entry.tags} headForms={lineForms} takes={takesOf(entry)} />
 				</div>
 				{#if entry.offensive}<p class="offensive-note">{m.word.offensiveNote}</p>{/if}
 				<!-- What the dotted outlines are for, said once the pencil is pressed -->

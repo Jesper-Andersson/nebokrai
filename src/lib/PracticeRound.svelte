@@ -17,7 +17,7 @@
 	import Term from '#lib/Term.svelte';
 	import { HINTS } from '#lib/grammar.ts';
 	import { messagesFor } from '#lib/i18n.ts';
-	import { cardKey, pointOf, type Point } from '#lib/practice/points.ts';
+	import { cardKey, pointOf, ruleOf, type Point } from '#lib/practice/points.ts';
 	import { askWhere, gradePoint, planRound, planWeak, split, type Gap, type Outcome } from '#lib/practice/round.ts';
 	import { introduces } from '#lib/practice/rules.ts';
 	import { whereAnswer } from '#lib/practice/where.ts';
@@ -176,9 +176,14 @@
 				{#each missed as [point, sentences] (point.id)}
 					<li>
 						<p class="takes">
-							<b lang="uk">{point.cue}</b> + <Term id={point.case} />
-							{#if point.number}{m.practice.ofNumber[point.number]}{/if}
-							{#if HINTS[point.case]}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
+							{#if point.ask}
+								<!-- A verb's pattern: дякувати + кому?, and its case -->
+								<b lang="uk">{ruleOf(point)}</b> <Term id={point.case} />
+							{:else}
+								<b lang="uk">{point.cue}</b> + <Term id={point.case} />
+								{#if point.number}{m.practice.ofNumber[point.number]}{/if}
+							{/if}
+							{#if HINTS[point.case] && !point.ask}<span class="question" lang="uk">{HINTS[point.case]}</span>{/if}
 						</p>
 						{#each sentences as g (g.tatoeba_id + ':' + g.start + ':' + g.uk)}
 							{#if g.kind === 'who' && g.roles}

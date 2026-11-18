@@ -118,7 +118,7 @@ export const FROM_TRANSLATIONS = 'wiktionary-translations';
  * database was built before that column was added. The code and the data then
  * need not be published in the same moment.
  */
-async function withColumn<T>(column: string, fallback: string, query: (column: string) => Promise<T>): Promise<T> {
+export async function withColumn<T>(column: string, fallback: string, query: (column: string) => Promise<T>): Promise<T> {
 	try {
 		return await query(column);
 	} catch (err) {

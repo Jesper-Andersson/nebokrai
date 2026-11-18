@@ -8,6 +8,7 @@ Usage (from the repo root):
     python3 data/rate_sentences.py collect data/raw
     python3 data/rate_sentences.py gold-sample data/raw gold.tsv [--n 300]
     python3 data/rate_sentences.py gold gold.tsv
+    python3 data/rate_sentences.py screen data/raw (--db nebokrai.db | --all)
 
     check        the free signals and text checks only; prints counts and examples, spends nothing
     rate         rates through the Claude Code CLI (`claude -p`): a subscription, no API key
@@ -15,6 +16,8 @@ Usage (from the repo root):
     collect      fetches every finished batch, merges it into data/sentence-ratings.tsv, prints the cost
     gold-sample  writes sentences for a native speaker to rate by hand (fill in natural, use, flags)
     gold         compares that hand-rated file with the judge's ratings
+    screen       lists political candidates for data/excluded-sentences.tsv by keyword group, for a person
+                 to judge; the sentences --db shows now, or every pair with --all. Spends nothing.
 
 The scale, the flags and how the build uses them are in docs/sentence-rating.md.
 data/sentence-ratings.tsv holds ids, a hash of each text and the ratings, never
@@ -46,8 +49,8 @@ import sys
 import tarfile
 import time
 
-from import_wiktionary import (RATING_COLUMNS, RATINGS, TOKEN, form_index, load_ratings, plain,
-                               short_first, tatoeba_pairs, text_hash)
+from import_wiktionary import (RATING_COLUMNS, RATINGS, TOKEN, excluded_sentences, form_index, load_ratings,
+                               plain, short_first, tatoeba_pairs, text_hash)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUBRIC = "1"  # bump when the prompt or the scale changes: every sentence is then rated again
@@ -589,6 +592,69 @@ def check(args):
             print("          " + line)
 
 
+# --- Political screen (data/excluded-sentences.tsv) ----------------------------
+# Keyword groups that find sentences for a person to judge. A match is only a
+# candidate: "Росія вторглася в Україну" is fact and stays, "Давайте-но оберемо
+# Путіна знову" is listed. Each pattern is matched at the start of a word, so
+# a stem catches every case: росі finds Росія, Росії, росіянин.
+SCREEN_GROUPS = [
+    ("russia", "Russia, its leaders and Russians",
+     ["путін", "путлер", "кремл", "росі", "російськ", "рашиз", "рашист", "москв", "москал", "ватник",
+      "вишиватн", "руськ"]),
+    ("ukraine-war", "Russia's war on Ukraine",
+     ["крим(?!інал)", "донбас", "донецьк", "луганськ", "окупа", "вторгл", "вдерл", "агресор",
+      "зеленськ", "януков", "порошенк"]),
+    ("soviet", "The Soviet Union and communism",
+     ["радянськ", "срср", "сталін", "ленін", "комуніст"]),
+    ("politicians", "Other politicians and parties",
+     ["трамп", "байден", "обам", "ромні", "клінтон", "меркель", "лукашенк", "навальн", "бутефлік",
+      "республіканськ", "парті[яїйє]"]),
+    ("faith-people", "Faiths and peoples",
+     ["мусульман", "іслам", "аллах", "євре", "жид", "іудей", "ізраїл", "палестин", "христия", "уйгур",
+      "татар"]),
+    ("extremism", "Nazism, terrorism and dictators",
+     ["нацист", "фашист", "гітлер", "терор", "диктат", "ідил", "ігіл"]),
+]
+
+
+def screen_group(text):
+    """The first SCREEN_GROUPS key whose stems the sentence uses, or None."""
+    for key, _, stems in SCREEN_GROUPS:
+        if re.search(WORD_EDGE + "(?:" + "|".join(stems) + ")", text, re.I):
+            return key
+    return None
+
+
+def screen(args):
+    """Print the candidates for data/excluded-sentences.tsv, by group, for a person to judge."""
+    excluded = excluded_sentences()
+    where = collections.defaultdict(set)  # id -> tables that show it now
+    if args.all:
+        rows = {sid: (uk, en) for sid, (uk, en, *_) in tatoeba_pairs(args.folder, excluded=set()).items()}
+    else:
+        if not args.db:
+            sys.exit("screen needs --db, or --all to read every Tatoeba pair")
+        rows = {}
+        db = sqlite3.connect(f"file:{args.db}?mode=ro", uri=True)
+        for table in ("examples", "cloze"):
+            for sid, uk, en in db.execute(f"SELECT tatoeba_id, uk, en FROM {table}"):
+                rows[sid] = (uk, en)
+                where[sid].add(table)
+        db.close()
+    groups = collections.defaultdict(list)
+    for sid, (uk, en) in rows.items():
+        key = screen_group(uk)
+        if key:
+            groups[key].append((uk, sid, en))
+    for key, title, _ in SCREEN_GROUPS:
+        found = sorted(groups[key])
+        print(f"\n## {key}: {title} ({len(found)}, {sum(sid in excluded for _, sid, _ in found)} listed)")
+        for uk, sid, en in found:
+            mark = "LISTED " if sid in excluded else ""
+            shown = ",".join(sorted(where[sid])) or "-"
+            print(f"{mark}{sid}\t{shown}\t{uk} | {en}")
+
+
 def gold_sample(args):
     """Draw sentences evenly across owner levels and lengths for a native speaker to rate."""
     signals = tatoeba_signals(args.folder)
@@ -655,5 +721,10 @@ if __name__ == "__main__":
     p.add_argument("--n", type=int, default=300)
     p = sub.add_parser("gold")
     p.add_argument("file")
+    p = sub.add_parser("screen")
+    p.add_argument("folder")
+    p.add_argument("--db")
+    p.add_argument("--all", action="store_true", help="every Tatoeba pair, not only those the --db shows")
     args = ap.parse_args()
-    {"check": check, "rate": rate, "submit": submit, "collect": collect, "gold-sample": gold_sample, "gold": gold}[args.command](args)
+    {"check": check, "rate": rate, "submit": submit, "collect": collect, "gold-sample": gold_sample, "gold": gold,
+     "screen": screen}[args.command](args)

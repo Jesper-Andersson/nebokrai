@@ -146,6 +146,9 @@ def build(dst, twisters_path=None):
             tags   TEXT NOT NULL    -- JSON list, the word's own: ["feminine","inanimate"]
         );
         CREATE INDEX vesum_words_latin ON vesum_words(latin);
+        -- For an address in Cyrillic and for a dictionary entry borrowing a
+        -- table: without it each of those reads all 415,878 rows on D1.
+        CREATE INDEX vesum_words_lemma ON vesum_words(lemma, pos);
         -- Each distinct list of form tags once; there are about seventy.
         DROP TABLE IF EXISTS vesum_tagsets;
         CREATE TABLE vesum_tagsets (

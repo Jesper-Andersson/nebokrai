@@ -550,6 +550,8 @@ its grammar line and its full table of forms, read from three more tables
   `latin` is the loose romanisation, as `search_keys` kind `latin` in the
   dictionary, so a page address finds its words the way it finds entries.
   `tags` are the word's own, in Wiktionary's words: `["feminine","inanimate"]`.
+  It is indexed on `latin` and on `(lemma, pos)`, so neither an address nor a
+  borrowed table reads the whole table.
 - `vesum_paradigms`: every form of every paradigm, 6.5 million rows, in
   VESUM's order (nominative first), each with a `tagset`.
 - `vesum_tagsets`: the 71 different lists of form tags, stored once:
